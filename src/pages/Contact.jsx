@@ -1,0 +1,152 @@
+import { useState } from "react";
+import { useForm, ValidationError } from "@formspree/react";
+import { G, GG, QUIZ } from "../data.js";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles } from "../components.jsx";
+
+function ApplyForm() {
+  const [state, handleSubmit] = useForm("xaqadyal");
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [done, setDone] = useState(false);
+
+  const handleQ = (id, opt) => {
+    const next = { ...answers, [id]: opt };
+    setAnswers(next);
+    if (step < QUIZ.length - 1) setStep(step + 1);
+    else setDone(true);
+  };
+
+  if (state.succeeded) return (
+    <div style={{ background: "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border: ".5px solid rgba(0,255,136,.35)", borderRadius: 20, padding: "3rem", textAlign: "center" }}>
+      <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.4)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={G} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </div>
+      <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.6rem", fontWeight: 800, color: "#fff", marginBottom: ".75rem" }}>Application received!</h3>
+      <p style={{ fontSize: 15, color: "rgba(255,255,255,.45)", lineHeight: 1.7 }}>We've got your details and quiz answers. Expect a personalised response within 24 hours. Check your email.</p>
+    </div>
+  );
+
+  return (
+    <div style={{ background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: ".5px solid rgba(255,255,255,.12)", borderTop: ".5px solid rgba(255,255,255,.22)", borderRadius: 20, padding: "2.5rem", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: "linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent)" }} />
+      {!done ? (
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,.3)" }}>Step {step + 1} of {QUIZ.length}</span>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,.3)" }}>{Math.round((step / QUIZ.length) * 100)}%</span>
+          </div>
+          <div style={{ height: 2, background: "rgba(255,255,255,.08)", borderRadius: 2, overflow: "hidden", marginBottom: "1.5rem" }}>
+            <div style={{ height: "100%", background: GG, borderRadius: 2, width: `${(step / QUIZ.length) * 100}%`, transition: "width .4s" }} />
+          </div>
+          <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.05rem", fontWeight: 700, color: "#fff", marginBottom: "1.2rem", lineHeight: 1.4 }}>{QUIZ[step].q}</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {QUIZ[step].opts.map((opt, i) => (
+              <button key={i} onClick={() => handleQ(QUIZ[step].id, opt)}
+                style={{ width: "100%", textAlign: "left", background: "rgba(255,255,255,.04)", border: ".5px solid rgba(255,255,255,.1)", borderRadius: 12, padding: ".9rem 1.2rem", color: "#f0f0f0", fontSize: 14, cursor: "pointer", fontFamily: "inherit", transition: "all .2s" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,255,136,.1)"; e.currentTarget.style.borderColor = "rgba(0,255,136,.5)"; e.currentTarget.style.transform = "translateX(5px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,.1)"; e.currentTarget.style.transform = "none"; }}>
+                <span style={{ color: "rgba(255,255,255,.25)", marginRight: 12, fontSize: 11 }}>{String.fromCharCode(65 + i)}</span>{opt}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          {Object.entries(answers).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1.2rem" }}>
+            <span style={{ width: 8, height: 8, background: G, borderRadius: "50%" }} />
+            <span style={{ fontSize: 12, color: G, fontWeight: 500 }}>Quiz complete — leave your details</span>
+          </div>
+          <div style={{ background: "rgba(0,255,136,.05)", border: ".5px solid rgba(0,255,136,.18)", borderRadius: 12, padding: "1rem", marginBottom: "1.5rem" }}>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,.35)", marginBottom: 8, fontWeight: 500 }}>YOUR ANSWERS — delivered exactly as selected</p>
+            {Object.entries(answers).map(([k, v]) => (
+              <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "4px 0", flexWrap: "wrap", gap: 4 }}>
+                <span style={{ color: "rgba(255,255,255,.3)" }}>{QUIZ.find(q => q.id === k)?.q}</span>
+                <span style={{ color: G, fontWeight: 600 }}>{v}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: "1.5rem" }}>
+            {[
+              { name: "name", placeholder: "Your full name", type: "text", required: true },
+              { name: "email", placeholder: "Email address", type: "email", required: true },
+              { name: "store_url", placeholder: "Your store URL (e.g. mystore.com)", type: "text" },
+              { name: "phone", placeholder: "WhatsApp / phone number (optional)", type: "text" },
+            ].map(f => (
+              <div key={f.name}>
+                <input name={f.name} type={f.type} placeholder={f.placeholder} required={f.required}
+                  style={{ width: "100%", background: "rgba(255,255,255,.05)", border: ".5px solid rgba(255,255,255,.12)", borderRadius: 10, padding: ".8rem 1rem", color: "#f0f0f0", fontSize: 14, fontFamily: "inherit", outline: "none" }}
+                  onFocus={e => e.target.style.borderColor = "rgba(0,255,136,.5)"}
+                  onBlur={e => e.target.style.borderColor = "rgba(255,255,255,.12)"} />
+                <ValidationError field={f.name} errors={state.errors} style={{ color: "#ff6b6b", fontSize: 12, marginTop: 4, display: "block" }} />
+              </div>
+            ))}
+          </div>
+          <button type="submit" disabled={state.submitting}
+            style={{ width: "100%", background: GG, color: "#040608", border: "none", borderRadius: 10, padding: ".9rem", fontSize: 15, fontWeight: 700, cursor: state.submitting ? "not-allowed" : "pointer", fontFamily: "inherit", opacity: state.submitting ? 0.7 : 1 }}>
+            {state.submitting ? "Sending..." : "Submit my application →"}
+          </button>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,.2)", textAlign: "center", marginTop: "1rem" }}>No spam. No commitment. We respond within 24 hours.</p>
+        </form>
+      )}
+    </div>
+  );
+}
+
+export default function Contact() {
+  return (
+    <PageWrapper>
+      <section style={{ position: "relative", padding: "6rem 2rem 4rem", overflow: "hidden" }}>
+        <Particles />
+        <div style={{ position: "absolute", width: 500, height: 500, top: -100, left: "50%", transform: "translateX(-50%)", background: "radial-gradient(circle,rgba(0,255,136,.14),transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
+        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
+          <div style={{ marginBottom: "1.5rem" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.28)", borderRadius: 100, padding: "5px 14px", fontSize: 11, color: G, fontWeight: 500 }}>
+              <span style={{ width: 6, height: 6, background: G, borderRadius: "50%", animation: "pulse 2s ease-in-out infinite" }} /> Selective qualification
+            </span>
+          </div>
+          <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "3.2rem", fontWeight: 800, lineHeight: 1.1, letterSpacing: "-.03em", color: "#fff", marginBottom: "1.2rem" }}>
+            Is your store <GradText>ready to scale?</GradText>
+          </h1>
+          <p style={{ fontSize: "1.05rem", color: "rgba(255,255,255,.45)", lineHeight: 1.75 }}>
+            4 questions + your details. Everything you select is delivered directly to us — exactly as you chose it. We respond within 24 hours.
+          </p>
+        </div>
+      </section>
+
+      <hr className="divider" />
+
+      <Section>
+        <div style={{ maxWidth: 960, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: "4rem", alignItems: "flex-start" }} className="about-grid">
+          {/* Left: what to expect */}
+          <div>
+            <SectionLabel>What happens next</SectionLabel>
+            <Heading size="1.8rem">Three steps to<br /><GradText>your first results</GradText></Heading>
+            <div style={{ marginTop: "2rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              {[
+                { n: "01", t: "You apply", d: "Fill out the form. Takes 2 minutes. We read every application personally." },
+                { n: "02", t: "We review", d: "Within 24 hours, we review your store and send you a personalised response with initial observations." },
+                { n: "03", t: "Discovery call", d: "If it's a fit, we book a 30-minute call to walk through your biggest opportunities and how we'd approach them." },
+              ].map((s, i) => (
+                <div key={i} style={{ display: "flex", gap: "1.2rem", alignItems: "flex-start" }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: G, flexShrink: 0, fontFamily: "'Syne',sans-serif" }}>{s.n}</div>
+                  <div>
+                    <h4 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1rem", fontWeight: 700, color: "#fff", marginBottom: ".3rem" }}>{s.t}</h4>
+                    <p style={{ fontSize: 13, color: "rgba(255,255,255,.4)", lineHeight: 1.7 }}>{s.d}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: "2.5rem", background: "rgba(0,255,136,.05)", border: ".5px solid rgba(0,255,136,.18)", borderRadius: 14, padding: "1.2rem 1.4rem" }}>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,.45)", lineHeight: 1.7 }}>
+                <span style={{ color: G, fontWeight: 600 }}>No hard sell.</span> If we don't think we can help you, we'll tell you that — and point you toward what will.
+              </p>
+            </div>
+          </div>
+          {/* Right: form */}
+          <ApplyForm />
+        </div>
+      </Section>
+    </PageWrapper>
+  );
+}
