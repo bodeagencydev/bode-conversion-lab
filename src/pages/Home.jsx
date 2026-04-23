@@ -153,7 +153,7 @@ export default function Home() {
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
           <div style={{ background: "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border: ".5px solid rgba(0,255,136,.25)", borderRadius: 24, padding: "4rem 2rem" }}>
             <SectionLabel>Ready to scale?</SectionLabel>
-            <Heading size="2.6rem">Stop burning money.<br /><GradText>Start compounding it.</GradText></Heading>
+            <Heading size="clamp(1.6rem, 6vw, 2.6rem)">Stop burning money.<br /><GradText>Start compounding it.</GradText></Heading>
             <p style={{ fontSize: 15, color: "rgba(255,255,255,.45)", lineHeight: 1.7, margin: "1.5rem auto", maxWidth: 440 }}>Join stores that went from struggling to scaling. Apply today and find out if your store qualifies.</p>
             <Link to="/contact" className="btn-g" style={{ display: "inline-block" }}>Apply for your free audit →</Link>
           </div>

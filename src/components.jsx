@@ -185,7 +185,7 @@ export function Nav() {
         <div style={{ width: 30, height: 30, background: GG, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 14px rgba(0,255,136,.4)" }}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10L7 3L12 10" stroke="#040608" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M4.5 7.5L9.5 7.5" stroke="#040608" strokeWidth="2" strokeLinecap="round" /></svg>
         </div>
-        <span style={{ fontWeight: 800, fontSize: 15, fontFamily: "'Syne',sans-serif", color: "#fff" }}>Bode Conversion Lab</span>
+        <span style={{ fontWeight: 800, fontSize: 12, fontFamily: "'Syne',sans-serif", color: "#fff" }}>Bode Conversion Lab</span>
       </Link>
       <div style={{ display: "flex", gap: "1.8rem", alignItems: "center" }} className="nav-links">
         {NAV_LINKS.map(l => (
@@ -203,7 +203,7 @@ export function Nav() {
 export function Footer() {
   return (
     <footer style={{ padding: "3rem 2rem", borderTop: ".5px solid rgba(255,255,255,.06)", background: "rgba(0,0,0,.2)" }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "2rem", marginBottom: "2rem" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "2rem", marginBottom: "2rem" }}>
         <div>
           <Link to="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", marginBottom: "1rem" }}>
             <div style={{ width: 24, height: 24, background: GG, borderRadius: 6 }} />
