@@ -6,18 +6,19 @@ html, body {
 #root { width: 100%; min-height: 100vh; background: #040608; overflow-x: hidden; }
 
 @media (max-width: 768px) {
+  /* Hide desktop nav links, show hamburger */
   .nav-links { display: none !important; }
   .hamburger { display: flex !important; }
 
-  /* Fix ALL headings on mobile */
+  /* All headings responsive */
   h1 { font-size: clamp(1.6rem, 6vw, 2.2rem) !important; word-break: break-word !important; overflow-wrap: break-word !important; }
   h2 { font-size: clamp(1.2rem, 5vw, 1.8rem) !important; word-break: break-word !important; overflow-wrap: break-word !important; }
-  h3 { font-size: clamp(1rem, 4vw, 1.3rem) !important; word-break: break-word !important; }
+  h3 { font-size: clamp(0.95rem, 4vw, 1.2rem) !important; word-break: break-word !important; }
 
   /* Hero title */
   .hero-t { font-size: clamp(1.8rem, 7vw, 2.5rem) !important; }
 
-  /* ALL grids go single column */
+  /* All grids single column */
   .how-grid,
   .about-grid,
   .offer-grid,
@@ -25,18 +26,19 @@ html, body {
   .stat-grid,
   .hero-cards { grid-template-columns: 1fr !important; }
 
-  /* Hide floating shapes */
+  /* Hide decorative floating shapes */
   .float-shape { display: none !important; }
 
-  /* Prevent ANY horizontal overflow */
-  * { max-width: 100% !important; overflow-x: hidden; }
-  section { padding-left: 1rem !important; padding-right: 1rem !important; }
+  /* Prevent overflow */
+  section, .section { overflow-x: hidden !important; }
+  p, span, h1, h2, h3 { max-width: 100% !important; overflow-wrap: break-word !important; word-break: break-word !important; }
 
-  /* Buttons */
+  /* Buttons full width */
   .btn-g, .btn-ghost {
     width: 100% !important;
     text-align: center !important;
     display: block !important;
     margin-bottom: 8px;
+    box-sizing: border-box !important;
   }
 }

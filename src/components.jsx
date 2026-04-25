@@ -159,14 +159,41 @@ export function SectionLabel({ children }) {
 }
 
 export function Heading({ children, size = "2.3rem" }) {
-  const clampSize = `clamp(1.5rem, 5vw, ${size})`;
-  return <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: clampSize, fontWeight: 800, letterSpacing: "-.02em", color: "#fff", lineHeight: 1.15 }}>{children}</h2>;
+  return <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: `clamp(1.4rem, 4vw, ${size})`, fontWeight: 800, letterSpacing: "-.02em", color: "#fff", lineHeight: 1.15, wordBreak: "break-word", overflowWrap: "break-word" }}>{children}</h2>;
 }
 
 export function GradText({ children }) {
   return <span style={{ background: GG, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{children}</span>;
 }
 
+/* ── LOGO COMPONENT ── */
+export function Logo({ size = 32, showText = true, textSize = 13 }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+      {/* Icon: upward trend graph + arrow */}
+      <div style={{ width: size, height: size, background: GG, borderRadius: size * 0.28, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 2px 14px rgba(0,255,136,.4)" }}>
+        <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 20 20" fill="none">
+          {/* Bar chart bars */}
+          <rect x="1" y="12" width="3" height="6" rx="1" fill="#040608" opacity="0.9" />
+          <rect x="5.5" y="8" width="3" height="10" rx="1" fill="#040608" opacity="0.9" />
+          <rect x="10" y="4" width="3" height="14" rx="1" fill="#040608" opacity="0.9" />
+          {/* Upward arrow */}
+          <path d="M15 8L18 5M18 5H15M18 5V8" stroke="#040608" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          {/* Trend line */}
+          <path d="M2.5 15L7 10.5L11.5 6.5L18 5" stroke="#040608" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
+        </svg>
+      </div>
+      {showText && (
+        <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
+          <span style={{ fontWeight: 800, fontSize: textSize, fontFamily: "'Syne',sans-serif", color: "#fff", whiteSpace: "nowrap", letterSpacing: "-.01em" }}>Bode Conversion</span>
+          <span style={{ fontWeight: 500, fontSize: textSize * 0.85, fontFamily: "'Syne',sans-serif", color: G, whiteSpace: "nowrap", letterSpacing: ".06em", textTransform: "uppercase" }}>Lab</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── NAV ── */
 export function Nav() {
   const scrollY = useScrollY();
   const loc = useLocation();
@@ -175,61 +202,64 @@ export function Nav() {
 
   return (
     <>
-      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: "0.75rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "space-between", background: navH ? "rgba(4,6,8,.95)" : "rgba(4,6,8,.6)", backdropFilter: "blur(20px)", borderBottom: ".5px solid rgba(255,255,255,.07)", transition: "all .3s" }}>
-        <Link to="/" style={{ display: "flex", alignItems: "center", gap: 7, textDecoration: "none", flexShrink: 0 }}>
-          <div style={{ width: 26, height: 26, background: GG, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2 10L7 3L12 10" stroke="#040608" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M4.5 7.5L9.5 7.5" stroke="#040608" strokeWidth="2" strokeLinecap="round" /></svg>
-          </div>
-          <span style={{ fontWeight: 800, fontSize: 13, fontFamily: "'Syne',sans-serif", color: "#fff", whiteSpace: "nowrap" }}>Bode Conversion Lab</span>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: "0.7rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "space-between", background: navH ? "rgba(4,6,8,.96)" : "rgba(4,6,8,.7)", backdropFilter: "blur(20px)", borderBottom: ".5px solid rgba(255,255,255,.07)", transition: "all .3s", gap: 8 }}>
+        <Link to="/" style={{ textDecoration: "none", flexShrink: 0 }}>
+          <Logo size={30} textSize={12} />
         </Link>
 
         {/* Desktop nav */}
-        <div className="nav-links" style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
+        <div className="nav-links" style={{ display: "flex", gap: "1.5rem", alignItems: "center", flex: 1, justifyContent: "center" }}>
           {NAV_LINKS.map(l => (
             <Link key={l.path} to={l.path} style={{ color: loc.pathname === l.path ? G : "rgba(255,255,255,.5)", textDecoration: "none", fontSize: 13, fontWeight: loc.pathname === l.path ? 600 : 400, transition: "color .2s", whiteSpace: "nowrap" }}>{l.label}</Link>
           ))}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Link to="/contact" style={{ background: GG, color: "#040608", border: "none", borderRadius: 8, padding: "0.45rem 1rem", fontSize: 12, fontWeight: 700, cursor: "pointer", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          <Link to="/contact" style={{ background: GG, color: "#040608", border: "none", borderRadius: 8, padding: "0.45rem 1rem", fontSize: 12, fontWeight: 700, cursor: "pointer", textDecoration: "none", whiteSpace: "nowrap" }}>
             Apply Now
           </Link>
-          {/* Hamburger */}
-          <button onClick={() => setMenuOpen(!menuOpen)} className="hamburger" style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "none", flexDirection: "column", gap: 4 }}>
-            <span style={{ display: "block", width: 20, height: 2, background: "#fff", borderRadius: 2 }} />
-            <span style={{ display: "block", width: 20, height: 2, background: "#fff", borderRadius: 2 }} />
-            <span style={{ display: "block", width: 20, height: 2, background: "#fff", borderRadius: 2 }} />
+          {/* Hamburger — shown only on mobile via CSS */}
+          <button onClick={() => setMenuOpen(!menuOpen)} className="hamburger" style={{ background: "rgba(255,255,255,.08)", border: ".5px solid rgba(255,255,255,.15)", cursor: "pointer", padding: "6px 8px", display: "none", flexDirection: "column", gap: 4, borderRadius: 6 }}>
+            <span style={{ display: "block", width: 18, height: 2, background: "#fff", borderRadius: 2 }} />
+            <span style={{ display: "block", width: 18, height: 2, background: "#fff", borderRadius: 2 }} />
+            <span style={{ display: "block", width: 18, height: 2, background: "#fff", borderRadius: 2 }} />
           </button>
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile dropdown menu */}
       {menuOpen && (
-        <div style={{ position: "fixed", top: 52, left: 0, right: 0, zIndex: 99, background: "rgba(4,6,8,.98)", borderBottom: ".5px solid rgba(255,255,255,.1)", padding: "1rem" }}>
+        <div style={{ position: "fixed", top: 52, left: 0, right: 0, zIndex: 99, background: "rgba(4,6,8,.98)", backdropFilter: "blur(20px)", borderBottom: ".5px solid rgba(255,255,255,.1)", padding: "0.5rem 1.2rem 1rem" }}>
           {NAV_LINKS.map(l => (
-            <Link key={l.path} to={l.path} onClick={() => setMenuOpen(false)} style={{ display: "block", color: loc.pathname === l.path ? G : "rgba(255,255,255,.7)", textDecoration: "none", fontSize: 16, fontWeight: 500, padding: "0.75rem 0", borderBottom: ".5px solid rgba(255,255,255,.06)" }}>{l.label}</Link>
+            <Link key={l.path} to={l.path} onClick={() => setMenuOpen(false)} style={{ display: "flex", alignItems: "center", color: loc.pathname === l.path ? G : "rgba(255,255,255,.7)", textDecoration: "none", fontSize: 15, fontWeight: 500, padding: "0.8rem 0", borderBottom: ".5px solid rgba(255,255,255,.06)" }}>
+              {loc.pathname === l.path && <span style={{ width: 4, height: 4, borderRadius: "50%", background: G, marginRight: 8 }} />}
+              {l.label}
+            </Link>
           ))}
+          <Link to="/contact" onClick={() => setMenuOpen(false)} style={{ display: "block", background: GG, color: "#040608", borderRadius: 8, padding: ".75rem", fontSize: 14, fontWeight: 700, textDecoration: "none", textAlign: "center", marginTop: "1rem" }}>
+            Apply Now →
+          </Link>
         </div>
       )}
     </>
   );
 }
 
+/* ── FOOTER ── */
 export function Footer() {
   return (
-    <footer style={{ padding: "2.5rem 1.5rem", borderTop: ".5px solid rgba(255,255,255,.06)", background: "rgba(0,0,0,.2)" }}>
+    <footer style={{ padding: "2.5rem 1.5rem", borderTop: ".5px solid rgba(255,255,255,.06)", background: "rgba(0,0,0,.25)" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: "2rem", marginBottom: "2rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: "2rem", marginBottom: "2rem" }}>
           <div>
-            <Link to="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", marginBottom: "1rem" }}>
-              <div style={{ width: 22, height: 22, background: GG, borderRadius: 6, flexShrink: 0 }} />
-              <span style={{ fontSize: 13, fontWeight: 800, fontFamily: "'Syne',sans-serif", color: "#fff" }}>Bode Conversion Lab</span>
+            <Link to="/" style={{ textDecoration: "none", display: "inline-block", marginBottom: "1rem" }}>
+              <Logo size={36} textSize={13} />
             </Link>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,.35)", lineHeight: 1.7 }}>We don't run ads. We engineer ROAS.</p>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,.35)", lineHeight: 1.7, marginTop: 8 }}>We don't run ads.<br />We engineer ROAS.</p>
           </div>
           <div>
             <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: "1rem" }}>Pages</p>
-            {NAV_LINKS.map(l => <Link key={l.path} to={l.path} style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,.4)", textDecoration: "none", marginBottom: ".5rem" }}>{l.label}</Link>)}
+            {NAV_LINKS.map(l => <Link key={l.path} to={l.path} style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,.4)", textDecoration: "none", marginBottom: ".5rem", transition: "color .2s" }} onMouseEnter={e => e.target.style.color = G} onMouseLeave={e => e.target.style.color = "rgba(255,255,255,.4)"}>{l.label}</Link>)}
           </div>
           <div>
             <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: "1rem" }}>Services</p>
@@ -238,10 +268,11 @@ export function Footer() {
           <div>
             <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: "1rem" }}>Contact</p>
             <Link to="/contact" style={{ display: "inline-block", background: GG, color: "#040608", borderRadius: 8, padding: ".6rem 1.2rem", fontSize: 13, fontWeight: 700, textDecoration: "none", marginBottom: "1rem" }}>Apply Now →</Link>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,.35)" }}>We respond within 24 hours.</p>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,.35)", marginTop: 8 }}>We respond within 24 hours.</p>
           </div>
         </div>
-        <div style={{ borderTop: ".5px solid rgba(255,255,255,.06)", paddingTop: "1.5rem", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
+        <div style={{ borderTop: ".5px solid rgba(255,255,255,.06)", paddingTop: "1.5rem", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem", alignItems: "center" }}>
+          <Logo size={22} textSize={11} />
           <p style={{ fontSize: 12, color: "rgba(255,255,255,.2)" }}>© 2025 Bode Conversion Lab. All rights reserved.</p>
           <p style={{ fontSize: 12, color: "rgba(255,255,255,.2)" }}>Built to convert. Engineered to scale.</p>
         </div>
