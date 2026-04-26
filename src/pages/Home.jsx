@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, AD_PLATFORMS, PARTNERS } from "../data.js";
-import { Particles, Typewriter, ContinuousTicker, TestimonialTicker, Section, SectionLabel, Heading, GradText, AnimNum, useInView, PageWrapper } from "../components.jsx";
+import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, AD_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
+import { Particles, Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, Section, SectionLabel, Heading, GradText, AnimNum, useInView, PageWrapper } from "../components.jsx";
 
 export default function Home() {
   const [statsRef, statsInView] = useInView(0.2);
@@ -24,22 +24,22 @@ export default function Home() {
               Store Optimization & Ads Engineering
             </span>
           </div>
-          <h1 className="hero-t" style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.8rem, 7vw, 3.7rem)", fontWeight: 800, lineHeight: 1.1, letterSpacing: "-.03em", marginBottom: "1.2rem", color: "#fff", animation: "heroFadeUp .8s .1s ease both", animationFillMode: "forwards", opacity: 0, wordBreak: "break-word" }}>
+          <h1 className="hero-t" style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2rem, 5vw, 3.7rem)", fontWeight: 800, lineHeight: 1.07, letterSpacing: "-.03em", marginBottom: "1.2rem", color: "#fff", animation: "heroFadeUp .8s .1s ease both", animationFillMode: "forwards", opacity: 0, wordBreak: "break-word" }}>
             We turn your store into a<br />
             <Typewriter words={["revenue machine.", "conversion engine.", "ROAS monster.", "scaling system."]} />
           </h1>
-          <p style={{ fontSize: "clamp(0.9rem, 3vw, 1.05rem)", color: "rgba(255,255,255,.45)", lineHeight: 1.75, maxWidth: 540, margin: "0 auto 2rem", animation: "heroFadeUp .8s .2s ease both", animationFillMode: "forwards", opacity: 0 }}>
+          <p style={{ fontSize: "clamp(0.9rem, 2vw, 1.05rem)", color: "rgba(255,255,255,.45)", lineHeight: 1.75, maxWidth: 540, margin: "0 auto 2rem", animation: "heroFadeUp .8s .2s ease both", animationFillMode: "forwards", opacity: 0 }}>
             Bode Conversion Lab engineers your ROAS from the ground up — ads, landing pages, checkout. One system. Compounding results every month.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: "3.5rem", animation: "heroFadeUp .8s .3s ease both", animationFillMode: "forwards", opacity: 0 }}>
-            <Link to="/contact" className="btn-g" style={{ textDecoration: "none" }}>See if your store qualifies →</Link>
-            <Link to="/case-studies" className="btn-ghost" style={{ textDecoration: "none" }}>View client results</Link>
+            <Link to="/contact" className="btn-g">See if your store qualifies →</Link>
+            <Link to="/case-studies" className="btn-ghost">View client results</Link>
           </div>
           <div className="hero-cards" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, animation: "heroFadeUp .8s .45s ease both", animationFillMode: "forwards", opacity: 0 }}>
             {[{ n: "70x", l: "Revenue growth\nin 90 days" }, { n: "4x+", l: "Average ROAS\nimprovement" }, { n: "$0", l: "Extra ad spend\nrequired" }].map((c, i) => (
               <div key={i} className="card3d" style={{ background: "linear-gradient(135deg,rgba(0,255,136,.09),rgba(0,204,106,.03))", border: ".5px solid rgba(0,255,136,.22)", borderTop: ".5px solid rgba(0,255,136,.38)", borderRadius: 16, padding: "1.3rem 1rem", textAlign: "center", position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: "linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)" }} />
-                <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.4rem,5vw,1.9rem)", fontWeight: 800, background: GG, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", lineHeight: 1.1, marginBottom: 6 }}>{c.n}</div>
+                <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.4rem,4vw,1.9rem)", fontWeight: 800, background: GG, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", lineHeight: 1.1, marginBottom: 6 }}>{c.n}</div>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,.4)", lineHeight: 1.5, whiteSpace: "pre-line" }}>{c.l}</div>
               </div>
             ))}
@@ -59,18 +59,18 @@ export default function Home() {
 
       {/* STATS */}
       <Section id="results">
-        <div ref={statsRef} style={{ maxWidth: 900, margin: "0 auto" }}>
+        <div ref={statsRef} style={{ maxWidth: 960, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <SectionLabel>Proven results</SectionLabel>
-            <Heading>Same product. Same budget.<br /><GradText>70x the revenue.</GradText></Heading>
+            <Heading size="2.4rem">Same product. Same budget.<br /><GradText>70x the revenue.</GradText></Heading>
           </div>
-          <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1rem" }}>
+          <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.5rem" }}>
             {[{ n: 70, s: "x", l: "Revenue multiplier" }, { n: 90, s: " days", l: "Time to results" }, { n: 4, s: "x+", l: "ROAS improvement" }].map((s, i) => (
               <div key={i} className="stat-card">
-                <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2rem,6vw,2.8rem)", fontWeight: 800, background: GG, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", lineHeight: 1, marginBottom: 8 }}>
+                <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2rem,5vw,3rem)", fontWeight: 800, background: GG, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", lineHeight: 1, marginBottom: 8 }}>
                   {statsInView ? <AnimNum target={s.n} suffix={s.s} /> : `0${s.s}`}
                 </div>
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,.4)" }}>{s.l}</p>
+                <p style={{ fontSize: 14, color: "rgba(255,255,255,.4)" }}>{s.l}</p>
               </div>
             ))}
           </div>
@@ -81,22 +81,22 @@ export default function Home() {
 
       {/* HOW IT WORKS */}
       <Section id="how">
-        <div style={{ maxWidth: 960, margin: "0 auto" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
             <SectionLabel>The system</SectionLabel>
-            <Heading>We don't run ads.<br /><GradText>We engineer ROAS.</GradText></Heading>
+            <Heading size="2.4rem">We don't run ads.<br /><GradText>We engineer ROAS.</GradText></Heading>
           </div>
-          <div className="how-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "1rem" }}>
+          <div className="how-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "1.5rem" }}>
             {[
-              { n: "01", t: "Deep-dive audit", d: "We dissect your store, ads, and full funnel. Every leak mapped in 48 hours." },
-              { n: "02", t: "Conversion architecture", d: "We rebuild your pages to convert more of the traffic you already have." },
-              { n: "03", t: "Ad engineering", d: "Precision creatives and targeting that compound — not spray-and-pray." },
-              { n: "04", t: "Scale & compound", d: "Once ROAS target is hit, we scale. $1k/mo becomes $70k/mo." },
+              { n: "01", t: "Deep-dive audit", d: "We dissect your store, ads, and full funnel. Every leak, every friction point, every missed dollar — mapped in 48 hours." },
+              { n: "02", t: "Conversion architecture", d: "We rebuild your pages with one goal: turning browsers into buyers using the traffic you already have." },
+              { n: "03", t: "Ad engineering", d: "Precision creatives, copy and targeting built around your customer's real pain points. Every ad compounds." },
+              { n: "04", t: "Scale & compound", d: "Once ROAS target is hit, we scale. Same efficiency, more budget. $1k/mo becomes $70k/mo." },
             ].map((item, i) => (
-              <div key={i} className="glass card3d" style={{ padding: "2rem" }}>
-                <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.5rem", fontWeight: 800, background: "linear-gradient(135deg,rgba(0,255,136,.55),rgba(0,255,136,.15))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", marginBottom: ".75rem" }}>{item.n}</div>
-                <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.05rem", fontWeight: 700, marginBottom: ".5rem", color: "#fff" }}>{item.t}</h3>
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,.4)", lineHeight: 1.75 }}>{item.d}</p>
+              <div key={i} className="glass card3d" style={{ padding: "2.5rem" }}>
+                <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.8rem", fontWeight: 800, background: "linear-gradient(135deg,rgba(0,255,136,.55),rgba(0,255,136,.15))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", marginBottom: ".75rem" }}>{item.n}</div>
+                <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.15rem", fontWeight: 700, marginBottom: ".6rem", color: "#fff" }}>{item.t}</h3>
+                <p style={{ fontSize: 14, color: "rgba(255,255,255,.45)", lineHeight: 1.75 }}>{item.d}</p>
               </div>
             ))}
           </div>
@@ -107,16 +107,30 @@ export default function Home() {
 
       {/* TESTIMONIALS */}
       <Section id="testimonials">
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <SectionLabel>Client results</SectionLabel>
-            <Heading>Real stores. <GradText>Real numbers.</GradText></Heading>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,.3)", marginTop: ".75rem" }}>Hover to pause</p>
+            <Heading size="2.4rem">Real stores. <GradText>Real numbers.</GradText></Heading>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,.3)", marginTop: ".75rem" }}>Hover to pause · scroll to see more</p>
           </div>
           <TestimonialTicker items={TESTIMONIALS} />
           <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
-            <Link to="/case-studies" className="btn-ghost" style={{ textDecoration: "none" }}>Read full case studies →</Link>
+            <Link to="/case-studies" className="btn-ghost">Read full case studies →</Link>
           </div>
+        </div>
+      </Section>
+
+      <hr className="divider" />
+
+      {/* VIDEO TIPS SECTION */}
+      <Section id="tips">
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+            <SectionLabel>Free tips & insights</SectionLabel>
+            <Heading size="2.4rem">Learn from the <GradText>lab</GradText></Heading>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,.4)", marginTop: ".75rem" }}>Scroll through actionable tips. Add your videos — placeholder slots ready.</p>
+          </div>
+          <VideoTips items={VIDEO_TIPS} />
         </div>
       </Section>
 
@@ -124,15 +138,15 @@ export default function Home() {
 
       {/* PARTNERS */}
       <Section>
-        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <SectionLabel>Official partnerships</SectionLabel>
-            <Heading>Platform <GradText>partners</GradText></Heading>
+            <Heading size="2.2rem">Platform <GradText>partners</GradText></Heading>
           </div>
           <div className="partner-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1rem" }}>
             {PARTNERS.map((p, i) => (
               <div key={i} className="partner-card">
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg,rgba(0,255,136,.15),rgba(0,204,106,.05))", border: ".5px solid rgba(0,255,136,.25)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 16, color: G, flexShrink: 0 }}>{p.icon}</div>
+                <img src={`https://cdn.simpleicons.org/${p.slug || p.name.toLowerCase()}/00ff88`} alt={p.name} width="28" height="28" style={{ flexShrink: 0 }} onError={e => { e.target.style.display = "none"; }} />
                 <div>
                   <p style={{ fontSize: 14, fontWeight: 600, color: "#fff", margin: 0 }}>{p.name}</p>
                   <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", margin: 0 }}>Certified partner</p>
@@ -148,16 +162,16 @@ export default function Home() {
 
       {/* CTA BANNER */}
       <Section>
-        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
-          <div style={{ background: "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border: ".5px solid rgba(0,255,136,.25)", borderRadius: 24, padding: "clamp(2rem,5vw,4rem) clamp(1rem,4vw,2rem)", overflow: "hidden" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ background: "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border: ".5px solid rgba(0,255,136,.25)", borderRadius: 24, padding: "clamp(2.5rem,5vw,5rem) clamp(1.5rem,4vw,3rem)", overflow: "hidden" }}>
             <SectionLabel>Ready to scale?</SectionLabel>
-            <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.4rem, 5vw, 2.4rem)", fontWeight: 800, letterSpacing: "-.02em", color: "#fff", lineHeight: 1.2, wordBreak: "break-word", overflowWrap: "break-word" }}>
+            <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.6rem, 4vw, 2.8rem)", fontWeight: 800, letterSpacing: "-.02em", color: "#fff", lineHeight: 1.2, wordBreak: "break-word", overflowWrap: "break-word" }}>
               Stop burning money.<br /><GradText>Start compounding it.</GradText>
             </h2>
-            <p style={{ fontSize: "clamp(0.85rem,3vw,1rem)", color: "rgba(255,255,255,.45)", lineHeight: 1.7, margin: "1.5rem auto", maxWidth: 440 }}>
+            <p style={{ fontSize: "clamp(0.9rem,2vw,1rem)", color: "rgba(255,255,255,.45)", lineHeight: 1.7, margin: "1.5rem auto", maxWidth: 480 }}>
               Join stores that went from struggling to scaling. Apply today and find out if your store qualifies.
             </p>
-            <Link to="/contact" className="btn-g" style={{ display: "inline-block", textDecoration: "none" }}>Apply for your free audit →</Link>
+            <Link to="/contact" className="btn-g" style={{ display: "inline-block" }}>Apply for your free audit →</Link>
           </div>
         </div>
       </Section>

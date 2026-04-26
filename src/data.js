@@ -152,8 +152,28 @@ export const FAQS = [
   { q: "What if I'm just starting out?", a: "The Audit is the perfect entry point. We'll assess where you are, tell you exactly what to fix, and give you a clear roadmap to your first $10k month." },
 ];
 
-export const ECOM_PLATFORMS = ["Shopify", "WooCommerce", "Magento", "BigCommerce", "Wix", "Squarespace", "PrestaShop", "OpenCart", "Volusion", "Ecwid", "Salesforce Commerce"];
-export const AD_PLATFORMS = ["Meta Ads", "TikTok Ads", "Google Ads", "Pinterest Ads", "Snapchat Ads", "YouTube Ads", "Twitter/X Ads", "LinkedIn Ads", "Amazon Ads"];
+export const ECOM_PLATFORMS = [
+  { name: "Shopify", slug: "shopify" },
+  { name: "WooCommerce", slug: "woocommerce" },
+  { name: "Magento", slug: "magento" },
+  { name: "BigCommerce", slug: "bigcommerce" },
+  { name: "Wix", slug: "wix" },
+  { name: "Squarespace", slug: "squarespace" },
+  { name: "PrestaShop", slug: "prestashop" },
+  { name: "OpenCart", slug: "opencart" },
+  { name: "Ecwid", slug: "ecwid" },
+];
+export const AD_PLATFORMS = [
+  { name: "Meta Ads", slug: "meta" },
+  { name: "TikTok Ads", slug: "tiktok" },
+  { name: "Google Ads", slug: "googleads" },
+  { name: "Pinterest Ads", slug: "pinterest" },
+  { name: "Snapchat Ads", slug: "snapchat" },
+  { name: "YouTube Ads", slug: "youtube" },
+  { name: "X Ads", slug: "x" },
+  { name: "LinkedIn Ads", slug: "linkedin" },
+  { name: "Amazon Ads", slug: "amazon" },
+];
 export const PARTNERS = [
   { name: "Meta", icon: "M" },
   { name: "Google", icon: "G" },
@@ -161,4 +181,37 @@ export const PARTNERS = [
   { name: "Shopify", icon: "S" },
   { name: "Klaviyo", icon: "K" },
   { name: "Triple Whale", icon: "W" },
+];
+
+export const VIDEO_TIPS = [
+  {
+    tag: "CRO Tip",
+    title: "Why your checkout is losing 40% of buyers",
+    desc: "The #1 mistake e-commerce stores make that kills conversions at the final step.",
+    videoUrl: "",
+  },
+  {
+    tag: "Ad Strategy",
+    title: "How to cut your Meta CPA in half",
+    desc: "A simple audience restructure that most agencies overlook entirely.",
+    videoUrl: "",
+  },
+  {
+    tag: "Store Audit",
+    title: "5 things we check in every store audit",
+    desc: "The exact checklist we use to find where your store is leaking money.",
+    videoUrl: "",
+  },
+  {
+    tag: "ROAS",
+    title: "What a 4x ROAS actually looks like",
+    desc: "Real numbers, real campaigns — breaking down what makes ads actually profitable.",
+    videoUrl: "",
+  },
+  {
+    tag: "Email",
+    title: "The abandoned cart sequence that recovers 20%",
+    desc: "3 emails, exact timing, exact copy structure. Free to implement today.",
+    videoUrl: "",
+  },
 ];

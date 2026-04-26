@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Nav } from "./components.jsx";
-import { Footer } from "./components.jsx";
+import { Nav, Footer, WhatsAppButton } from "./components.jsx";
 import Home from "./pages/Home.jsx";
 import About from "./pages/About.jsx";
 import { CaseStudies, CaseStudyDetail } from "./pages/CaseStudies.jsx";
@@ -30,7 +29,7 @@ export default function App() {
           .glass::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);}
           .card3d{transition:transform .4s ease,box-shadow .4s;}
           .card3d:hover{transform:perspective(900px) rotateY(5deg) rotateX(-3deg) scale(1.02);box-shadow:0 20px 60px rgba(0,0,0,.4);}
-          .btn-g{background:linear-gradient(135deg,#00ff88,#00cc6a);color:#040608;border:none;border-radius:10px;padding:.85rem 1.8rem;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 22px rgba(0,255,136,.35);display:inline-block;}
+          .btn-g{background:linear-gradient(135deg,#00ff88,#00cc6a);color:#040608;border:none;border-radius:10px;padding:.85rem 1.8rem;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 22px rgba(0,255,136,.35);display:inline-block;text-decoration:none;}
           .btn-g:hover{transform:translateY(-2px);box-shadow:0 8px 34px rgba(0,255,136,.55);}
           .btn-ghost{background:rgba(255,255,255,.04);color:rgba(255,255,255,.65);border:.5px solid rgba(255,255,255,.15);border-radius:10px;padding:.85rem 1.8rem;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;display:inline-block;text-decoration:none;}
           .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(0,255,136,.3);color:#fff;}
@@ -44,12 +43,7 @@ export default function App() {
           .partner-card{background:rgba(255,255,255,.04);border:.5px solid rgba(255,255,255,.1);border-radius:14px;padding:1rem 1.5rem;display:flex;align-items:center;gap:10px;transition:all .25s;cursor:default;}
           .partner-card:hover{background:rgba(0,255,136,.07);border-color:rgba(0,255,136,.35);transform:translateY(-2px);}
           nav a:hover{color:#00ff88;}
-          @media(max-width:768px){
-            .hero-t{font-size:2.3rem!important;}
-            .how-grid,.about-grid,.offer-grid,.partner-grid,.stat-grid{grid-template-columns:1fr!important;}
-            .hero-cards{grid-template-columns:1fr 1fr!important;}
-            .nav-links{display:none!important;}
-          }
+          div::-webkit-scrollbar{display:none;}
         `}</style>
         <Nav />
         <Routes>
@@ -63,6 +57,7 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
         </Routes>
         <Footer />
+        <WhatsAppButton />
       </div>
     </BrowserRouter>
   );
