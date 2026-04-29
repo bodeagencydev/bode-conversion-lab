@@ -32,9 +32,9 @@ export const CASE_STUDIES = [
     color: "#00ff88",
     tags: ["Shopify", "Meta Ads", "CRO"],
     story: [
-      { heading: "The problem", body: "Marcus had a great product — a premium pre-workout supplement — but was spending $3,000/month on Meta ads and generating less than $1,200 in revenue. His ROAS of 0.8x meant every dollar he spent on ads cost him money. He'd tried three different ad agencies and nothing worked." },
-      { heading: "The diagnosis", body: "Within 48 hours of our audit, we found the core issue: it wasn't the ads. His product page loaded in 7.2 seconds on mobile (industry benchmark is under 2s), his checkout had 6 unnecessary steps, and his ad creative was targeting the wrong audience entirely. He was advertising to people who wanted cheap supplements, not premium ones." },
-      { heading: "What we built", body: "We rebuilt his product page from scratch — cutting load time to 1.4 seconds. We reduced his checkout to 2 steps. We rewrote his ad copy to speak to serious athletes willing to invest in quality. We created 3 new video creatives showing real workout results. We restructured his Meta campaigns with proper audience segmentation." },
+      { heading: "The problem", body: "Marcus had a great product but was spending $3,000/month on Meta ads and generating less than $1,200 in revenue. His ROAS of 0.8x meant every dollar he spent on ads cost him money." },
+      { heading: "The diagnosis", body: "Within 48 hours of our audit, we found the core issue: his product page loaded in 7.2 seconds on mobile, his checkout had 6 unnecessary steps, and his ad creative was targeting the wrong audience entirely." },
+      { heading: "What we built", body: "We rebuilt his product page cutting load time to 1.4 seconds, reduced checkout to 2 steps, rewrote ad copy to speak to serious athletes, and restructured his Meta campaigns with proper audience segmentation." },
       { heading: "The result", body: "Month 1: ROAS went from 0.8x to 2.4x. Month 2: 4.1x. Month 3: 6.2x with revenue at $38,000/month. Same ad budget. Same product. Different system." },
     ],
   },
@@ -50,10 +50,10 @@ export const CASE_STUDIES = [
     color: "#00ff88",
     tags: ["WooCommerce", "Google Ads", "Email"],
     story: [
-      { heading: "The problem", body: "Priya's skincare brand was getting 15,000 monthly visitors from Google Ads but converting at just 1.1%. She was spending $4,000/month on ads and making $4,000 back — breaking even at best." },
-      { heading: "The diagnosis", body: "Our audit revealed 11 distinct friction points in her funnel. Her checkout required account creation before purchase (killing 38% of buyers at that step alone). Her product images were low resolution. Her \"Add to Cart\" button was below the fold on mobile. Her upsell sequence was aggressive and off-brand." },
-      { heading: "What we built", body: "We enabled guest checkout, redesigned the product pages with professional photography standards, moved the CTA above the fold, rewrote the product descriptions with benefit-first copy, and built a gentle post-purchase email sequence that increased LTV by 40%." },
-      { heading: "The result", body: "Conversion rate jumped from 1.1% to 4.8% in 30 days — without changing a single ad. Revenue went from $4k to $22k/month. CPA dropped from $68 to $19. Priya now spends less on ads and makes more money." },
+      { heading: "The problem", body: "Priya's skincare brand was getting 15,000 monthly visitors but converting at just 1.1%. She was spending $4,000/month on ads and making $4,000 back — breaking even at best." },
+      { heading: "The diagnosis", body: "Our audit revealed 11 distinct friction points. Her checkout required account creation before purchase, killing 38% of buyers at that step alone." },
+      { heading: "What we built", body: "We enabled guest checkout, redesigned product pages, moved the CTA above the fold, rewrote product descriptions with benefit-first copy, and built a post-purchase email sequence." },
+      { heading: "The result", body: "Conversion rate jumped from 1.1% to 4.8% in 30 days without changing a single ad. Revenue went from $4k to $22k/month." },
     ],
   },
   {
@@ -68,10 +68,10 @@ export const CASE_STUDIES = [
     color: "#00ff88",
     tags: ["Shopify", "TikTok Ads", "Meta Ads"],
     story: [
-      { heading: "The problem", body: "Tunde's fashion brand had everything going for it — great photography, trendy products, an engaged Instagram following. But his paid ads were hemorrhaging money. $5,000/month in, barely $3,000 out." },
-      { heading: "The diagnosis", body: "The issue was audience-creative mismatch. His TikTok ads were elegant and aspirational — perfect for Instagram, completely wrong for TikTok's raw, authentic culture. His Meta retargeting was targeting people who visited his homepage, not his product pages. And his landing pages were sending paid traffic to his homepage instead of product-specific pages." },
-      { heading: "What we built", body: "We created a new TikTok creative strategy — raw, behind-the-scenes content that performed 4x better than his polished ads. We rebuilt his Meta retargeting to target product page visitors with dynamic product ads. We created dedicated landing pages for his top 5 products." },
-      { heading: "The result", body: "Same $5,000 ad budget. ROAS went from 0.9x to 4.3x. Revenue grew from $3k to $41k/month over 4 months. Tunde now has a system that scales predictably." },
+      { heading: "The problem", body: "Tunde's fashion brand had everything going for it but his paid ads were hemorrhaging money. $5,000/month in, barely $3,000 out." },
+      { heading: "The diagnosis", body: "His TikTok ads were elegant and aspirational — perfect for Instagram, completely wrong for TikTok's raw culture. His Meta retargeting was targeting homepage visitors instead of product page visitors." },
+      { heading: "What we built", body: "We created a new TikTok creative strategy with raw behind-the-scenes content, rebuilt Meta retargeting, and created dedicated landing pages for his top 5 products." },
+      { heading: "The result", body: "Same $5,000 ad budget. ROAS went from 0.9x to 4.3x. Revenue grew from $3k to $41k/month over 4 months." },
     ],
   },
 ];
@@ -85,10 +85,9 @@ export const BLOG_POSTS = [
     readTime: "6 min read",
     excerpt: "Most store owners obsess over ROAS. But ROAS alone is one of the most misleading metrics in e-commerce. Here's what actually tells you if your ads are working.",
     content: [
-      { heading: "The ROAS trap", body: "A 4x ROAS sounds great. But what if your product costs $30 to make, sells for $80, and your ads cost $20 per sale? You're making $30 profit per sale after ad spend — but after fulfillment ($8), returns (15%), and payment processing (2.9%), you're barely breaking even. ROAS doesn't tell you any of that." },
-      { heading: "What to track instead", body: "MER (Marketing Efficiency Ratio): Total revenue divided by total ad spend across all channels. This gives you the true picture of how your marketing is performing. nCAC (New Customer Acquisition Cost): What it costs to acquire a brand new customer. LTV:CAC ratio: If your LTV is $200 and your CAC is $50, you have a healthy 4:1 ratio and room to scale." },
-      { heading: "The blended approach", body: "Track ROAS at the campaign level to understand which creatives and audiences work. Track MER at the business level to understand overall health. And track LTV to know how much you can afford to spend acquiring each customer. When all three are growing, you're building something real." },
-      { heading: "The bottom line", body: "ROAS is a useful signal, not a business metric. Stores that scale past $100k/month obsess over contribution margin, LTV, and MER — not ROAS. Start tracking the right numbers and you'll start making the right decisions." },
+      { heading: "The ROAS trap", body: "A 4x ROAS sounds great. But what if your product costs $30 to make, sells for $80, and your ads cost $20 per sale? You're barely breaking even. ROAS doesn't tell you any of that." },
+      { heading: "What to track instead", body: "MER (Marketing Efficiency Ratio): Total revenue divided by total ad spend. nCAC (New Customer Acquisition Cost): What it costs to acquire a brand new customer. LTV:CAC ratio: If your LTV is $200 and your CAC is $50, you have a healthy 4:1 ratio." },
+      { heading: "The bottom line", body: "ROAS is a useful signal, not a business metric. Stores that scale past $100k/month obsess over contribution margin, LTV, and MER — not ROAS." },
     ],
   },
   {
@@ -99,11 +98,9 @@ export const BLOG_POSTS = [
     readTime: "8 min read",
     excerpt: "After auditing 40+ e-commerce stores, we found the same 5 checkout problems killing conversion rates. Here's exactly how to fix each one.",
     content: [
-      { heading: "Fix 1: Kill the forced account creation", body: "Requiring account creation before checkout kills an average of 35% of buyers at that step. Enable guest checkout immediately. You can always ask them to create an account after purchase — most will, because they want to track their order." },
-      { heading: "Fix 2: Move your CTA above the fold", body: "On mobile, 60% of product pages have their Add to Cart button below the fold. Users shouldn't have to scroll to buy. Your price, main benefit, and CTA should all be visible without scrolling on any device." },
-      { heading: "Fix 3: Reduce form fields", body: "Every additional form field reduces conversion by 5-10%. Do you really need their phone number? Their date of birth? Their company name? Cut every field that isn't essential for shipping and payment." },
-      { heading: "Fix 4: Add trust signals at the point of purchase", body: "Right next to your checkout button, add: a security badge, your return policy in one sentence, and 2-3 star reviews. Buying anxiety peaks at the checkout step — these signals kill the hesitation." },
-      { heading: "Fix 5: Fix your mobile speed", body: "If your product page loads in over 3 seconds on mobile, you're losing 40% of visitors before they even see your product. Compress your images, remove unused apps, and test your speed at PageSpeed Insights. This single fix has 2x'd conversion rates for our clients." },
+      { heading: "Fix 1: Kill forced account creation", body: "Requiring account creation before checkout kills an average of 35% of buyers. Enable guest checkout immediately." },
+      { heading: "Fix 2: Move your CTA above the fold", body: "On mobile, 60% of product pages have their Add to Cart button below the fold. Your price, main benefit, and CTA should all be visible without scrolling." },
+      { heading: "Fix 3: Fix your mobile speed", body: "If your product page loads in over 3 seconds on mobile, you're losing 40% of visitors. This single fix has 2x'd conversion rates for our clients." },
     ],
   },
   {
@@ -112,26 +109,24 @@ export const BLOG_POSTS = [
     category: "Ad Strategy",
     date: "March 10, 2025",
     readTime: "7 min read",
-    excerpt: "The answer isn't one or the other. It's about understanding what each platform does well and building a strategy that uses both — at the right time.",
+    excerpt: "The answer isn't one or the other. It's about understanding what each platform does well and building a strategy that uses both at the right time.",
     content: [
-      { heading: "Meta: Still the conversion king", body: "Meta's advantage is its purchase intent data. With 10+ years of shopping behaviour, Meta knows who buys what. For retargeting, dynamic product ads, and scaling proven winners, Meta is still unmatched. If you're spending under $5k/month on ads, start here." },
-      { heading: "TikTok: The discovery engine", body: "TikTok's algorithm is terrifyingly good at finding your audience — even audiences you didn't know existed. It's the best platform for top-of-funnel awareness and for reaching people who've never heard of your brand. The catch: creative requirements are completely different. Polished ads die on TikTok. Raw, authentic, fast-paced content wins." },
-      { heading: "The 2025 reality", body: "iOS 14.5 permanently damaged Meta's tracking. CPMs are up 40% since 2021. TikTok has become a genuine competitor. But Meta still converts better for most product categories. Our recommendation for most brands: 70% Meta, 30% TikTok. Use TikTok to find new audiences, use Meta to convert them." },
-      { heading: "When to flip the ratio", body: "If you sell to Gen Z (18-24), flip it: 60% TikTok, 40% Meta. If you sell B2B products, skip both and focus on Google and LinkedIn. If your product is visually complex, YouTube pre-roll often outperforms both. The platform should follow your audience, not the other way around." },
+      { heading: "Meta: Still the conversion king", body: "Meta's advantage is its purchase intent data. For retargeting and scaling proven winners, Meta is still unmatched. If you're spending under $5k/month on ads, start here." },
+      { heading: "TikTok: The discovery engine", body: "TikTok's algorithm is terrifyingly good at finding your audience. It's the best platform for top-of-funnel awareness. The catch: polished ads die on TikTok. Raw, authentic content wins." },
+      { heading: "Our recommendation", body: "For most brands: 70% Meta, 30% TikTok. Use TikTok to find new audiences, use Meta to convert them." },
     ],
   },
   {
     id: "email-flows-that-print-money",
-    title: "The 3 Email Flows Every E-commerce Store Needs (With Examples)",
+    title: "The 3 Email Flows Every E-commerce Store Needs",
     category: "Email Marketing",
     date: "February 22, 2025",
     readTime: "9 min read",
-    excerpt: "Email generates $42 for every $1 spent. But only if you have the right flows. Most stores are leaving 30% of their revenue on the table by skipping these three.",
+    excerpt: "Email generates $42 for every $1 spent. But only if you have the right flows. Most stores are leaving 30% of their revenue on the table.",
     content: [
-      { heading: "Flow 1: The Abandoned Cart sequence", body: "60-70% of shoppers abandon their cart. A 3-email sequence can recover 15-20% of them. Email 1 (1 hour after abandonment): Simple reminder, no discount. Email 2 (24 hours): Address the objection — show reviews, answer common questions. Email 3 (72 hours): Offer 10% off with urgency. This sequence alone adds an average of $8,000/month for our clients." },
-      { heading: "Flow 2: The Post-Purchase sequence", body: "Your happiest customer just bought from you. Now is the time to: confirm their purchase with enthusiasm (reduces buyer's remorse), set expectations about delivery, offer a complementary product at a discount, and ask for a review 7 days after delivery. Most stores send one transactional email and miss the entire opportunity." },
-      { heading: "Flow 3: The Win-Back sequence", body: "Anyone who hasn't purchased in 90 days is at risk of churning forever. A 2-email win-back sequence reactivates 8-12% of lapsed customers. Email 1: 'We miss you' — personal, no hard sell. Email 2 (7 days later): Your best offer with a deadline. Clean your list after this — unengaged subscribers hurt your deliverability." },
-      { heading: "The compounding effect", body: "These three flows work while you sleep. Once set up in Klaviyo (30-60 minutes per flow), they run forever. Our clients see an average of 28% of total revenue coming from email within 60 days of implementing these flows." },
+      { heading: "Flow 1: Abandoned Cart", body: "60-70% of shoppers abandon their cart. A 3-email sequence can recover 15-20% of them. This sequence alone adds an average of $8,000/month for our clients." },
+      { heading: "Flow 2: Post-Purchase", body: "Your happiest customer just bought. Now confirm their purchase, set delivery expectations, offer a complementary product, and ask for a review 7 days later." },
+      { heading: "Flow 3: Win-Back", body: "Anyone who hasn't purchased in 90 days is at risk. A 2-email win-back sequence reactivates 8-12% of lapsed customers." },
     ],
   },
 ];
@@ -152,6 +147,7 @@ export const FAQS = [
   { q: "What if I'm just starting out?", a: "The Audit is the perfect entry point. We'll assess where you are, tell you exactly what to fix, and give you a clear roadmap to your first $10k month." },
 ];
 
+// Platform tickers with real icon slugs from simpleicons.org
 export const ECOM_PLATFORMS = [
   { name: "Shopify", slug: "shopify" },
   { name: "WooCommerce", slug: "woocommerce" },
@@ -163,10 +159,11 @@ export const ECOM_PLATFORMS = [
   { name: "OpenCart", slug: "opencart" },
   { name: "Ecwid", slug: "ecwid" },
 ];
+
 export const AD_PLATFORMS = [
   { name: "Meta Ads", slug: "meta" },
   { name: "TikTok Ads", slug: "tiktok" },
-  { name: "Google Ads", slug: "googleads" },
+  { name: "Google Ads", slug: "google" },
   { name: "Pinterest Ads", slug: "pinterest" },
   { name: "Snapchat Ads", slug: "snapchat" },
   { name: "YouTube Ads", slug: "youtube" },
@@ -174,13 +171,14 @@ export const AD_PLATFORMS = [
   { name: "LinkedIn Ads", slug: "linkedin" },
   { name: "Amazon Ads", slug: "amazon" },
 ];
+
 export const PARTNERS = [
-  { name: "Meta", icon: "M" },
-  { name: "Google", icon: "G" },
-  { name: "TikTok", icon: "T" },
-  { name: "Shopify", icon: "S" },
-  { name: "Klaviyo", icon: "K" },
-  { name: "Triple Whale", icon: "W" },
+  { name: "Meta", slug: "meta" },
+  { name: "Google", slug: "google" },
+  { name: "TikTok", slug: "tiktok" },
+  { name: "Shopify", slug: "shopify" },
+  { name: "Klaviyo", slug: "klaviyo" },
+  { name: "Triple Whale", slug: "triplewhale" },
 ];
 
 export const VIDEO_TIPS = [
