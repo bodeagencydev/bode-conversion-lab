@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, AD_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
-import { Particles, Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, Section, SectionLabel, Heading, GradText, AnimNum, useInView, PageWrapper } from "../components.jsx";
+import { Particles, Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, AnimNum, useInView, PageWrapper } from "../components.jsx";
 
 export default function Home() {
   const [statsRef, statsInView] = useInView(0.2);
@@ -128,7 +128,7 @@ export default function Home() {
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <SectionLabel>Free tips & insights</SectionLabel>
             <Heading size="2.4rem">Learn from the <GradText>lab</GradText></Heading>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,.4)", marginTop: ".75rem" }}>Scroll through actionable tips. Add your videos — placeholder slots ready.</p>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,.4)", marginTop: ".75rem" }}>Scroll through for free tips and insights from the lab.</p>
           </div>
           <VideoTips items={VIDEO_TIPS} />
         </div>
@@ -144,16 +144,7 @@ export default function Home() {
             <Heading size="2.2rem">Platform <GradText>partners</GradText></Heading>
           </div>
           <div className="partner-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1rem" }}>
-            {PARTNERS.map((p, i) => (
-              <div key={i} className="partner-card">
-                <img src={`https://cdn.simpleicons.org/${p.slug || p.name.toLowerCase()}/00ff88`} alt={p.name} width="28" height="28" style={{ flexShrink: 0 }} onError={e => { e.target.style.display = "none"; }} />
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: "#fff", margin: 0 }}>{p.name}</p>
-                  <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", margin: 0 }}>Certified partner</p>
-                </div>
-                <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: G, animation: "pulse 2s ease-in-out infinite" }} />
-              </div>
-            ))}
+            {PARTNERS.map((p, i) => <PartnerCard key={i} partner={p} />)}
           </div>
         </div>
       </Section>

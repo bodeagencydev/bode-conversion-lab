@@ -1,29 +1,22 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  margin: 0; padding: 0; width: 100%;
-  background: #040608; overflow-x: hidden;
-}
+html, body { margin: 0; padding: 0; width: 100%; background: #040608; overflow-x: hidden; }
 #root { width: 100%; min-height: 100vh; background: #040608; overflow-x: hidden; }
-
-/* Hide scrollbar on video section */
 div::-webkit-scrollbar { display: none; }
 
-/* Desktop — ensure nav links show */
 @media (min-width: 769px) {
   .nav-links { display: flex !important; }
   .hamburger { display: none !important; }
+  .mobile-menu { display: none !important; }
 }
 
-/* Mobile */
 @media (max-width: 768px) {
   .nav-links { display: none !important; }
   .hamburger { display: flex !important; }
-  h1 { font-size: clamp(1.6rem, 6vw, 2.2rem) !important; word-break: break-word !important; overflow-wrap: break-word !important; }
-  h2 { font-size: clamp(1.2rem, 5vw, 1.8rem) !important; word-break: break-word !important; overflow-wrap: break-word !important; }
-  h3 { font-size: clamp(0.95rem, 4vw, 1.2rem) !important; word-break: break-word !important; }
+  h1 { font-size: clamp(1.6rem, 6vw, 2.2rem) !important; word-break: break-word !important; }
+  h2 { font-size: clamp(1.2rem, 5vw, 1.8rem) !important; word-break: break-word !important; }
+  h3 { font-size: clamp(0.95rem, 4vw, 1.2rem) !important; }
   .hero-t { font-size: clamp(1.8rem, 7vw, 2.5rem) !important; }
   .how-grid, .about-grid, .offer-grid, .partner-grid, .stat-grid, .hero-cards { grid-template-columns: 1fr !important; }
   .float-shape { display: none !important; }
-  p, span, h1, h2, h3 { overflow-wrap: break-word !important; word-break: break-word !important; }
-  .btn-g, .btn-ghost { width: 100% !important; text-align: center !important; display: block !important; margin-bottom: 8px; box-sizing: border-box !important; }
+  .btn-g, .btn-ghost { width: 100% !important; text-align: center !important; display: block !important; margin-bottom: 8px; }
 }

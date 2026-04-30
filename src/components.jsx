@@ -16,7 +16,9 @@ export function useInView(threshold = 0.1) {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) setInView(true);
+    }, { threshold });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, [threshold]);
@@ -99,6 +101,22 @@ export function Typewriter({ words }) {
   );
 }
 
+/* ── BRAND ICON with real colors ── */
+function BrandIcon({ slug, color, size = 20 }) {
+  const [failed, setFailed] = useState(false);
+  if (failed || !slug) return <span style={{ width: size, height: size, borderRadius: "50%", background: `#${color || "ffffff"}22`, border: `1px solid #${color || "ffffff"}44`, flexShrink: 0, display: "inline-block" }} />;
+  return (
+    <img
+      src={`https://cdn.simpleicons.org/${slug}/${color || "ffffff"}`}
+      alt={slug}
+      width={size}
+      height={size}
+      style={{ flexShrink: 0, display: "block" }}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 /* ── TICKER with real brand colors ── */
 export function ContinuousTicker({ items, speed = 35, reverse = false }) {
   const [paused, setPaused] = useState(false);
@@ -112,19 +130,9 @@ export function ContinuousTicker({ items, speed = 35, reverse = false }) {
           const color = typeof item === "object" ? item.color : null;
           return (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "0.5rem 1.2rem", background: "rgba(255,255,255,.04)", border: ".5px solid rgba(255,255,255,.1)", borderRadius: 100, whiteSpace: "nowrap", cursor: "default", transition: "all .2s" }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,.3)"; e.currentTarget.style.background = "rgba(255,255,255,.08)"; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,.25)"; e.currentTarget.style.background = "rgba(255,255,255,.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,.1)"; e.currentTarget.style.background = "rgba(255,255,255,.04)"; }}>
-              {slug ? (
-                <img
-                  src={`https://cdn.simpleicons.org/${slug}/${color ? color.replace("#", "") : "ffffff"}`}
-                  alt={name}
-                  width="18" height="18"
-                  style={{ flexShrink: 0 }}
-                  onError={e => { e.target.style.display = "none"; }}
-                />
-              ) : (
-                <span style={{ width: 5, height: 5, borderRadius: "50%", background: G, flexShrink: 0 }} />
-              )}
+              <BrandIcon slug={slug} color={color} size={18} />
               <span style={{ fontSize: 13, color: "rgba(255,255,255,.7)", fontWeight: 500 }}>{name}</span>
             </div>
           );
@@ -141,7 +149,7 @@ export function TestimonialTicker({ items }) {
     <div style={{ overflow: "hidden" }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div style={{ display: "flex", gap: "1.5rem", width: "max-content", animation: "ticker 40s linear infinite", animationPlayState: paused ? "paused" : "running" }}>
         {doubled.map((t, i) => (
-          <div key={i} style={{ width: 320, flexShrink: 0, background: "linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))", border: ".5px solid rgba(0,255,136,.18)", borderTop: ".5px solid rgba(0,255,136,.3)", borderRadius: 20, padding: "1.4rem", position: "relative", overflow: "hidden", transition: "transform .3s, border-color .3s", cursor: "default" }}
+          <div key={i} style={{ width: 320, flexShrink: 0, background: "linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))", border: ".5px solid rgba(0,255,136,.18)", borderTop: ".5px solid rgba(0,255,136,.3)", borderRadius: 20, padding: "1.4rem", position: "relative", overflow: "hidden", cursor: "default" }}
             onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = "rgba(0,255,136,.45)"; }}
             onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(0,255,136,.18)"; }}>
             <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: "linear-gradient(90deg,transparent,rgba(0,255,136,.45),transparent)" }} />
@@ -161,22 +169,22 @@ export function TestimonialTicker({ items }) {
   );
 }
 
-/* ── VIDEO TIPS with YouTube Shorts embed ── */
+/* ── VIDEO TIPS ── */
 export function VideoTips({ items }) {
   const scrollRef = useRef(null);
   const scroll = (dir) => {
-    if (scrollRef.current) scrollRef.current.scrollBy({ left: dir * 320, behavior: "smooth" });
+    if (scrollRef.current) scrollRef.current.scrollBy({ left: dir * 300, behavior: "smooth" });
   };
   return (
     <div style={{ position: "relative" }}>
-      <button onClick={() => scroll(-1)} style={{ position: "absolute", left: -16, top: "50%", transform: "translateY(-50%)", zIndex: 10, width: 36, height: 36, borderRadius: "50%", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.4)", color: G, fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>‹</button>
-      <button onClick={() => scroll(1)} style={{ position: "absolute", right: -16, top: "50%", transform: "translateY(-50%)", zIndex: 10, width: 36, height: 36, borderRadius: "50%", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.4)", color: G, fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>›</button>
-      <div ref={scrollRef} style={{ display: "flex", gap: "1.5rem", overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: "1rem", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+      <button onClick={() => scroll(-1)} style={{ position: "absolute", left: -16, top: "40%", transform: "translateY(-50%)", zIndex: 10, width: 36, height: 36, borderRadius: "50%", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.4)", color: G, fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>‹</button>
+      <button onClick={() => scroll(1)} style={{ position: "absolute", right: -16, top: "40%", transform: "translateY(-50%)", zIndex: 10, width: 36, height: 36, borderRadius: "50%", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.4)", color: G, fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>›</button>
+      <div ref={scrollRef} style={{ display: "flex", gap: "1.5rem", overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: "1rem", scrollbarWidth: "none" }}>
         {items.map((v, i) => (
-          <div key={i} style={{ flexShrink: 0, width: 280, scrollSnapAlign: "start", background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: ".5px solid rgba(255,255,255,.12)", borderTop: ".5px solid rgba(255,255,255,.2)", borderRadius: 20, overflow: "hidden", transition: "transform .3s, border-color .3s" }}
+          <div key={i} style={{ flexShrink: 0, width: 270, scrollSnapAlign: "start", background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: ".5px solid rgba(255,255,255,.12)", borderTop: ".5px solid rgba(255,255,255,.2)", borderRadius: 20, overflow: "hidden" }}
             onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = "rgba(0,255,136,.35)"; }}
             onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(255,255,255,.12)"; }}>
-            <div style={{ width: "100%", aspectRatio: "9/16", position: "relative", overflow: "hidden", background: "#000" }}>
+            <div style={{ width: "100%", aspectRatio: "9/16", position: "relative", background: "#000" }}>
               <iframe
                 src={`https://www.youtube.com/embed/${v.videoId}?rel=0&modestbranding=1`}
                 title={v.title}
@@ -184,7 +192,7 @@ export function VideoTips({ items }) {
                 allowFullScreen
                 style={{ width: "100%", height: "100%", border: "none", position: "absolute", inset: 0 }}
               />
-              <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,.7)", border: ".5px solid rgba(0,255,136,.4)", borderRadius: 100, padding: "3px 10px", fontSize: 10, color: G, fontWeight: 600, zIndex: 1, pointerEvents: "none" }}>{v.tag}</div>
+              <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,.75)", border: ".5px solid rgba(0,255,136,.5)", borderRadius: 100, padding: "3px 10px", fontSize: 10, color: G, fontWeight: 600, zIndex: 2, pointerEvents: "none" }}>{v.tag}</div>
             </div>
             <div style={{ padding: "1rem" }}>
               <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "0.9rem", fontWeight: 700, color: "#fff", marginBottom: ".4rem", lineHeight: 1.4 }}>{v.title}</h3>
@@ -218,30 +226,11 @@ export function GradText({ children }) {
   return <span style={{ background: GG, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{children}</span>;
 }
 
-/* ── LOGO — uses your actual uploaded image ── */
+/* ── LOGO ── */
 export function Logo({ size = 32, showText = true, textSize = 13 }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-      <img
-        src="/logo.jpeg"
-        alt="Bode Conversion Lab"
-        width={size}
-        height={size}
-        style={{ borderRadius: size * 0.2, objectFit: "cover", flexShrink: 0, display: "block" }}
-        onError={e => {
-          e.target.style.display = "none";
-          e.target.nextSibling && (e.target.nextSibling.style.display = "flex");
-        }}
-      />
-      {/* Fallback SVG icon if image fails */}
-      <div style={{ display: "none", width: size, height: size, background: GG, borderRadius: size * 0.25, alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 20 20" fill="none">
-          <rect x="1" y="12" width="3" height="6" rx="1" fill="#040608" />
-          <rect x="5.5" y="8" width="3" height="10" rx="1" fill="#040608" />
-          <rect x="10" y="4" width="3" height="14" rx="1" fill="#040608" />
-          <path d="M15 8L18 5M18 5H15M18 5V8" stroke="#040608" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
+      <img src="/logo.jpeg" alt="Bode Conversion Lab" width={size} height={size} style={{ borderRadius: size * 0.2, objectFit: "cover", flexShrink: 0, display: "block" }} />
       {showText && (
         <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
           <span style={{ fontWeight: 800, fontSize: textSize, fontFamily: "'Syne',sans-serif", color: "#fff", whiteSpace: "nowrap", letterSpacing: "-.01em" }}>Bode Conversion</span>
@@ -252,75 +241,103 @@ export function Logo({ size = 32, showText = true, textSize = 13 }) {
   );
 }
 
-/* ── WHATSAPP FLOATING BUTTON ── */
+/* ── WHATSAPP ── */
 export function WhatsAppButton() {
   return (
-    <a
-      href="https://wa.me/19454076473?text=Hi%20Bode%20Conversion%20Lab%2C%20I%27d%20like%20to%20know%20more"
-      target="_blank"
-      rel="noopener noreferrer"
+    <a href="https://wa.me/19454076473?text=Hi%20Bode%20Conversion%20Lab%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener noreferrer"
       style={{ position: "fixed", bottom: 24, right: 24, zIndex: 9999, width: 56, height: 56, borderRadius: "50%", background: "#25D366", boxShadow: "0 4px 20px rgba(37,211,102,.5)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", transition: "transform .2s, box-shadow .2s" }}
       onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.boxShadow = "0 6px 28px rgba(37,211,102,.7)"; }}
       onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(37,211,102,.5)"; }}>
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-      </svg>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
     </a>
   );
 }
 
-/* ── NAV ── */
+/* ── PARTNER CARD with real colors ── */
+export function PartnerCard({ partner }) {
+  return (
+    <div style={{ background: "rgba(255,255,255,.04)", border: ".5px solid rgba(255,255,255,.1)", borderRadius: 14, padding: "1rem 1.5rem", display: "flex", alignItems: "center", gap: 12, transition: "all .25s", cursor: "default" }}
+      onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,.08)"; e.currentTarget.style.borderColor = `#${partner.color}66`; e.currentTarget.style.transform = "translateY(-2px)"; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,.1)"; e.currentTarget.style.transform = "none"; }}>
+      <BrandIcon slug={partner.slug} color={partner.color} size={28} />
+      <div>
+        <p style={{ fontSize: 14, fontWeight: 600, color: "#fff", margin: 0 }}>{partner.name}</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", margin: 0 }}>Certified partner</p>
+      </div>
+      <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: `#${partner.color}`, boxShadow: `0 0 8px #${partner.color}88`, animation: "pulse 2s ease-in-out infinite" }} />
+    </div>
+  );
+}
+
+/* ── NAV — fixed hamburger stays open ── */
 export function Nav() {
   const scrollY = useScrollY();
   const loc = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const navH = scrollY > 40;
 
+  // Close menu on route change
+  useEffect(() => { setMenuOpen(false); }, [loc.pathname]);
+
   return (
     <>
-      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: "0.65rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "space-between", background: navH ? "rgba(4,6,8,.97)" : "rgba(4,6,8,.8)", backdropFilter: "blur(20px)", borderBottom: ".5px solid rgba(255,255,255,.07)", transition: "all .3s", gap: 8 }}>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: "0.65rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "space-between", background: navH ? "rgba(4,6,8,.97)" : "rgba(4,6,8,.8)", backdropFilter: "blur(20px)", borderBottom: ".5px solid rgba(255,255,255,.07)", transition: "background .3s", gap: 8 }}>
         <Link to="/" style={{ textDecoration: "none", flexShrink: 0 }}>
           <Logo size={32} textSize={12} />
         </Link>
 
-        {/* Desktop nav */}
+        {/* Desktop links */}
         <div style={{ display: "flex", gap: "1.4rem", alignItems: "center", flex: 1, justifyContent: "center" }} className="nav-links">
           {NAV_LINKS.map(l => (
             <Link key={l.path} to={l.path} style={{ color: loc.pathname === l.path ? G : "rgba(255,255,255,.55)", textDecoration: "none", fontSize: 14, fontWeight: loc.pathname === l.path ? 600 : 400, transition: "color .2s", whiteSpace: "nowrap" }}
               onMouseEnter={e => e.target.style.color = G}
-              onMouseLeave={e => e.target.style.color = loc.pathname === l.path ? G : "rgba(255,255,255,.55)"}
-            >{l.label}</Link>
+              onMouseLeave={e => e.target.style.color = loc.pathname === l.path ? G : "rgba(255,255,255,.55)"}>{l.label}</Link>
           ))}
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           <Link to="/contact" style={{ background: GG, color: "#040608", borderRadius: 8, padding: "0.5rem 1.1rem", fontSize: 13, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>Apply Now</Link>
-          {/* Hamburger — visible on mobile only */}
+          {/* Hamburger */}
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            style={{ background: "rgba(255,255,255,.1)", border: ".5px solid rgba(255,255,255,.2)", cursor: "pointer", padding: "8px 10px", flexDirection: "column", gap: 5, borderRadius: 6, flexShrink: 0, display: "none" }}
+            onClick={(e) => { e.stopPropagation(); setMenuOpen(prev => !prev); }}
             className="hamburger"
-            aria-label="Menu"
+            style={{ background: "rgba(255,255,255,.1)", border: ".5px solid rgba(255,255,255,.2)", cursor: "pointer", padding: "8px 10px", flexDirection: "column", gap: 5, borderRadius: 6, flexShrink: 0, display: "none" }}
+            aria-label="Toggle menu"
           >
             <span style={{ display: "block", width: 20, height: 2, background: menuOpen ? G : "#fff", borderRadius: 2, transition: "all .3s", transform: menuOpen ? "rotate(45deg) translate(5px,5px)" : "none" }} />
-            <span style={{ display: "block", width: 20, height: 2, background: menuOpen ? G : "#fff", borderRadius: 2, transition: "all .3s", opacity: menuOpen ? 0 : 1 }} />
+            <span style={{ display: "block", width: 20, height: 2, background: menuOpen ? G : "#fff", borderRadius: 2, transition: "opacity .3s", opacity: menuOpen ? 0 : 1 }} />
             <span style={{ display: "block", width: 20, height: 2, background: menuOpen ? G : "#fff", borderRadius: 2, transition: "all .3s", transform: menuOpen ? "rotate(-45deg) translate(5px,-5px)" : "none" }} />
           </button>
         </div>
       </nav>
 
-      {/* Mobile dropdown */}
-      {menuOpen && (
-        <div style={{ position: "fixed", top: 56, left: 0, right: 0, zIndex: 98, background: "rgba(4,6,8,.99)", backdropFilter: "blur(20px)", borderBottom: ".5px solid rgba(255,255,255,.1)", padding: "0.5rem 1.2rem 1.2rem" }}>
+      {/* Mobile menu — always rendered, height animated */}
+      <div
+        style={{
+          position: "fixed", top: 56, left: 0, right: 0, zIndex: 98,
+          background: "rgba(4,6,8,.99)", backdropFilter: "blur(24px)",
+          borderBottom: menuOpen ? ".5px solid rgba(255,255,255,.1)" : "none",
+          maxHeight: menuOpen ? "500px" : "0",
+          overflow: "hidden",
+          transition: "max-height .4s cubic-bezier(.16,1,.3,1)",
+          display: "block",
+        }}
+        className="mobile-menu"
+      >
+        <div style={{ padding: "0.5rem 1.4rem 1.4rem" }}>
           {NAV_LINKS.map(l => (
-            <Link key={l.path} to={l.path} onClick={() => setMenuOpen(false)} style={{ display: "flex", alignItems: "center", gap: 10, color: loc.pathname === l.path ? G : "rgba(255,255,255,.8)", textDecoration: "none", fontSize: 16, fontWeight: loc.pathname === l.path ? 700 : 400, padding: "0.85rem 0", borderBottom: ".5px solid rgba(255,255,255,.06)" }}>
+            <Link key={l.path} to={l.path} onClick={() => setMenuOpen(false)}
+              style={{ display: "flex", alignItems: "center", gap: 10, color: loc.pathname === l.path ? G : "rgba(255,255,255,.8)", textDecoration: "none", fontSize: 16, fontWeight: loc.pathname === l.path ? 700 : 400, padding: "0.85rem 0", borderBottom: ".5px solid rgba(255,255,255,.06)" }}>
               {loc.pathname === l.path && <span style={{ width: 6, height: 6, borderRadius: "50%", background: G, flexShrink: 0 }} />}
               {l.label}
             </Link>
           ))}
-          <Link to="/contact" onClick={() => setMenuOpen(false)} style={{ display: "block", background: GG, color: "#040608", borderRadius: 10, padding: ".85rem", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center", marginTop: "1rem" }}>Apply Now →</Link>
+          <Link to="/contact" onClick={() => setMenuOpen(false)}
+            style={{ display: "block", background: GG, color: "#040608", borderRadius: 10, padding: ".85rem", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center", marginTop: "1rem" }}>
+            Apply Now →
+          </Link>
         </div>
-      )}
+      </div>
     </>
   );
 }
@@ -330,7 +347,6 @@ export function Footer() {
   return (
     <footer style={{ padding: "3rem 1.5rem 2rem", borderTop: ".5px solid rgba(255,255,255,.06)", background: "rgba(0,0,0,.3)" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        {/* Logo — its own full row */}
         <div style={{ marginBottom: "2.5rem", paddingBottom: "2rem", borderBottom: ".5px solid rgba(255,255,255,.07)" }}>
           <Link to="/" style={{ textDecoration: "none", display: "inline-block", marginBottom: "1rem" }}>
             <Logo size={44} textSize={15} />
@@ -339,8 +355,6 @@ export function Footer() {
             We don't run ads. We engineer ROAS.<br />One system. Compounding results every month.
           </p>
         </div>
-
-        {/* Links grid */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "2rem", marginBottom: "2.5rem" }}>
           <div>
             <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: "1.2rem", fontWeight: 600 }}>Pages</p>
@@ -366,7 +380,6 @@ export function Footer() {
             </a>
           </div>
         </div>
-
         <div style={{ borderTop: ".5px solid rgba(255,255,255,.06)", paddingTop: "1.5rem", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
           <p style={{ fontSize: 12, color: "rgba(255,255,255,.2)" }}>© 2025 Bode Conversion Lab. All rights reserved.</p>
           <p style={{ fontSize: 12, color: "rgba(255,255,255,.2)" }}>Built to convert. Engineered to scale.</p>
