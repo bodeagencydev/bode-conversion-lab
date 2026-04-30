@@ -223,7 +223,7 @@ export function Logo({ size = 32, showText = true, textSize = 13 }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
       <img
-        src="/logo.jpg"
+        src="/logo.jpeg"
         alt="Bode Conversion Lab"
         width={size}
         height={size}
