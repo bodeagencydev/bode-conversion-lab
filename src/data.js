@@ -85,9 +85,9 @@ export const BLOG_POSTS = [
     readTime: "6 min read",
     excerpt: "Most store owners obsess over ROAS. But ROAS alone is one of the most misleading metrics in e-commerce.",
     content: [
-      { heading: "The ROAS trap", body: "A 4x ROAS sounds great. But after product cost, fulfillment, returns, and payment processing — you might be barely breaking even. ROAS doesn't show you that." },
-      { heading: "What to track instead", body: "Track MER (total revenue ÷ total ad spend), nCAC (cost to acquire a new customer), and LTV:CAC ratio. These tell you if your business is actually healthy." },
-      { heading: "The bottom line", body: "Stores that scale past $100k/month obsess over contribution margin and LTV — not ROAS. Start tracking the right numbers." },
+      { heading: "The ROAS trap", body: "A 4x ROAS sounds great. But after product cost, fulfillment, returns, and payment processing — you might be barely breaking even." },
+      { heading: "What to track instead", body: "Track MER (total revenue divided by total ad spend), nCAC, and LTV:CAC ratio. These tell you if your business is actually healthy." },
+      { heading: "The bottom line", body: "Stores that scale past $100k/month obsess over contribution margin and LTV — not ROAS." },
     ],
   },
   {
@@ -100,7 +100,7 @@ export const BLOG_POSTS = [
     content: [
       { heading: "Fix 1: Kill forced account creation", body: "Requiring account creation before checkout kills 35% of buyers. Enable guest checkout immediately." },
       { heading: "Fix 2: Move your CTA above the fold", body: "60% of product pages have Add to Cart below the fold on mobile. Your price and CTA must be visible without scrolling." },
-      { heading: "Fix 3: Fix your mobile speed", body: "If your page loads in over 3 seconds on mobile, you lose 40% of visitors before they even see your product." },
+      { heading: "Fix 3: Fix your mobile speed", body: "If your page loads in over 3 seconds on mobile, you lose 40% of visitors before they see your product." },
     ],
   },
   {
@@ -111,7 +111,7 @@ export const BLOG_POSTS = [
     readTime: "7 min read",
     excerpt: "The answer isn't one or the other. Build a strategy that uses both at the right time.",
     content: [
-      { heading: "Meta: Still the conversion king", body: "Meta has 10+ years of purchase behaviour data. For retargeting and scaling proven winners, nothing beats it. Start here if you're spending under $5k/month." },
+      { heading: "Meta: Still the conversion king", body: "Meta has 10+ years of purchase behaviour data. For retargeting and scaling proven winners, nothing beats it." },
       { heading: "TikTok: The discovery engine", body: "TikTok finds audiences you didn't know existed. Raw, authentic content wins. Polished ads die." },
       { heading: "Our recommendation", body: "70% Meta, 30% TikTok. Use TikTok to find audiences, Meta to convert them." },
     ],
@@ -122,7 +122,7 @@ export const BLOG_POSTS = [
     category: "Email Marketing",
     date: "February 22, 2025",
     readTime: "9 min read",
-    excerpt: "Email generates $42 for every $1 spent. Most stores leave 30% of revenue on the table by skipping these flows.",
+    excerpt: "Email generates $42 for every $1 spent. Most stores leave 30% of revenue on the table.",
     content: [
       { heading: "Flow 1: Abandoned Cart", body: "A 3-email sequence recovers 15-20% of abandoned carts. Email 1: reminder. Email 2: address objections. Email 3: 10% off with urgency." },
       { heading: "Flow 2: Post-Purchase", body: "Confirm the order, set delivery expectations, offer a complementary product, and ask for a review 7 days later." },
@@ -147,38 +147,38 @@ export const FAQS = [
   { q: "What if I'm just starting out?", a: "The Audit is the perfect entry point. We'll assess where you are and give you a clear roadmap to your first $10k month." },
 ];
 
-// Real brand colors for icons
+// Verified slugs from simpleicons.org with real brand colors
 export const ECOM_PLATFORMS = [
-  { name: "Shopify", slug: "shopify", color: "#96BF48" },
-  { name: "WooCommerce", slug: "woocommerce", color: "#96588A" },
-  { name: "Magento", slug: "magento", color: "#EE672F" },
-  { name: "BigCommerce", slug: "bigcommerce", color: "#121118" },
-  { name: "Wix", slug: "wix", color: "#FAAD4D" },
-  { name: "Squarespace", slug: "squarespace", color: "#ffffff" },
-  { name: "PrestaShop", slug: "prestashop", color: "#DF0067" },
-  { name: "OpenCart", slug: "opencart", color: "#23AADF" },
-  { name: "Ecwid", slug: "ecwid", color: "#FF6A00" },
+  { name: "Shopify", slug: "shopify", color: "96BF48" },
+  { name: "WooCommerce", slug: "woocommerce", color: "96588A" },
+  { name: "Magento", slug: "adobecommerce", color: "EE672F" },
+  { name: "BigCommerce", slug: "bigcommerce", color: "34313F" },
+  { name: "Wix", slug: "wix", color: "FAAD4D" },
+  { name: "Squarespace", slug: "squarespace", color: "ffffff" },
+  { name: "PrestaShop", slug: "prestashop", color: "DF0067" },
+  { name: "OpenCart", slug: "opencart", color: "23AADF" },
+  { name: "Ecwid", slug: "ecwid", color: "FF6A00" },
 ];
 
 export const AD_PLATFORMS = [
-  { name: "Meta Ads", slug: "meta", color: "#0081FB" },
-  { name: "TikTok Ads", slug: "tiktok", color: "#ffffff" },
-  { name: "Google Ads", slug: "google", color: "#4285F4" },
-  { name: "Pinterest Ads", slug: "pinterest", color: "#BD081C" },
-  { name: "Snapchat Ads", slug: "snapchat", color: "#FFFC00" },
-  { name: "YouTube Ads", slug: "youtube", color: "#FF0000" },
-  { name: "X Ads", slug: "x", color: "#ffffff" },
-  { name: "LinkedIn Ads", slug: "linkedin", color: "#0A66C2" },
-  { name: "Amazon Ads", slug: "amazon", color: "#FF9900" },
+  { name: "Meta Ads", slug: "meta", color: "0081FB" },
+  { name: "TikTok Ads", slug: "tiktok", color: "ffffff" },
+  { name: "Google Ads", slug: "googleads", color: "4285F4" },
+  { name: "Pinterest Ads", slug: "pinterest", color: "BD081C" },
+  { name: "Snapchat Ads", slug: "snapchat", color: "FFFC00" },
+  { name: "YouTube Ads", slug: "youtube", color: "FF0000" },
+  { name: "X Ads", slug: "x", color: "ffffff" },
+  { name: "LinkedIn Ads", slug: "linkedin", color: "0A66C2" },
+  { name: "Amazon Ads", slug: "amazonaws", color: "FF9900" },
 ];
 
 export const PARTNERS = [
-  { name: "Meta", slug: "meta", color: "#0081FB" },
-  { name: "Google", slug: "google", color: "#4285F4" },
-  { name: "TikTok", slug: "tiktok", color: "#ffffff" },
-  { name: "Shopify", slug: "shopify", color: "#96BF48" },
-  { name: "Klaviyo", slug: "klaviyo", color: "#FFD700" },
-  { name: "Triple Whale", slug: "triplewhale", color: "#7B68EE" },
+  { name: "Meta", slug: "meta", color: "0081FB" },
+  { name: "Google", slug: "google", color: "4285F4" },
+  { name: "TikTok", slug: "tiktok", color: "ffffff" },
+  { name: "Shopify", slug: "shopify", color: "96BF48" },
+  { name: "Klaviyo", slug: "klaviyo", color: "FFD700" },
+  { name: "Triple Whale", slug: "triplewhale", color: "7B68EE" },
 ];
 
 export const VIDEO_TIPS = [
@@ -198,7 +198,7 @@ export const VIDEO_TIPS = [
     tag: "Store Audit",
     title: "5 things we check in every store audit",
     desc: "The exact checklist we use to find where your store is leaking money.",
-    videoId: "B_gpL5CQqdo",
+    videoId: "UQGUkS8H-44",
   },
   {
     tag: "ROAS Explained",
