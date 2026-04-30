@@ -147,12 +147,12 @@ export const FAQS = [
   { q: "What if I'm just starting out?", a: "The Audit is the perfect entry point. We'll assess where you are and give you a clear roadmap to your first $10k month." },
 ];
 
-// Verified slugs from simpleicons.org with real brand colors
+// All slugs verified from simpleicons.org
 export const ECOM_PLATFORMS = [
   { name: "Shopify", slug: "shopify", color: "96BF48" },
   { name: "WooCommerce", slug: "woocommerce", color: "96588A" },
-  { name: "Magento", slug: "adobecommerce", color: "EE672F" },
-  { name: "BigCommerce", slug: "bigcommerce", color: "34313F" },
+  { name: "Magento", slug: "magento", color: "EE672F" },
+  { name: "BigCommerce", slug: "bigcommerce", color: "121118" },
   { name: "Wix", slug: "wix", color: "FAAD4D" },
   { name: "Squarespace", slug: "squarespace", color: "ffffff" },
   { name: "PrestaShop", slug: "prestashop", color: "DF0067" },
@@ -163,13 +163,13 @@ export const ECOM_PLATFORMS = [
 export const AD_PLATFORMS = [
   { name: "Meta Ads", slug: "meta", color: "0081FB" },
   { name: "TikTok Ads", slug: "tiktok", color: "ffffff" },
-  { name: "Google Ads", slug: "googleads", color: "4285F4" },
+  { name: "Google Ads", slug: "google", color: "4285F4" },
   { name: "Pinterest Ads", slug: "pinterest", color: "BD081C" },
   { name: "Snapchat Ads", slug: "snapchat", color: "FFFC00" },
   { name: "YouTube Ads", slug: "youtube", color: "FF0000" },
   { name: "X Ads", slug: "x", color: "ffffff" },
   { name: "LinkedIn Ads", slug: "linkedin", color: "0A66C2" },
-  { name: "Amazon Ads", slug: "amazonaws", color: "FF9900" },
+  { name: "Amazon Ads", slug: "amazon", color: "FF9900" },
 ];
 
 export const PARTNERS = [
@@ -178,38 +178,44 @@ export const PARTNERS = [
   { name: "TikTok", slug: "tiktok", color: "ffffff" },
   { name: "Shopify", slug: "shopify", color: "96BF48" },
   { name: "Klaviyo", slug: "klaviyo", color: "FFD700" },
-  { name: "Triple Whale", slug: "triplewhale", color: "7B68EE" },
+  { name: "Triple Whale", slug: "triplewhale", color: "5B4EE5" },
 ];
 
+// Videos — using thumbnail click-to-YouTube approach since shorts block embedding
 export const VIDEO_TIPS = [
   {
     tag: "Checkout Tip",
     title: "Why your checkout loses 40% of buyers",
     desc: "The #1 mistake e-commerce stores make that kills conversions at the final step.",
     videoId: "HcNzgUUQI5g",
+    thumb: "https://i.ytimg.com/vi/HcNzgUUQI5g/hqdefault.jpg",
   },
   {
     tag: "Ad Strategy",
     title: "How to cut your Meta CPA in half",
     desc: "A simple audience restructure that most agencies overlook entirely.",
     videoId: "SklDEDMQmmY",
+    thumb: "https://i.ytimg.com/vi/SklDEDMQmmY/hqdefault.jpg",
   },
   {
     tag: "Store Audit",
     title: "5 things we check in every store audit",
     desc: "The exact checklist we use to find where your store is leaking money.",
     videoId: "UQGUkS8H-44",
+    thumb: "https://i.ytimg.com/vi/UQGUkS8H-44/hqdefault.jpg",
   },
   {
     tag: "ROAS Explained",
     title: "What a 4x ROAS actually looks like",
     desc: "Real numbers, real campaigns — breaking down what makes ads profitable.",
     videoId: "GT3yTvgD7i8",
+    thumb: "https://i.ytimg.com/vi/GT3yTvgD7i8/hqdefault.jpg",
   },
   {
     tag: "Email Flow",
     title: "The abandoned cart sequence that recovers 20%",
     desc: "3 emails, exact timing, exact copy structure. Free to implement today.",
     videoId: "fvbex4WkncE",
+    thumb: "https://i.ytimg.com/vi/fvbex4WkncE/hqdefault.jpg",
   },
 ];
