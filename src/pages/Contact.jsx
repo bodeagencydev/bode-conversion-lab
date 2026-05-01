@@ -22,7 +22,7 @@ function ApplyForm() {
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={G} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </div>
       <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.6rem", fontWeight: 800, color: "#fff", marginBottom: ".75rem" }}>Application received!</h3>
-      <p style={{ fontSize: 15, color: "rgba(255,255,255,.45)", lineHeight: 1.7 }}>We've got your details and quiz answers. Expect a personalised response within 24 hours. Check your email.</p>
+      <p style={{ fontSize: 15, color: "rgba(255,255,255,.45)", lineHeight: 1.7 }}>We've got your details. Expect a personalised response within 24 hours.</p>
     </div>
   );
 
@@ -57,8 +57,9 @@ function ApplyForm() {
             <span style={{ width: 8, height: 8, background: G, borderRadius: "50%" }} />
             <span style={{ fontSize: 12, color: G, fontWeight: 500 }}>Quiz complete — leave your details</span>
           </div>
+          {/* Answers summary */}
           <div style={{ background: "rgba(0,255,136,.05)", border: ".5px solid rgba(0,255,136,.18)", borderRadius: 12, padding: "1rem", marginBottom: "1.5rem" }}>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,.35)", marginBottom: 8, fontWeight: 500 }}>YOUR ANSWERS — delivered exactly as selected</p>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,.35)", marginBottom: 8, fontWeight: 500, textTransform: "uppercase", letterSpacing: ".05em" }}>Your answers</p>
             {Object.entries(answers).map(([k, v]) => (
               <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "4px 0", flexWrap: "wrap", gap: 4 }}>
                 <span style={{ color: "rgba(255,255,255,.3)" }}>{QUIZ.find(q => q.id === k)?.q}</span>
@@ -66,21 +67,29 @@ function ApplyForm() {
               </div>
             ))}
           </div>
+          {/* Contact fields */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: "1.5rem" }}>
             {[
-              { name: "name", placeholder: "Your full name", type: "text", required: true },
-              { name: "email", placeholder: "Email address", type: "email", required: true },
+              { name: "name", placeholder: "Your full name *", type: "text", required: true },
+              { name: "email", placeholder: "Email address *", type: "email", required: true },
               { name: "store_url", placeholder: "Your store URL (e.g. mystore.com)", type: "text" },
               { name: "phone", placeholder: "WhatsApp / phone number (optional)", type: "text" },
             ].map(f => (
               <div key={f.name}>
                 <input name={f.name} type={f.type} placeholder={f.placeholder} required={f.required}
-                  style={{ width: "100%", background: "rgba(255,255,255,.05)", border: ".5px solid rgba(255,255,255,.12)", borderRadius: 10, padding: ".8rem 1rem", color: "#f0f0f0", fontSize: 14, fontFamily: "inherit", outline: "none" }}
+                  style={{ width: "100%", background: "rgba(255,255,255,.05)", border: ".5px solid rgba(255,255,255,.12)", borderRadius: 10, padding: ".8rem 1rem", color: "#f0f0f0", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
                   onFocus={e => e.target.style.borderColor = "rgba(0,255,136,.5)"}
                   onBlur={e => e.target.style.borderColor = "rgba(255,255,255,.12)"} />
                 <ValidationError field={f.name} errors={state.errors} style={{ color: "#ff6b6b", fontSize: 12, marginTop: 4, display: "block" }} />
               </div>
             ))}
+            {/* Extra message field */}
+            <div>
+              <textarea name="message" placeholder="Anything else you'd like to share? Questions, context, goals — the more you tell us, the better we can help." rows={4}
+                style={{ width: "100%", background: "rgba(255,255,255,.05)", border: ".5px solid rgba(255,255,255,.12)", borderRadius: 10, padding: ".8rem 1rem", color: "#f0f0f0", fontSize: 14, fontFamily: "inherit", outline: "none", resize: "vertical", boxSizing: "border-box", lineHeight: 1.6 }}
+                onFocus={e => e.target.style.borderColor = "rgba(0,255,136,.5)"}
+                onBlur={e => e.target.style.borderColor = "rgba(255,255,255,.12)"} />
+            </div>
           </div>
           <button type="submit" disabled={state.submitting}
             style={{ width: "100%", background: GG, color: "#040608", border: "none", borderRadius: 10, padding: ".9rem", fontSize: 15, fontWeight: 700, cursor: state.submitting ? "not-allowed" : "pointer", fontFamily: "inherit", opacity: state.submitting ? 0.7 : 1 }}>
@@ -96,7 +105,7 @@ function ApplyForm() {
 export default function Contact() {
   return (
     <PageWrapper>
-      <section style={{ position: "relative", padding: "6rem 2rem 4rem", overflow: "hidden" }}>
+      <section style={{ position: "relative", padding: "clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 3rem", overflow: "hidden" }}>
         <Particles />
         <div style={{ position: "absolute", width: 500, height: 500, top: -100, left: "50%", transform: "translateX(-50%)", background: "radial-gradient(circle,rgba(0,255,136,.14),transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
@@ -105,11 +114,11 @@ export default function Contact() {
               <span style={{ width: 6, height: 6, background: G, borderRadius: "50%", animation: "pulse 2s ease-in-out infinite" }} /> Selective qualification
             </span>
           </div>
-          <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "3.2rem", fontWeight: 800, lineHeight: 1.1, letterSpacing: "-.03em", color: "#fff", marginBottom: "1.2rem" }}>
+          <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2rem,7vw,3.2rem)", fontWeight: 800, lineHeight: 1.1, letterSpacing: "-.03em", color: "#fff", marginBottom: "1.2rem", wordBreak: "break-word" }}>
             Is your store <GradText>ready to scale?</GradText>
           </h1>
-          <p style={{ fontSize: "1.05rem", color: "rgba(255,255,255,.45)", lineHeight: 1.75 }}>
-            4 questions + your details. Everything you select is delivered directly to us — exactly as you chose it. We respond within 24 hours.
+          <p style={{ fontSize: "clamp(0.9rem,3vw,1.05rem)", color: "rgba(255,255,255,.45)", lineHeight: 1.75 }}>
+            4 quick questions + your details. We read every application personally and respond within 24 hours.
           </p>
         </div>
       </section>
@@ -118,15 +127,14 @@ export default function Contact() {
 
       <Section>
         <div style={{ maxWidth: 960, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: "4rem", alignItems: "flex-start" }} className="about-grid">
-          {/* Left: what to expect */}
           <div>
             <SectionLabel>What happens next</SectionLabel>
             <Heading size="1.8rem">Three steps to<br /><GradText>your first results</GradText></Heading>
             <div style={{ marginTop: "2rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               {[
                 { n: "01", t: "You apply", d: "Fill out the form. Takes 2 minutes. We read every application personally." },
-                { n: "02", t: "We review", d: "Within 24 hours, we review your store and send you a personalised response with initial observations." },
-                { n: "03", t: "Discovery call", d: "If it's a fit, we book a 30-minute call to walk through your biggest opportunities and how we'd approach them." },
+                { n: "02", t: "We review", d: "Within 24 hours, we send you a personalised response with initial observations about your store." },
+                { n: "03", t: "Discovery call", d: "If it's a fit, we book a 30-minute call to walk through your biggest opportunities." },
               ].map((s, i) => (
                 <div key={i} style={{ display: "flex", gap: "1.2rem", alignItems: "flex-start" }}>
                   <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: G, flexShrink: 0, fontFamily: "'Syne',sans-serif" }}>{s.n}</div>
@@ -139,11 +147,10 @@ export default function Contact() {
             </div>
             <div style={{ marginTop: "2.5rem", background: "rgba(0,255,136,.05)", border: ".5px solid rgba(0,255,136,.18)", borderRadius: 14, padding: "1.2rem 1.4rem" }}>
               <p style={{ fontSize: 13, color: "rgba(255,255,255,.45)", lineHeight: 1.7 }}>
-                <span style={{ color: G, fontWeight: 600 }}>No hard sell.</span> If we don't think we can help you, we'll tell you that — and point you toward what will.
+                <span style={{ color: G, fontWeight: 600 }}>No hard sell.</span> If we don't think we can help you, we'll tell you — and point you toward what will.
               </p>
             </div>
           </div>
-          {/* Right: form */}
           <ApplyForm />
         </div>
       </Section>
