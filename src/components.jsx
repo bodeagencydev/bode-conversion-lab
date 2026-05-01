@@ -101,23 +101,21 @@ export function Typewriter({ words }) {
   );
 }
 
-/* ── BRAND ICON with real colors ── */
 function BrandIcon({ slug, color, size = 20 }) {
   const [failed, setFailed] = useState(false);
-  if (failed || !slug) return <span style={{ width: size, height: size, borderRadius: "50%", background: `#${color || "ffffff"}22`, border: `1px solid #${color || "ffffff"}44`, flexShrink: 0, display: "inline-block" }} />;
+  if (failed || !slug) return (
+    <div style={{ width: size, height: size, borderRadius: 4, background: `#${color || "ffffff"}22`, border: `1px solid #${color || "ffffff"}44`, flexShrink: 0 }} />
+  );
   return (
     <img
       src={`https://cdn.simpleicons.org/${slug}/${color || "ffffff"}`}
-      alt={slug}
-      width={size}
-      height={size}
+      alt={slug} width={size} height={size}
       style={{ flexShrink: 0, display: "block" }}
       onError={() => setFailed(true)}
     />
   );
 }
 
-/* ── TICKER with real brand colors ── */
 export function ContinuousTicker({ items, speed = 35, reverse = false }) {
   const [paused, setPaused] = useState(false);
   const doubled = [...items, ...items];
@@ -169,11 +167,10 @@ export function TestimonialTicker({ items }) {
   );
 }
 
-/* ── VIDEO TIPS ── */
 export function VideoTips({ items }) {
   const scrollRef = useRef(null);
   const scroll = (dir) => {
-    if (scrollRef.current) scrollRef.current.scrollBy({ left: dir * 300, behavior: "smooth" });
+    if (scrollRef.current) scrollRef.current.scrollBy({ left: dir * 280, behavior: "smooth" });
   };
   return (
     <div style={{ position: "relative" }}>
@@ -181,26 +178,42 @@ export function VideoTips({ items }) {
       <button onClick={() => scroll(1)} style={{ position: "absolute", right: -16, top: "40%", transform: "translateY(-50%)", zIndex: 10, width: 36, height: 36, borderRadius: "50%", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.4)", color: G, fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>›</button>
       <div ref={scrollRef} style={{ display: "flex", gap: "1.5rem", overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: "1rem", scrollbarWidth: "none" }}>
         {items.map((v, i) => (
-          <div key={i} style={{ flexShrink: 0, width: 270, scrollSnapAlign: "start", background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: ".5px solid rgba(255,255,255,.12)", borderTop: ".5px solid rgba(255,255,255,.2)", borderRadius: 20, overflow: "hidden" }}
-            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = "rgba(0,255,136,.35)"; }}
+          <a key={i} href={`https://youtube.com/shorts/${v.videoId}`} target="_blank" rel="noopener noreferrer"
+            style={{ flexShrink: 0, width: 250, scrollSnapAlign: "start", background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: ".5px solid rgba(255,255,255,.12)", borderTop: ".5px solid rgba(255,255,255,.2)", borderRadius: 20, overflow: "hidden", textDecoration: "none", display: "block", transition: "transform .3s, border-color .3s" }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = "rgba(0,255,136,.4)"; }}
             onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(255,255,255,.12)"; }}>
-            <div style={{ width: "100%", aspectRatio: "9/16", position: "relative", background: "#000" }}>
-              <iframe
-                src={`https://www.youtube.com/embed/${v.videoId}?rel=0&modestbranding=1`}
-                title={v.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                style={{ width: "100%", height: "100%", border: "none", position: "absolute", inset: 0 }}
-              />
-              <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,.75)", border: ".5px solid rgba(0,255,136,.5)", borderRadius: 100, padding: "3px 10px", fontSize: 10, color: G, fontWeight: 600, zIndex: 2, pointerEvents: "none" }}>{v.tag}</div>
+            <div style={{ width: "100%", aspectRatio: "9/16", position: "relative", overflow: "hidden", background: "#000" }}>
+              <img src={v.thumb} alt={v.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.35)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(255,0,0,.9)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(255,0,0,.5)" }}>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M6 4L16 10L6 16Z" /></svg>
+                </div>
+              </div>
+              <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,.75)", border: ".5px solid rgba(0,255,136,.5)", borderRadius: 100, padding: "3px 10px", fontSize: 10, color: G, fontWeight: 600 }}>{v.tag}</div>
+              <div style={{ position: "absolute", bottom: 10, right: 10, background: "rgba(0,0,0,.7)", borderRadius: 6, padding: "3px 8px", fontSize: 10, color: "rgba(255,255,255,.7)" }}>Watch on YouTube</div>
             </div>
             <div style={{ padding: "1rem" }}>
               <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "0.9rem", fontWeight: 700, color: "#fff", marginBottom: ".4rem", lineHeight: 1.4 }}>{v.title}</h3>
               <p style={{ fontSize: 12, color: "rgba(255,255,255,.4)", lineHeight: 1.5 }}>{v.desc}</p>
             </div>
-          </div>
+          </a>
         ))}
       </div>
+    </div>
+  );
+}
+
+export function PartnerCard({ partner }) {
+  return (
+    <div style={{ background: "rgba(255,255,255,.04)", border: ".5px solid rgba(255,255,255,.1)", borderRadius: 14, padding: "1rem 1.5rem", display: "flex", alignItems: "center", gap: 12, transition: "all .25s", cursor: "default" }}
+      onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,.08)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; e.currentTarget.style.transform = "none"; }}>
+      <BrandIcon slug={partner.slug} color={partner.color} size={28} />
+      <div>
+        <p style={{ fontSize: 14, fontWeight: 600, color: "#fff", margin: 0 }}>{partner.name}</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", margin: 0 }}>Certified partner</p>
+      </div>
+      <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: `#${partner.color}`, animation: "pulse 2s ease-in-out infinite", flexShrink: 0 }} />
     </div>
   );
 }
@@ -226,14 +239,14 @@ export function GradText({ children }) {
   return <span style={{ background: GG, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{children}</span>;
 }
 
-/* ── LOGO ── */
 export function Logo({ size = 32, showText = true, textSize = 13 }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-      <img src="/logo.jpeg" alt="Bode Conversion Lab" width={size} height={size} style={{ borderRadius: size * 0.2, objectFit: "cover", flexShrink: 0, display: "block" }} />
+      <img src="/logo.jpeg" alt="Bode Conversion Lab" width={size} height={size}
+        style={{ borderRadius: size * 0.2, objectFit: "cover", flexShrink: 0, display: "block" }} />
       {showText && (
         <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
-          <span style={{ fontWeight: 800, fontSize: textSize, fontFamily: "'Syne',sans-serif", color: "#fff", whiteSpace: "nowrap", letterSpacing: "-.01em" }}>Bode Conversion</span>
+          <span style={{ fontWeight: 800, fontSize: textSize, fontFamily: "'Syne',sans-serif", color: "#fff", whiteSpace: "nowrap" }}>Bode Conversion</span>
           <span style={{ fontWeight: 600, fontSize: textSize * 0.82, fontFamily: "'Syne',sans-serif", color: G, whiteSpace: "nowrap", letterSpacing: ".08em", textTransform: "uppercase" }}>Lab</span>
         </div>
       )}
@@ -241,42 +254,23 @@ export function Logo({ size = 32, showText = true, textSize = 13 }) {
   );
 }
 
-/* ── WHATSAPP ── */
 export function WhatsAppButton() {
   return (
-    <a href="https://wa.me/19454076473?text=Hi%20Bode%20Conversion%20Lab%2C%20I%27d%20like%20to%20know%20more" target="_blank" rel="noopener noreferrer"
-      style={{ position: "fixed", bottom: 24, right: 24, zIndex: 9999, width: 56, height: 56, borderRadius: "50%", background: "#25D366", boxShadow: "0 4px 20px rgba(37,211,102,.5)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", transition: "transform .2s, box-shadow .2s" }}
-      onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.boxShadow = "0 6px 28px rgba(37,211,102,.7)"; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(37,211,102,.5)"; }}>
+    <a href="https://wa.me/19454076473?text=Hi%20Bode%20Conversion%20Lab%2C%20I%27d%20like%20to%20know%20more"
+      target="_blank" rel="noopener noreferrer"
+      style={{ position: "fixed", bottom: 24, right: 24, zIndex: 9999, width: 56, height: 56, borderRadius: "50%", background: "#25D366", boxShadow: "0 4px 20px rgba(37,211,102,.5)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", transition: "transform .2s" }}
+      onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
+      onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>
       <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
     </a>
   );
 }
 
-/* ── PARTNER CARD with real colors ── */
-export function PartnerCard({ partner }) {
-  return (
-    <div style={{ background: "rgba(255,255,255,.04)", border: ".5px solid rgba(255,255,255,.1)", borderRadius: 14, padding: "1rem 1.5rem", display: "flex", alignItems: "center", gap: 12, transition: "all .25s", cursor: "default" }}
-      onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,.08)"; e.currentTarget.style.borderColor = `#${partner.color}66`; e.currentTarget.style.transform = "translateY(-2px)"; }}
-      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,.1)"; e.currentTarget.style.transform = "none"; }}>
-      <BrandIcon slug={partner.slug} color={partner.color} size={28} />
-      <div>
-        <p style={{ fontSize: 14, fontWeight: 600, color: "#fff", margin: 0 }}>{partner.name}</p>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", margin: 0 }}>Certified partner</p>
-      </div>
-      <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: `#${partner.color}`, boxShadow: `0 0 8px #${partner.color}88`, animation: "pulse 2s ease-in-out infinite" }} />
-    </div>
-  );
-}
-
-/* ── NAV — fixed hamburger stays open ── */
 export function Nav() {
   const scrollY = useScrollY();
   const loc = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const navH = scrollY > 40;
-
-  // Close menu on route change
   useEffect(() => { setMenuOpen(false); }, [loc.pathname]);
 
   return (
@@ -285,8 +279,6 @@ export function Nav() {
         <Link to="/" style={{ textDecoration: "none", flexShrink: 0 }}>
           <Logo size={32} textSize={12} />
         </Link>
-
-        {/* Desktop links */}
         <div style={{ display: "flex", gap: "1.4rem", alignItems: "center", flex: 1, justifyContent: "center" }} className="nav-links">
           {NAV_LINKS.map(l => (
             <Link key={l.path} to={l.path} style={{ color: loc.pathname === l.path ? G : "rgba(255,255,255,.55)", textDecoration: "none", fontSize: 14, fontWeight: loc.pathname === l.path ? 600 : 400, transition: "color .2s", whiteSpace: "nowrap" }}
@@ -294,37 +286,18 @@ export function Nav() {
               onMouseLeave={e => e.target.style.color = loc.pathname === l.path ? G : "rgba(255,255,255,.55)"}>{l.label}</Link>
           ))}
         </div>
-
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           <Link to="/contact" style={{ background: GG, color: "#040608", borderRadius: 8, padding: "0.5rem 1.1rem", fontSize: 13, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>Apply Now</Link>
-          {/* Hamburger */}
-          <button
-            onClick={(e) => { e.stopPropagation(); setMenuOpen(prev => !prev); }}
-            className="hamburger"
-            style={{ background: "rgba(255,255,255,.1)", border: ".5px solid rgba(255,255,255,.2)", cursor: "pointer", padding: "8px 10px", flexDirection: "column", gap: 5, borderRadius: 6, flexShrink: 0, display: "none" }}
-            aria-label="Toggle menu"
-          >
-            <span style={{ display: "block", width: 20, height: 2, background: menuOpen ? G : "#fff", borderRadius: 2, transition: "all .3s", transform: menuOpen ? "rotate(45deg) translate(5px,5px)" : "none" }} />
-            <span style={{ display: "block", width: 20, height: 2, background: menuOpen ? G : "#fff", borderRadius: 2, transition: "opacity .3s", opacity: menuOpen ? 0 : 1 }} />
-            <span style={{ display: "block", width: 20, height: 2, background: menuOpen ? G : "#fff", borderRadius: 2, transition: "all .3s", transform: menuOpen ? "rotate(-45deg) translate(5px,-5px)" : "none" }} />
+          <button onClick={() => setMenuOpen(v => !v)} className="hamburger"
+            style={{ background: "rgba(255,255,255,.1)", border: ".5px solid rgba(255,255,255,.2)", cursor: "pointer", padding: "8px 10px", flexDirection: "column", gap: 5, borderRadius: 6, flexShrink: 0, display: "none" }}>
+            <span style={{ display: "block", width: 20, height: 2, background: "#fff", borderRadius: 2, transition: "all .3s", transform: menuOpen ? "rotate(45deg) translate(5px,5px)" : "none" }} />
+            <span style={{ display: "block", width: 20, height: 2, background: "#fff", borderRadius: 2, transition: "opacity .3s", opacity: menuOpen ? 0 : 1 }} />
+            <span style={{ display: "block", width: 20, height: 2, background: "#fff", borderRadius: 2, transition: "all .3s", transform: menuOpen ? "rotate(-45deg) translate(5px,-5px)" : "none" }} />
           </button>
         </div>
       </nav>
-
-      {/* Mobile menu — always rendered, height animated */}
-      <div
-        style={{
-          position: "fixed", top: 56, left: 0, right: 0, zIndex: 98,
-          background: "rgba(4,6,8,.99)", backdropFilter: "blur(24px)",
-          borderBottom: menuOpen ? ".5px solid rgba(255,255,255,.1)" : "none",
-          maxHeight: menuOpen ? "500px" : "0",
-          overflow: "hidden",
-          transition: "max-height .4s cubic-bezier(.16,1,.3,1)",
-          display: "block",
-        }}
-        className="mobile-menu"
-      >
-        <div style={{ padding: "0.5rem 1.4rem 1.4rem" }}>
+      {menuOpen && (
+        <div style={{ position: "fixed", top: 56, left: 0, right: 0, zIndex: 98, background: "rgba(4,6,8,.99)", backdropFilter: "blur(24px)", borderBottom: ".5px solid rgba(255,255,255,.1)", padding: "0.5rem 1.4rem 1.4rem" }}>
           {NAV_LINKS.map(l => (
             <Link key={l.path} to={l.path} onClick={() => setMenuOpen(false)}
               style={{ display: "flex", alignItems: "center", gap: 10, color: loc.pathname === l.path ? G : "rgba(255,255,255,.8)", textDecoration: "none", fontSize: 16, fontWeight: loc.pathname === l.path ? 700 : 400, padding: "0.85rem 0", borderBottom: ".5px solid rgba(255,255,255,.06)" }}>
@@ -337,12 +310,11 @@ export function Nav() {
             Apply Now →
           </Link>
         </div>
-      </div>
+      )}
     </>
   );
 }
 
-/* ── FOOTER ── */
 export function Footer() {
   return (
     <footer style={{ padding: "3rem 1.5rem 2rem", borderTop: ".5px solid rgba(255,255,255,.06)", background: "rgba(0,0,0,.3)" }}>
@@ -374,7 +346,8 @@ export function Footer() {
             <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: "1.2rem", fontWeight: 600 }}>Contact</p>
             <Link to="/contact" style={{ display: "inline-block", background: GG, color: "#040608", borderRadius: 8, padding: ".7rem 1.4rem", fontSize: 14, fontWeight: 700, textDecoration: "none", marginBottom: "1rem" }}>Apply Now →</Link>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,.35)", marginTop: 8 }}>Response within 24 hours.</p>
-            <a href="https://wa.me/19454076473" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: "#25D366", textDecoration: "none", marginTop: 12 }}>
+            <a href="https://wa.me/19454076473" target="_blank" rel="noopener noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: "#25D366", textDecoration: "none", marginTop: 12 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
               WhatsApp us
             </a>
