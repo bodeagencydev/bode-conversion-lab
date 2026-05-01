@@ -101,21 +101,17 @@ export function Typewriter({ words }) {
   );
 }
 
-function BrandIcon({ slug, color, size = 20 }) {
-  const [failed, setFailed] = useState(false);
-  if (failed || !slug) return (
-    <div style={{ width: size, height: size, borderRadius: 4, background: `#${color || "ffffff"}22`, border: `1px solid #${color || "ffffff"}44`, flexShrink: 0 }} />
-  );
+/* ── INLINE SVG ICON — no CDN needed ── */
+function InlineSVG({ svg, size = 20 }) {
   return (
-    <img
-      src={`https://cdn.simpleicons.org/${slug}/${color || "ffffff"}`}
-      alt={slug} width={size} height={size}
-      style={{ flexShrink: 0, display: "block" }}
-      onError={() => setFailed(true)}
+    <div
+      style={{ width: size, height: size, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
+      dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
 }
 
+/* ── TICKER with inline SVGs ── */
 export function ContinuousTicker({ items, speed = 35, reverse = false }) {
   const [paused, setPaused] = useState(false);
   const doubled = [...items, ...items];
@@ -124,13 +120,12 @@ export function ContinuousTicker({ items, speed = 35, reverse = false }) {
       <div style={{ display: "flex", gap: "1.5rem", width: "max-content", animation: `${reverse ? "tickerR" : "ticker"} ${speed}s linear infinite`, animationPlayState: paused ? "paused" : "running", padding: "0.3rem 0" }}>
         {doubled.map((item, i) => {
           const name = typeof item === "string" ? item : item.name;
-          const slug = typeof item === "object" ? item.slug : null;
-          const color = typeof item === "object" ? item.color : null;
+          const svg = typeof item === "object" ? item.svg : null;
           return (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "0.5rem 1.2rem", background: "rgba(255,255,255,.04)", border: ".5px solid rgba(255,255,255,.1)", borderRadius: 100, whiteSpace: "nowrap", cursor: "default", transition: "all .2s" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,.25)"; e.currentTarget.style.background = "rgba(255,255,255,.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,.1)"; e.currentTarget.style.background = "rgba(255,255,255,.04)"; }}>
-              <BrandIcon slug={slug} color={color} size={18} />
+              {svg ? <InlineSVG svg={svg} size={18} /> : <span style={{ width: 5, height: 5, borderRadius: "50%", background: G, flexShrink: 0 }} />}
               <span style={{ fontSize: 13, color: "rgba(255,255,255,.7)", fontWeight: 500 }}>{name}</span>
             </div>
           );
@@ -140,6 +135,7 @@ export function ContinuousTicker({ items, speed = 35, reverse = false }) {
   );
 }
 
+/* ── TESTIMONIAL TICKER with store logos ── */
 export function TestimonialTicker({ items }) {
   const [paused, setPaused] = useState(false);
   const doubled = [...items, ...items];
@@ -147,17 +143,28 @@ export function TestimonialTicker({ items }) {
     <div style={{ overflow: "hidden" }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div style={{ display: "flex", gap: "1.5rem", width: "max-content", animation: "ticker 40s linear infinite", animationPlayState: paused ? "paused" : "running" }}>
         {doubled.map((t, i) => (
-          <div key={i} style={{ width: 320, flexShrink: 0, background: "linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))", border: ".5px solid rgba(0,255,136,.18)", borderTop: ".5px solid rgba(0,255,136,.3)", borderRadius: 20, padding: "1.4rem", position: "relative", overflow: "hidden", cursor: "default" }}
+          <div key={i} style={{ width: 320, flexShrink: 0, background: "linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))", border: ".5px solid rgba(0,255,136,.18)", borderTop: ".5px solid rgba(0,255,136,.3)", borderRadius: 20, padding: "1.4rem", position: "relative", overflow: "hidden", cursor: "default", transition: "transform .3s, border-color .3s" }}
             onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = "rgba(0,255,136,.45)"; }}
             onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(0,255,136,.18)"; }}>
             <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: "linear-gradient(90deg,transparent,rgba(0,255,136,.45),transparent)" }} />
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.25)", borderRadius: 100, padding: "3px 10px", fontSize: 11, color: G, fontWeight: 600, marginBottom: "1rem" }}>{t.result}</div>
+            {/* Store logo + result */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {t.storeLogo && (
+                  <img src={t.storeLogo} alt={t.storeName} width="24" height="24"
+                    style={{ borderRadius: 6, objectFit: "contain", background: "#fff", padding: 2 }}
+                    onError={e => e.target.style.display = "none"} />
+                )}
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,.4)", fontWeight: 500 }}>{t.storeName || t.role}</span>
+              </div>
+              <div style={{ background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.25)", borderRadius: 100, padding: "3px 10px", fontSize: 11, color: G, fontWeight: 600 }}>{t.result}</div>
+            </div>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,.55)", lineHeight: 1.7, marginBottom: "1.2rem", fontStyle: "italic" }}>"{t.text}"</p>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: G, flexShrink: 0 }}>{t.init}</div>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: G, flexShrink: 0 }}>{t.init}</div>
               <div>
                 <p style={{ fontSize: 13, fontWeight: 600, color: "#fff", margin: 0 }}>{t.name}</p>
-                <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", margin: 0 }}>{t.role}</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", margin: 0 }}>{t.storeCategory || t.role}</p>
               </div>
             </div>
           </div>
@@ -167,6 +174,7 @@ export function TestimonialTicker({ items }) {
   );
 }
 
+/* ── VIDEO TIPS — thumbnail click to YouTube ── */
 export function VideoTips({ items }) {
   const scrollRef = useRef(null);
   const scroll = (dir) => {
@@ -184,13 +192,12 @@ export function VideoTips({ items }) {
             onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(255,255,255,.12)"; }}>
             <div style={{ width: "100%", aspectRatio: "9/16", position: "relative", overflow: "hidden", background: "#000" }}>
               <img src={v.thumb} alt={v.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-              <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.35)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(255,0,0,.9)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(255,0,0,.5)" }}>
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M6 4L16 10L6 16Z" /></svg>
                 </div>
               </div>
               <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,.75)", border: ".5px solid rgba(0,255,136,.5)", borderRadius: 100, padding: "3px 10px", fontSize: 10, color: G, fontWeight: 600 }}>{v.tag}</div>
-              <div style={{ position: "absolute", bottom: 10, right: 10, background: "rgba(0,0,0,.7)", borderRadius: 6, padding: "3px 8px", fontSize: 10, color: "rgba(255,255,255,.7)" }}>Watch on YouTube</div>
             </div>
             <div style={{ padding: "1rem" }}>
               <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "0.9rem", fontWeight: 700, color: "#fff", marginBottom: ".4rem", lineHeight: 1.4 }}>{v.title}</h3>
@@ -203,17 +210,18 @@ export function VideoTips({ items }) {
   );
 }
 
+/* ── PARTNER CARD with inline SVG ── */
 export function PartnerCard({ partner }) {
   return (
     <div style={{ background: "rgba(255,255,255,.04)", border: ".5px solid rgba(255,255,255,.1)", borderRadius: 14, padding: "1rem 1.5rem", display: "flex", alignItems: "center", gap: 12, transition: "all .25s", cursor: "default" }}
-      onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,.08)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; e.currentTarget.style.transform = "none"; }}>
-      <BrandIcon slug={partner.slug} color={partner.color} size={28} />
+      onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,.08)"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = `${partner.color}55`; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(255,255,255,.1)"; }}>
+      {partner.svg ? <InlineSVG svg={partner.svg} size={28} /> : <div style={{ width: 28, height: 28, borderRadius: 6, background: partner.color + "33" }} />}
       <div>
         <p style={{ fontSize: 14, fontWeight: 600, color: "#fff", margin: 0 }}>{partner.name}</p>
         <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", margin: 0 }}>Certified partner</p>
       </div>
-      <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: `#${partner.color}`, animation: "pulse 2s ease-in-out infinite", flexShrink: 0 }} />
+      <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: partner.color, boxShadow: `0 0 8px ${partner.color}88`, animation: "pulse 2s ease-in-out infinite", flexShrink: 0 }} />
     </div>
   );
 }
