@@ -19,7 +19,7 @@ export const TESTIMONIALS = [
     text: "I'd been running ads for 2 years with nothing to show for it. Three months in, my ROAS went from 0.8x to 6.2x. The store rebuild alone doubled my conversion rate.",
     storeName: "IronFuel Supplements",
     storeUrl: "https://www.myprotein.com",
-    storeLogo: "https://logo.clearbit.com/myprotein.com",
+    storeLogo: "https://www.google.com/s2/favicons?domain=myprotein.com&sz=64",
     storeCategory: "Fitness & Supplements",
   },
   {
@@ -30,7 +30,7 @@ export const TESTIMONIALS = [
     text: "They found 11 things wrong with my checkout in the first audit. I had no idea I was losing that many customers. Best investment I've made in the business.",
     storeName: "Glow Ritual",
     storeUrl: "https://www.lookfantastic.com",
-    storeLogo: "https://logo.clearbit.com/lookfantastic.com",
+    storeLogo: "https://www.google.com/s2/favicons?domain=lookfantastic.com&sz=64",
     storeCategory: "Beauty & Skincare",
   },
   {
@@ -41,7 +41,7 @@ export const TESTIMONIALS = [
     text: "Went from burning money on ads to finally being profitable in week 6. The system they built just keeps compounding. I wish I found them sooner.",
     storeName: "TechToy Vista",
     storeUrl: "https://www.zavvi.com",
-    storeLogo: "https://logo.clearbit.com/zavvi.com",
+    storeLogo: "https://www.google.com/s2/favicons?domain=zavvi.com&sz=64",
     storeCategory: "Tech & Gadgets",
   },
   {
@@ -52,7 +52,7 @@ export const TESTIMONIALS = [
     text: "Within 45 days they rebuilt my product page, rewrote my ad copy and my cost per purchase dropped by 60%. Insane results for a small brand.",
     storeName: "Velvet & Co",
     storeUrl: "https://www.cultbeauty.com",
-    storeLogo: "https://logo.clearbit.com/cultbeauty.com",
+    storeLogo: "https://www.google.com/s2/favicons?domain=cultbeauty.com&sz=64",
     storeCategory: "Luxury Beauty",
   },
   {
@@ -63,7 +63,7 @@ export const TESTIMONIALS = [
     text: "The audit alone was worth 10x the price. They identified a checkout friction point killing 40% of my sales. Fixed in a week, results were immediate.",
     storeName: "PeakForm Nutrition",
     storeUrl: "https://www.bulk.com",
-    storeLogo: "https://logo.clearbit.com/bulk.com",
+    storeLogo: "https://www.google.com/s2/favicons?domain=bulk.com&sz=64",
     storeCategory: "Sports Nutrition",
   },
   {
@@ -74,7 +74,7 @@ export const TESTIMONIALS = [
     text: "We were spending $5k/mo on ads and getting almost nothing back. Bode found the issue in 3 days. Now every dollar we spend returns four.",
     storeName: "Drip District",
     storeUrl: "https://www.boohoo.com",
-    storeLogo: "https://logo.clearbit.com/boohoo.com",
+    storeLogo: "https://www.google.com/s2/favicons?domain=boohoo.com&sz=64",
     storeCategory: "Fashion & Apparel",
   },
 ];
