@@ -2,9 +2,10 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://bodeconversionlab.vercel.app/</loc></url>
   <url><loc>https://bodeconversionlab.vercel.app/about</loc></url>
-  <url><loc>https://bodeconversionlab.vercel.app/audit</loc></url>
-  <url><loc>https://bodeconversionlab.vercel.app/blog</loc></url>
-  <url><loc>https://bodeconversionlab.vercel.app/casestudies</loc></url>
-  <url><loc>https://bodeconversionlab.vercel.app/contact</loc></url>
+  <url><loc>https://bodeconversionlab.vercel.app/case-studies</loc></url>
   <url><loc>https://bodeconversionlab.vercel.app/pricing</loc></url>
+  <url><loc>https://bodeconversionlab.vercel.app/blog</loc></url>
+  <url><loc>https://bodeconversionlab.vercel.app/contact</loc></url>
+  <url><loc>https://bodeconversionlab.vercel.app/audit</loc></url>
+  <url><loc>https://bodeconversionlab.vercel.app/subscribe</loc></url>
 </urlset>
