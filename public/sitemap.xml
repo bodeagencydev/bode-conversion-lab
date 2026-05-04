@@ -1,50 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-<!-- Manual Update for Bode Conversion Lab -->
-
-<url>
-  <loc>https://bodeconversionlab.vercel.app/</loc>
-  <lastmod>2026-05-04T18:45:00+00:00</lastmod>
-  <priority>1.00</priority>
-</url>
-<url>
-  <loc>https://bodeconversionlab.vercel.app/About</loc>
-  <lastmod>2026-05-04T18:45:00+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://bodeconversionlab.vercel.app/Audit</loc>
-  <lastmod>2026-05-04T18:45:00+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://bodeconversionlab.vercel.app/Blog</loc>
-  <lastmod>2026-05-04T18:45:00+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://bodeconversionlab.vercel.app/CaseStudies</loc>
-  <lastmod>2026-05-04T18:45:00+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://bodeconversionlab.vercel.app/Contact</loc>
-  <lastmod>2026-05-04T18:45:00+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://bodeconversionlab.vercel.app/Pricing</loc>
-  <lastmod>2026-05-04T18:45:00+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://bodeconversionlab.vercel.app/Subscribe</loc>
-  <lastmod>2026-05-04T18:45:00+00:00</lastmod>
-  <priority>0.50</priority>
-</url>
-
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://bodeconversionlab.vercel.app/</loc></url>
+  <url><loc>https://bodeconversionlab.vercel.app/about</loc></url>
+  <url><loc>https://bodeconversionlab.vercel.app/audit</loc></url>
+  <url><loc>https://bodeconversionlab.vercel.app/blog</loc></url>
+  <url><loc>https://bodeconversionlab.vercel.app/casestudies</loc></url>
+  <url><loc>https://bodeconversionlab.vercel.app/contact</loc></url>
+  <url><loc>https://bodeconversionlab.vercel.app/pricing</loc></url>
 </urlset>
