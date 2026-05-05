@@ -1,12 +1,25 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { G, GG, FAQS } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
 
 export default function Pricing() {
+  const { dark } = useTheme();
   const [pricingVisible, setPricingVisible] = useState(false);
   const [faqOpen, setFaqOpen] = useState(null);
-  const [billing, setBilling] = useState("monthly");
+
+  const headingColor = dark ? "#fff" : "#0a0a0a";
+  const mutedText = dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.5)";
+  const mutedText2 = dark ? "rgba(255,255,255,.4)" : "rgba(0,0,0,.4)";
+  const mutedText3 = dark ? "rgba(255,255,255,.35)" : "rgba(0,0,0,.4)";
+  const mutedText4 = dark ? "rgba(255,255,255,.3)" : "rgba(0,0,0,.35)";
+  const mutedText5 = dark ? "rgba(255,255,255,.5)" : "rgba(0,0,0,.55)";
+  const cardBg = dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(0,0,0,.03),rgba(0,0,0,.01))";
+  const cardBorder = dark ? "rgba(255,255,255,.12)" : "rgba(0,0,0,.1)";
+  const optionBg = dark ? "rgba(255,255,255,.04)" : "rgba(0,0,0,.03)";
+  const optionBorder = dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.08)";
+  const faqBorder = dark ? "rgba(255,255,255,.07)" : "rgba(0,0,0,.08)";
+  const itemBorder = dark ? "rgba(255,255,255,.05)" : "rgba(0,0,0,.06)";
 
   return (
     <PageWrapper>
@@ -19,10 +32,10 @@ export default function Pricing() {
               <span style={{ width: 6, height: 6, background: G, borderRadius: "50%" }} /> Investment
             </span>
           </div>
-          <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "3.2rem", fontWeight: 800, lineHeight: 1.1, letterSpacing: "-.03em", color: "#fff", marginBottom: "1.2rem" }}>
+          <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "3.2rem", fontWeight: 800, lineHeight: 1.1, letterSpacing: "-.03em", color: headingColor, marginBottom: "1.2rem" }}>
             Serious about scaling?<br /><GradText>Here's how we work.</GradText>
           </h1>
-          <p style={{ fontSize: "1.05rem", color: "rgba(255,255,255,.45)", lineHeight: 1.75 }}>
+          <p style={{ fontSize: "1.05rem", color: mutedText, lineHeight: 1.75 }}>
             We don't work with everyone. We work with stores that are ready to grow. Unlock pricing below after reading our commitment to you.
           </p>
         </div>
@@ -48,8 +61,8 @@ export default function Pricing() {
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
                   <span style={{ color: G, fontSize: 18, fontWeight: 800, flexShrink: 0, marginTop: 2 }}>{item.icon}</span>
                   <div>
-                    <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1rem", fontWeight: 700, color: "#fff", marginBottom: ".4rem" }}>{item.title}</h3>
-                    <p style={{ fontSize: 13, color: "rgba(255,255,255,.4)", lineHeight: 1.7 }}>{item.desc}</p>
+                    <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1rem", fontWeight: 700, color: headingColor, marginBottom: ".4rem" }}>{item.title}</h3>
+                    <p style={{ fontSize: 13, color: mutedText2, lineHeight: 1.7 }}>{item.desc}</p>
                   </div>
                 </div>
               </div>
@@ -68,8 +81,8 @@ export default function Pricing() {
               <div style={{ width: 70, height: 70, borderRadius: "50%", background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem", animation: "glow 3s ease-in-out infinite" }}>
                 <svg width="28" height="28" viewBox="0 0 22 22" fill="none"><rect x="4" y="10" width="14" height="10" rx="3" stroke={G} strokeWidth="1.5" /><path d="M7 10V7a4 4 0 018 0v3" stroke={G} strokeWidth="1.5" strokeLinecap="round" /></svg>
               </div>
-              <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.5rem", fontWeight: 800, color: "#fff", marginBottom: ".75rem" }}>Pricing is qualification-based</h3>
-              <p style={{ fontSize: 15, color: "rgba(255,255,255,.4)", marginBottom: "2rem", lineHeight: 1.7, maxWidth: 480, margin: "0 auto 2rem" }}>We only work with stores that are the right fit. Not because we're exclusive — because we only take clients we can genuinely help.</p>
+              <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.5rem", fontWeight: 800, color: headingColor, marginBottom: ".75rem" }}>Pricing is qualification-based</h3>
+              <p style={{ fontSize: 15, color: mutedText2, marginBottom: "2rem", lineHeight: 1.7, maxWidth: 480, margin: "0 auto 2rem" }}>We only work with stores that are the right fit. Not because we're exclusive — because we only take clients we can genuinely help.</p>
               <button className="btn-g" onClick={() => setPricingVisible(true)}>I'm ready — show me pricing →</button>
             </div>
           ) : (
@@ -85,17 +98,19 @@ export default function Pricing() {
                   { tier: "Premium", name: "Full Stack", price: "$4,500", period: "/mo", desc: "For stores that want everything handled — end to end.", items: ["Everything in The Lab", "Done-for-you landing pages", "Email flow builds", "Creative production", "Weekly strategy calls", "Priority 2hr response"], feat: false, cta: "Apply for Full Stack" },
                 ].map((o, i) => (
                   <div key={i} className={`offer-card ${o.feat ? "feat" : ""}`}>
-                    {o.feat && <div style={{ display: "inline-block", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.4)", borderRadius: 100, padding: "3px 12px", fontSize: 11, color: G, marginBottom: "1rem" }}>{o.tier}</div>}
-                    {!o.feat && <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", marginBottom: ".5rem" }}>{o.tier}</p>}
-                    <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.3rem", fontWeight: 800, marginBottom: ".5rem", color: "#fff" }}>{o.name}</h3>
-                    <p style={{ fontSize: 12, color: "rgba(255,255,255,.35)", marginBottom: "1.2rem", lineHeight: 1.5 }}>{o.desc}</p>
+                    {o.feat
+                      ? <div style={{ display: "inline-block", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.4)", borderRadius: 100, padding: "3px 12px", fontSize: 11, color: G, marginBottom: "1rem" }}>{o.tier}</div>
+                      : <p style={{ fontSize: 11, color: mutedText4, marginBottom: ".5rem" }}>{o.tier}</p>
+                    }
+                    <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.3rem", fontWeight: 800, marginBottom: ".5rem", color: headingColor }}>{o.name}</h3>
+                    <p style={{ fontSize: 12, color: mutedText3, marginBottom: "1.2rem", lineHeight: 1.5 }}>{o.desc}</p>
                     <div style={{ marginBottom: "1.5rem" }}>
-                      <span style={{ fontFamily: "'Syne',sans-serif", fontSize: "2.2rem", fontWeight: 800, color: "#fff" }}>{o.price}</span>
-                      <span style={{ fontSize: 13, color: "rgba(255,255,255,.3)" }}>{o.period}</span>
+                      <span style={{ fontFamily: "'Syne',sans-serif", fontSize: "2.2rem", fontWeight: 800, color: headingColor }}>{o.price}</span>
+                      <span style={{ fontSize: 13, color: mutedText4 }}>{o.period}</span>
                     </div>
                     <ul style={{ listStyle: "none", marginBottom: "1.5rem" }}>
                       {o.items.map((item, j) => (
-                        <li key={j} style={{ fontSize: 13, color: "rgba(255,255,255,.5)", padding: "7px 0", borderBottom: ".5px solid rgba(255,255,255,.05)", display: "flex", gap: 8, alignItems: "center" }}>
+                        <li key={j} style={{ fontSize: 13, color: mutedText5, padding: "7px 0", borderBottom: `.5px solid ${itemBorder}`, display: "flex", gap: 8, alignItems: "center" }}>
                           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke={G} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                           {item}
                         </li>
@@ -122,11 +137,11 @@ export default function Pricing() {
           {FAQS.map((f, i) => (
             <div key={i}>
               <button onClick={() => setFaqOpen(faqOpen === i ? null : i)}
-                style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", color: "#f0f0f0", fontSize: 15, fontWeight: 500, cursor: "pointer", padding: "1.2rem 0", display: "flex", justifyContent: "space-between", alignItems: "center", fontFamily: "inherit", borderBottom: ".5px solid rgba(255,255,255,.07)" }}>
+                style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", color: headingColor, fontSize: 15, fontWeight: 500, cursor: "pointer", padding: "1.2rem 0", display: "flex", justifyContent: "space-between", alignItems: "center", fontFamily: "inherit", borderBottom: `.5px solid ${faqBorder}` }}>
                 <span>{f.q}</span>
                 <span style={{ color: G, fontSize: 18, transition: "transform .25s", transform: faqOpen === i ? "rotate(45deg)" : "none", display: "inline-block", flexShrink: 0, marginLeft: 12 }}>+</span>
               </button>
-              {faqOpen === i && <p style={{ fontSize: 14, color: "rgba(255,255,255,.45)", lineHeight: 1.75, padding: "1rem 0 1.2rem", borderBottom: ".5px solid rgba(255,255,255,.07)" }}>{f.a}</p>}
+              {faqOpen === i && <p style={{ fontSize: 14, color: mutedText, lineHeight: 1.75, padding: "1rem 0 1.2rem", borderBottom: `.5px solid ${faqBorder}` }}>{f.a}</p>}
             </div>
           ))}
         </div>

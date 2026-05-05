@@ -377,10 +377,19 @@ export function ThemeToggle() {
   const { dark, toggle } = useTheme();
   return (
     <button onClick={toggle}
-      style={{ position: "fixed", bottom: 24, left: 24, zIndex: 9999, width: 56, height: 56, borderRadius: "50%", background: dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.1)", border: dark ? ".5px solid rgba(255,255,255,.2)" : ".5px solid rgba(0,0,0,.15)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all .3s", fontSize: 22 }}
+      style={{
+        position: "fixed", bottom: 24, left: 24, zIndex: 9999,
+        width: 56, height: 56, borderRadius: "50%",
+        background: dark ? "rgba(255,255,255,.1)" : "#0a0a0a",
+        border: dark ? ".5px solid rgba(255,255,255,.2)" : ".5px solid #0a0a0a",
+        backdropFilter: "blur(10px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        cursor: "pointer", transition: "all .3s", fontSize: 22,
+        boxShadow: dark ? "none" : "0 4px 16px rgba(0,0,0,.25)"
+      }}
       title={dark ? "Switch to light mode" : "Switch to dark mode"}
-      onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.background = dark ? "rgba(255,255,255,.2)" : "rgba(0,0,0,.2)"; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.background = dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.1)"; }}>
+      onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1)"; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}>
       {dark ? "☀️" : "🌙"}
     </button>
   );
