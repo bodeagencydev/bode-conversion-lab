@@ -1,202 +1,127 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { G, GG } from "../data.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles } from "../components.jsx";
 
-const QUESTIONS = [
-  {
-    id: "speed",
-    question: "How fast does your store load on mobile?",
-    options: [
-      { label: "Under 2 seconds", score: 0, feedback: "Great! Speed is not your issue." },
-      { label: "2-4 seconds", score: 20, feedback: "Borderline. You're losing some visitors." },
-      { label: "4-6 seconds", score: 40, feedback: "Serious problem. 40% of visitors leave." },
-      { label: "Over 6 seconds or I don't know", score: 60, feedback: "Critical. Most visitors leave before seeing anything." },
-    ],
-  },
-  {
-    id: "checkout",
-    question: "Does your checkout require account creation before purchase?",
-    options: [
-      { label: "No, guest checkout available", score: 0, feedback: "Good — no forced friction." },
-      { label: "Yes, customers must register", score: 35, feedback: "This kills 35% of buyers at checkout." },
-      { label: "I'm not sure", score: 20, feedback: "Check immediately — this is a major leak." },
-    ],
-  },
-  {
-    id: "cta",
-    question: "Is your 'Add to Cart' button visible without scrolling on mobile?",
-    options: [
-      { label: "Yes, visible immediately", score: 0, feedback: "Perfect placement." },
-      { label: "No, they have to scroll down", score: 30, feedback: "60% of stores have this problem. Easy fix, big win." },
-      { label: "I haven't checked on mobile", score: 25, feedback: "Check now — mobile is 70% of your traffic." },
-    ],
-  },
-  {
-    id: "roas",
-    question: "What is your current average ROAS (Return on Ad Spend)?",
-    options: [
-      { label: "Above 4x", score: 0, feedback: "Solid. Room to scale." },
-      { label: "2x-4x", score: 15, feedback: "Decent but improvable. Hidden leaks exist." },
-      { label: "1x-2x", score: 35, feedback: "Breaking even at best. Funnel needs fixing." },
-      { label: "Below 1x or not running ads", score: 50, feedback: "Critical — every ad dollar is losing money." },
-    ],
-  },
-  {
-    id: "email",
-    question: "Do you have an abandoned cart email sequence?",
-    options: [
-      { label: "Yes, 3+ emails set up", score: 0, feedback: "Good — recovering revenue on autopilot." },
-      { label: "Yes, 1 email only", score: 15, feedback: "You need at least 3. You're leaving 15% recovery on the table." },
-      { label: "No abandoned cart emails", score: 40, feedback: "You're losing 15-20% of recoverable revenue every day." },
-    ],
-  },
-  {
-    id: "trust",
-    question: "Does your product page have reviews, trust badges, and a clear return policy?",
-    options: [
-      { label: "All three present and visible", score: 0, feedback: "Trust signals in place." },
-      { label: "Some but not all", score: 20, feedback: "Missing trust signals cost conversions." },
-      { label: "None of these", score: 45, feedback: "Major conversion killer. Buyers need trust signals." },
-    ],
-  },
-  {
-    id: "tracking",
-    question: "Are you tracking conversion rate, CPA, and LTV separately?",
-    options: [
-      { label: "Yes, all three", score: 0, feedback: "Data-driven — you can scale confidently." },
-      { label: "Only ROAS", score: 20, feedback: "ROAS alone is misleading. You need the full picture." },
-      { label: "Not really tracking metrics", score: 40, feedback: "You can't improve what you don't measure." },
-    ],
-  },
-];
+export default function Subscribe() {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-function getGrade(score) {
-  if (score <= 30) return { grade: "A", label: "Strong Store", color: "#00ff88", desc: "Your store has solid fundamentals. Focus on scaling what's working." };
-  if (score <= 80) return { grade: "B", label: "Room to Improve", color: "#FAAD4D", desc: "Good base but there are clear leaks costing you revenue every day." };
-  if (score <= 140) return { grade: "C", label: "Significant Issues", color: "#FF9900", desc: "Multiple friction points are actively losing you customers and revenue." };
-  return { grade: "D", label: "Store Needs Urgent Work", color: "#FF4444", desc: "Critical issues are costing you the majority of potential revenue. Act now." };
-}
-
-export default function Audit() {
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState([]);
-  const [done, setDone] = useState(false);
-
-  const totalScore = answers.reduce((sum, a) => sum + a.score, 0);
-  const grade = getGrade(totalScore);
-  const maxScore = QUESTIONS.reduce((sum, q) => sum + Math.max(...q.options.map(o => o.score)), 0);
-  const healthPct = Math.max(0, Math.round((1 - totalScore / maxScore) * 100));
-
-  const handleAnswer = (opt) => {
-    const next = [...answers, { score: opt.score, feedback: opt.feedback, question: QUESTIONS[step].question, answer: opt.label }];
-    setAnswers(next);
-    if (step < QUESTIONS.length - 1) setStep(step + 1);
-    else setDone(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await fetch("https://formspree.io/f/xaqadyal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name, _subject: "New Newsletter Subscriber" }),
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setSubmitted(true);
+    }
+    setLoading(false);
   };
 
   return (
     <PageWrapper>
-      <section style={{ position: "relative", padding: "clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 3rem", overflow: "hidden" }}>
+      <section style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem)", overflow: "hidden" }}>
         <Particles />
-        <div style={{ position: "absolute", width: 500, height: 500, top: -100, left: "50%", transform: "translateX(-50%)", background: "radial-gradient(circle,rgba(0,255,136,.12),transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
-        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
-          <div style={{ marginBottom: "1.5rem" }}>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.28)", borderRadius: 100, padding: "5px 14px", fontSize: 11, color: G, fontWeight: 500 }}>
-              <span style={{ width: 6, height: 6, background: G, borderRadius: "50%", animation: "pulse 2s infinite" }} /> Free Store Audit Tool
-            </span>
-          </div>
-          <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2rem,7vw,3.2rem)", fontWeight: 800, lineHeight: 1.1, color: "#fff", marginBottom: "1rem", wordBreak: "break-word" }}>
-            How healthy is<br /><GradText>your store?</GradText>
-          </h1>
-          <p style={{ fontSize: "clamp(0.9rem,3vw,1.05rem)", color: "rgba(255,255,255,.45)", lineHeight: 1.75 }}>
-            7 questions. 2 minutes. Instant diagnosis of where your store is leaking money.
-          </p>
-        </div>
-      </section>
+        <div style={{ position: "absolute", width: 600, height: 600, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "radial-gradient(circle,rgba(0,255,136,.12),transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
 
-      <Section>
-        <div style={{ maxWidth: 680, margin: "0 auto" }}>
-          {!done ? (
-            <div style={{ background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: ".5px solid rgba(255,255,255,.12)", borderTop: ".5px solid rgba(255,255,255,.22)", borderRadius: 24, padding: "clamp(1.5rem,4vw,2.5rem)", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: "linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent)" }} />
-              {/* Progress */}
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,.4)" }}>Question {step + 1} of {QUESTIONS.length}</span>
-                <span style={{ fontSize: 12, color: G }}>{Math.round((step / QUESTIONS.length) * 100)}% done</span>
+        <div style={{ maxWidth: 560, width: "100%", position: "relative", zIndex: 1 }}>
+          {!submitted ? (
+            <div style={{ background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: ".5px solid rgba(255,255,255,.12)", borderTop: ".5px solid rgba(255,255,255,.22)", borderRadius: 28, padding: "clamp(2rem,5vw,3.5rem)", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: "linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)" }} />
+
+              {/* Icon */}
+              <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem", animation: "glow 3s ease-in-out infinite" }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke={G} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </div>
-              <div style={{ height: 4, background: "rgba(255,255,255,.08)", borderRadius: 4, overflow: "hidden", marginBottom: "2rem" }}>
-                <div style={{ height: "100%", background: GG, borderRadius: 4, width: `${(step / QUESTIONS.length) * 100}%`, transition: "width .4s" }} />
+
+              <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.28)", borderRadius: 100, padding: "5px 14px", fontSize: 11, color: G, fontWeight: 500, marginBottom: "1rem" }}>
+                  <span style={{ width: 6, height: 6, background: G, borderRadius: "50%", animation: "pulse 2s infinite" }} /> Free weekly insights
+                </span>
+                <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.8rem,6vw,2.6rem)", fontWeight: 800, color: "#fff", lineHeight: 1.15, marginBottom: "1rem", wordBreak: "break-word" }}>
+                  Get the tactics that<br /><GradText>scale stores to $70k/mo</GradText>
+                </h1>
+                <p style={{ fontSize: 15, color: "rgba(255,255,255,.45)", lineHeight: 1.7 }}>
+                  Every week: one actionable tip from inside our client work. CRO wins, ad strategies, email flows that print money. No fluff. No recycled advice.
+                </p>
               </div>
-              <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.1rem,4vw,1.3rem)", fontWeight: 700, color: "#fff", marginBottom: "1.5rem", lineHeight: 1.4 }}>{QUESTIONS[step].question}</h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {QUESTIONS[step].options.map((opt, i) => (
-                  <button key={i} onClick={() => handleAnswer(opt)}
-                    style={{ width: "100%", textAlign: "left", background: "rgba(255,255,255,.04)", border: ".5px solid rgba(255,255,255,.1)", borderRadius: 12, padding: "1rem 1.2rem", color: "#f0f0f0", fontSize: 14, cursor: "pointer", fontFamily: "inherit", transition: "all .2s", display: "flex", alignItems: "center", gap: 12 }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,255,136,.1)"; e.currentTarget.style.borderColor = "rgba(0,255,136,.5)"; e.currentTarget.style.transform = "translateX(6px)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,.1)"; e.currentTarget.style.transform = "none"; }}>
-                    <span style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: G, flexShrink: 0 }}>{String.fromCharCode(65 + i)}</span>
-                    {opt.label}
-                  </button>
+
+              {/* What you get */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: "2rem" }}>
+                {[
+                  "Weekly CRO tip you can implement in under an hour",
+                  "Real case studies with actual numbers",
+                  "Ad strategy breakdowns from live campaigns",
+                  "Early access to free tools and audits",
+                ].map((item, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="rgba(0,255,136,.15)" /><path d="M5 8L7 10L11 6" stroke={G} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    <span style={{ fontSize: 13, color: "rgba(255,255,255,.6)" }}>{item}</span>
+                  </div>
                 ))}
               </div>
+
+              <form onSubmit={handleSubmit}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: "1.2rem" }}>
+                  <input
+                    type="text"
+                    placeholder="Your first name"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    required
+                    style={{ width: "100%", background: "rgba(255,255,255,.06)", border: ".5px solid rgba(255,255,255,.12)", borderRadius: 10, padding: ".85rem 1rem", color: "#f0f0f0", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                    onFocus={e => e.target.style.borderColor = "rgba(0,255,136,.5)"}
+                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,.12)"}
+                  />
+                  <input
+                    type="email"
+                    placeholder="Your email address"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                    style={{ width: "100%", background: "rgba(255,255,255,.06)", border: ".5px solid rgba(255,255,255,.12)", borderRadius: 10, padding: ".85rem 1rem", color: "#f0f0f0", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                    onFocus={e => e.target.style.borderColor = "rgba(0,255,136,.5)"}
+                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,.12)"}
+                  />
+                </div>
+                <button type="submit" disabled={loading}
+                  style={{ width: "100%", background: GG, color: "#040608", border: "none", borderRadius: 10, padding: "1rem", fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit", opacity: loading ? 0.7 : 1, transition: "transform .15s, box-shadow .15s", boxShadow: "0 4px 22px rgba(0,255,136,.35)" }}
+                  onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 34px rgba(0,255,136,.55)"; }}}
+                  onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 4px 22px rgba(0,255,136,.35)"; }}>
+                  {loading ? "Subscribing..." : "Subscribe — it's free →"}
+                </button>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,.25)", textAlign: "center", marginTop: "1rem" }}>
+                  No spam. Unsubscribe anytime. Read by 1,000+ store owners.
+                </p>
+              </form>
             </div>
           ) : (
-            /* RESULTS */
-            <div>
-              {/* Score card */}
-              <div style={{ background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: `.5px solid ${grade.color}44`, borderTop: `.5px solid ${grade.color}88`, borderRadius: 24, padding: "2.5rem", marginBottom: "1.5rem", textAlign: "center", position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: `linear-gradient(90deg,transparent,${grade.color}88,transparent)` }} />
-                <div style={{ width: 100, height: 100, borderRadius: "50%", background: `${grade.color}18`, border: `3px solid ${grade.color}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
-                  <span style={{ fontFamily: "'Syne',sans-serif", fontSize: "2.5rem", fontWeight: 800, color: grade.color, lineHeight: 1 }}>{grade.grade}</span>
-                </div>
-                <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.4rem,5vw,2rem)", fontWeight: 800, color: "#fff", marginBottom: ".5rem" }}>{grade.label}</h2>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,.5)", marginBottom: "1.5rem", lineHeight: 1.7 }}>{grade.desc}</p>
-                {/* Health bar */}
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,.4)" }}>Store Health Score</span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: grade.color }}>{healthPct}%</span>
-                  </div>
-                  <div style={{ height: 10, background: "rgba(255,255,255,.08)", borderRadius: 10, overflow: "hidden" }}>
-                    <div style={{ height: "100%", background: `linear-gradient(90deg,${grade.color},${grade.color}88)`, borderRadius: 10, width: `${healthPct}%`, transition: "width 1.5s cubic-bezier(.16,1,.3,1)" }} />
-                  </div>
-                </div>
-                <Link to="/contact" className="btn-g" style={{ display: "inline-block" }}>Get a full professional audit →</Link>
+            <div style={{ background: "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border: ".5px solid rgba(0,255,136,.35)", borderRadius: 28, padding: "3.5rem", textAlign: "center" }}>
+              <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.4)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 2rem", animation: "glow 3s ease-in-out infinite" }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={G} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </div>
-
-              {/* Issue breakdown */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.5rem" }}>
-                <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.1rem", fontWeight: 700, color: "#fff" }}>Your diagnosis:</h3>
-                {answers.map((a, i) => (
-                  <div key={i} style={{ background: a.score === 0 ? "rgba(0,255,136,.05)" : "rgba(255,100,0,.05)", border: `.5px solid ${a.score === 0 ? "rgba(0,255,136,.2)" : "rgba(255,100,0,.2)"}`, borderRadius: 12, padding: "1rem 1.2rem", display: "flex", gap: 12, alignItems: "flex-start" }}>
-                    <div style={{ width: 24, height: 24, borderRadius: "50%", background: a.score === 0 ? "rgba(0,255,136,.15)" : "rgba(255,100,0,.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
-                      {a.score === 0
-                        ? <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="#00ff88" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                        : <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3L9 9M9 3L3 9" stroke="#FF6400" strokeWidth="1.5" strokeLinecap="round" /></svg>
-                      }
-                    </div>
-                    <div>
-                      <p style={{ fontSize: 12, color: "rgba(255,255,255,.35)", marginBottom: 2 }}>{a.question}</p>
-                      <p style={{ fontSize: 13, color: "rgba(255,255,255,.6)", marginBottom: 4 }}>Your answer: <strong style={{ color: "#fff" }}>{a.answer}</strong></p>
-                      <p style={{ fontSize: 12, color: a.score === 0 ? G : "#FF9900", fontStyle: "italic" }}>{a.feedback}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ background: "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border: ".5px solid rgba(0,255,136,.25)", borderRadius: 20, padding: "2rem", textAlign: "center" }}>
-                <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.3rem", fontWeight: 800, color: "#fff", marginBottom: ".75rem" }}>Want us to fix every issue above?</h3>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,.45)", marginBottom: "1.5rem", lineHeight: 1.7 }}>Our full professional audit goes 10x deeper — and we don't just identify problems, we fix them.</p>
-                <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-                  <Link to="/contact" className="btn-g" style={{ display: "inline-block" }}>Apply for full audit →</Link>
-                  <button onClick={() => { setStep(0); setAnswers([]); setDone(false); }} className="btn-ghost">Retake audit</button>
-                </div>
+              <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.6rem,5vw,2.2rem)", fontWeight: 800, color: "#fff", marginBottom: "1rem" }}>
+                You're in! Welcome to the lab. 🧪
+              </h2>
+              <p style={{ fontSize: 15, color: "rgba(255,255,255,.5)", lineHeight: 1.7, marginBottom: "2rem" }}>
+                Check your inbox — your first insight is on its way. While you wait, audit your store for free.
+              </p>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+                <a href="/audit" className="btn-g" style={{ display: "inline-block", textDecoration: "none" }}>Audit my store free →</a>
+                <a href="/" className="btn-ghost" style={{ display: "inline-block", textDecoration: "none" }}>Back to home</a>
               </div>
             </div>
           )}
         </div>
-      </Section>
+      </section>
     </PageWrapper>
   );
 }

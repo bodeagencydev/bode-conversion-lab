@@ -312,6 +312,6 @@ export const VIDEO_TIPS = [
   { tag: "Checkout Tip", title: "Why your checkout loses 40% of buyers", desc: "The #1 mistake e-commerce stores make that kills conversions.", videoId: "HcNzgUUQI5g", thumb: "https://i.ytimg.com/vi/HcNzgUUQI5g/hqdefault.jpg" },
   { tag: "Ad Strategy", title: "How to cut your Meta CPA in half", desc: "A simple audience restructure most agencies overlook.", videoId: "SklDEDMQmmY", thumb: "https://i.ytimg.com/vi/SklDEDMQmmY/hqdefault.jpg" },
   { tag: "Store Audit", title: "5 things we check in every store audit", desc: "The exact checklist we use to find where your store leaks money.", videoId: "UQGUkS8H-44", thumb: "https://i.ytimg.com/vi/UQGUkS8H-44/hqdefault.jpg" },
-  { tag: "ROAS Explained", title: "What a 4x ROAS actually looks like", desc: "Real numbers, breaking down what makes ads profitable.", videoId: "GT3yTvgD7i8", thumb: "https://i.ytimg.com/vi/GT3yTvgD7i8/hqdefault.jpg" },
+  { tag: "ROAS Explained", title: "What a 4x ROAS actually looks like", desc: "Real numbers, breaking down what makes ads profitable.", videoId: "UQGUkS8H-44", thumb: "https://i.ytimg.com/vi/UQGUkS8H-44/hqdefault.jpg" },
   { tag: "Email Flow", title: "The abandoned cart sequence that recovers 20%", desc: "3 emails, exact timing, exact copy. Free to implement today.", videoId: "fvbex4WkncE", thumb: "https://i.ytimg.com/vi/fvbex4WkncE/hqdefault.jpg" },
 ];
