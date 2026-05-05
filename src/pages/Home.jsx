@@ -1,9 +1,17 @@
 import { Link } from "react-router-dom";
 import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, AD_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
-import { Particles, Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, AnimNum, useInView, PageWrapper } from "../components.jsx";
+import { Particles, Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, AnimNum, useInView, useTheme, PageWrapper } from "../components.jsx";
 
 export default function Home() {
+  const { dark } = useTheme();
   const [statsRef, statsInView] = useInView(0.2);
+
+  const mutedText = dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.5)";
+  const mutedText2 = dark ? "rgba(255,255,255,.4)" : "rgba(0,0,0,.4)";
+  const mutedText3 = dark ? "rgba(255,255,255,.3)" : "rgba(0,0,0,.35)";
+  const borderColor = dark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.08)";
+  const tickerBg = dark ? "rgba(255,255,255,.01)" : "rgba(0,0,0,.02)";
+  const headingColor = dark ? "#fff" : "#0a0a0a";
 
   return (
     <PageWrapper>
@@ -24,11 +32,11 @@ export default function Home() {
               Store Optimization & Ads Engineering
             </span>
           </div>
-          <h1 className="hero-t" style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2rem, 5vw, 3.7rem)", fontWeight: 800, lineHeight: 1.07, letterSpacing: "-.03em", marginBottom: "1.2rem", color: "#fff", animation: "heroFadeUp .8s .1s ease both", animationFillMode: "forwards", opacity: 0, wordBreak: "break-word" }}>
+          <h1 className="hero-t" style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2rem, 5vw, 3.7rem)", fontWeight: 800, lineHeight: 1.07, letterSpacing: "-.03em", marginBottom: "1.2rem", color: headingColor, animation: "heroFadeUp .8s .1s ease both", animationFillMode: "forwards", opacity: 0, wordBreak: "break-word" }}>
             We turn your store into a<br />
             <Typewriter words={["revenue machine.", "conversion engine.", "ROAS monster.", "scaling system."]} />
           </h1>
-          <p style={{ fontSize: "clamp(0.9rem, 2vw, 1.05rem)", color: "rgba(255,255,255,.45)", lineHeight: 1.75, maxWidth: 540, margin: "0 auto 2rem", animation: "heroFadeUp .8s .2s ease both", animationFillMode: "forwards", opacity: 0 }}>
+          <p style={{ fontSize: "clamp(0.9rem, 2vw, 1.05rem)", color: mutedText, lineHeight: 1.75, maxWidth: 540, margin: "0 auto 2rem", animation: "heroFadeUp .8s .2s ease both", animationFillMode: "forwards", opacity: 0 }}>
             Bode Conversion Lab engineers your ROAS from the ground up — ads, landing pages, checkout. One system. Compounding results every month.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: "3.5rem", animation: "heroFadeUp .8s .3s ease both", animationFillMode: "forwards", opacity: 0 }}>
@@ -40,7 +48,7 @@ export default function Home() {
               <div key={i} className="card3d" style={{ background: "linear-gradient(135deg,rgba(0,255,136,.09),rgba(0,204,106,.03))", border: ".5px solid rgba(0,255,136,.22)", borderTop: ".5px solid rgba(0,255,136,.38)", borderRadius: 16, padding: "1.3rem 1rem", textAlign: "center", position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: "linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)" }} />
                 <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.4rem,4vw,1.9rem)", fontWeight: 800, background: GG, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", lineHeight: 1.1, marginBottom: 6 }}>{c.n}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,.4)", lineHeight: 1.5, whiteSpace: "pre-line" }}>{c.l}</div>
+                <div style={{ fontSize: 11, color: mutedText2, lineHeight: 1.5, whiteSpace: "pre-line" }}>{c.l}</div>
               </div>
             ))}
           </div>
@@ -48,12 +56,12 @@ export default function Home() {
       </section>
 
       {/* TICKERS */}
-      <div style={{ borderTop: ".5px solid rgba(255,255,255,.06)", borderBottom: ".5px solid rgba(255,255,255,.06)", background: "rgba(255,255,255,.01)", padding: "1rem 0" }}>
-        <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,.25)", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: ".8rem" }}>Trusted by stores on</p>
+      <div style={{ borderTop: `.5px solid ${borderColor}`, borderBottom: `.5px solid ${borderColor}`, background: tickerBg, padding: "1rem 0" }}>
+        <p style={{ textAlign: "center", fontSize: 11, color: mutedText3, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: ".8rem" }}>Trusted by stores on</p>
         <ContinuousTicker items={ECOM_PLATFORMS} speed={30} />
       </div>
-      <div style={{ borderBottom: ".5px solid rgba(255,255,255,.06)", background: "rgba(255,255,255,.01)", padding: "1rem 0" }}>
-        <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,.25)", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: ".8rem" }}>We run ads on</p>
+      <div style={{ borderBottom: `.5px solid ${borderColor}`, background: tickerBg, padding: "1rem 0" }}>
+        <p style={{ textAlign: "center", fontSize: 11, color: mutedText3, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: ".8rem" }}>We run ads on</p>
         <ContinuousTicker items={AD_PLATFORMS} speed={25} reverse={true} />
       </div>
 
@@ -70,7 +78,7 @@ export default function Home() {
                 <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2rem,5vw,3rem)", fontWeight: 800, background: GG, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", lineHeight: 1, marginBottom: 8 }}>
                   {statsInView ? <AnimNum target={s.n} suffix={s.s} /> : `0${s.s}`}
                 </div>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,.4)" }}>{s.l}</p>
+                <p style={{ fontSize: 14, color: mutedText2 }}>{s.l}</p>
               </div>
             ))}
           </div>
@@ -95,8 +103,8 @@ export default function Home() {
             ].map((item, i) => (
               <div key={i} className="glass card3d" style={{ padding: "2.5rem" }}>
                 <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.8rem", fontWeight: 800, background: "linear-gradient(135deg,rgba(0,255,136,.55),rgba(0,255,136,.15))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", marginBottom: ".75rem" }}>{item.n}</div>
-                <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.15rem", fontWeight: 700, marginBottom: ".6rem", color: "#fff" }}>{item.t}</h3>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,.45)", lineHeight: 1.75 }}>{item.d}</p>
+                <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.15rem", fontWeight: 700, marginBottom: ".6rem", color: headingColor }}>{item.t}</h3>
+                <p style={{ fontSize: 14, color: mutedText, lineHeight: 1.75 }}>{item.d}</p>
               </div>
             ))}
           </div>
@@ -111,7 +119,7 @@ export default function Home() {
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <SectionLabel>Client results</SectionLabel>
             <Heading size="2.4rem">Real stores. <GradText>Real numbers.</GradText></Heading>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,.3)", marginTop: ".75rem" }}>Hover to pause · scroll to see more</p>
+            <p style={{ fontSize: 13, color: mutedText3, marginTop: ".75rem" }}>Hover to pause · scroll to see more</p>
           </div>
           <TestimonialTicker items={TESTIMONIALS} />
           <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
@@ -122,13 +130,13 @@ export default function Home() {
 
       <hr className="divider" />
 
-      {/* VIDEO TIPS SECTION */}
+      {/* VIDEO TIPS */}
       <Section id="tips">
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <SectionLabel>Free tips & insights</SectionLabel>
             <Heading size="2.4rem">Learn from the <GradText>lab</GradText></Heading>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,.4)", marginTop: ".75rem" }}>Scroll through for free tips and insights from the lab.</p>
+            <p style={{ fontSize: 14, color: mutedText2, marginTop: ".75rem" }}>Scroll through for free tips and insights from the lab.</p>
           </div>
           <VideoTips items={VIDEO_TIPS} />
         </div>
@@ -156,10 +164,10 @@ export default function Home() {
         <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
           <div style={{ background: "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border: ".5px solid rgba(0,255,136,.25)", borderRadius: 24, padding: "clamp(2.5rem,5vw,5rem) clamp(1.5rem,4vw,3rem)", overflow: "hidden" }}>
             <SectionLabel>Ready to scale?</SectionLabel>
-            <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.6rem, 4vw, 2.8rem)", fontWeight: 800, letterSpacing: "-.02em", color: "#fff", lineHeight: 1.2, wordBreak: "break-word", overflowWrap: "break-word" }}>
+            <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.6rem, 4vw, 2.8rem)", fontWeight: 800, letterSpacing: "-.02em", color: headingColor, lineHeight: 1.2, wordBreak: "break-word", overflowWrap: "break-word" }}>
               Stop burning money.<br /><GradText>Start compounding it.</GradText>
             </h2>
-            <p style={{ fontSize: "clamp(0.9rem,2vw,1rem)", color: "rgba(255,255,255,.45)", lineHeight: 1.7, margin: "1.5rem auto", maxWidth: 480 }}>
+            <p style={{ fontSize: "clamp(0.9rem,2vw,1rem)", color: mutedText, lineHeight: 1.7, margin: "1.5rem auto", maxWidth: 480 }}>
               Join stores that went from struggling to scaling. Apply today and find out if your store qualifies.
             </p>
             <Link to="/contact" className="btn-g" style={{ display: "inline-block" }}>Apply for your free audit →</Link>

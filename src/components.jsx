@@ -47,7 +47,6 @@ export function AnimNum({ target, suffix = "" }) {
 }
 
 export function Particles() {
-  const { dark } = useTheme();
   const ref = useRef(null);
   useEffect(() => {
     const c = ref.current; if (!c) return;
@@ -108,6 +107,7 @@ export function Typewriter({ words }) {
 
 /* ── STAR RATING ── */
 function StarRating({ rating }) {
+  const { dark } = useTheme();
   return (
     <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
       {[1, 2, 3, 4, 5].map(star => {
@@ -118,23 +118,24 @@ function StarRating({ rating }) {
             <defs>
               <linearGradient id={`half-${star}`}>
                 <stop offset="50%" stopColor="#FFD700" />
-                <stop offset="50%" stopColor="#444" />
+                <stop offset="50%" stopColor={dark ? "#444" : "#ccc"} />
               </linearGradient>
             </defs>
             <path
               d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-              fill={full ? "#FFD700" : half ? `url(#half-${star})` : "#444"}
+              fill={full ? "#FFD700" : half ? `url(#half-${star})` : (dark ? "#444" : "#ccc")}
             />
           </svg>
         );
       })}
-      <span style={{ fontSize: 11, color: "rgba(255,255,255,.4)", marginLeft: 4 }}>{rating.toFixed(1)}</span>
+      <span style={{ fontSize: 11, color: dark ? "rgba(255,255,255,.4)" : "rgba(0,0,0,.4)", marginLeft: 4 }}>{rating.toFixed(1)}</span>
     </div>
   );
 }
 
 /* ── BRAND ICON using Google favicon ── */
 function BrandIcon({ name, slug, color, size = 20 }) {
+  const { dark } = useTheme();
   const [failed, setFailed] = useState(false);
   const domainMap = {
     shopify: "shopify.com", woocommerce: "woocommerce.com", magento: "magento.com",
@@ -148,8 +149,8 @@ function BrandIcon({ name, slug, color, size = 20 }) {
   const domain = domainMap[slug?.toLowerCase()];
   if (failed || !domain) {
     return (
-      <div style={{ width: size, height: size, borderRadius: size * 0.25, background: color ? `${color}33` : "rgba(255,255,255,.15)", border: `1px solid ${color || "rgba(255,255,255,.2)"}`, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ fontSize: size * 0.5, fontWeight: 700, color: color || "#fff" }}>{name?.[0] || "?"}</span>
+      <div style={{ width: size, height: size, borderRadius: size * 0.25, background: color ? `${color}33` : (dark ? "rgba(255,255,255,.15)" : "rgba(0,0,0,.1)"), border: `1px solid ${color || (dark ? "rgba(255,255,255,.2)" : "rgba(0,0,0,.15)")}`, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontSize: size * 0.5, fontWeight: 700, color: color || (dark ? "#fff" : "#000") }}>{name?.[0] || "?"}</span>
       </div>
     );
   }
@@ -161,13 +162,20 @@ function BrandIcon({ name, slug, color, size = 20 }) {
   );
 }
 
-/* ── VIDEO PLAYER — plays inline ── */
+/* ── VIDEO PLAYER ── */
 function VideoCard({ v }) {
+  const { dark } = useTheme();
   const [playing, setPlaying] = useState(false);
   return (
-    <div style={{ flexShrink: 0, width: 250, scrollSnapAlign: "start", background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: ".5px solid rgba(255,255,255,.12)", borderTop: ".5px solid rgba(255,255,255,.2)", borderRadius: 20, overflow: "hidden", transition: "transform .3s, border-color .3s" }}
+    <div style={{
+      flexShrink: 0, width: 250, scrollSnapAlign: "start",
+      background: dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(0,0,0,.04),rgba(0,0,0,.01))",
+      border: dark ? ".5px solid rgba(255,255,255,.12)" : ".5px solid rgba(0,0,0,.1)",
+      borderTop: dark ? ".5px solid rgba(255,255,255,.2)" : ".5px solid rgba(0,0,0,.15)",
+      borderRadius: 20, overflow: "hidden", transition: "transform .3s, border-color .3s"
+    }}
       onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = "rgba(0,255,136,.4)"; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(255,255,255,.12)"; }}>
+      onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = dark ? "rgba(255,255,255,.12)" : "rgba(0,0,0,.1)"; }}>
       <div style={{ width: "100%", aspectRatio: "9/16", position: "relative", overflow: "hidden", background: "#000" }}>
         {playing ? (
           <iframe
@@ -193,14 +201,15 @@ function VideoCard({ v }) {
         )}
       </div>
       <div style={{ padding: "1rem" }}>
-        <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "0.9rem", fontWeight: 700, color: "#fff", marginBottom: ".4rem", lineHeight: 1.4 }}>{v.title}</h3>
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,.4)", lineHeight: 1.5 }}>{v.desc}</p>
+        <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "0.9rem", fontWeight: 700, color: dark ? "#fff" : "#0a0a0a", marginBottom: ".4rem", lineHeight: 1.4 }}>{v.title}</h3>
+        <p style={{ fontSize: 12, color: dark ? "rgba(255,255,255,.4)" : "rgba(0,0,0,.45)", lineHeight: 1.5 }}>{v.desc}</p>
       </div>
     </div>
   );
 }
 
 export function VideoTips({ items }) {
+  const { dark } = useTheme();
   const scrollRef = useRef(null);
   const scroll = (dir) => {
     if (scrollRef.current) scrollRef.current.scrollBy({ left: dir * 280, behavior: "smooth" });
@@ -218,6 +227,7 @@ export function VideoTips({ items }) {
 
 /* ── TICKER ── */
 export function ContinuousTicker({ items, speed = 35, reverse = false }) {
+  const { dark } = useTheme();
   const [paused, setPaused] = useState(false);
   const doubled = [...items, ...items];
   return (
@@ -228,11 +238,16 @@ export function ContinuousTicker({ items, speed = 35, reverse = false }) {
           const slug = typeof item === "object" ? item.slug : null;
           const color = typeof item === "object" ? item.color : null;
           return (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "0.5rem 1.2rem", background: "rgba(255,255,255,.04)", border: ".5px solid rgba(255,255,255,.1)", borderRadius: 100, whiteSpace: "nowrap", cursor: "default", transition: "all .2s" }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,.25)"; e.currentTarget.style.background = "rgba(255,255,255,.08)"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,.1)"; e.currentTarget.style.background = "rgba(255,255,255,.04)"; }}>
+            <div key={i} style={{
+              display: "flex", alignItems: "center", gap: 8, padding: "0.5rem 1.2rem",
+              background: dark ? "rgba(255,255,255,.04)" : "rgba(0,0,0,.04)",
+              border: dark ? ".5px solid rgba(255,255,255,.1)" : ".5px solid rgba(0,0,0,.1)",
+              borderRadius: 100, whiteSpace: "nowrap", cursor: "default", transition: "all .2s"
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = dark ? "rgba(255,255,255,.25)" : "rgba(0,0,0,.2)"; e.currentTarget.style.background = dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.07)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.1)"; e.currentTarget.style.background = dark ? "rgba(255,255,255,.04)" : "rgba(0,0,0,.04)"; }}>
               <BrandIcon name={name} slug={slug} color={color} size={18} />
-              <span style={{ fontSize: 13, color: "rgba(255,255,255,.7)", fontWeight: 500 }}>{name}</span>
+              <span style={{ fontSize: 13, color: dark ? "rgba(255,255,255,.7)" : "rgba(0,0,0,.65)", fontWeight: 500 }}>{name}</span>
             </div>
           );
         })}
@@ -241,8 +256,9 @@ export function ContinuousTicker({ items, speed = 35, reverse = false }) {
   );
 }
 
-/* ── TESTIMONIAL TICKER with avatar + stars + store logo ── */
+/* ── TESTIMONIAL TICKER ── */
 export function TestimonialTicker({ items }) {
+  const { dark } = useTheme();
   const [paused, setPaused] = useState(false);
   const doubled = [...items, ...items];
   return (
@@ -250,11 +266,17 @@ export function TestimonialTicker({ items }) {
       <div style={{ display: "flex", gap: "1.5rem", width: "max-content", animation: "ticker 40s linear infinite", animationPlayState: paused ? "paused" : "running" }}>
         {doubled.map((t, i) => (
           <a key={i} href={t.storeUrl || "#"} target={t.storeUrl ? "_blank" : "_self"} rel="noopener noreferrer"
-            style={{ width: 320, flexShrink: 0, background: "linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))", border: ".5px solid rgba(0,255,136,.18)", borderTop: ".5px solid rgba(0,255,136,.3)", borderRadius: 20, padding: "1.4rem", position: "relative", overflow: "hidden", cursor: t.storeUrl ? "pointer" : "default", textDecoration: "none", display: "block", transition: "transform .3s, border-color .3s" }}
+            style={{
+              width: 320, flexShrink: 0,
+              background: dark ? "linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))" : "linear-gradient(135deg,rgba(0,200,100,.06),rgba(0,180,80,.02))",
+              border: dark ? ".5px solid rgba(0,255,136,.18)" : ".5px solid rgba(0,180,80,.2)",
+              borderTop: dark ? ".5px solid rgba(0,255,136,.3)" : ".5px solid rgba(0,200,100,.3)",
+              borderRadius: 20, padding: "1.4rem", position: "relative", overflow: "hidden",
+              cursor: t.storeUrl ? "pointer" : "default", textDecoration: "none", display: "block", transition: "transform .3s, border-color .3s"
+            }}
             onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = "rgba(0,255,136,.45)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(0,255,136,.18)"; }}>
+            onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = dark ? "rgba(0,255,136,.18)" : "rgba(0,180,80,.2)"; }}>
             <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: "linear-gradient(90deg,transparent,rgba(0,255,136,.45),transparent)" }} />
-            {/* Store + result row */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 {t.storeLogo && (
@@ -262,31 +284,25 @@ export function TestimonialTicker({ items }) {
                     style={{ borderRadius: 4, objectFit: "contain", background: "#fff", padding: "2px", flexShrink: 0 }}
                     onError={e => e.target.style.display = "none"} />
                 )}
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,.45)", fontWeight: 500 }}>{t.storeName}</span>
+                <span style={{ fontSize: 11, color: dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.45)", fontWeight: 500 }}>{t.storeName}</span>
               </div>
               <div style={{ background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.25)", borderRadius: 100, padding: "2px 8px", fontSize: 10, color: G, fontWeight: 600, whiteSpace: "nowrap" }}>{t.result}</div>
             </div>
-            {/* Stars */}
             <div style={{ marginBottom: "0.75rem" }}>
               <StarRating rating={t.rating || 5} />
             </div>
-            {/* Quote */}
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,.55)", lineHeight: 1.7, marginBottom: "1rem", fontStyle: "italic" }}>"{t.text}"</p>
-            {/* Person row */}
+            <p style={{ fontSize: 13, color: dark ? "rgba(255,255,255,.55)" : "rgba(0,0,0,.55)", lineHeight: 1.7, marginBottom: "1rem", fontStyle: "italic" }}>"{t.text}"</p>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {t.avatar ? (
                   <img src={t.avatar} alt={t.name} width="34" height="34"
                     style={{ borderRadius: "50%", objectFit: "cover", border: ".5px solid rgba(0,255,136,.3)", flexShrink: 0 }}
-                    onError={e => {
-                      e.target.style.display = "none";
-                      e.target.nextSibling.style.display = "flex";
-                    }} />
+                    onError={e => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }} />
                 ) : null}
                 <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.3)", display: t.avatar ? "none" : "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: G, flexShrink: 0 }}>{t.init}</div>
                 <div>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: "#fff", margin: 0 }}>{t.name}</p>
-                  <p style={{ fontSize: 10, color: "rgba(255,255,255,.35)", margin: 0 }}>{t.storeCategory || t.role}</p>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: dark ? "#fff" : "#0a0a0a", margin: 0 }}>{t.name}</p>
+                  <p style={{ fontSize: 10, color: dark ? "rgba(255,255,255,.35)" : "rgba(0,0,0,.4)", margin: 0 }}>{t.storeCategory || t.role}</p>
                 </div>
               </div>
               {t.storeUrl && <span style={{ fontSize: 10, color: G, fontWeight: 500 }}>Visit →</span>}
@@ -299,14 +315,19 @@ export function TestimonialTicker({ items }) {
 }
 
 export function PartnerCard({ partner }) {
+  const { dark } = useTheme();
   return (
-    <div style={{ background: "rgba(255,255,255,.04)", border: ".5px solid rgba(255,255,255,.1)", borderRadius: 14, padding: "1rem 1.5rem", display: "flex", alignItems: "center", gap: 12, transition: "all .25s", cursor: "default" }}
-      onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,.08)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; e.currentTarget.style.transform = "none"; }}>
+    <div style={{
+      background: dark ? "rgba(255,255,255,.04)" : "rgba(0,0,0,.03)",
+      border: dark ? ".5px solid rgba(255,255,255,.1)" : ".5px solid rgba(0,0,0,.08)",
+      borderRadius: 14, padding: "1rem 1.5rem", display: "flex", alignItems: "center", gap: 12, transition: "all .25s", cursor: "default"
+    }}
+      onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,255,136,.07)"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(0,255,136,.35)"; }}
+      onMouseLeave={e => { e.currentTarget.style.background = dark ? "rgba(255,255,255,.04)" : "rgba(0,0,0,.03)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.08)"; }}>
       <BrandIcon name={partner.name} slug={partner.slug} color={partner.color} size={28} />
       <div>
-        <p style={{ fontSize: 14, fontWeight: 600, color: "#fff", margin: 0 }}>{partner.name}</p>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,.3)", margin: 0 }}>Certified partner</p>
+        <p style={{ fontSize: 14, fontWeight: 600, color: dark ? "#fff" : "#0a0a0a", margin: 0 }}>{partner.name}</p>
+        <p style={{ fontSize: 11, color: dark ? "rgba(255,255,255,.3)" : "rgba(0,0,0,.4)", margin: 0 }}>Certified partner</p>
       </div>
       <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: partner.color || G, animation: "pulse 2s ease-in-out infinite", flexShrink: 0 }} />
     </div>
@@ -352,7 +373,6 @@ export function Logo({ size = 32, showText = true, textSize = 13 }) {
   );
 }
 
-/* ── THEME TOGGLE BUTTON ── */
 export function ThemeToggle() {
   const { dark, toggle } = useTheme();
   return (
@@ -388,7 +408,7 @@ export function Nav() {
 
   const bg = dark
     ? (navH ? "rgba(4,6,8,.97)" : "rgba(4,6,8,.8)")
-    : (navH ? "rgba(255,255,255,.97)" : "rgba(255,255,255,.85)");
+    : (navH ? "rgba(248,248,245,.97)" : "rgba(248,248,245,.85)");
 
   return (
     <>
@@ -414,7 +434,7 @@ export function Nav() {
         </div>
       </nav>
       {menuOpen && (
-        <div style={{ position: "fixed", top: 56, left: 0, right: 0, zIndex: 98, background: dark ? "rgba(4,6,8,.99)" : "rgba(255,255,255,.99)", backdropFilter: "blur(24px)", borderBottom: `.5px solid ${dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.1)"}`, padding: "0.5rem 1.4rem 1.4rem" }}>
+        <div style={{ position: "fixed", top: 56, left: 0, right: 0, zIndex: 98, background: dark ? "rgba(4,6,8,.99)" : "rgba(248,248,245,.99)", backdropFilter: "blur(24px)", borderBottom: `.5px solid ${dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.1)"}`, padding: "0.5rem 1.4rem 1.4rem" }}>
           {NAV_LINKS.map(l => (
             <Link key={l.path} to={l.path} onClick={() => setMenuOpen(false)}
               style={{ display: "flex", alignItems: "center", gap: 10, color: loc.pathname === l.path ? G : (dark ? "rgba(255,255,255,.8)" : "rgba(0,0,0,.7)"), textDecoration: "none", fontSize: 16, fontWeight: loc.pathname === l.path ? 700 : 400, padding: "0.85rem 0", borderBottom: `.5px solid ${dark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.06)"}` }}>
@@ -463,6 +483,13 @@ export function Footer() {
                 onMouseEnter={e => e.target.style.color = G}
                 onMouseLeave={e => e.target.style.color = tc}>{s}</Link>
             ))}
+            <p style={{ fontSize: 11, color: tc2, letterSpacing: ".1em", textTransform: "uppercase", margin: "1.2rem 0", fontWeight: 600 }}>Free Tools</p>
+            <Link to="/audit" style={{ display: "block", fontSize: 14, color: tc, textDecoration: "none", marginBottom: ".7rem", transition: "color .2s" }}
+              onMouseEnter={e => e.target.style.color = G}
+              onMouseLeave={e => e.target.style.color = tc}>Free Store Audit</Link>
+            <Link to="/subscribe" style={{ display: "block", fontSize: 14, color: tc, textDecoration: "none", marginBottom: ".7rem", transition: "color .2s" }}
+              onMouseEnter={e => e.target.style.color = G}
+              onMouseLeave={e => e.target.style.color = tc}>Newsletter</Link>
           </div>
           <div>
             <p style={{ fontSize: 11, color: tc2, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: "1.2rem", fontWeight: 600 }}>Contact</p>

@@ -1,12 +1,24 @@
 import { useState } from "react";
 import { G, GG } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles } from "../components.jsx";
+import { GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
 
 export default function Subscribe() {
+  const { dark } = useTheme();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const headingColor = dark ? "#fff" : "#0a0a0a";
+  const mutedText = dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.5)";
+  const mutedText2 = dark ? "rgba(255,255,255,.6)" : "rgba(0,0,0,.6)";
+  const mutedText3 = dark ? "rgba(255,255,255,.25)" : "rgba(0,0,0,.3)";
+  const cardBg = dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(0,0,0,.03),rgba(0,0,0,.01))";
+  const cardBorder = dark ? "rgba(255,255,255,.12)" : "rgba(0,0,0,.1)";
+  const cardBorderTop = dark ? "rgba(255,255,255,.22)" : "rgba(0,0,0,.15)";
+  const inputBg = dark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.04)";
+  const inputBorder = dark ? "rgba(255,255,255,.12)" : "rgba(0,0,0,.1)";
+  const inputColor = dark ? "#f0f0f0" : "#0a0a0a";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,10 +44,9 @@ export default function Subscribe() {
 
         <div style={{ maxWidth: 560, width: "100%", position: "relative", zIndex: 1 }}>
           {!submitted ? (
-            <div style={{ background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: ".5px solid rgba(255,255,255,.12)", borderTop: ".5px solid rgba(255,255,255,.22)", borderRadius: 28, padding: "clamp(2rem,5vw,3.5rem)", position: "relative", overflow: "hidden" }}>
+            <div style={{ background: cardBg, border: `.5px solid ${cardBorder}`, borderTop: `.5px solid ${cardBorderTop}`, borderRadius: 28, padding: "clamp(2rem,5vw,3.5rem)", position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: "linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)" }} />
 
-              {/* Icon */}
               <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem", animation: "glow 3s ease-in-out infinite" }}>
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke={G} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -46,15 +57,14 @@ export default function Subscribe() {
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.28)", borderRadius: 100, padding: "5px 14px", fontSize: 11, color: G, fontWeight: 500, marginBottom: "1rem" }}>
                   <span style={{ width: 6, height: 6, background: G, borderRadius: "50%", animation: "pulse 2s infinite" }} /> Free weekly insights
                 </span>
-                <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.8rem,6vw,2.6rem)", fontWeight: 800, color: "#fff", lineHeight: 1.15, marginBottom: "1rem", wordBreak: "break-word" }}>
+                <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.8rem,6vw,2.6rem)", fontWeight: 800, color: headingColor, lineHeight: 1.15, marginBottom: "1rem", wordBreak: "break-word" }}>
                   Get the tactics that<br /><GradText>scale stores to $70k/mo</GradText>
                 </h1>
-                <p style={{ fontSize: 15, color: "rgba(255,255,255,.45)", lineHeight: 1.7 }}>
+                <p style={{ fontSize: 15, color: mutedText, lineHeight: 1.7 }}>
                   Every week: one actionable tip from inside our client work. CRO wins, ad strategies, email flows that print money. No fluff. No recycled advice.
                 </p>
               </div>
 
-              {/* What you get */}
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: "2rem" }}>
                 {[
                   "Weekly CRO tip you can implement in under an hour",
@@ -64,7 +74,7 @@ export default function Subscribe() {
                 ].map((item, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="rgba(0,255,136,.15)" /><path d="M5 8L7 10L11 6" stroke={G} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                    <span style={{ fontSize: 13, color: "rgba(255,255,255,.6)" }}>{item}</span>
+                    <span style={{ fontSize: 13, color: mutedText2 }}>{item}</span>
                   </div>
                 ))}
               </div>
@@ -77,9 +87,9 @@ export default function Subscribe() {
                     value={name}
                     onChange={e => setName(e.target.value)}
                     required
-                    style={{ width: "100%", background: "rgba(255,255,255,.06)", border: ".5px solid rgba(255,255,255,.12)", borderRadius: 10, padding: ".85rem 1rem", color: "#f0f0f0", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", background: inputBg, border: `.5px solid ${inputBorder}`, borderRadius: 10, padding: ".85rem 1rem", color: inputColor, fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
                     onFocus={e => e.target.style.borderColor = "rgba(0,255,136,.5)"}
-                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,.12)"}
+                    onBlur={e => e.target.style.borderColor = inputBorder}
                   />
                   <input
                     type="email"
@@ -87,9 +97,9 @@ export default function Subscribe() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required
-                    style={{ width: "100%", background: "rgba(255,255,255,.06)", border: ".5px solid rgba(255,255,255,.12)", borderRadius: 10, padding: ".85rem 1rem", color: "#f0f0f0", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", background: inputBg, border: `.5px solid ${inputBorder}`, borderRadius: 10, padding: ".85rem 1rem", color: inputColor, fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
                     onFocus={e => e.target.style.borderColor = "rgba(0,255,136,.5)"}
-                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,.12)"}
+                    onBlur={e => e.target.style.borderColor = inputBorder}
                   />
                 </div>
                 <button type="submit" disabled={loading}
@@ -98,7 +108,7 @@ export default function Subscribe() {
                   onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 4px 22px rgba(0,255,136,.35)"; }}>
                   {loading ? "Subscribing..." : "Subscribe — it's free →"}
                 </button>
-                <p style={{ fontSize: 11, color: "rgba(255,255,255,.25)", textAlign: "center", marginTop: "1rem" }}>
+                <p style={{ fontSize: 11, color: mutedText3, textAlign: "center", marginTop: "1rem" }}>
                   No spam. Unsubscribe anytime. Read by 1,000+ store owners.
                 </p>
               </form>
@@ -108,10 +118,10 @@ export default function Subscribe() {
               <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(0,255,136,.15)", border: ".5px solid rgba(0,255,136,.4)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 2rem", animation: "glow 3s ease-in-out infinite" }}>
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={G} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </div>
-              <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.6rem,5vw,2.2rem)", fontWeight: 800, color: "#fff", marginBottom: "1rem" }}>
+              <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.6rem,5vw,2.2rem)", fontWeight: 800, color: headingColor, marginBottom: "1rem" }}>
                 You're in! Welcome to the lab. 🧪
               </h2>
-              <p style={{ fontSize: 15, color: "rgba(255,255,255,.5)", lineHeight: 1.7, marginBottom: "2rem" }}>
+              <p style={{ fontSize: 15, color: mutedText, lineHeight: 1.7, marginBottom: "2rem" }}>
                 Check your inbox — your first insight is on its way. While you wait, audit your store for free.
               </p>
               <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>

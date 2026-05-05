@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { G, GG } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
 
 const QUESTIONS = [
   {
@@ -79,6 +79,7 @@ function getGrade(score) {
 }
 
 export default function Audit() {
+  const { dark } = useTheme();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [done, setDone] = useState(false);
@@ -87,6 +88,16 @@ export default function Audit() {
   const grade = getGrade(totalScore);
   const maxScore = QUESTIONS.reduce((sum, q) => sum + Math.max(...q.options.map(o => o.score)), 0);
   const healthPct = Math.max(0, Math.round((1 - totalScore / maxScore) * 100));
+
+  const cardBg = dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(0,0,0,.03),rgba(0,0,0,.01))";
+  const cardBorder = dark ? "rgba(255,255,255,.12)" : "rgba(0,0,0,.1)";
+  const cardBorderTop = dark ? "rgba(255,255,255,.22)" : "rgba(0,0,0,.16)";
+  const mutedText = dark ? "rgba(255,255,255,.4)" : "rgba(0,0,0,.4)";
+  const headingColor = dark ? "#fff" : "#0a0a0a";
+  const optionBg = dark ? "rgba(255,255,255,.04)" : "rgba(0,0,0,.03)";
+  const optionBorder = dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.08)";
+  const optionText = dark ? "#f0f0f0" : "#0a0a0a";
+  const progressTrack = dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.08)";
 
   const handleAnswer = (opt) => {
     const next = [...answers, { score: opt.score, feedback: opt.feedback, question: QUESTIONS[step].question, answer: opt.label }];
@@ -106,10 +117,10 @@ export default function Audit() {
               <span style={{ width: 6, height: 6, background: G, borderRadius: "50%", animation: "pulse 2s infinite" }} /> Free Store Audit Tool
             </span>
           </div>
-          <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2rem,7vw,3.2rem)", fontWeight: 800, lineHeight: 1.1, color: "#fff", marginBottom: "1rem", wordBreak: "break-word" }}>
+          <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2rem,7vw,3.2rem)", fontWeight: 800, lineHeight: 1.1, color: headingColor, marginBottom: "1rem", wordBreak: "break-word" }}>
             How healthy is<br /><GradText>your store?</GradText>
           </h1>
-          <p style={{ fontSize: "clamp(0.9rem,3vw,1.05rem)", color: "rgba(255,255,255,.45)", lineHeight: 1.75 }}>
+          <p style={{ fontSize: "clamp(0.9rem,3vw,1.05rem)", color: dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.5)", lineHeight: 1.75 }}>
             7 questions. 2 minutes. Instant diagnosis of where your store is leaking money.
           </p>
         </div>
@@ -118,23 +129,22 @@ export default function Audit() {
       <Section>
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
           {!done ? (
-            <div style={{ background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: ".5px solid rgba(255,255,255,.12)", borderTop: ".5px solid rgba(255,255,255,.22)", borderRadius: 24, padding: "clamp(1.5rem,4vw,2.5rem)", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: "linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent)" }} />
-              {/* Progress */}
+            <div style={{ background: cardBg, border: `.5px solid ${cardBorder}`, borderTop: `.5px solid ${cardBorderTop}`, borderRadius: 24, padding: "clamp(1.5rem,4vw,2.5rem)", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: dark ? "linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent)" : "linear-gradient(90deg,transparent,rgba(0,0,0,.1),transparent)" }} />
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,.4)" }}>Question {step + 1} of {QUESTIONS.length}</span>
+                <span style={{ fontSize: 12, color: mutedText }}>Question {step + 1} of {QUESTIONS.length}</span>
                 <span style={{ fontSize: 12, color: G }}>{Math.round((step / QUESTIONS.length) * 100)}% done</span>
               </div>
-              <div style={{ height: 4, background: "rgba(255,255,255,.08)", borderRadius: 4, overflow: "hidden", marginBottom: "2rem" }}>
+              <div style={{ height: 4, background: progressTrack, borderRadius: 4, overflow: "hidden", marginBottom: "2rem" }}>
                 <div style={{ height: "100%", background: GG, borderRadius: 4, width: `${(step / QUESTIONS.length) * 100}%`, transition: "width .4s" }} />
               </div>
-              <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.1rem,4vw,1.3rem)", fontWeight: 700, color: "#fff", marginBottom: "1.5rem", lineHeight: 1.4 }}>{QUESTIONS[step].question}</h2>
+              <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.1rem,4vw,1.3rem)", fontWeight: 700, color: headingColor, marginBottom: "1.5rem", lineHeight: 1.4 }}>{QUESTIONS[step].question}</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {QUESTIONS[step].options.map((opt, i) => (
                   <button key={i} onClick={() => handleAnswer(opt)}
-                    style={{ width: "100%", textAlign: "left", background: "rgba(255,255,255,.04)", border: ".5px solid rgba(255,255,255,.1)", borderRadius: 12, padding: "1rem 1.2rem", color: "#f0f0f0", fontSize: 14, cursor: "pointer", fontFamily: "inherit", transition: "all .2s", display: "flex", alignItems: "center", gap: 12 }}
+                    style={{ width: "100%", textAlign: "left", background: optionBg, border: `.5px solid ${optionBorder}`, borderRadius: 12, padding: "1rem 1.2rem", color: optionText, fontSize: 14, cursor: "pointer", fontFamily: "inherit", transition: "all .2s", display: "flex", alignItems: "center", gap: 12 }}
                     onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,255,136,.1)"; e.currentTarget.style.borderColor = "rgba(0,255,136,.5)"; e.currentTarget.style.transform = "translateX(6px)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,.1)"; e.currentTarget.style.transform = "none"; }}>
+                    onMouseLeave={e => { e.currentTarget.style.background = optionBg; e.currentTarget.style.borderColor = optionBorder; e.currentTarget.style.transform = "none"; }}>
                     <span style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: G, flexShrink: 0 }}>{String.fromCharCode(65 + i)}</span>
                     {opt.label}
                   </button>
@@ -142,23 +152,21 @@ export default function Audit() {
               </div>
             </div>
           ) : (
-            /* RESULTS */
             <div>
               {/* Score card */}
-              <div style={{ background: "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))", border: `.5px solid ${grade.color}44`, borderTop: `.5px solid ${grade.color}88`, borderRadius: 24, padding: "2.5rem", marginBottom: "1.5rem", textAlign: "center", position: "relative", overflow: "hidden" }}>
+              <div style={{ background: cardBg, border: `.5px solid ${grade.color}44`, borderTop: `.5px solid ${grade.color}88`, borderRadius: 24, padding: "2.5rem", marginBottom: "1.5rem", textAlign: "center", position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", top: 0, left: "10%", right: "10%", height: 1, background: `linear-gradient(90deg,transparent,${grade.color}88,transparent)` }} />
                 <div style={{ width: 100, height: 100, borderRadius: "50%", background: `${grade.color}18`, border: `3px solid ${grade.color}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
                   <span style={{ fontFamily: "'Syne',sans-serif", fontSize: "2.5rem", fontWeight: 800, color: grade.color, lineHeight: 1 }}>{grade.grade}</span>
                 </div>
-                <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.4rem,5vw,2rem)", fontWeight: 800, color: "#fff", marginBottom: ".5rem" }}>{grade.label}</h2>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,.5)", marginBottom: "1.5rem", lineHeight: 1.7 }}>{grade.desc}</p>
-                {/* Health bar */}
+                <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.4rem,5vw,2rem)", fontWeight: 800, color: headingColor, marginBottom: ".5rem" }}>{grade.label}</h2>
+                <p style={{ fontSize: 14, color: dark ? "rgba(255,255,255,.5)" : "rgba(0,0,0,.5)", marginBottom: "1.5rem", lineHeight: 1.7 }}>{grade.desc}</p>
                 <div style={{ marginBottom: "1.5rem" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,.4)" }}>Store Health Score</span>
+                    <span style={{ fontSize: 12, color: mutedText }}>Store Health Score</span>
                     <span style={{ fontSize: 14, fontWeight: 700, color: grade.color }}>{healthPct}%</span>
                   </div>
-                  <div style={{ height: 10, background: "rgba(255,255,255,.08)", borderRadius: 10, overflow: "hidden" }}>
+                  <div style={{ height: 10, background: progressTrack, borderRadius: 10, overflow: "hidden" }}>
                     <div style={{ height: "100%", background: `linear-gradient(90deg,${grade.color},${grade.color}88)`, borderRadius: 10, width: `${healthPct}%`, transition: "width 1.5s cubic-bezier(.16,1,.3,1)" }} />
                   </div>
                 </div>
@@ -167,9 +175,9 @@ export default function Audit() {
 
               {/* Issue breakdown */}
               <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.5rem" }}>
-                <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.1rem", fontWeight: 700, color: "#fff" }}>Your diagnosis:</h3>
+                <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.1rem", fontWeight: 700, color: headingColor }}>Your diagnosis:</h3>
                 {answers.map((a, i) => (
-                  <div key={i} style={{ background: a.score === 0 ? "rgba(0,255,136,.05)" : "rgba(255,100,0,.05)", border: `.5px solid ${a.score === 0 ? "rgba(0,255,136,.2)" : "rgba(255,100,0,.2)"}`, borderRadius: 12, padding: "1rem 1.2rem", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <div key={i} style={{ background: a.score === 0 ? "rgba(0,255,136,.05)" : (dark ? "rgba(255,100,0,.05)" : "rgba(255,100,0,.04)"), border: `.5px solid ${a.score === 0 ? "rgba(0,255,136,.2)" : "rgba(255,100,0,.2)"}`, borderRadius: 12, padding: "1rem 1.2rem", display: "flex", gap: 12, alignItems: "flex-start" }}>
                     <div style={{ width: 24, height: 24, borderRadius: "50%", background: a.score === 0 ? "rgba(0,255,136,.15)" : "rgba(255,100,0,.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
                       {a.score === 0
                         ? <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="#00ff88" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -177,8 +185,8 @@ export default function Audit() {
                       }
                     </div>
                     <div>
-                      <p style={{ fontSize: 12, color: "rgba(255,255,255,.35)", marginBottom: 2 }}>{a.question}</p>
-                      <p style={{ fontSize: 13, color: "rgba(255,255,255,.6)", marginBottom: 4 }}>Your answer: <strong style={{ color: "#fff" }}>{a.answer}</strong></p>
+                      <p style={{ fontSize: 12, color: mutedText, marginBottom: 2 }}>{a.question}</p>
+                      <p style={{ fontSize: 13, color: dark ? "rgba(255,255,255,.6)" : "rgba(0,0,0,.6)", marginBottom: 4 }}>Your answer: <strong style={{ color: headingColor }}>{a.answer}</strong></p>
                       <p style={{ fontSize: 12, color: a.score === 0 ? G : "#FF9900", fontStyle: "italic" }}>{a.feedback}</p>
                     </div>
                   </div>
@@ -186,8 +194,8 @@ export default function Audit() {
               </div>
 
               <div style={{ background: "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border: ".5px solid rgba(0,255,136,.25)", borderRadius: 20, padding: "2rem", textAlign: "center" }}>
-                <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.3rem", fontWeight: 800, color: "#fff", marginBottom: ".75rem" }}>Want us to fix every issue above?</h3>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,.45)", marginBottom: "1.5rem", lineHeight: 1.7 }}>Our full professional audit goes 10x deeper — and we don't just identify problems, we fix them.</p>
+                <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.3rem", fontWeight: 800, color: headingColor, marginBottom: ".75rem" }}>Want us to fix every issue above?</h3>
+                <p style={{ fontSize: 14, color: dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.5)", marginBottom: "1.5rem", lineHeight: 1.7 }}>Our full professional audit goes 10x deeper — and we don't just identify problems, we fix them.</p>
                 <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
                   <Link to="/contact" className="btn-g" style={{ display: "inline-block" }}>Apply for full audit →</Link>
                   <button onClick={() => { setStep(0); setAnswers([]); setDone(false); }} className="btn-ghost">Retake audit</button>
