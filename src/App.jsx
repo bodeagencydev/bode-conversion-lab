@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Nav, Footer, WhatsAppButton, ThemeToggle, ThemeContext } from "./components.jsx";
 import Home from "./pages/Home.jsx";
@@ -11,8 +11,20 @@ import Audit from "./pages/Audit.jsx";
 import Subscribe from "./pages/Subscribe.jsx";
 
 export default function App() {
-  const [dark, setDark] = useState(true);
-  const toggle = () => setDark(v => !v);
+  // Read saved preference — default dark if nothing saved
+  const [dark, setDark] = useState(() => {
+    try {
+      const saved = localStorage.getItem("bcl-theme");
+      if (saved !== null) return saved === "dark";
+    } catch {}
+    return true; // default dark
+  });
+
+  const toggle = () => setDark(v => {
+    const next = !v;
+    try { localStorage.setItem("bcl-theme", next ? "dark" : "light"); } catch {}
+    return next;
+  });
 
   return (
     <ThemeContext.Provider value={{ dark, toggle }}>
@@ -44,7 +56,6 @@ function AppInner({ dark }) {
         @keyframes heroFadeUp{from{opacity:0;transform:translateY(32px);}to{opacity:1;transform:none;}}
         div::-webkit-scrollbar{display:none;}
 
-        /* DARK MODE */
         .divider{border:none;border-top:.5px solid ${dark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.1)"};}
         .glass{
           background:${dark ? "linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(0,0,0,.04),rgba(0,0,0,.01))"};
