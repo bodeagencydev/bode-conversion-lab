@@ -6,7 +6,9 @@ async function fetchPSI(storeUrl, strategy) {
     `&category=performance&category=seo&category=best-practices&category=accessibility` +
     `&key=${API_KEY}`;
 
-  const r = await fetch(api, { signal: AbortSignal.timeout(35000) });
+  // Removed the experimental timeout for better compatibility
+  const r = await fetch(api);
+  
   if (!r.ok) throw new Error(`PageSpeed API HTTP ${r.status}`);
   const d = await r.json();
   if (d?.error) throw new Error(d.error.message || "PSI error");
