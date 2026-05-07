@@ -4,7 +4,7 @@ import { G, GG } from "../data.js";
 import { PageWrapper, GradText, useTheme } from "../components.jsx";
 
 /* ─── PUT YOUR GOOGLE PAGESPEED API KEY HERE ─── */
-const PSI_KEY = "YOUR_GOOGLE_PAGESPEED_API_KEY";
+const PSI_KEY = "AIzaSyCAnT0GIpN-3OVQkP3fPJBwhl6pTU0BN8k";
 /* ─────────────────────────────────────────────── */
 
 const CHECKS = [
