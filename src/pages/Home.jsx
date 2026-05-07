@@ -40,7 +40,7 @@ export default function Home() {
             Bode Conversion Lab engineers your ROAS from the ground up — ads, landing pages, checkout. One system. Compounding results every month.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: "3.5rem", animation: "heroFadeUp .8s .3s ease both", animationFillMode: "forwards", opacity: 0 }}>
-            <Link to="/contact" className="btn-g">See if your store qualifies →</Link>
+            <Link to="/audit" className="btn-g">See if your store qualifies →</Link>
             <Link to="/case-studies" className="btn-ghost">View client results</Link>
           </div>
           <div className="hero-cards" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, animation: "heroFadeUp .8s .45s ease both", animationFillMode: "forwards", opacity: 0 }}>
@@ -170,7 +170,7 @@ export default function Home() {
             <p style={{ fontSize: "clamp(0.9rem,2vw,1rem)", color: mutedText, lineHeight: 1.7, margin: "1.5rem auto", maxWidth: 480 }}>
               Join stores that went from struggling to scaling. Apply today and find out if your store qualifies.
             </p>
-            <Link to="/contact" className="btn-g" style={{ display: "inline-block" }}>Apply for your free audit →</Link>
+            <Link to="/audit" className="btn-g" style={{ display: "inline-block" }}>Apply for your free audit →</Link>
           </div>
         </div>
       </Section>
