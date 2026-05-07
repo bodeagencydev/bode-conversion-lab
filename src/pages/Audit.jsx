@@ -1,5 +1,5 @@
 async function fetchPSI(storeUrl, strategy) {
-  const API_KEY = "AIzaSyCAnT0GIpN-3OVQkP3fPJBwhl6pTU0BN8k"
+  const API_KEY = "AIzaSyCAnT0GIpN-3OVQkP3fPJBwhl6pTU0BN8k";
   const api = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed` +
     `?url=${encodeURIComponent(storeUrl)}` +
     `&strategy=${strategy}` +
