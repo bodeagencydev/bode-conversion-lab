@@ -1,240 +1,327 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-/* ─────────────────────────────────────────────
-   1. MAGNETIC CURSOR
-   A glowing green dot that follows the mouse
-   and morphs bigger when near interactive items
-───────────────────────────────────────────── */
-export function MagneticCursor() {
-  const dot   = useRef(null);
-  const ring  = useRef(null);
-  const pos   = useRef({ x: -100, y: -100 });
-  const ring_ = useRef({ x: -100, y: -100 });
-  const raf   = useRef(null);
-  const [visible, setVisible] = useState(false);
+/* ═══════════════════════════════════════════════════
+   1. CURSOR SYSTEM  (Active Theory + Lusion + Eszterbial)
+   - Custom cursor dot that follows mouse
+   - Trailing "ghost" ring that lags behind
+   - Cursor morphs into a circle with text on hover over buttons
+   - Leaves a fading particle trail on fast movement
+═══════════════════════════════════════════════════ */
+export function CursorSystem() {
+  const dotRef   = useRef(null);
+  const ringRef  = useRef(null);
+  const labelRef = useRef(null);
+  const pos      = useRef({ x: -200, y: -200 });
+  const ring     = useRef({ x: -200, y: -200 });
+  const vel      = useRef({ x: 0, y: 0 });
+  const prevPos  = useRef({ x: -200, y: -200 });
+  const raf      = useRef(null);
+  const [trail, setTrail]   = useState([]);
+  const [label, setLabel]   = useState("");
+  const [big, setBig]       = useState(false);
+  const [hidden, setHidden] = useState(true);
 
   useEffect(() => {
-    // Only on non-touch devices
-    if (window.matchMedia("(pointer: coarse)").matches) return;
+    // Only desktop
+    if (window.matchMedia("(pointer:coarse)").matches) return;
 
-    const move = e => {
+    const onMove = e => {
+      prevPos.current = { ...pos.current };
       pos.current = { x: e.clientX, y: e.clientY };
-      if (!visible) setVisible(true);
-    };
-    window.addEventListener("mousemove", move);
+      vel.current = { x: e.clientX - prevPos.current.x, y: e.clientY - prevPos.current.y };
+      if (hidden) setHidden(false);
 
-    const animate = () => {
-      ring_.current.x += (pos.current.x - ring_.current.x) * 0.12;
-      ring_.current.y += (pos.current.y - ring_.current.y) * 0.12;
-      if (dot.current) {
-        dot.current.style.transform = `translate(${pos.current.x - 4}px, ${pos.current.y - 4}px)`;
+      // Particle trail on fast movement
+      const speed = Math.hypot(vel.current.x, vel.current.y);
+      if (speed > 12) {
+        const id = Date.now() + Math.random();
+        setTrail(t => [...t.slice(-12), { id, x: e.clientX, y: e.clientY, size: Math.random() * 4 + 2 }]);
+        setTimeout(() => setTrail(t => t.filter(p => p.id !== id)), 500);
       }
-      if (ring.current) {
-        ring.current.style.transform = `translate(${ring_.current.x - 18}px, ${ring_.current.y - 18}px)`;
+    };
+
+    // Grow + show label on interactive elements
+    const onEnter = e => {
+      setBig(true);
+      const txt = e.target.closest("[data-cursor]")?.dataset.cursor || "";
+      setLabel(txt);
+    };
+    const onLeave = () => { setBig(false); setLabel(""); };
+
+    window.addEventListener("mousemove", onMove);
+    document.querySelectorAll("a,button,[data-cursor]").forEach(el => {
+      el.addEventListener("mouseenter", onEnter);
+      el.addEventListener("mouseleave", onLeave);
+    });
+
+    // MutationObserver re-binds on DOM changes
+    const obs = new MutationObserver(() => {
+      document.querySelectorAll("a,button,[data-cursor]").forEach(el => {
+        el.removeEventListener("mouseenter", onEnter);
+        el.removeEventListener("mouseleave", onLeave);
+        el.addEventListener("mouseenter", onEnter);
+        el.addEventListener("mouseleave", onLeave);
+      });
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+
+    // Animation loop
+    const animate = () => {
+      // Ring lags (spring)
+      ring.current.x += (pos.current.x - ring.current.x) * 0.1;
+      ring.current.y += (pos.current.y - ring.current.y) * 0.1;
+
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate(${pos.current.x - 4}px,${pos.current.y - 4}px)`;
+      }
+      if (ringRef.current) {
+        const s = big ? 52 : 28;
+        ringRef.current.style.width  = `${s}px`;
+        ringRef.current.style.height = `${s}px`;
+        ringRef.current.style.transform = `translate(${ring.current.x - s/2}px,${ring.current.y - s/2}px)`;
+        ringRef.current.style.opacity = big ? "0.6" : "0.3";
+        ringRef.current.style.borderColor = big ? "#00ff88" : "rgba(0,255,136,.5)";
+        ringRef.current.style.background  = big ? "rgba(0,255,136,.08)" : "transparent";
+      }
+      if (labelRef.current) {
+        const s = 52;
+        labelRef.current.style.opacity  = label ? "1" : "0";
+        labelRef.current.style.transform = `translate(${ring.current.x - s/2}px,${ring.current.y - s/2}px)`;
       }
       raf.current = requestAnimationFrame(animate);
     };
     raf.current = requestAnimationFrame(animate);
 
-    // Grow ring on hover over interactive elements
-    const grow = () => {
-      if (ring.current) { ring.current.style.width = "52px"; ring.current.style.height = "52px"; ring.current.style.opacity = "0.5"; }
-    };
-    const shrink = () => {
-      if (ring.current) { ring.current.style.width = "36px"; ring.current.style.height = "36px"; ring.current.style.opacity = "0.25"; }
-    };
-    document.querySelectorAll("a,button,[role=button]").forEach(el => {
-      el.addEventListener("mouseenter", grow);
-      el.addEventListener("mouseleave", shrink);
-    });
-
-    // Re-bind on DOM changes
-    const obs = new MutationObserver(() => {
-      document.querySelectorAll("a,button,[role=button]").forEach(el => {
-        el.addEventListener("mouseenter", grow);
-        el.addEventListener("mouseleave", shrink);
-      });
-    });
-    obs.observe(document.body, { childList: true, subtree: true });
-
     return () => {
-      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(raf.current);
       obs.disconnect();
     };
-  }, []);
+  }, [hidden, big, label]);
 
-  if (!visible) return null;
+  if (hidden) return null;
 
   return (
     <>
-      {/* Small dot — snappy */}
-      <div ref={dot} style={{
+      {/* Trail particles */}
+      {trail.map(p => (
+        <div key={p.id} style={{
+          position: "fixed", left: p.x - p.size/2, top: p.y - p.size/2,
+          width: p.size, height: p.size, borderRadius: "50%",
+          background: "#00ff88", pointerEvents: "none", zIndex: 99996,
+          animation: "trailFade .5s ease-out forwards",
+        }}/>
+      ))}
+      {/* Dot */}
+      <div ref={dotRef} style={{
         position: "fixed", top: 0, left: 0, width: 8, height: 8,
         borderRadius: "50%", background: "#00ff88",
-        pointerEvents: "none", zIndex: 99999,
-        boxShadow: "0 0 10px rgba(0,255,136,.8), 0 0 20px rgba(0,255,136,.4)",
-        willChange: "transform",
+        pointerEvents: "none", zIndex: 99999, willChange: "transform",
+        boxShadow: "0 0 12px rgba(0,255,136,.9), 0 0 24px rgba(0,255,136,.4)",
+        transition: "opacity .3s",
       }}/>
-      {/* Lagging ring */}
-      <div ref={ring} style={{
-        position: "fixed", top: 0, left: 0, width: 36, height: 36,
-        borderRadius: "50%", border: "1.5px solid rgba(0,255,136,.4)",
-        pointerEvents: "none", zIndex: 99998,
-        transition: "width .2s, height .2s, opacity .2s",
-        willChange: "transform",
-        opacity: 0.25,
+      {/* Ring */}
+      <div ref={ringRef} style={{
+        position: "fixed", top: 0, left: 0, width: 28, height: 28,
+        borderRadius: "50%", border: "1.5px solid rgba(0,255,136,.5)",
+        pointerEvents: "none", zIndex: 99998, willChange: "transform",
+        transition: "width .3s cubic-bezier(.16,1,.3,1), height .3s cubic-bezier(.16,1,.3,1), opacity .3s, border-color .3s, background .3s",
+        display: "flex", alignItems: "center", justifyContent: "center",
       }}/>
+      {/* Label inside ring */}
+      <div ref={labelRef} style={{
+        position: "fixed", top: 0, left: 0, width: 52, height: 52,
+        borderRadius: "50%", pointerEvents: "none", zIndex: 99999,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 8, fontWeight: 700, color: "#00ff88", letterSpacing: ".05em",
+        textTransform: "uppercase", transition: "opacity .2s", opacity: 0,
+        willChange: "transform",
+      }}>{label}</div>
+      <style>{`
+        @keyframes trailFade { from{opacity:.7;transform:scale(1);} to{opacity:0;transform:scale(.2);} }
+        * { cursor: none !important; }
+      `}</style>
     </>
   );
 }
 
-/* ─────────────────────────────────────────────
-   2. FLOATING MORPHING ORBS (background layer)
-   Large blobs that drift & morph slowly
-───────────────────────────────────────────── */
-export function FloatingOrbs() {
+/* ═══════════════════════════════════════════════════
+   2. SCROLL PROGRESS BAR  (Dropbox Motion — purposeful)
+═══════════════════════════════════════════════════ */
+export function ScrollProgress() {
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    const u = () => {
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      setPct(scrollHeight - clientHeight > 0 ? (scrollTop / (scrollHeight - clientHeight)) * 100 : 0);
+    };
+    window.addEventListener("scroll", u, { passive: true });
+    return () => window.removeEventListener("scroll", u);
+  }, []);
   return (
-    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-      <style>{`
-        @keyframes orbFloat1 {
-          0%,100% { transform: translate(0,0) scale(1) rotate(0deg); border-radius: 60% 40% 70% 30% / 50% 60% 40% 70%; }
-          25%     { transform: translate(40px,-60px) scale(1.05) rotate(5deg); border-radius: 40% 60% 30% 70% / 60% 40% 70% 30%; }
-          50%     { transform: translate(-30px,-80px) scale(.96) rotate(-3deg); border-radius: 70% 30% 50% 50% / 30% 70% 60% 40%; }
-          75%     { transform: translate(60px,-30px) scale(1.03) rotate(4deg); border-radius: 30% 70% 40% 60% / 70% 30% 50% 50%; }
-        }
-        @keyframes orbFloat2 {
-          0%,100% { transform: translate(0,0) scale(1); border-radius: 40% 60% 30% 70% / 60% 40% 70% 30%; }
-          33%     { transform: translate(-50px,40px) scale(1.08); border-radius: 60% 40% 70% 30% / 40% 60% 30% 70%; }
-          66%     { transform: translate(30px,60px) scale(.94); border-radius: 70% 30% 60% 40% / 30% 70% 40% 60%; }
-        }
-        @keyframes orbFloat3 {
-          0%,100% { transform: translate(0,0) scale(1); border-radius: 50% 50% 60% 40% / 40% 60% 50% 50%; }
-          50%     { transform: translate(-40px,-50px) scale(1.06); border-radius: 40% 60% 40% 60% / 60% 40% 60% 40%; }
-        }
-      `}</style>
-      {/* Orb 1 — top left */}
-      <div style={{
-        position: "absolute", top: "-10%", left: "-8%",
-        width: "clamp(280px,35vw,480px)", height: "clamp(280px,35vw,480px)",
-        background: "radial-gradient(circle at 40% 40%, rgba(0,255,136,.07), rgba(0,180,80,.03) 55%, transparent 80%)",
-        animation: "orbFloat1 18s ease-in-out infinite",
-        willChange: "transform",
-      }}/>
-      {/* Orb 2 — bottom right */}
-      <div style={{
-        position: "absolute", bottom: "5%", right: "-10%",
-        width: "clamp(240px,30vw,420px)", height: "clamp(240px,30vw,420px)",
-        background: "radial-gradient(circle at 60% 60%, rgba(0,255,136,.06), rgba(0,150,70,.02) 55%, transparent 80%)",
-        animation: "orbFloat2 22s ease-in-out infinite 3s",
-        willChange: "transform",
-      }}/>
-      {/* Orb 3 — center right */}
-      <div style={{
-        position: "absolute", top: "40%", right: "5%",
-        width: "clamp(160px,20vw,280px)", height: "clamp(160px,20vw,280px)",
-        background: "radial-gradient(circle, rgba(0,255,136,.04), transparent 70%)",
-        animation: "orbFloat3 14s ease-in-out infinite 1.5s",
-        willChange: "transform",
-      }}/>
+    <div style={{ position:"fixed",top:0,left:0,right:0,height:2,zIndex:10001,pointerEvents:"none",background:"rgba(0,255,136,.08)" }}>
+      <div style={{ height:"100%",width:`${pct}%`,background:"linear-gradient(90deg,#00ff88,#00cc6a)",boxShadow:"0 0 10px rgba(0,255,136,.7)",transition:"width .08s linear" }}/>
     </div>
   );
 }
 
-/* ─────────────────────────────────────────────
-   3. CLICK RIPPLE
-   Green ripple expands from every click
-───────────────────────────────────────────── */
-export function ClickRipple() {
-  const [ripples, setRipples] = useState([]);
+/* ═══════════════════════════════════════════════════
+   3. SPLIT TEXT  (Eszterbial + Uncommon Design)
+   Each letter animates in independently with stagger
+   Usage: <SplitText text="Hello" className="..." style={...} tag="h1" />
+═══════════════════════════════════════════════════ */
+export function SplitText({ text, tag: Tag = "span", style = {}, className = "", delay = 0, stagger = 0.04, once = true }) {
+  const ref    = useRef(null);
+  const [vis, setVis] = useState(false);
 
   useEffect(() => {
-    const handler = e => {
-      const id = Date.now() + Math.random();
-      setRipples(r => [...r, { id, x: e.clientX, y: e.clientY }]);
-      setTimeout(() => setRipples(r => r.filter(rp => rp.id !== id)), 800);
-    };
-    window.addEventListener("click", handler);
-    return () => window.removeEventListener("click", handler);
-  }, []);
+    if (!ref.current) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setVis(true); if (once) obs.disconnect(); }
+    }, { threshold: 0.2 });
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [once]);
+
+  const words = text.split(" ");
 
   return (
-    <>
+    <Tag ref={ref} className={className} style={{ display:"inline", ...style }}>
       <style>{`
-        @keyframes rippleOut {
-          0%   { width:0; height:0; opacity:.6; transform:translate(-50%,-50%); }
-          100% { width:120px; height:120px; opacity:0; transform:translate(-50%,-50%); }
+        @keyframes letterIn {
+          from { opacity:0; transform:translateY(60%) rotate(8deg); }
+          to   { opacity:1; transform:none; }
         }
       `}</style>
-      {ripples.map(rp => (
-        <div key={rp.id} style={{
-          position: "fixed", left: rp.x, top: rp.y,
-          borderRadius: "50%", border: "1.5px solid rgba(0,255,136,.5)",
-          pointerEvents: "none", zIndex: 99997,
-          animation: "rippleOut .8s ease-out forwards",
-        }}/>
+      {words.map((word, wi) => (
+        <span key={wi} style={{ display:"inline-block", overflow:"hidden", marginRight:".25em" }}>
+          {word.split("").map((char, ci) => {
+            const i = words.slice(0,wi).join("").length + wi + ci;
+            return (
+              <span key={ci} style={{
+                display: "inline-block",
+                opacity: vis ? 1 : 0,
+                animation: vis ? `letterIn .6s cubic-bezier(.16,1,.3,1) ${delay + i * stagger}s both` : "none",
+              }}>{char}</span>
+            );
+          })}
+        </span>
       ))}
-    </>
+    </Tag>
   );
 }
 
-/* ─────────────────────────────────────────────
-   4. TILT CARD WRAPPER
-   Wrap any card — it tilts toward the cursor
-───────────────────────────────────────────── */
-export function TiltCard({ children, style = {}, className = "" }) {
+/* ═══════════════════════════════════════════════════
+   4. MAGNETIC ELEMENT  (Lusion)
+   Wraps any element — it pulls toward cursor on hover
+   Usage: <Magnetic><button>Click me</button></Magnetic>
+═══════════════════════════════════════════════════ */
+export function Magnetic({ children, strength = 0.35, style = {} }) {
   const ref = useRef(null);
 
-  const onMove = e => {
-    const el   = ref.current;
-    if (!el) return;
-    const { left, top, width, height } = el.getBoundingClientRect();
-    const x = (e.clientX - left) / width  - 0.5;  // -0.5 … 0.5
-    const y = (e.clientY - top)  / height - 0.5;
-    el.style.transform = `perspective(800px) rotateY(${x * 14}deg) rotateX(${-y * 14}deg) scale(1.02)`;
-    el.style.boxShadow = `${-x * 18}px ${-y * 18}px 40px rgba(0,255,136,.12)`;
-  };
-
-  const onLeave = () => {
+  const onMove = useCallback(e => {
     const el = ref.current;
     if (!el) return;
-    el.style.transform = "perspective(800px) rotateY(0deg) rotateX(0deg) scale(1)";
-    el.style.boxShadow = "none";
-  };
+    const { left, top, width, height } = el.getBoundingClientRect();
+    const cx = left + width/2, cy = top + height/2;
+    const dx = e.clientX - cx, dy = e.clientY - cy;
+    el.style.transform = `translate(${dx * strength}px, ${dy * strength}px)`;
+  }, [strength]);
+
+  const onLeave = useCallback(() => {
+    if (ref.current) ref.current.style.transform = "translate(0,0)";
+  }, []);
 
   return (
-    <div ref={ref} className={className}
-      onMouseMove={onMove} onMouseLeave={onLeave}
-      style={{ transition: "transform .15s ease, box-shadow .15s ease", willChange: "transform", ...style }}>
+    <div ref={ref} onMouseMove={onMove} onMouseLeave={onLeave}
+      style={{ display:"inline-block", transition:"transform .4s cubic-bezier(.16,1,.3,1)", ...style }}>
       {children}
     </div>
   );
 }
 
-/* ─────────────────────────────────────────────
-   5. SPRING REVEAL
-   Children fade+slide up when they enter viewport
-   with spring-like overshoot
-───────────────────────────────────────────── */
-export function SpringReveal({ children, delay = 0, style = {} }) {
+/* ═══════════════════════════════════════════════════
+   5. TILT CARD  (Active Theory)
+   3D perspective tilt on mouse move
+   Usage: <TiltCard><div className="glass">...</div></TiltCard>
+═══════════════════════════════════════════════════ */
+export function TiltCard({ children, style = {}, className = "", intensity = 12 }) {
   const ref = useRef(null);
+  const glowRef = useRef(null);
+
+  const onMove = e => {
+    const el = ref.current;
+    if (!el) return;
+    const { left, top, width, height } = el.getBoundingClientRect();
+    const x = (e.clientX - left) / width  - 0.5;
+    const y = (e.clientY - top)  / height - 0.5;
+    el.style.transform = `perspective(900px) rotateY(${x*intensity}deg) rotateX(${-y*intensity}deg) scale(1.02)`;
+    el.style.boxShadow = `${-x*20}px ${-y*20}px 50px rgba(0,255,136,.12), 0 8px 32px rgba(0,0,0,.2)`;
+    // Moving glow spot
+    if (glowRef.current) {
+      glowRef.current.style.left   = `${(x+0.5)*100}%`;
+      glowRef.current.style.top    = `${(y+0.5)*100}%`;
+      glowRef.current.style.opacity = "1";
+    }
+  };
+
+  const onLeave = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.transform = "perspective(900px) rotateY(0) rotateX(0) scale(1)";
+    el.style.boxShadow = "none";
+    if (glowRef.current) glowRef.current.style.opacity = "0";
+  };
+
+  return (
+    <div ref={ref} className={className}
+      onMouseMove={onMove} onMouseLeave={onLeave}
+      style={{ transition:"transform .15s ease, box-shadow .15s ease", willChange:"transform", position:"relative", overflow:"hidden", ...style }}>
+      {/* Spotlight glow that follows cursor */}
+      <div ref={glowRef} style={{
+        position:"absolute", width:160, height:160, borderRadius:"50%",
+        background:"radial-gradient(circle, rgba(0,255,136,.15) 0%, transparent 70%)",
+        transform:"translate(-50%,-50%)", pointerEvents:"none", opacity:0,
+        transition:"opacity .3s", zIndex:0,
+      }}/>
+      <div style={{ position:"relative", zIndex:1 }}>{children}</div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   6. SCROLL REVEAL  (Unseen.co — cinematic, weighted)
+   Elements slide in with spring physics + blur
+   Usage: <ScrollReveal delay={0.1}>...</ScrollReveal>
+═══════════════════════════════════════════════════ */
+export function ScrollReveal({ children, delay = 0, direction = "up", style = {}, once = true }) {
+  const ref    = useRef(null);
   const [vis, setVis] = useState(false);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    if (!ref.current) return;
     const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setVis(true); obs.disconnect(); }
-    }, { threshold: 0.1 });
-    obs.observe(el);
+      if (e.isIntersecting) { setVis(true); if (once) obs.disconnect(); }
+    }, { threshold: 0.08 });
+    obs.observe(ref.current);
     return () => obs.disconnect();
-  }, []);
+  }, [once]);
+
+  const transforms = {
+    up:    `translateY(${vis?0:48}px)`,
+    down:  `translateY(${vis?0:-48}px)`,
+    left:  `translateX(${vis?0:48}px)`,
+    right: `translateX(${vis?0:-48}px)`,
+    scale: `scale(${vis?1:.88})`,
+  };
 
   return (
     <div ref={ref} style={{
-      opacity:   vis ? 1 : 0,
-      transform: vis ? "translateY(0) scale(1)" : "translateY(36px) scale(.97)",
-      transition: `opacity .7s ${delay}s cubic-bezier(.16,1,.3,1), transform .7s ${delay}s cubic-bezier(.16,1,.3,1)`,
+      opacity:    vis ? 1 : 0,
+      transform:  transforms[direction] || transforms.up,
+      filter:     `blur(${vis?0:4}px)`,
+      transition: `opacity .9s ${delay}s cubic-bezier(.16,1,.3,1), transform .9s ${delay}s cubic-bezier(.16,1,.3,1), filter .6s ${delay}s ease`,
+      willChange: "opacity, transform, filter",
       ...style,
     }}>
       {children}
@@ -242,112 +329,136 @@ export function SpringReveal({ children, delay = 0, style = {} }) {
   );
 }
 
-/* ─────────────────────────────────────────────
-   6. COUNTING NUMBER
-   Animates from 0 → target when in view
-───────────────────────────────────────────── */
-export function CountUp({ target, suffix = "", prefix = "", duration = 2000 }) {
-  const [val, setVal]   = useState(0);
-  const ref             = useRef(null);
-  const [started, setStarted] = useState(false);
-
+/* ═══════════════════════════════════════════════════
+   7. CLICK RIPPLE  (Rive — state-machine reactive)
+   Green ripple bursts from every click
+═══════════════════════════════════════════════════ */
+export function ClickRipple() {
+  const [ripples, setRipples] = useState([]);
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !started) { setStarted(true); obs.disconnect(); }
-    }, { threshold: 0.3 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [started]);
-
-  useEffect(() => {
-    if (!started) return;
-    let start = null;
-    const step = ts => {
-      if (!start) start = ts;
-      const p = Math.min((ts - start) / duration, 1);
-      // ease-out-expo
-      const ease = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
-      setVal(Math.round(ease * target));
-      if (p < 1) requestAnimationFrame(step);
+    const h = e => {
+      const id = Date.now() + Math.random();
+      setRipples(r => [...r.slice(-6), { id, x:e.clientX, y:e.clientY }]);
+      setTimeout(() => setRipples(r => r.filter(rp=>rp.id!==id)), 700);
     };
-    requestAnimationFrame(step);
-  }, [started, target, duration]);
-
-  return <span ref={ref}>{prefix}{val}{suffix}</span>;
-}
-
-/* ─────────────────────────────────────────────
-   7. GLITCH TEXT
-   Subtle glitch effect on headings (optional)
-───────────────────────────────────────────── */
-export function GlitchText({ children, style = {} }) {
+    window.addEventListener("click", h);
+    return () => window.removeEventListener("click", h);
+  }, []);
   return (
     <>
       <style>{`
-        .glitch-wrap { position: relative; display: inline-block; }
-        .glitch-wrap::before,
-        .glitch-wrap::after {
-          content: attr(data-text);
-          position: absolute; top: 0; left: 0;
-          width: 100%; overflow: hidden;
-          opacity: 0;
+        @keyframes rippleOut {
+          0%   { width:0;height:0;opacity:.55;transform:translate(-50%,-50%); }
+          100% { width:100px;height:100px;opacity:0;transform:translate(-50%,-50%); }
         }
-        .glitch-wrap:hover::before {
-          animation: glitchTop .3s steps(2) 1;
-          color: #00ff88; clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
-          left: 2px; opacity: 1;
-        }
-        .glitch-wrap:hover::after {
-          animation: glitchBot .3s steps(2) 1;
-          color: #0081fb; clip-path: polygon(0 66%, 100% 66%, 100% 100%, 0 100%);
-          left: -2px; opacity: 1;
-        }
-        @keyframes glitchTop {
-          0%  { transform: translate(-2px, -2px); }
-          50% { transform: translate(2px, 2px);   }
-          100%{ transform: translate(0, 0);        }
-        }
-        @keyframes glitchBot {
-          0%  { transform: translate(2px, 2px);  }
-          50% { transform: translate(-2px,-2px); }
-          100%{ transform: translate(0, 0);       }
+        @keyframes rippleOut2 {
+          0%   { width:0;height:0;opacity:.25;transform:translate(-50%,-50%); }
+          100% { width:160px;height:160px;opacity:0;transform:translate(-50%,-50%); }
         }
       `}</style>
-      <span className="glitch-wrap" data-text={typeof children === "string" ? children : ""} style={style}>
-        {children}
-      </span>
+      {ripples.map(rp=>(
+        <div key={rp.id}>
+          <div style={{ position:"fixed",left:rp.x,top:rp.y,borderRadius:"50%",border:"1.5px solid rgba(0,255,136,.55)",pointerEvents:"none",zIndex:99995,animation:"rippleOut .7s ease-out forwards" }}/>
+          <div style={{ position:"fixed",left:rp.x,top:rp.y,borderRadius:"50%",border:"1px solid rgba(0,255,136,.2)",pointerEvents:"none",zIndex:99994,animation:"rippleOut2 .7s .1s ease-out forwards" }}/>
+        </div>
+      ))}
     </>
   );
 }
 
-/* ─────────────────────────────────────────────
-   8. SCROLL PROGRESS BAR (top of page)
-───────────────────────────────────────────── */
-export function ScrollProgress() {
-  const [pct, setPct] = useState(0);
+/* ═══════════════════════════════════════════════════
+   8. MORPHING BACKGROUND ORBS  (Lusion + Dropbox)
+   Slow-morphing blobs in the page background
+═══════════════════════════════════════════════════ */
+export function MorphOrbs() {
+  return (
+    <div style={{ position:"fixed",inset:0,pointerEvents:"none",zIndex:0,overflow:"hidden" }}>
+      <style>{`
+        @keyframes morph1 {
+          0%,100%{border-radius:60% 40% 70% 30%/50% 60% 40% 70%;transform:translate(0,0) scale(1);}
+          25%    {border-radius:40% 60% 30% 70%/60% 40% 70% 30%;transform:translate(30px,-40px) scale(1.04);}
+          50%    {border-radius:70% 30% 50% 50%/30% 70% 60% 40%;transform:translate(-20px,-60px) scale(.97);}
+          75%    {border-radius:30% 70% 40% 60%/70% 30% 50% 50%;transform:translate(50px,-20px) scale(1.02);}
+        }
+        @keyframes morph2 {
+          0%,100%{border-radius:40% 60% 30% 70%/60% 40% 70% 30%;transform:translate(0,0);}
+          33%    {border-radius:60% 40% 70% 30%/40% 60% 30% 70%;transform:translate(-40px,30px);}
+          66%    {border-radius:70% 30% 60% 40%/30% 70% 40% 60%;transform:translate(20px,50px);}
+        }
+        @keyframes morph3 {
+          0%,100%{border-radius:50% 50% 60% 40%/40% 60% 50% 50%;transform:translate(0,0) rotate(0deg);}
+          50%    {border-radius:40% 60% 40% 60%/60% 40% 60% 40%;transform:translate(-30px,-40px) rotate(15deg);}
+        }
+      `}</style>
+      <div style={{ position:"absolute",top:"-12%",left:"-8%",width:"clamp(260px,38vw,520px)",height:"clamp(260px,38vw,520px)",background:"radial-gradient(circle at 40% 40%,rgba(0,255,136,.075),rgba(0,180,80,.03) 55%,transparent 80%)",animation:"morph1 20s ease-in-out infinite",willChange:"transform,border-radius" }}/>
+      <div style={{ position:"absolute",bottom:"2%",right:"-8%",width:"clamp(220px,30vw,420px)",height:"clamp(220px,30vw,420px)",background:"radial-gradient(circle at 60% 60%,rgba(0,255,136,.055),rgba(0,150,70,.02) 55%,transparent 80%)",animation:"morph2 25s ease-in-out infinite 4s",willChange:"transform,border-radius" }}/>
+      <div style={{ position:"absolute",top:"38%",right:"3%",width:"clamp(140px,18vw,260px)",height:"clamp(140px,18vw,260px)",background:"radial-gradient(circle,rgba(0,255,136,.04),transparent 70%)",animation:"morph3 16s ease-in-out infinite 2s",willChange:"transform,border-radius" }}/>
+    </div>
+  );
+}
 
-  useEffect(() => {
-    const update = () => {
-      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-      setPct(scrollHeight - clientHeight > 0 ? (scrollTop / (scrollHeight - clientHeight)) * 100 : 0);
+/* ═══════════════════════════════════════════════════
+   9. COUNTER  (Uncommon Design — typographic drama)
+   Counts up with spring easing when in view
+═══════════════════════════════════════════════════ */
+export function Counter({ from=0, to, suffix="", prefix="", duration=2200, style={} }) {
+  const [val, setVal] = useState(from);
+  const ref           = useRef(null);
+  const [started, setStarted] = useState(false);
+
+  useEffect(()=>{
+    if(!ref.current)return;
+    const obs=new IntersectionObserver(([e])=>{ if(e.isIntersecting&&!started){setStarted(true);obs.disconnect();} },{threshold:.3});
+    obs.observe(ref.current);
+    return()=>obs.disconnect();
+  },[started]);
+
+  useEffect(()=>{
+    if(!started)return;
+    let s=null;
+    const step=ts=>{
+      if(!s)s=ts;
+      const p=Math.min((ts-s)/duration,1);
+      const ease=p===1?1:1-Math.pow(2,-10*p); // expo ease-out
+      setVal(Math.round(from+ease*(to-from)));
+      if(p<1)requestAnimationFrame(step);
     };
-    window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
-  }, []);
+    requestAnimationFrame(step);
+  },[started,from,to,duration]);
+
+  return <span ref={ref} style={style}>{prefix}{val}{suffix}</span>;
+}
+
+/* ═══════════════════════════════════════════════════
+   10. HOVER GLOW BORDER  (Unseen.co)
+   A card whose border glows and traces on hover
+   Usage: <GlowBorder>...</GlowBorder>
+═══════════════════════════════════════════════════ */
+export function GlowBorder({ children, color="#00ff88", style={}, className="" }) {
+  const ref    = useRef(null);
+  const glowEl = useRef(null);
+
+  const onMove = e => {
+    const el = ref.current;
+    if (!el||!glowEl.current) return;
+    const { left, top } = el.getBoundingClientRect();
+    glowEl.current.style.left = `${e.clientX - left}px`;
+    glowEl.current.style.top  = `${e.clientY - top}px`;
+    glowEl.current.style.opacity = "1";
+  };
+  const onLeave = () => { if (glowEl.current) glowEl.current.style.opacity = "0"; };
 
   return (
-    <div style={{
-      position: "fixed", top: 0, left: 0, right: 0, height: 2.5,
-      background: "rgba(0,255,136,.12)", zIndex: 10000, pointerEvents: "none",
-    }}>
-      <div style={{
-        height: "100%", width: `${pct}%`,
-        background: "linear-gradient(90deg,#00ff88,#00cc6a)",
-        boxShadow: "0 0 8px rgba(0,255,136,.6)",
-        transition: "width .1s linear",
+    <div ref={ref} className={className} onMouseMove={onMove} onMouseLeave={onLeave}
+      style={{ position:"relative", overflow:"hidden", ...style }}>
+      {/* Chasing glow */}
+      <div ref={glowEl} style={{
+        position:"absolute", width:200, height:200, borderRadius:"50%",
+        background:`radial-gradient(circle, ${color}22 0%, transparent 65%)`,
+        transform:"translate(-50%,-50%)", pointerEvents:"none",
+        opacity:0, transition:"opacity .3s", zIndex:0,
       }}/>
+      <div style={{ position:"relative", zIndex:1 }}>{children}</div>
     </div>
   );
 }
