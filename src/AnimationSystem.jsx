@@ -1,92 +1,78 @@
+/**
+ * BODE CONVERSION LAB — ANIMATION SYSTEM
+ * Inspired by: Lusion, Active Theory, Unseen, Uncommon Design, Eszterbial, Dropbox Motion, Rive
+ * Motion Profile: Power4.out [0.22, 1, 0.36, 1] — weighted, snappy, mechanical
+ * All animations GPU-accelerated (transform/opacity only) for 60fps mobile
+ */
 import { useEffect, useRef, useState, useCallback } from "react";
 
-/* ═══════════════════════════════════════════════════
+export const EASE = [0.22, 1, 0.36, 1]; // Power4.out — "Precision Easing"
+
+/* ═══════════════════════════════════════════════════════
    1. CURSOR SYSTEM  (Active Theory + Lusion + Eszterbial)
-   - Custom cursor dot that follows mouse
-   - Trailing "ghost" ring that lags behind
-   - Cursor morphs into a circle with text on hover over buttons
-   - Leaves a fading particle trail on fast movement
-═══════════════════════════════════════════════════ */
+   Magnetic dot + lagging ring + particle trail + label morphing
+═══════════════════════════════════════════════════════ */
 export function CursorSystem() {
   const dotRef   = useRef(null);
   const ringRef  = useRef(null);
-  const labelRef = useRef(null);
   const pos      = useRef({ x: -200, y: -200 });
-  const ring     = useRef({ x: -200, y: -200 });
-  const vel      = useRef({ x: 0, y: 0 });
-  const prevPos  = useRef({ x: -200, y: -200 });
+  const ringPos  = useRef({ x: -200, y: -200 });
   const raf      = useRef(null);
-  const [trail, setTrail]   = useState([]);
-  const [label, setLabel]   = useState("");
+  const [ready, setReady]   = useState(false);
   const [big, setBig]       = useState(false);
-  const [hidden, setHidden] = useState(true);
+  const [label, setLabel]   = useState("");
+  const [trail, setTrail]   = useState([]);
 
   useEffect(() => {
-    // Only desktop
-    if (window.matchMedia("(pointer:coarse)").matches) return;
+    if (window.matchMedia("(pointer:coarse)").matches) return; // Skip touch devices
 
     const onMove = e => {
-      prevPos.current = { ...pos.current };
+      const prev = { ...pos.current };
       pos.current = { x: e.clientX, y: e.clientY };
-      vel.current = { x: e.clientX - prevPos.current.x, y: e.clientY - prevPos.current.y };
-      if (hidden) setHidden(false);
+      if (!ready) setReady(true);
 
       // Particle trail on fast movement
-      const speed = Math.hypot(vel.current.x, vel.current.y);
-      if (speed > 12) {
+      const speed = Math.hypot(e.clientX - prev.x, e.clientY - prev.y);
+      if (speed > 14) {
         const id = Date.now() + Math.random();
-        setTrail(t => [...t.slice(-12), { id, x: e.clientX, y: e.clientY, size: Math.random() * 4 + 2 }]);
-        setTimeout(() => setTrail(t => t.filter(p => p.id !== id)), 500);
+        setTrail(t => [...t.slice(-8), { id, x: e.clientX, y: e.clientY, r: Math.random() * 3 + 2 }]);
+        setTimeout(() => setTrail(t => t.filter(p => p.id !== id)), 450);
       }
     };
 
-    // Grow + show label on interactive elements
-    const onEnter = e => {
-      setBig(true);
-      const txt = e.target.closest("[data-cursor]")?.dataset.cursor || "";
-      setLabel(txt);
-    };
-    const onLeave = () => { setBig(false); setLabel(""); };
+    const grow  = e => { setBig(true);  setLabel(e.target.closest("[data-cursor]")?.dataset.cursor || ""); };
+    const shrink = () => { setBig(false); setLabel(""); };
 
-    window.addEventListener("mousemove", onMove);
-    document.querySelectorAll("a,button,[data-cursor]").forEach(el => {
-      el.addEventListener("mouseenter", onEnter);
-      el.addEventListener("mouseleave", onLeave);
-    });
-
-    // MutationObserver re-binds on DOM changes
-    const obs = new MutationObserver(() => {
+    const bindAll = () => {
       document.querySelectorAll("a,button,[data-cursor]").forEach(el => {
-        el.removeEventListener("mouseenter", onEnter);
-        el.removeEventListener("mouseleave", onLeave);
-        el.addEventListener("mouseenter", onEnter);
-        el.addEventListener("mouseleave", onLeave);
+        el.removeEventListener("mouseenter", grow);
+        el.removeEventListener("mouseleave", shrink);
+        el.addEventListener("mouseenter", grow);
+        el.addEventListener("mouseleave", shrink);
       });
-    });
+    };
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    bindAll();
+    const obs = new MutationObserver(bindAll);
     obs.observe(document.body, { childList: true, subtree: true });
 
-    // Animation loop
     const animate = () => {
-      // Ring lags (spring)
-      ring.current.x += (pos.current.x - ring.current.x) * 0.1;
-      ring.current.y += (pos.current.y - ring.current.y) * 0.1;
+      // Ring springs toward cursor (lag = 0.1)
+      ringPos.current.x += (pos.current.x - ringPos.current.x) * 0.1;
+      ringPos.current.y += (pos.current.y - ringPos.current.y) * 0.1;
 
       if (dotRef.current) {
         dotRef.current.style.transform = `translate(${pos.current.x - 4}px,${pos.current.y - 4}px)`;
       }
       if (ringRef.current) {
-        const s = big ? 52 : 28;
+        const s = big ? 54 : 30;
         ringRef.current.style.width  = `${s}px`;
         ringRef.current.style.height = `${s}px`;
-        ringRef.current.style.transform = `translate(${ring.current.x - s/2}px,${ring.current.y - s/2}px)`;
-        ringRef.current.style.opacity = big ? "0.6" : "0.3";
-        ringRef.current.style.borderColor = big ? "#00ff88" : "rgba(0,255,136,.5)";
-        ringRef.current.style.background  = big ? "rgba(0,255,136,.08)" : "transparent";
-      }
-      if (labelRef.current) {
-        const s = 52;
-        labelRef.current.style.opacity  = label ? "1" : "0";
-        labelRef.current.style.transform = `translate(${ring.current.x - s/2}px,${ring.current.y - s/2}px)`;
+        ringRef.current.style.transform = `translate(${ringPos.current.x - s/2}px,${ringPos.current.y - s/2}px)`;
+        ringRef.current.style.borderColor = big ? "#00ff88" : "rgba(0,255,136,.45)";
+        ringRef.current.style.opacity = big ? "0.7" : "0.3";
+        ringRef.current.style.background = big ? "rgba(0,255,136,.07)" : "transparent";
       }
       raf.current = requestAnimationFrame(animate);
     };
@@ -97,157 +83,126 @@ export function CursorSystem() {
       cancelAnimationFrame(raf.current);
       obs.disconnect();
     };
-  }, [hidden, big, label]);
+  }, [ready, big]);
 
-  if (hidden) return null;
+  if (!ready) return null;
 
   return (
     <>
-      {/* Trail particles */}
-      {trail.map(p => (
-        <div key={p.id} style={{
-          position: "fixed", left: p.x - p.size/2, top: p.y - p.size/2,
-          width: p.size, height: p.size, borderRadius: "50%",
-          background: "#00ff88", pointerEvents: "none", zIndex: 99996,
-          animation: "trailFade .5s ease-out forwards",
-        }}/>
-      ))}
-      {/* Dot */}
-      <div ref={dotRef} style={{
-        position: "fixed", top: 0, left: 0, width: 8, height: 8,
-        borderRadius: "50%", background: "#00ff88",
-        pointerEvents: "none", zIndex: 99999, willChange: "transform",
-        boxShadow: "0 0 12px rgba(0,255,136,.9), 0 0 24px rgba(0,255,136,.4)",
-        transition: "opacity .3s",
-      }}/>
-      {/* Ring */}
-      <div ref={ringRef} style={{
-        position: "fixed", top: 0, left: 0, width: 28, height: 28,
-        borderRadius: "50%", border: "1.5px solid rgba(0,255,136,.5)",
-        pointerEvents: "none", zIndex: 99998, willChange: "transform",
-        transition: "width .3s cubic-bezier(.16,1,.3,1), height .3s cubic-bezier(.16,1,.3,1), opacity .3s, border-color .3s, background .3s",
-        display: "flex", alignItems: "center", justifyContent: "center",
-      }}/>
-      {/* Label inside ring */}
-      <div ref={labelRef} style={{
-        position: "fixed", top: 0, left: 0, width: 52, height: 52,
-        borderRadius: "50%", pointerEvents: "none", zIndex: 99999,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 8, fontWeight: 700, color: "#00ff88", letterSpacing: ".05em",
-        textTransform: "uppercase", transition: "opacity .2s", opacity: 0,
-        willChange: "transform",
-      }}>{label}</div>
       <style>{`
-        @keyframes trailFade { from{opacity:.7;transform:scale(1);} to{opacity:0;transform:scale(.2);} }
         * { cursor: none !important; }
+        @keyframes trailFade { 0%{opacity:.65;transform:scale(1);} 100%{opacity:0;transform:scale(.1);} }
       `}</style>
+      {/* Particle trail */}
+      {trail.map(p => (
+        <div key={p.id} style={{ position:"fixed", left:p.x-p.r/2, top:p.y-p.r/2, width:p.r, height:p.r, borderRadius:"50%", background:"#00ff88", pointerEvents:"none", zIndex:99994, animation:"trailFade .45s ease-out forwards", willChange:"transform,opacity" }}/>
+      ))}
+      {/* Dot — snappy */}
+      <div ref={dotRef} style={{ position:"fixed", top:0, left:0, width:8, height:8, borderRadius:"50%", background:"#00ff88", pointerEvents:"none", zIndex:99999, willChange:"transform", boxShadow:"0 0 12px rgba(0,255,136,.9),0 0 28px rgba(0,255,136,.4)" }}/>
+      {/* Ring — lagging */}
+      <div ref={ringRef} style={{ position:"fixed", top:0, left:0, width:30, height:30, borderRadius:"50%", border:"1.5px solid rgba(0,255,136,.45)", pointerEvents:"none", zIndex:99998, willChange:"transform", transition:"width .3s cubic-bezier(.22,1,.36,1),height .3s cubic-bezier(.22,1,.36,1),opacity .3s,border-color .3s,background .3s", display:"flex", alignItems:"center", justifyContent:"center" }}>
+        {label && <span style={{ fontSize:7, fontWeight:700, color:"#00ff88", letterSpacing:".06em", textTransform:"uppercase", opacity:1, whiteSpace:"nowrap" }}>{label}</span>}
+      </div>
     </>
   );
 }
 
-/* ═══════════════════════════════════════════════════
-   2. SCROLL PROGRESS BAR  (Dropbox Motion — purposeful)
-═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   2. MORPHING BACKGROUND ORBS  (Lusion + Dropbox)
+   Slow morphing green blobs — GPU only
+═══════════════════════════════════════════════════════ */
+export function MorphOrbs() {
+  return (
+    <div style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:0, overflow:"hidden" }} aria-hidden="true">
+      <style>{`
+        @keyframes morph1{0%,100%{border-radius:60% 40% 70% 30%/50% 60% 40% 70%;transform:translate(0,0) scale(1);}25%{border-radius:40% 60% 30% 70%/60% 40% 70% 30%;transform:translate(30px,-40px) scale(1.04);}50%{border-radius:70% 30% 50% 50%/30% 70% 60% 40%;transform:translate(-18px,-55px) scale(.97);}75%{border-radius:30% 70% 40% 60%/70% 30% 50% 50%;transform:translate(45px,-18px) scale(1.02);}}
+        @keyframes morph2{0%,100%{border-radius:40% 60% 30% 70%/60% 40% 70% 30%;transform:translate(0,0);}33%{border-radius:60% 40% 70% 30%/40% 60% 30% 70%;transform:translate(-35px,28px);}66%{border-radius:70% 30% 60% 40%/30% 70% 40% 60%;transform:translate(18px,45px);}}
+        @keyframes morph3{0%,100%{border-radius:50% 50% 60% 40%/40% 60% 50% 50%;transform:translate(0,0);}50%{border-radius:40% 60% 40% 60%/60% 40% 60% 40%;transform:translate(-28px,-35px);}}
+      `}</style>
+      <div style={{ position:"absolute", top:"-12%", left:"-8%", width:"clamp(260px,38vw,500px)", height:"clamp(260px,38vw,500px)", background:"radial-gradient(circle at 40% 40%,rgba(0,255,136,.08),rgba(0,180,80,.03) 55%,transparent 80%)", animation:"morph1 22s ease-in-out infinite", willChange:"transform,border-radius" }}/>
+      <div style={{ position:"absolute", bottom:"3%", right:"-8%", width:"clamp(200px,28vw,400px)", height:"clamp(200px,28vw,400px)", background:"radial-gradient(circle at 60% 60%,rgba(0,255,136,.06),rgba(0,150,70,.02) 55%,transparent 80%)", animation:"morph2 28s ease-in-out infinite 4s", willChange:"transform,border-radius" }}/>
+      <div style={{ position:"absolute", top:"40%", right:"4%", width:"clamp(120px,16vw,240px)", height:"clamp(120px,16vw,240px)", background:"radial-gradient(circle,rgba(0,255,136,.04),transparent 70%)", animation:"morph3 18s ease-in-out infinite 2s", willChange:"transform,border-radius" }}/>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   3. SVG GRID — reacts to cursor (Dropbox Motion parallax)
+═══════════════════════════════════════════════════════ */
+export function ParallaxGrid() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const onMove = e => {
+      const x = (e.clientX / window.innerWidth  - 0.5) * 18;
+      const y = (e.clientY / window.innerHeight - 0.5) * 18;
+      el.style.transform = `translate(${x}px,${y}px)`;
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+  return (
+    <div style={{ position:"absolute", inset:"-5%", pointerEvents:"none", zIndex:0, overflow:"hidden" }} aria-hidden="true">
+      <div ref={ref} style={{ position:"absolute", inset:0, backgroundImage:"linear-gradient(rgba(0,255,136,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.028) 1px,transparent 1px)", backgroundSize:"44px 44px", maskImage:"radial-gradient(ellipse 80% 70% at 50% 50%,black 30%,transparent 100%)", WebkitMaskImage:"radial-gradient(ellipse 80% 70% at 50% 50%,black 30%,transparent 100%)", transition:"transform .8s cubic-bezier(.22,1,.36,1)", willChange:"transform" }}/>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   4. SCROLL PROGRESS BAR (Dropbox — purposeful)
+═══════════════════════════════════════════════════════ */
 export function ScrollProgress() {
   const [pct, setPct] = useState(0);
   useEffect(() => {
     const u = () => {
       const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-      setPct(scrollHeight - clientHeight > 0 ? (scrollTop / (scrollHeight - clientHeight)) * 100 : 0);
+      setPct(scrollHeight - clientHeight > 0 ? (scrollTop/(scrollHeight-clientHeight))*100 : 0);
     };
     window.addEventListener("scroll", u, { passive: true });
     return () => window.removeEventListener("scroll", u);
   }, []);
   return (
-    <div style={{ position:"fixed",top:0,left:0,right:0,height:2,zIndex:10001,pointerEvents:"none",background:"rgba(0,255,136,.08)" }}>
-      <div style={{ height:"100%",width:`${pct}%`,background:"linear-gradient(90deg,#00ff88,#00cc6a)",boxShadow:"0 0 10px rgba(0,255,136,.7)",transition:"width .08s linear" }}/>
+    <div style={{ position:"fixed", top:0, left:0, right:0, height:2, zIndex:10001, pointerEvents:"none", background:"rgba(0,255,136,.07)" }}>
+      <div style={{ height:"100%", width:`${pct}%`, background:"linear-gradient(90deg,#00ff88,#00cc6a)", boxShadow:"0 0 10px rgba(0,255,136,.7)", transition:"width .08s linear", willChange:"width" }}/>
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════
-   3. SPLIT TEXT  (Eszterbial + Uncommon Design)
-   Each letter animates in independently with stagger
-   Usage: <SplitText text="Hello" className="..." style={...} tag="h1" />
-═══════════════════════════════════════════════════ */
-export function SplitText({ text, tag: Tag = "span", style = {}, className = "", delay = 0, stagger = 0.04, once = true }) {
-  const ref    = useRef(null);
-  const [vis, setVis] = useState(false);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setVis(true); if (once) obs.disconnect(); }
-    }, { threshold: 0.2 });
-    obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [once]);
-
-  const words = text.split(" ");
-
-  return (
-    <Tag ref={ref} className={className} style={{ display:"inline", ...style }}>
-      <style>{`
-        @keyframes letterIn {
-          from { opacity:0; transform:translateY(60%) rotate(8deg); }
-          to   { opacity:1; transform:none; }
-        }
-      `}</style>
-      {words.map((word, wi) => (
-        <span key={wi} style={{ display:"inline-block", overflow:"hidden", marginRight:".25em" }}>
-          {word.split("").map((char, ci) => {
-            const i = words.slice(0,wi).join("").length + wi + ci;
-            return (
-              <span key={ci} style={{
-                display: "inline-block",
-                opacity: vis ? 1 : 0,
-                animation: vis ? `letterIn .6s cubic-bezier(.16,1,.3,1) ${delay + i * stagger}s both` : "none",
-              }}>{char}</span>
-            );
-          })}
-        </span>
-      ))}
-    </Tag>
-  );
-}
-
-/* ═══════════════════════════════════════════════════
-   4. MAGNETIC ELEMENT  (Lusion)
-   Wraps any element — it pulls toward cursor on hover
-   Usage: <Magnetic><button>Click me</button></Magnetic>
-═══════════════════════════════════════════════════ */
-export function Magnetic({ children, strength = 0.35, style = {} }) {
+/* ═══════════════════════════════════════════════════════
+   5. MAGNETIC ELEMENT (Lusion)
+   Element pulls toward cursor — GPU only (transform)
+   Usage: <Magnetic><button>...</button></Magnetic>
+═══════════════════════════════════════════════════════ */
+export function Magnetic({ children, strength = 0.32, style = {} }) {
   const ref = useRef(null);
-
   const onMove = useCallback(e => {
     const el = ref.current;
     if (!el) return;
     const { left, top, width, height } = el.getBoundingClientRect();
-    const cx = left + width/2, cy = top + height/2;
-    const dx = e.clientX - cx, dy = e.clientY - cy;
-    el.style.transform = `translate(${dx * strength}px, ${dy * strength}px)`;
+    const dx = e.clientX - (left + width/2);
+    const dy = e.clientY - (top  + height/2);
+    el.style.transform = `translate(${dx*strength}px,${dy*strength}px)`;
   }, [strength]);
-
   const onLeave = useCallback(() => {
     if (ref.current) ref.current.style.transform = "translate(0,0)";
   }, []);
-
   return (
     <div ref={ref} onMouseMove={onMove} onMouseLeave={onLeave}
-      style={{ display:"inline-block", transition:"transform .4s cubic-bezier(.16,1,.3,1)", ...style }}>
+      style={{ display:"inline-block", transition:"transform .5s cubic-bezier(.22,1,.36,1)", willChange:"transform", ...style }}>
       {children}
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════
-   5. TILT CARD  (Active Theory)
-   3D perspective tilt on mouse move
+/* ═══════════════════════════════════════════════════════
+   6. TILT CARD (Active Theory)
+   3D perspective tilt + moving spotlight on hover
    Usage: <TiltCard><div className="glass">...</div></TiltCard>
-═══════════════════════════════════════════════════ */
-export function TiltCard({ children, style = {}, className = "", intensity = 12 }) {
-  const ref = useRef(null);
-  const glowRef = useRef(null);
+═══════════════════════════════════════════════════════ */
+export function TiltCard({ children, style = {}, className = "", intensity = 11 }) {
+  const ref     = useRef(null);
+  const spotRef = useRef(null);
 
   const onMove = e => {
     const el = ref.current;
@@ -256,90 +211,140 @@ export function TiltCard({ children, style = {}, className = "", intensity = 12 
     const x = (e.clientX - left) / width  - 0.5;
     const y = (e.clientY - top)  / height - 0.5;
     el.style.transform = `perspective(900px) rotateY(${x*intensity}deg) rotateX(${-y*intensity}deg) scale(1.02)`;
-    el.style.boxShadow = `${-x*20}px ${-y*20}px 50px rgba(0,255,136,.12), 0 8px 32px rgba(0,0,0,.2)`;
-    // Moving glow spot
-    if (glowRef.current) {
-      glowRef.current.style.left   = `${(x+0.5)*100}%`;
-      glowRef.current.style.top    = `${(y+0.5)*100}%`;
-      glowRef.current.style.opacity = "1";
+    el.style.boxShadow = `${-x*22}px ${-y*22}px 55px rgba(0,255,136,.1),0 8px 32px rgba(0,0,0,.18)`;
+    if (spotRef.current) {
+      spotRef.current.style.left    = `${(x+.5)*100}%`;
+      spotRef.current.style.top     = `${(y+.5)*100}%`;
+      spotRef.current.style.opacity = "1";
     }
   };
-
   const onLeave = () => {
     const el = ref.current;
     if (!el) return;
     el.style.transform = "perspective(900px) rotateY(0) rotateX(0) scale(1)";
     el.style.boxShadow = "none";
-    if (glowRef.current) glowRef.current.style.opacity = "0";
+    if (spotRef.current) spotRef.current.style.opacity = "0";
   };
 
   return (
-    <div ref={ref} className={className}
-      onMouseMove={onMove} onMouseLeave={onLeave}
-      style={{ transition:"transform .15s ease, box-shadow .15s ease", willChange:"transform", position:"relative", overflow:"hidden", ...style }}>
-      {/* Spotlight glow that follows cursor */}
-      <div ref={glowRef} style={{
-        position:"absolute", width:160, height:160, borderRadius:"50%",
-        background:"radial-gradient(circle, rgba(0,255,136,.15) 0%, transparent 70%)",
-        transform:"translate(-50%,-50%)", pointerEvents:"none", opacity:0,
-        transition:"opacity .3s", zIndex:0,
-      }}/>
+    <div ref={ref} className={className} onMouseMove={onMove} onMouseLeave={onLeave}
+      style={{ transition:"transform .15s cubic-bezier(.22,1,.36,1),box-shadow .15s", willChange:"transform", position:"relative", overflow:"hidden", ...style }}>
+      <div ref={spotRef} style={{ position:"absolute", width:180, height:180, borderRadius:"50%", background:"radial-gradient(circle,rgba(0,255,136,.14) 0%,transparent 70%)", transform:"translate(-50%,-50%)", pointerEvents:"none", opacity:0, transition:"opacity .3s", zIndex:0, willChange:"left,top,opacity" }}/>
       <div style={{ position:"relative", zIndex:1 }}>{children}</div>
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════
-   6. SCROLL REVEAL  (Unseen.co — cinematic, weighted)
-   Elements slide in with spring physics + blur
-   Usage: <ScrollReveal delay={0.1}>...</ScrollReveal>
-═══════════════════════════════════════════════════ */
-export function ScrollReveal({ children, delay = 0, direction = "up", style = {}, once = true }) {
-  const ref    = useRef(null);
+/* ═══════════════════════════════════════════════════════
+   7. SCROLL REVEAL (Unseen.co — cinematic weighted entrance)
+   Blur + slide + fade — GPU only — no scroll-jacking
+   Usage: <ScrollReveal delay={0.15} direction="up">...</ScrollReveal>
+═══════════════════════════════════════════════════════ */
+export function ScrollReveal({ children, delay = 0, direction = "up", style = {}, once = true, threshold = 0.08 }) {
+  const ref      = useRef(null);
   const [vis, setVis] = useState(false);
-
   useEffect(() => {
     if (!ref.current) return;
     const obs = new IntersectionObserver(([e]) => {
       if (e.isIntersecting) { setVis(true); if (once) obs.disconnect(); }
-    }, { threshold: 0.08 });
+    }, { threshold });
     obs.observe(ref.current);
     return () => obs.disconnect();
-  }, [once]);
+  }, [once, threshold]);
 
-  const transforms = {
-    up:    `translateY(${vis?0:48}px)`,
-    down:  `translateY(${vis?0:-48}px)`,
-    left:  `translateX(${vis?0:48}px)`,
-    right: `translateX(${vis?0:-48}px)`,
-    scale: `scale(${vis?1:.88})`,
-  };
-
+  const t = { up:`translateY(${vis?0:44}px)`, down:`translateY(${vis?0:-44}px)`, left:`translateX(${vis?0:44}px)`, right:`translateX(${vis?0:-44}px)`, scale:`scale(${vis?1:.9})` };
   return (
-    <div ref={ref} style={{
-      opacity:    vis ? 1 : 0,
-      transform:  transforms[direction] || transforms.up,
-      filter:     `blur(${vis?0:4}px)`,
-      transition: `opacity .9s ${delay}s cubic-bezier(.16,1,.3,1), transform .9s ${delay}s cubic-bezier(.16,1,.3,1), filter .6s ${delay}s ease`,
-      willChange: "opacity, transform, filter",
-      ...style,
-    }}>
+    <div ref={ref} style={{ opacity:vis?1:0, transform:t[direction]||t.up, filter:`blur(${vis?0:3}px)`, transition:`opacity .8s ${delay}s cubic-bezier(.22,1,.36,1),transform .8s ${delay}s cubic-bezier(.22,1,.36,1),filter .6s ${delay}s ease`, willChange:"opacity,transform,filter", ...style }}>
       {children}
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════
-   7. CLICK RIPPLE  (Rive — state-machine reactive)
-   Green ripple bursts from every click
-═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   8. MASKED STAGGER HEADLINE (Uncommon Design + Eszterbial)
+   Words slide up from an invisible mask container
+   Usage: <MaskedHeading text="We engineer ROAS" tag="h1" style={...} />
+═══════════════════════════════════════════════════════ */
+export function MaskedHeading({ text, tag: Tag = "h2", style = {}, delay = 0, stagger = 0.07, className = "" }) {
+  const ref      = useRef(null);
+  const [vis, setVis] = useState(false);
+  useEffect(() => {
+    if (!ref.current) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVis(true); obs.disconnect(); } }, { threshold: 0.2 });
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  const words = text.split(" ");
+  return (
+    <Tag ref={ref} className={className} style={{ display:"flex", flexWrap:"wrap", gap:".25em", ...style }}>
+      <style>{`
+        @keyframes wordUp{from{opacity:0;transform:translateY(100%) rotate(3deg);}to{opacity:1;transform:none;}}
+      `}</style>
+      {words.map((word, i) => (
+        <span key={i} style={{ overflow:"hidden", display:"inline-block" }}>
+          <span style={{ display:"inline-block", animation:vis?`wordUp .7s ${delay+i*stagger}s cubic-bezier(.22,1,.36,1) both`:"none", opacity:vis?undefined:0 }}>
+            {word}
+          </span>
+        </span>
+      ))}
+    </Tag>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   9. SPRING COUNTER (Rive state-machine feel)
+   Spring physics easing: heavy landing
+   Usage: <SpringCounter to={70} suffix="x" />
+═══════════════════════════════════════════════════════ */
+export function SpringCounter({ to, from = 0, suffix = "", prefix = "", stiffness = 100, damping = 10, style = {} }) {
+  const ref      = useRef(null);
+  const [val, setVal]       = useState(from);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting && !started) { setStarted(true); obs.disconnect(); } }, { threshold: 0.3 });
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [started]);
+
+  useEffect(() => {
+    if (!started) return;
+    // Spring physics simulation
+    let pos = from, vel2 = 0;
+    const target = to;
+    let raf;
+    const step = () => {
+      const force = -stiffness * (pos - target);
+      const damp  = -damping * vel2;
+      vel2 += (force + damp) * 0.016;
+      pos  += vel2 * 0.016;
+      setVal(Math.round(pos));
+      if (Math.abs(pos - target) > 0.5 || Math.abs(vel2) > 0.5) {
+        raf = requestAnimationFrame(step);
+      } else {
+        setVal(target);
+      }
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [started, to, from, stiffness, damping]);
+
+  return <span ref={ref} style={style}>{prefix}{val}{suffix}</span>;
+}
+
+/* ═══════════════════════════════════════════════════════
+   10. CLICK RIPPLE (Rive reactive)
+   Dual-ring ripple from every click
+═══════════════════════════════════════════════════════ */
 export function ClickRipple() {
   const [ripples, setRipples] = useState([]);
   useEffect(() => {
     const h = e => {
       const id = Date.now() + Math.random();
-      setRipples(r => [...r.slice(-6), { id, x:e.clientX, y:e.clientY }]);
-      setTimeout(() => setRipples(r => r.filter(rp=>rp.id!==id)), 700);
+      setRipples(r => [...r.slice(-5), { id, x: e.clientX, y: e.clientY }]);
+      setTimeout(() => setRipples(r => r.filter(rp => rp.id !== id)), 750);
     };
     window.addEventListener("click", h);
     return () => window.removeEventListener("click", h);
@@ -347,118 +352,59 @@ export function ClickRipple() {
   return (
     <>
       <style>{`
-        @keyframes rippleOut {
-          0%   { width:0;height:0;opacity:.55;transform:translate(-50%,-50%); }
-          100% { width:100px;height:100px;opacity:0;transform:translate(-50%,-50%); }
-        }
-        @keyframes rippleOut2 {
-          0%   { width:0;height:0;opacity:.25;transform:translate(-50%,-50%); }
-          100% { width:160px;height:160px;opacity:0;transform:translate(-50%,-50%); }
-        }
+        @keyframes rp1{0%{width:0;height:0;opacity:.5;transform:translate(-50%,-50%);}100%{width:90px;height:90px;opacity:0;transform:translate(-50%,-50%);}}
+        @keyframes rp2{0%{width:0;height:0;opacity:.2;transform:translate(-50%,-50%);}100%{width:150px;height:150px;opacity:0;transform:translate(-50%,-50%);}}
       `}</style>
-      {ripples.map(rp=>(
+      {ripples.map(rp => (
         <div key={rp.id}>
-          <div style={{ position:"fixed",left:rp.x,top:rp.y,borderRadius:"50%",border:"1.5px solid rgba(0,255,136,.55)",pointerEvents:"none",zIndex:99995,animation:"rippleOut .7s ease-out forwards" }}/>
-          <div style={{ position:"fixed",left:rp.x,top:rp.y,borderRadius:"50%",border:"1px solid rgba(0,255,136,.2)",pointerEvents:"none",zIndex:99994,animation:"rippleOut2 .7s .1s ease-out forwards" }}/>
+          <div style={{ position:"fixed",left:rp.x,top:rp.y,borderRadius:"50%",border:"1.5px solid rgba(0,255,136,.55)",pointerEvents:"none",zIndex:99993,animation:"rp1 .75s cubic-bezier(.22,1,.36,1) forwards",willChange:"width,height,opacity" }}/>
+          <div style={{ position:"fixed",left:rp.x,top:rp.y,borderRadius:"50%",border:"1px solid rgba(0,255,136,.2)",pointerEvents:"none",zIndex:99992,animation:"rp2 .75s .1s cubic-bezier(.22,1,.36,1) forwards",willChange:"width,height,opacity" }}/>
         </div>
       ))}
     </>
   );
 }
 
-/* ═══════════════════════════════════════════════════
-   8. MORPHING BACKGROUND ORBS  (Lusion + Dropbox)
-   Slow-morphing blobs in the page background
-═══════════════════════════════════════════════════ */
-export function MorphOrbs() {
+/* ═══════════════════════════════════════════════════════
+   11. GLOW BORDER CARD (Unseen.co hover chase)
+   Spotlight glows under cursor as it moves across card
+   Usage: <GlowBorder color="#00ff88">...</GlowBorder>
+═══════════════════════════════════════════════════════ */
+export function GlowBorder({ children, color = "#00ff88", style = {}, className = "" }) {
+  const ref  = useRef(null);
+  const spot = useRef(null);
+  const onMove = e => {
+    const el = ref.current;
+    if (!el || !spot.current) return;
+    const { left, top } = el.getBoundingClientRect();
+    spot.current.style.left    = `${e.clientX - left}px`;
+    spot.current.style.top     = `${e.clientY - top}px`;
+    spot.current.style.opacity = "1";
+  };
+  const onLeave = () => { if (spot.current) spot.current.style.opacity = "0"; };
   return (
-    <div style={{ position:"fixed",inset:0,pointerEvents:"none",zIndex:0,overflow:"hidden" }}>
-      <style>{`
-        @keyframes morph1 {
-          0%,100%{border-radius:60% 40% 70% 30%/50% 60% 40% 70%;transform:translate(0,0) scale(1);}
-          25%    {border-radius:40% 60% 30% 70%/60% 40% 70% 30%;transform:translate(30px,-40px) scale(1.04);}
-          50%    {border-radius:70% 30% 50% 50%/30% 70% 60% 40%;transform:translate(-20px,-60px) scale(.97);}
-          75%    {border-radius:30% 70% 40% 60%/70% 30% 50% 50%;transform:translate(50px,-20px) scale(1.02);}
-        }
-        @keyframes morph2 {
-          0%,100%{border-radius:40% 60% 30% 70%/60% 40% 70% 30%;transform:translate(0,0);}
-          33%    {border-radius:60% 40% 70% 30%/40% 60% 30% 70%;transform:translate(-40px,30px);}
-          66%    {border-radius:70% 30% 60% 40%/30% 70% 40% 60%;transform:translate(20px,50px);}
-        }
-        @keyframes morph3 {
-          0%,100%{border-radius:50% 50% 60% 40%/40% 60% 50% 50%;transform:translate(0,0) rotate(0deg);}
-          50%    {border-radius:40% 60% 40% 60%/60% 40% 60% 40%;transform:translate(-30px,-40px) rotate(15deg);}
-        }
-      `}</style>
-      <div style={{ position:"absolute",top:"-12%",left:"-8%",width:"clamp(260px,38vw,520px)",height:"clamp(260px,38vw,520px)",background:"radial-gradient(circle at 40% 40%,rgba(0,255,136,.075),rgba(0,180,80,.03) 55%,transparent 80%)",animation:"morph1 20s ease-in-out infinite",willChange:"transform,border-radius" }}/>
-      <div style={{ position:"absolute",bottom:"2%",right:"-8%",width:"clamp(220px,30vw,420px)",height:"clamp(220px,30vw,420px)",background:"radial-gradient(circle at 60% 60%,rgba(0,255,136,.055),rgba(0,150,70,.02) 55%,transparent 80%)",animation:"morph2 25s ease-in-out infinite 4s",willChange:"transform,border-radius" }}/>
-      <div style={{ position:"absolute",top:"38%",right:"3%",width:"clamp(140px,18vw,260px)",height:"clamp(140px,18vw,260px)",background:"radial-gradient(circle,rgba(0,255,136,.04),transparent 70%)",animation:"morph3 16s ease-in-out infinite 2s",willChange:"transform,border-radius" }}/>
+    <div ref={ref} className={className} onMouseMove={onMove} onMouseLeave={onLeave}
+      style={{ position:"relative", overflow:"hidden", ...style }}>
+      <div ref={spot} style={{ position:"absolute", width:220, height:220, borderRadius:"50%", background:`radial-gradient(circle,${color}1e 0%,transparent 65%)`, transform:"translate(-50%,-50%)", pointerEvents:"none", opacity:0, transition:"opacity .35s", zIndex:0, willChange:"left,top,opacity" }}/>
+      <div style={{ position:"relative", zIndex:1 }}>{children}</div>
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════
-   9. COUNTER  (Uncommon Design — typographic drama)
-   Counts up with spring easing when in view
-═══════════════════════════════════════════════════ */
-export function Counter({ from=0, to, suffix="", prefix="", duration=2200, style={} }) {
-  const [val, setVal] = useState(from);
-  const ref           = useRef(null);
-  const [started, setStarted] = useState(false);
-
-  useEffect(()=>{
-    if(!ref.current)return;
-    const obs=new IntersectionObserver(([e])=>{ if(e.isIntersecting&&!started){setStarted(true);obs.disconnect();} },{threshold:.3});
-    obs.observe(ref.current);
-    return()=>obs.disconnect();
-  },[started]);
-
-  useEffect(()=>{
-    if(!started)return;
-    let s=null;
-    const step=ts=>{
-      if(!s)s=ts;
-      const p=Math.min((ts-s)/duration,1);
-      const ease=p===1?1:1-Math.pow(2,-10*p); // expo ease-out
-      setVal(Math.round(from+ease*(to-from)));
-      if(p<1)requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  },[started,from,to,duration]);
-
-  return <span ref={ref} style={style}>{prefix}{val}{suffix}</span>;
-}
-
-/* ═══════════════════════════════════════════════════
-   10. HOVER GLOW BORDER  (Unseen.co)
-   A card whose border glows and traces on hover
-   Usage: <GlowBorder>...</GlowBorder>
-═══════════════════════════════════════════════════ */
-export function GlowBorder({ children, color="#00ff88", style={}, className="" }) {
-  const ref    = useRef(null);
-  const glowEl = useRef(null);
-
-  const onMove = e => {
-    const el = ref.current;
-    if (!el||!glowEl.current) return;
-    const { left, top } = el.getBoundingClientRect();
-    glowEl.current.style.left = `${e.clientX - left}px`;
-    glowEl.current.style.top  = `${e.clientY - top}px`;
-    glowEl.current.style.opacity = "1";
-  };
-  const onLeave = () => { if (glowEl.current) glowEl.current.style.opacity = "0"; };
-
+/* ═══════════════════════════════════════════════════════
+   12. NOISE OVERLAY — cinematic texture (Unseen.co)
+   Subtle grain that adds premium depth
+═══════════════════════════════════════════════════════ */
+export function NoiseOverlay({ opacity = 0.022 }) {
   return (
-    <div ref={ref} className={className} onMouseMove={onMove} onMouseLeave={onLeave}
-      style={{ position:"relative", overflow:"hidden", ...style }}>
-      {/* Chasing glow */}
-      <div ref={glowEl} style={{
-        position:"absolute", width:200, height:200, borderRadius:"50%",
-        background:`radial-gradient(circle, ${color}22 0%, transparent 65%)`,
-        transform:"translate(-50%,-50%)", pointerEvents:"none",
-        opacity:0, transition:"opacity .3s", zIndex:0,
-      }}/>
-      <div style={{ position:"relative", zIndex:1 }}>{children}</div>
+    <div style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:9990, opacity }} aria-hidden="true">
+      <svg width="100%" height="100%" style={{ position:"absolute", inset:0 }}>
+        <filter id="bcl-noise">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+          <feColorMatrix type="saturate" values="0"/>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#bcl-noise)"/>
+      </svg>
     </div>
   );
 }
