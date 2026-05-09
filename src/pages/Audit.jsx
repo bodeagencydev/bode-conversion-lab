@@ -64,15 +64,12 @@ const clamp = v => Math.max(0, Math.min(100, Math.round(v || 0)));
 const pct   = v => v != null ? clamp(v * 100) : null;
 
 async function fetchPSI(storeUrl, strategy) {
-  const api = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(storeUrl)}&strategy=${strategy}&category=performance&category=seo&category=best-practices&category=accessibility&key=${PSI_KEY}`;
-  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(api)}`;
-  const r = await fetch(proxy, { signal: AbortSignal.timeout(40000) });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  const w = await r.json();
-  if (!w?.contents) throw new Error("Empty response");
-  const d = JSON.parse(w.contents);
-  if (d?.error) throw new Error(d.error.message || "PSI API error");
-  return d;
+  const url = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(storeUrl)}&strategy=${strategy}&category=performance&category=seo&category=best-practices&category=accessibility&key=${PSI_KEY}`;
+  const response = await fetch(url, { signal: AbortSignal.timeout(40000) });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = await response.json();
+  if (data?.error) throw new Error(data.error.message || "PSI API error");
+  return data;
 }
 
 function buildReport(desktop, mobile, url) {
