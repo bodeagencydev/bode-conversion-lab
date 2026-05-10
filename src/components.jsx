@@ -6,7 +6,6 @@ export const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
 
 /* ── HELPERS ── */
-// This fix handles the Home.jsx error
 export function useInView(options = { threshold: 0.1 }) {
   const [isIntersecting, setIntersecting] = useState(false);
   const ref = useRef(null);
@@ -31,7 +30,7 @@ const NAV_LINKS = [
   { label: "Blog", path: "/blog" }
 ];
 
-/* ── UI COMPONENTS FOR HOME.JSX ── */
+/* ── UI COMPONENTS ── */
 export const Section = ({ children, style }) => (
   <section style={{ padding: "5rem 1.2rem", maxWidth: 1100, margin: "0 auto", ...style }}>
     {children}
@@ -65,7 +64,7 @@ export function Logo({ size = 36, textSize = 13 }) {
   );
 }
 
-/* ── MAIN COMPONENTS ── */
+/* ── LAYOUT COMPONENTS ── */
 export function Nav() {
   const { dark } = useTheme();
   return (
@@ -108,29 +107,20 @@ export function WhatsAppButton() {
 
 export function Footer() {
   const { dark } = useTheme();
-  const tc = dark ? "rgba(255,255,255,.5)" : "rgba(0,0,0,.55)";
   return (
     <footer style={{ padding: "2.5rem 1.2rem", borderTop: `.5px solid ${dark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.08)"}`, background: dark ? "rgba(0,0,0,.3)" : "rgba(0,0,0,.03)" }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "2rem" }}>
-        <div>
-          <Logo />
-          <p style={{ fontSize: 13, color: tc, marginTop: "1rem" }}>We engineer ROAS. One system. Compounding results.</p>
-        </div>
-        <div style={{ display: "flex", gap: "3rem" }}>
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: dark ? "rgba(255,255,255,.3)" : "rgba(0,0,0,.3)", marginBottom: "1rem" }}>Pages</p>
-            {NAV_LINKS.map(l => <Link key={l.path} to={l.path} style={{ display: "block", fontSize: 13, color: tc, textDecoration: "none", marginBottom: ".5rem" }}>{l.label}</Link>)}
-          </div>
-        </div>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Logo />
+        <p style={{ fontSize: 13, marginTop: "1rem" }}>© 2026 Bode Conversion Lab.</p>
       </div>
     </footer>
   );
 }
 
-// STUBS: These need to be actual components if you want them to show up, 
-// but exporting them as empty divs will at least let the build pass.
-export const Particles = () => <div />;
-export const Typewriter = () => <div />;
+/* ── STUBS TO STOP BUILD ERRORS ── */
+// These ensure Home.jsx doesn't crash during the build process
+export const Particles = ({ children }) => <>{children}</>;
+export const Typewriter = ({ text }) => <span>{text}</span>;
 export const ContinuousTicker = () => <div />;
 export const TestimonialTicker = () => <div />;
 export const VideoTips = () => <div />;
