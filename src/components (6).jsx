@@ -5,19 +5,50 @@ import { Link, useLocation } from "react-router-dom";
 const G  = "#00ff88";
 const GG = "linear-gradient(135deg,#00ff88,#00cc6a)";
 
+/* ─── DOMAIN MAP for favicon logos ─── */
+const DOMAIN_MAP = {
+  shopify:"shopify.com", woocommerce:"woocommerce.com", magento:"magento.com",
+  bigcommerce:"bigcommerce.com", wix:"wix.com", squarespace:"squarespace.com",
+  prestashop:"prestashop.com", opencart:"opencart.com", ecwid:"ecwid.com",
+  meta:"meta.com", tiktok:"tiktok.com", google:"google.com",
+  pinterest:"pinterest.com", snapchat:"snapchat.com", youtube:"youtube.com",
+  x:"x.com", linkedin:"linkedin.com", amazon:"amazon.com",
+  klaviyo:"klaviyo.com", triplewhale:"triplewhale.com",
+};
+
+function PlatformLogo({ name, slug, color, size = 20 }) {
+  const [failed, setFailed] = useState(false);
+  const domain = DOMAIN_MAP[slug?.toLowerCase()];
+  if (failed || !domain) {
+    return (
+      <div style={{ width:size, height:size, borderRadius:size*.25, background:`${color||G}22`, border:`.5px solid ${color||G}44`, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <span style={{ fontSize:size*.55, fontWeight:800, color:color||G }}>{(name||"?")[0]}</span>
+      </div>
+    );
+  }
+  return (
+    <img
+      src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`}
+      alt={name} width={size} height={size}
+      style={{ borderRadius:size*.2, flexShrink:0, display:"block", objectFit:"contain" }}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 /* ─── THEME CONTEXT ─── */
 export const ThemeContext = createContext({ dark: true, toggle: () => {} });
 export function useTheme() { return useContext(ThemeContext); }
 
 /* ─── NAV LINKS ─── */
 const NAV_LINKS = [
-  { path: "/",             label: "Home" },
-  { path: "/about",        label: "About" },
-  { path: "/case-studies", label: "Case Studies" },
-  { path: "/pricing",      label: "Pricing" },
-  { path: "/blog",         label: "Blog" },
-  { path: "/audit",        label: "Free Audit" },
-  { path: "/contact",      label: "Contact" },
+  { path:"/",             label:"Home" },
+  { path:"/about",        label:"About" },
+  { path:"/case-studies", label:"Case Studies" },
+  { path:"/pricing",      label:"Pricing" },
+  { path:"/blog",         label:"Blog" },
+  { path:"/audit",        label:"Free Audit" },
+  { path:"/contact",      label:"Contact" },
 ];
 
 /* ─── LOGO ─── */
@@ -25,11 +56,12 @@ export function Logo({ size = 40, textSize = 14 }) {
   const { dark } = useTheme();
   return (
     <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+      {/* Green circle with B — your brand mark */}
       <div style={{ width:size, height:size, borderRadius:"50%", background:GG, display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 0 18px rgba(0,255,136,.35)", flexShrink:0 }}>
-        <span style={{ fontSize:size*.42, fontWeight:900, color:"#040608", fontFamily:"'Syne',sans-serif" }}>B</span>
+        <span style={{ fontSize:size*.42, fontWeight:900, color:"#040608", fontFamily:"'Syne',sans-serif", letterSpacing:"-0.03em" }}>B</span>
       </div>
       <div style={{ lineHeight:1.1 }}>
-        <p style={{ fontSize:textSize, fontWeight:800, color:dark?"#fff":"#040608", margin:0, fontFamily:"'Syne',sans-serif" }}>Bode</p>
+        <p style={{ fontSize:textSize, fontWeight:800, color:dark?"#fff":"#040608", margin:0, fontFamily:"'Syne',sans-serif", letterSpacing:"-0.02em" }}>Bode</p>
         <p style={{ fontSize:textSize*.78, fontWeight:600, color:G, margin:0, letterSpacing:".06em", textTransform:"uppercase" }}>Conversion Lab</p>
       </div>
     </div>
@@ -58,46 +90,51 @@ export function Nav() {
 
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
-  const bg     = dark ? (scrolled?"rgba(4,6,8,.92)":"rgba(4,6,8,.6)") : (scrolled?"rgba(255,255,255,.92)":"rgba(255,255,255,.6)");
+  const bg     = dark ? (scrolled?"rgba(4,6,8,.95)":"rgba(4,6,8,.7)") : (scrolled?"rgba(255,255,255,.95)":"rgba(255,255,255,.7)");
   const border = dark ? "rgba(255,255,255,.07)" : "rgba(0,0,0,.07)";
   const tc     = dark ? "rgba(255,255,255,.75)"  : "rgba(0,0,0,.7)";
 
   return (
     <>
-      <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:1000, padding:"0 clamp(1rem,4vw,2.5rem)", height:60, display:"flex", alignItems:"center", justifyContent:"space-between", background:bg, backdropFilter:"blur(18px)", borderBottom:`.5px solid ${border}`, transition:"transform .35s cubic-bezier(.22,1,.36,1), background .3s", transform:visible?"translateY(0)":"translateY(-100%)" }}>
+      <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:1000, padding:"0 clamp(1rem,4vw,2.5rem)", height:60, display:"flex", alignItems:"center", justifyContent:"space-between", background:bg, backdropFilter:"blur(18px)", borderBottom:`.5px solid ${border}`, transition:"transform .35s cubic-bezier(.22,1,.36,1),background .3s", transform:visible?"translateY(0)":"translateY(-100%)" }}>
         <Link to="/" style={{ textDecoration:"none" }}><Logo size={34} textSize={13}/></Link>
+
+        {/* Desktop links */}
         <div style={{ display:"flex", alignItems:"center", gap:"clamp(.6rem,2vw,1.6rem)" }} className="nav-desktop">
           {NAV_LINKS.filter(l => l.path !== "/contact").map(l => {
             const active = location.pathname === l.path;
             return (
               <Link key={l.path} to={l.path}
                 style={{ fontSize:13.5, fontWeight:active?700:500, color:active?G:tc, textDecoration:"none", transition:"color .2s", position:"relative", paddingBottom:2 }}
-                onMouseEnter={e => { if (!active) e.currentTarget.style.color = G; }}
-                onMouseLeave={e => { if (!active) e.currentTarget.style.color = tc; }}>
+                onMouseEnter={e => { if (!active) e.currentTarget.style.color=G; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.color=tc; }}>
                 {l.label}
                 {active && <span style={{ position:"absolute", bottom:-2, left:0, right:0, height:2, background:GG, borderRadius:2 }}/>}
               </Link>
             );
           })}
-          <Link to="/contact" style={{ background:GG, color:"#040608", borderRadius:8, padding:".42rem 1.1rem", fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:"0 2px 14px rgba(0,255,136,.3)", transition:"transform .2s,box-shadow .2s" }}
+          <Link to="/contact"
+            style={{ background:GG, color:"#040608", borderRadius:8, padding:".42rem 1.1rem", fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:"0 2px 14px rgba(0,255,136,.3)", transition:"transform .2s,box-shadow .2s" }}
             onMouseEnter={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 22px rgba(0,255,136,.45)"; }}
             onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 2px 14px rgba(0,255,136,.3)"; }}>
             Apply Now →
           </Link>
         </div>
+
+        {/* Hamburger */}
         <button onClick={() => setMenuOpen(o => !o)} className="nav-hamburger"
           style={{ background:"none", border:"none", cursor:"pointer", padding:6, display:"none", flexDirection:"column", gap:5, alignItems:"center", justifyContent:"center" }}
           aria-label="Toggle menu">
           {[0,1,2].map(i => (
             <span key={i} style={{ display:"block", width:22, height:2, background:dark?"#fff":"#040608", borderRadius:2, transition:"all .25s",
-              transform: menuOpen ? (i===0?"rotate(45deg) translate(5px,5px)":i===2?"rotate(-45deg) translate(5px,-5px)":"scaleX(0)") : "none",
-              opacity: menuOpen && i===1 ? 0 : 1 }}/>
+              transform: menuOpen?(i===0?"rotate(45deg) translate(5px,5px)":i===2?"rotate(-45deg) translate(5px,-5px)":"scaleX(0)"):"none",
+              opacity: menuOpen&&i===1?0:1 }}/>
           ))}
         </button>
       </nav>
 
       {/* Mobile menu */}
-      <div style={{ position:"fixed", top:60, left:0, right:0, zIndex:999, background:dark?"rgba(4,6,8,.97)":"rgba(255,255,255,.97)", backdropFilter:"blur(18px)", borderBottom:`.5px solid ${border}`, padding:menuOpen?"1.2rem 1.5rem 1.5rem":"0 1.5rem", maxHeight:menuOpen?500:0, overflow:"hidden", transition:"max-height .35s cubic-bezier(.22,1,.36,1), padding .35s" }}>
+      <div style={{ position:"fixed", top:60, left:0, right:0, zIndex:999, background:dark?"rgba(4,6,8,.97)":"rgba(255,255,255,.97)", backdropFilter:"blur(18px)", borderBottom:`.5px solid ${border}`, padding:menuOpen?"1.2rem 1.5rem 1.5rem":"0 1.5rem", maxHeight:menuOpen?520:0, overflow:"hidden", transition:"max-height .35s cubic-bezier(.22,1,.36,1),padding .35s" }}>
         {NAV_LINKS.map(l => {
           const active = location.pathname === l.path;
           return (
@@ -112,9 +149,7 @@ export function Nav() {
         </Link>
       </div>
 
-      <style>{`
-        @media (max-width: 768px) { .nav-desktop { display: none !important; } .nav-hamburger { display: flex !important; } }
-      `}</style>
+      <style>{`@media(max-width:768px){.nav-desktop{display:none!important;}.nav-hamburger{display:flex!important;}}`}</style>
     </>
   );
 }
@@ -182,13 +217,26 @@ export function useInView(threshold = 0.1) {
   return [ref, inView];
 }
 
+/* ─── ANIM NUM ─── */
+export function AnimNum({ target, suffix = "" }) {
+  const [val, setVal] = useState(0);
+  const [ref, inView] = useInView();
+  useEffect(() => {
+    if (!inView) return;
+    let s = null;
+    const step = ts => { if (!s) s=ts; const p=Math.min((ts-s)/2000,1); setVal(Math.floor(p*target)); if(p<1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }, [inView, target]);
+  return <span ref={ref}>{val}{suffix}</span>;
+}
+
 /* ─── PARTICLES ─── */
 export function Particles() {
   const ref = useRef(null);
   useEffect(() => {
     const c = ref.current; if (!c) return;
     const ctx = c.getContext("2d");
-    const resize = () => { c.width = c.offsetWidth; c.height = c.offsetHeight; };
+    const resize = () => { c.width=c.offsetWidth; c.height=c.offsetHeight; };
     resize();
     window.addEventListener("resize", resize);
     const pts = Array.from({ length:55 }, () => ({ x:Math.random()*c.width, y:Math.random()*c.height, r:Math.random()*1.4+.3, dx:(Math.random()-.5)*.25, dy:(Math.random()-.5)*.25, o:Math.random()*.4+.08 }));
@@ -196,17 +244,17 @@ export function Particles() {
     const draw = () => {
       ctx.clearRect(0, 0, c.width, c.height);
       pts.forEach(p => {
-        p.x += p.dx; p.y += p.dy;
-        if (p.x < 0) p.x = c.width; if (p.x > c.width) p.x = 0;
-        if (p.y < 0) p.y = c.height; if (p.y > c.height) p.y = 0;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(0,255,136,${p.o})`; ctx.fill();
+        p.x+=p.dx; p.y+=p.dy;
+        if(p.x<0) p.x=c.width; if(p.x>c.width) p.x=0;
+        if(p.y<0) p.y=c.height; if(p.y>c.height) p.y=0;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(0,255,136,${p.o})`; ctx.fill();
       });
-      pts.forEach((a, i) => pts.slice(i+1).forEach(b => {
-        const d = Math.hypot(a.x-b.x, a.y-b.y);
-        if (d < 90) { ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.strokeStyle=`rgba(0,255,136,${.06*(1-d/90)})`; ctx.lineWidth=.5; ctx.stroke(); }
+      pts.forEach((a,i) => pts.slice(i+1).forEach(b => {
+        const d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<90){ ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.strokeStyle=`rgba(0,255,136,${.06*(1-d/90)})`; ctx.lineWidth=.5; ctx.stroke(); }
       }));
-      raf = requestAnimationFrame(draw);
+      raf=requestAnimationFrame(draw);
     };
     draw();
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
@@ -216,34 +264,41 @@ export function Particles() {
 
 /* ─── TYPEWRITER ─── */
 export function Typewriter({ words }) {
-  const [wi, setWi]         = useState(0);
-  const [text, setText]     = useState("");
-  const [deleting, setDel]  = useState(false);
+  const [wi, setWi]       = useState(0);
+  const [text, setText]   = useState("");
+  const [del, setDel]     = useState(false);
   useEffect(() => {
-    const word = words[wi];
-    let t;
-    if (!deleting && text.length < word.length) t = setTimeout(() => setText(word.slice(0, text.length+1)), 80);
-    else if (!deleting && text.length === word.length) t = setTimeout(() => setDel(true), 2200);
-    else if (deleting && text.length > 0) t = setTimeout(() => setText(text.slice(0,-1)), 45);
-    else if (deleting && text.length === 0) { setDel(false); setWi((wi+1)%words.length); }
+    const word = words[wi]; let t;
+    if (!del && text.length < word.length)       t = setTimeout(() => setText(word.slice(0,text.length+1)), 80);
+    else if (!del && text.length === word.length) t = setTimeout(() => setDel(true), 2200);
+    else if (del && text.length > 0)             t = setTimeout(() => setText(text.slice(0,-1)), 45);
+    else if (del && text.length === 0)           { setDel(false); setWi((wi+1)%words.length); }
     return () => clearTimeout(t);
-  }, [text, deleting, wi, words]);
+  }, [text, del, wi, words]);
   return <span style={{ background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>{text}<span style={{ color:G }}>|</span></span>;
 }
 
-/* ─── CONTINUOUS TICKER ─── */
+/* ─── CONTINUOUS TICKER — with real platform logos ─── */
 export function ContinuousTicker({ items = [], speed = 30, reverse = false }) {
   const { dark } = useTheme();
+  const [paused, setPaused] = useState(false);
   const doubled = [...items, ...items];
   return (
-    <div style={{ overflow:"hidden", position:"relative", padding:".5rem 0" }}>
-      <div style={{ display:"flex", gap:"1.5rem", animation:`${reverse?"tickerR":"ticker"} ${speed}s linear infinite`, width:"max-content" }}>
+    <div style={{ overflow:"hidden", position:"relative", padding:".5rem 0" }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}>
+      <div style={{ display:"flex", gap:"1rem", animation:`${reverse?"tickerR":"ticker"} ${speed}s linear infinite`, animationPlayState:paused?"paused":"running", width:"max-content" }}>
         {doubled.map((item, i) => {
-          const name = typeof item === "string" ? item : item.name;
+          const name  = typeof item === "string" ? item : item.name;
+          const slug  = typeof item === "object" ? item.slug  : null;
+          const color = typeof item === "object" ? item.color : null;
           return (
-            <span key={i} style={{ display:"inline-flex", alignItems:"center", gap:8, padding:".5rem 1.2rem", background:dark?"rgba(255,255,255,.04)":"rgba(0,0,0,.04)", border:dark?".5px solid rgba(255,255,255,.1)":".5px solid rgba(0,0,0,.1)", borderRadius:100, whiteSpace:"nowrap", fontSize:13, fontWeight:600, color:dark?"rgba(255,255,255,.7)":"rgba(0,0,0,.65)" }}>
-              {name} <span style={{ color:G, margin:"0 .25rem" }}>✦</span>
-            </span>
+            <div key={i} style={{ display:"inline-flex", alignItems:"center", gap:8, padding:".45rem 1.1rem", background:dark?"rgba(255,255,255,.04)":"rgba(0,0,0,.04)", border:dark?".5px solid rgba(255,255,255,.09)":".5px solid rgba(0,0,0,.08)", borderRadius:100, whiteSpace:"nowrap", transition:"all .25s", cursor:"default" }}
+              onMouseEnter={e => { e.currentTarget.style.background="rgba(0,255,136,.08)"; e.currentTarget.style.borderColor="rgba(0,255,136,.3)"; e.currentTarget.style.transform="translateY(-2px) scale(1.04)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background=dark?"rgba(255,255,255,.04)":"rgba(0,0,0,.04)"; e.currentTarget.style.borderColor=dark?"rgba(255,255,255,.09)":"rgba(0,0,0,.08)"; e.currentTarget.style.transform="none"; }}>
+              <PlatformLogo name={name} slug={slug} color={color} size={18}/>
+              <span style={{ fontSize:13, fontWeight:500, color:dark?"rgba(255,255,255,.7)":"rgba(0,0,0,.65)" }}>{name}</span>
+            </div>
           );
         })}
       </div>
@@ -251,35 +306,50 @@ export function ContinuousTicker({ items = [], speed = 30, reverse = false }) {
   );
 }
 
-/* ─── TESTIMONIAL TICKER ─── */
+/* ─── TESTIMONIAL TICKER — with avatars + store links ─── */
 export function TestimonialTicker({ items = [] }) {
   const { dark } = useTheme();
   const [paused, setPaused] = useState(false);
   const doubled = [...items, ...items];
   return (
-    <div style={{ overflow:"hidden" }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <div style={{ overflow:"hidden" }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}>
       <div style={{ display:"flex", gap:"1.5rem", animation:"ticker 40s linear infinite", animationPlayState:paused?"paused":"running", width:"max-content" }}>
         {doubled.map((t, i) => (
           <a key={i} href={t.storeUrl||"#"} target={t.storeUrl?"_blank":"_self"} rel="noopener noreferrer"
-            style={{ width:300, flexShrink:0, background:dark?"rgba(255,255,255,.04)":"rgba(0,0,0,.03)", border:dark?".5px solid rgba(255,255,255,.08)":".5px solid rgba(0,0,0,.08)", borderTop:".5px solid rgba(0,255,136,.2)", borderRadius:16, padding:"1.2rem", textDecoration:"none", display:"block", transition:"transform .3s,border-color .3s", cursor:t.storeUrl?"pointer":"default" }}
-            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-4px)"; e.currentTarget.style.borderColor="rgba(0,255,136,.4)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor=dark?"rgba(255,255,255,.08)":"rgba(0,0,0,.08)"; }}>
+            style={{ width:310, flexShrink:0, background:dark?"linear-gradient(135deg,rgba(0,255,136,.06),rgba(0,204,106,.02))":"linear-gradient(135deg,rgba(0,200,100,.05),rgba(0,180,80,.01))", border:dark?".5px solid rgba(0,255,136,.15)":".5px solid rgba(0,180,80,.18)", borderTop:".5px solid rgba(0,255,136,.28)", borderRadius:16, padding:"1.2rem", textDecoration:"none", display:"block", transition:"transform .3s,border-color .3s,box-shadow .3s", position:"relative", overflow:"hidden" }}
+            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-5px) scale(1.01)"; e.currentTarget.style.borderColor="rgba(0,255,136,.45)"; e.currentTarget.style.boxShadow="0 16px 40px rgba(0,255,136,.1)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor=dark?"rgba(0,255,136,.15)":"rgba(0,180,80,.18)"; e.currentTarget.style.boxShadow="none"; }}>
+            {/* Top shimmer */}
+            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.4),transparent)", pointerEvents:"none" }}/>
+            {/* Store row */}
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:".75rem" }}>
               <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                {t.storeLogo && <img src={t.storeLogo} alt={t.storeName} width="20" height="20" loading="lazy" style={{ borderRadius:3, objectFit:"contain", background:"#fff", padding:"2px", flexShrink:0 }} onError={e => e.target.style.display="none"}/>}
-                <span style={{ fontSize:11, color:dark?"rgba(255,255,255,.4)":"rgba(0,0,0,.4)" }}>{t.storeName}</span>
+                {t.storeLogo && <img src={t.storeLogo} alt={t.storeName} width="20" height="20" loading="lazy" style={{ borderRadius:4, objectFit:"contain", background:"#fff", padding:"2px", flexShrink:0 }} onError={e => e.target.style.display="none"}/>}
+                <span style={{ fontSize:11, color:dark?"rgba(255,255,255,.4)":"rgba(0,0,0,.4)", fontWeight:500 }}>{t.storeName}</span>
               </div>
-              <span style={{ background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.25)", borderRadius:100, padding:"2px 8px", fontSize:10, color:G, fontWeight:600 }}>{t.result}</span>
+              <span style={{ background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.25)", borderRadius:100, padding:"2px 8px", fontSize:10, color:G, fontWeight:700 }}>{t.result}</span>
             </div>
-            <div style={{ display:"flex", gap:2, marginBottom:".75rem" }}>{[1,2,3,4,5].map(s => <span key={s} style={{ fontSize:12, color:"#FFD700" }}>★</span>)}</div>
-            <p style={{ fontSize:13, color:dark?"rgba(255,255,255,.55)":"rgba(0,0,0,.55)", lineHeight:1.7, marginBottom:"1rem", fontStyle:"italic" }}>"{t.text}"</p>
-            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-              {t.avatar && <img src={t.avatar} alt={t.name} width="32" height="32" loading="lazy" style={{ borderRadius:"50%", objectFit:"cover", border:".5px solid rgba(0,255,136,.3)", flexShrink:0 }} onError={e => e.target.style.display="none"}/>}
-              <div>
-                <p style={{ fontSize:12, fontWeight:700, color:dark?"#fff":"#040608", margin:0 }}>{t.name}</p>
-                <p style={{ fontSize:10, color:dark?"rgba(255,255,255,.35)":"rgba(0,0,0,.4)", margin:0 }}>{t.role}</p>
+            {/* Stars */}
+            <div style={{ display:"flex", gap:2, marginBottom:".75rem" }}>
+              {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize:12, color:"#FFD700" }}>★</span>)}
+            </div>
+            {/* Quote */}
+            <p style={{ fontSize:13, color:dark?"rgba(255,255,255,.6)":"rgba(0,0,0,.6)", lineHeight:1.7, marginBottom:".9rem", fontStyle:"italic" }}>"{t.text}"</p>
+            {/* Author row */}
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                {t.avatar
+                  ? <img src={t.avatar} alt={t.name} width="32" height="32" loading="lazy" style={{ borderRadius:"50%", objectFit:"cover", border:".5px solid rgba(0,255,136,.3)", flexShrink:0 }} onError={e => e.target.style.display="none"}/>
+                  : <div style={{ width:32, height:32, borderRadius:"50%", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:G, flexShrink:0 }}>{t.init||t.name?.[0]}</div>
+                }
+                <div>
+                  <p style={{ fontSize:12, fontWeight:700, color:dark?"#fff":"#040608", margin:0 }}>{t.name}</p>
+                  <p style={{ fontSize:10, color:dark?"rgba(255,255,255,.35)":"rgba(0,0,0,.4)", margin:0 }}>{t.storeCategory||t.role}</p>
+                </div>
               </div>
-              {t.storeUrl && <span style={{ marginLeft:"auto", fontSize:10, color:G }}>Visit →</span>}
+              {t.storeUrl && <span style={{ fontSize:10, color:G, fontWeight:600 }}>Visit store →</span>}
             </div>
           </a>
         ))}
@@ -292,15 +362,17 @@ export function TestimonialTicker({ items = [] }) {
 export function VideoTips({ items = [] }) {
   const { dark } = useTheme();
   const scrollRef = useRef(null);
-  const scroll = dir => { if (scrollRef.current) scrollRef.current.scrollBy({ left:dir*280, behavior:"smooth" }); };
   const [playing, setPlaying] = useState(null);
+  const scroll = dir => { if (scrollRef.current) scrollRef.current.scrollBy({ left:dir*280, behavior:"smooth" }); };
   return (
     <div style={{ position:"relative" }}>
       <button onClick={() => scroll(-1)} style={{ position:"absolute", left:-16, top:"40%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.4)", color:G, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
       <button onClick={() => scroll(1)}  style={{ position:"absolute", right:-16, top:"40%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.4)", color:G, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
       <div ref={scrollRef} style={{ display:"flex", gap:"1.5rem", overflowX:"auto", scrollSnapType:"x mandatory", paddingBottom:"1rem", scrollbarWidth:"none" }}>
         {items.map((v, i) => (
-          <div key={i} style={{ flexShrink:0, width:240, scrollSnapAlign:"start", background:dark?"rgba(255,255,255,.05)":"rgba(0,0,0,.03)", border:dark?".5px solid rgba(255,255,255,.1)":".5px solid rgba(0,0,0,.08)", borderRadius:16, overflow:"hidden" }}>
+          <div key={i} style={{ flexShrink:0, width:240, scrollSnapAlign:"start", background:dark?"rgba(255,255,255,.05)":"rgba(0,0,0,.03)", border:dark?".5px solid rgba(255,255,255,.1)":".5px solid rgba(0,0,0,.08)", borderRadius:16, overflow:"hidden", transition:"transform .3s,border-color .3s" }}
+            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-5px)"; e.currentTarget.style.borderColor="rgba(0,255,136,.35)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor=dark?"rgba(255,255,255,.1)":"rgba(0,0,0,.08)"; }}>
             <div style={{ width:"100%", aspectRatio:"9/16", position:"relative", background:"#000" }}>
               {playing === i
                 ? <iframe src={`https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0`} title={v.title} allow="autoplay" allowFullScreen style={{ width:"100%", height:"100%", border:"none", position:"absolute", inset:0 }}/>
@@ -326,16 +398,14 @@ export function VideoTips({ items = [] }) {
   );
 }
 
-/* ─── PARTNER CARD ─── */
+/* ─── PARTNER CARD — with real logo ─── */
 export function PartnerCard({ partner }) {
   const { dark } = useTheme();
   return (
     <div className="partner-card"
-      onMouseEnter={e => { e.currentTarget.style.background="rgba(0,255,136,.07)"; e.currentTarget.style.transform="translateY(-4px)"; e.currentTarget.style.borderColor="rgba(0,255,136,.35)"; }}
-      onMouseLeave={e => { e.currentTarget.style.background=dark?"rgba(255,255,255,.04)":"rgba(0,0,0,.03)"; e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor=dark?"rgba(255,255,255,.1)":"rgba(0,0,0,.08)"; }}>
-      <div style={{ width:28, height:28, borderRadius:6, background:`${partner.color||G}22`, border:`.5px solid ${partner.color||G}44`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-        <span style={{ fontSize:11, fontWeight:800, color:partner.color||G }}>{(partner.name||"?")[0]}</span>
-      </div>
+      onMouseEnter={e => { e.currentTarget.style.background="rgba(0,255,136,.07)"; e.currentTarget.style.transform="translateY(-4px)"; e.currentTarget.style.borderColor="rgba(0,255,136,.35)"; e.currentTarget.style.boxShadow="0 12px 32px rgba(0,255,136,.1)"; e.currentTarget.style.animation="none"; }}
+      onMouseLeave={e => { e.currentTarget.style.background=dark?"rgba(255,255,255,.04)":"rgba(0,0,0,.03)"; e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor=dark?"rgba(255,255,255,.1)":"rgba(0,0,0,.08)"; e.currentTarget.style.boxShadow="none"; }}>
+      <PlatformLogo name={partner.name} slug={partner.slug} color={partner.color} size={28}/>
       <div>
         <p style={{ fontSize:14, fontWeight:600, color:dark?"#fff":"#040608", margin:0 }}>{partner.name}</p>
         <p style={{ fontSize:11, color:dark?"rgba(255,255,255,.3)":"rgba(0,0,0,.4)", margin:0 }}>Certified partner</p>
@@ -438,17 +508,4 @@ export function Footer() {
       </div>
     </footer>
   );
-}
-
-/* ─── AnimNum ─── */
-export function AnimNum({ target, suffix = "" }) {
-  const [val, setVal] = useState(0);
-  const [ref, inView] = useInView();
-  useEffect(() => {
-    if (!inView) return;
-    let s = null;
-    const step = ts => { if (!s) s=ts; const p=Math.min((ts-s)/2000,1); setVal(Math.floor(p*target)); if(p<1) requestAnimationFrame(step); };
-    requestAnimationFrame(step);
-  }, [inView, target]);
-  return <span ref={ref}>{val}{suffix}</span>;
 }
