@@ -4,6 +4,7 @@
  * Mobile Core Web Vitals weighted highest.
  * CRITICAL REVENUE LEAK label when vitals are red/yellow.
  * Soft disqualification message after terrible result.
+ * Download Report as branded HTML file.
  */
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
@@ -26,7 +27,6 @@ const CHECKS = [
   { id:"conversion", label:"Conversion Readiness",  icon:"💰", weight:0.05 },
 ];
 
-/* Staggered scan messages — build urgency */
 const SCAN_STAGES = [
   { msg:"Connecting to store...",               sub:"Initialising analysis engine" },
   { msg:"Scanning mobile performance...",        sub:"This is where most stores fail" },
@@ -38,18 +38,13 @@ const SCAN_STAGES = [
   { msg:"Running final diagnosis...",            sub:"Compiling your revenue leak report" },
 ];
 
-/* ── BRUTAL SCORING ──
-   Mobile perf < 95 = sub-optimal (not "good")
-   Any vital yellow/red = CRITICAL
-   Default grades skew toward C/D — not A+ */
 function brutalScore(raw) {
   if (raw == null) return null;
-  // Deflate by 15 points across the board — stores are rarely as good as PSI suggests
   return Math.max(0, Math.min(100, Math.round(raw - 15)));
 }
 function col(s)   { return s >= 75 ? "#00ff88" : s >= 50 ? "#FF9900" : "#FF3B3B"; }
 function grade(s) {
-  if (s >= 80) return "B"; // Nothing starts at A anymore
+  if (s >= 80) return "B";
   if (s >= 65) return "C";
   if (s >= 45) return "D";
   return "F";
@@ -82,7 +77,6 @@ function buildReport(desktop, mobile, url) {
   const rawAcc   = pct(lh?.categories?.accessibility?.score);
   const rawBest  = pct(lh?.categories?.["best-practices"]?.score);
 
-  // Raw vitals
   const lcp = lh?.audits?.["largest-contentful-paint"];
   const cls = lh?.audits?.["cumulative-layout-shift"];
   const fid = lh?.audits?.["total-blocking-time"];
@@ -94,77 +88,60 @@ function buildReport(desktop, mobile, url) {
   const fidMs  = fid ? parseFloat(fid.numericValue) : 400;
   const fcpMs  = fcp ? parseFloat(fcp.numericValue) : 3000;
 
-  // ── BRUTAL mobile score: < 95 = sub-optimal, we deflate further
   const mobileRaw = rawMPerf ?? 50;
   const mobileScore = mobileRaw >= 95
-    ? brutalScore(mobileRaw) + 5   // give a tiny boost only if near-perfect
+    ? brutalScore(mobileRaw) + 5
     : mobileRaw < 50
-      ? Math.max(0, mobileRaw - 20) // punish hard
+      ? Math.max(0, mobileRaw - 20)
       : brutalScore(mobileRaw);
 
-  // ── VITALS: weighted by each threshold
   let vitRaw = 100;
-  // LCP: Good < 2.5s, Needs improvement 2.5-4s, Poor > 4s
   if (lcpMs > 4000)      vitRaw -= 40;
   else if (lcpMs > 2500) vitRaw -= 25;
   else if (lcpMs > 1800) vitRaw -= 12;
-  // CLS: Good < 0.1, Needs improvement 0.1-0.25, Poor > 0.25
   if (clsVal > 0.25)     vitRaw -= 35;
   else if (clsVal > 0.1) vitRaw -= 20;
   else if (clsVal > 0.05)vitRaw -= 8;
-  // TBT (proxy for FID): Good < 200ms, Needs improvement 200-600ms, Poor > 600ms
   if (fidMs > 600)       vitRaw -= 30;
   else if (fidMs > 300)  vitRaw -= 18;
   else if (fidMs > 200)  vitRaw -= 8;
-  const vitScore = clamp(vitRaw - 10); // Always deflate
+  const vitScore = clamp(vitRaw - 10);
 
-  // ── CRITICAL FLAG: any vital yellow or red
   const vitalsCritical = lcpMs > 2500 || clsVal > 0.1 || fidMs > 300 || mobileRaw < 70;
   const mobileSubOptimal = mobileRaw < 95;
 
-  // Speed
   const speedScore = clamp(((rawMPerf ?? 45) * 0.55 + (rawDPerf ?? 55) * 0.45) - 14);
 
-  // SEO — brutal
   const hasMeta    = lh?.audits?.["meta-description"]?.score === 1;
   const hasTitle   = lh?.audits?.["document-title"]?.score   === 1;
   const hasCanon   = lh?.audits?.canonical?.score            === 1;
   const seoRaw     = rawSeo ?? 45;
   const seoScore   = clamp(seoRaw - (!hasMeta?15:0) - (!hasTitle?12:0) - (!hasCanon?8:0) - 10);
 
-  // Images
   const imgOpt  = lh?.audits?.["uses-optimized-images"]?.score;
   const imgWebp = lh?.audits?.["uses-webp-images"]?.score;
   const imgResp = lh?.audits?.["uses-responsive-images"]?.score;
   const imgScore = clamp(75 - (imgOpt===0?28:0) - (imgWebp===0?22:0) - (imgResp===0?14:0));
 
-  // SSL
   const httpsScore = lh?.audits?.["is-on-https"]?.score;
   const sslScore   = httpsScore === 1 ? 82 : httpsScore === 0 ? 5 : 60;
 
-  // Checkout — always sub-optimal unless store is very fast
   const checkoutScore = clamp(42 + (mobileRaw >= 80 ? 15 : 0) + ((rawBest ?? 50) * 0.2));
 
-  // Conversion — composite, always deflated
   const convScore = clamp(
     (mobileScore * 0.3) + ((rawSeo ?? 45) * 0.2) +
     ((rawBest ?? 45) * 0.2) + ((rawAcc ?? 45) * 0.15) + (sslScore * 0.15) - 8
   );
 
-  // ── WEIGHTED OVERALL — mobile + vitals dominate
   const weightedTotal = CHECKS.reduce((acc, c) => {
     const scores = { mobile:mobileScore, vitals:vitScore, speed:speedScore, seo:seoScore, images:imgScore, ssl:sslScore, checkout:checkoutScore, conversion:convScore };
     return acc + (scores[c.id] ?? 50) * c.weight;
   }, 0);
   const overall = clamp(weightedTotal);
 
-  // ── REVENUE LEAK ESTIMATE — brutal
   const leak = overall >= 75 ? "15-25%" : overall >= 55 ? "30-50%" : overall >= 35 ? "50-65%" : "65-80%";
-
-  // ── IS CRITICAL?
   const isCritical = vitalsCritical || overall < 50;
 
-  // ── TOP PRIORITIES — worst first
   const ranked = [
     { id:"mobile",     s:mobileScore },
     { id:"vitals",     s:vitScore },
@@ -187,7 +164,6 @@ function buildReport(desktop, mobile, url) {
     conversion: `Conversion readiness is ${convScore}/100 — a combination of performance, accessibility and trust failures is suppressing your revenue`,
   };
 
-  // ── SOFT DISQUALIFICATION MESSAGE
   const disqualMsg = overall < 60
     ? `Your store is technically live, but it's currently optimized for browsing — not buying. Most brands ignore these friction points until they scale, at which point the leaks become catastrophically expensive. Fix them now, or keep paying the "Inconsistency Tax" on every ad dollar you spend.`
     : `Your store has the bones of something that can scale, but there are measurable friction points actively suppressing your conversion rate. These aren't cosmetic issues — they're revenue drains that compound every day you leave them unfixed.`;
@@ -250,7 +226,7 @@ function Ring({ score, size = 96, color: c }) {
       <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(80,80,80,.2)" strokeWidth={7}/>
       <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={c} strokeWidth={7}
         strokeDasharray={`${dash} ${circ-dash}`} strokeLinecap="round"
-        style={{ transition:"stroke-dasharray 1.6s cubic-bezier(.22,1,.36,1)", filter:`drop-shadow(0 0 6px ${c})` }}/>
+        style={{ transition:"stroke-dasharray 1.6s cubic-bezier(.22,1,.36,1)", filter:`drop-shadow(0 0 6px ${c})`}}/>
     </svg>
   );
 }
@@ -270,9 +246,7 @@ function CheckCard({ check, id, label: lbl, icon, dark, cardBg, cardBorder, mute
       onMouseEnter={e => { e.currentTarget.style.transform="translateY(-4px)"; e.currentTarget.style.boxShadow=`0 16px 40px ${c}1a`; }}
       onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
 
-      {/* Critical badge */}
       {isBad && <div style={{ position:"absolute", top:10, right:10, background:"rgba(255,59,59,.15)", border:".5px solid rgba(255,59,59,.35)", borderRadius:100, padding:"2px 8px", fontSize:9, color:"#FF3B3B", fontWeight:700, letterSpacing:".08em" }}>CRITICAL</div>}
-
       <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:`linear-gradient(90deg,transparent,${c}55,transparent)` }}/>
 
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:".6rem", paddingRight:isBad?"60px":"0" }}>
@@ -287,18 +261,15 @@ function CheckCard({ check, id, label: lbl, icon, dark, cardBg, cardBorder, mute
         </div>
       </div>
 
-      {/* Score bar */}
       <div style={{ height:4, background:trackBg, borderRadius:4, overflow:"hidden", marginBottom:".5rem" }}>
         <div style={{ height:"100%", borderRadius:4, width:`${check.score}%`, background:`linear-gradient(90deg,${c}cc,${c})`, boxShadow:`0 0 6px ${c}55`, transition:"width 1.4s cubic-bezier(.22,1,.36,1)" }}/>
       </div>
 
-      {/* Label badge */}
       <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:open?".8rem":0 }}>
         <span style={{ fontSize:11, color:c, fontWeight:600 }}>{check.label}</span>
         <span style={{ fontSize:11, color:mutedText }}>— {check.summary}</span>
       </div>
 
-      {/* Expanded */}
       {open && (
         <div style={{ borderTop:dark?".5px solid rgba(255,255,255,.08)":".5px solid rgba(0,0,0,.08)", paddingTop:".8rem", animation:"expandIn .3s cubic-bezier(.22,1,.36,1)" }}>
           <style>{`@keyframes expandIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}`}</style>
@@ -346,7 +317,6 @@ function RadarCanvas({ loading }) {
       ctx.strokeStyle="rgba(0,255,136,.06)"; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,180); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(180,cy); ctx.stroke();
-      // Sweep
       const g=ctx.createLinearGradient(cx,cy,cx+Math.cos(angle)*90,cy+Math.sin(angle)*90);
       g.addColorStop(0,"rgba(0,255,136,0)"); g.addColorStop(1,"rgba(0,255,136,.3)");
       ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,90,angle-Math.PI*.4,angle); ctx.closePath();
@@ -364,6 +334,134 @@ function RadarCanvas({ loading }) {
     return () => cancelAnimationFrame(raf);
   }, [loading]);
   return <canvas ref={ref} width={180} height={180} style={{ width:180, height:180 }}/>;
+}
+
+/* ── DOWNLOAD REPORT (branded HTML) ── */
+function generateReportHTML(results, oGrade) {
+  const scoreColor = (s) => s >= 75 ? "#00ff88" : s >= 50 ? "#FF9900" : "#FF3B3B";
+
+  const checksHTML = CHECKS.map(c => {
+    const chk = results.checks?.[c.id];
+    if (!chk) return "";
+    const sc = scoreColor(chk.score);
+    const issuesHTML = (chk.issues || []).filter(Boolean).map(i =>
+      `<li style="color:${i.startsWith("❌") ? "#FF6B6B" : "#FF9900"};margin-bottom:4px;">${i}</li>`
+    ).join("");
+    const fixesHTML = (chk.fixes || []).map(f =>
+      `<li style="color:#00ff88;margin-bottom:4px;">${f}</li>`
+    ).join("");
+    return `
+      <div style="background:#0d1117;border:.5px solid ${sc}44;border-top:2px solid ${sc};border-radius:12px;padding:1.2rem;margin-bottom:1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;">
+          <span style="font-size:15px;font-weight:700;color:#fff;">${c.icon} ${c.label}</span>
+          <span style="font-size:22px;font-weight:800;color:${sc};">${chk.grade} <span style="font-size:13px;color:#888;">${chk.score}/100</span></span>
+        </div>
+        <div style="height:5px;background:#1a1a1a;border-radius:5px;margin-bottom:.8rem;">
+          <div style="height:100%;width:${chk.score}%;background:${sc};border-radius:5px;"></div>
+        </div>
+        <p style="color:#888;font-size:12px;margin-bottom:.8rem;font-style:italic;">${chk.label} — ${chk.summary}</p>
+        ${issuesHTML ? `<p style="color:#FF6B6B;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem;">⚠ What We Found</p><ul style="padding-left:1.2rem;margin-bottom:.8rem;">${issuesHTML}</ul>` : ""}
+        ${fixesHTML ? `<p style="color:#00ff88;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem;">→ How To Fix It</p><ul style="padding-left:1.2rem;">${fixesHTML}</ul>` : ""}
+      </div>`;
+  }).join("");
+
+  const prioritiesHTML = results.topPriorities.map((p, i) =>
+    `<div style="display:flex;gap:10px;margin-bottom:10px;padding:10px 12px;background:${i===0?"rgba(255,59,59,.1)":"rgba(255,153,0,.07)"};border-radius:10px;border-left:3px solid ${i===0?"#FF3B3B":"#FF9900"};">
+      <span style="color:${i===0?"#FF3B3B":"#FF9900"};font-weight:800;min-width:20px;">${i+1}.</span>
+      <p style="color:#ccc;font-size:13px;margin:0;line-height:1.6;">${p}</p>
+    </div>`
+  ).join("");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Store Audit Report — ${results.domain} — Bode Conversion Lab</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#040608;color:#f0f0f0;font-family:'Segoe UI',system-ui,sans-serif;padding:2rem 1rem;}
+  h1,h2,h3{font-weight:800;line-height:1.1;}
+  ul{list-style:none;}
+  @media print{body{background:#fff;color:#000;}}
+</style>
+</head>
+<body>
+<div style="max-width:860px;margin:0 auto;">
+
+  <!-- HEADER -->
+  <div style="text-align:center;padding:2.5rem 1rem 2rem;border-bottom:.5px solid rgba(0,255,136,.2);margin-bottom:2rem;">
+    <p style="color:#00ff88;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;margin-bottom:.8rem;">BODE CONVERSION LAB</p>
+    <h1 style="font-size:clamp(1.5rem,5vw,2.5rem);color:#fff;margin-bottom:.5rem;">Store Audit Report</h1>
+    <p style="color:#888;font-size:13px;">Generated ${new Date().toLocaleString()} · Data from Google PageSpeed Insights API</p>
+    <p style="color:#00ff88;font-size:15px;font-weight:600;margin-top:.8rem;">${results.domain}</p>
+  </div>
+
+  <!-- OVERALL SCORE -->
+  <div style="background:linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.02));border:.5px solid rgba(0,255,136,.25);border-radius:16px;padding:2rem;margin-bottom:1.5rem;text-align:center;">
+    <p style="font-size:11px;color:#00ff88;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin-bottom:.8rem;">Overall Score</p>
+    <div style="font-size:72px;font-weight:800;color:${scoreColor(results.overall)};line-height:1;margin-bottom:.3rem;">${oGrade}</div>
+    <div style="font-size:18px;color:#888;margin-bottom:1rem;">${results.overall}/100</div>
+    <p style="color:#ccc;font-size:14px;line-height:1.7;max-width:600px;margin:0 auto 1.2rem;">${results.verdict}</p>
+    <div style="display:inline-block;background:rgba(255,59,59,.1);border:.5px solid rgba(255,59,59,.3);border-radius:10px;padding:.6rem 1.2rem;">
+      <p style="font-size:10px;color:#FF9999;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:3px;">Estimated Revenue Leak</p>
+      <p style="font-size:20px;font-weight:800;color:#FF6B6B;">${results.leak}</p>
+    </div>
+  </div>
+
+  <!-- CRITICAL BANNER -->
+  ${results.isCritical ? `<div style="background:rgba(255,59,59,.1);border:1px solid rgba(255,59,59,.4);border-radius:12px;padding:1rem 1.4rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:12px;">
+    <span style="font-size:24px;">🚨</span>
+    <div>
+      <p style="color:#FF3B3B;font-weight:800;margin-bottom:4px;">CRITICAL REVENUE LEAK DETECTED</p>
+      <p style="color:rgba(255,100,100,.8);font-size:13px;">Mobile performance and Core Web Vitals are below acceptable thresholds. Every ad you run is sending buyers to a broken experience.</p>
+    </div>
+  </div>` : ""}
+
+  <!-- TOP 3 PRIORITIES -->
+  <div style="background:rgba(255,59,59,.06);border:.5px solid rgba(255,59,59,.2);border-radius:12px;padding:1.4rem;margin-bottom:1.5rem;">
+    <p style="color:#FF9999;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:1rem;">🔥 Fix These First — In This Order</p>
+    ${prioritiesHTML}
+  </div>
+
+  <!-- REALITY CHECK -->
+  <div style="background:rgba(0,255,136,.04);border:.5px solid rgba(0,255,136,.2);border-left:3px solid #00ff88;border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:2rem;">
+    <p style="color:#00ff88;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:.6rem;">🧠 The Reality Check</p>
+    <p style="color:#aaa;font-size:13px;line-height:1.8;font-style:italic;">"${results.disqualMsg}"</p>
+  </div>
+
+  <!-- RAW VITALS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem;margin-bottom:2rem;">
+    ${[
+      ["LCP", results.raw.lcp ?? "-"],
+      ["CLS", results.raw.cls ?? "-"],
+      ["TBT", results.raw.fid ?? "-"],
+      ["Mobile Perf", `${results.raw.mPerf ?? "-"}/100`],
+      ["Desktop Perf", `${results.raw.dPerf ?? "-"}/100`],
+      ["SEO", `${results.raw.mSeo ?? "-"}/100`],
+    ].map(([k, v]) => `
+      <div style="background:#0d1117;border:.5px solid #222;border-radius:10px;padding:.8rem;text-align:center;">
+        <p style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">${k}</p>
+        <p style="font-size:16px;font-weight:700;color:#fff;">${v}</p>
+      </div>`).join("")}
+  </div>
+
+  <!-- DETAILED CHECK CARDS -->
+  <h2 style="color:#fff;font-size:18px;margin-bottom:1.2rem;padding-bottom:.8rem;border-bottom:.5px solid rgba(255,255,255,.08);">Detailed Breakdown</h2>
+  ${checksHTML}
+
+  <!-- FOOTER CTA -->
+  <div style="text-align:center;padding:2.5rem 1rem;margin-top:2rem;border-top:.5px solid rgba(0,255,136,.15);">
+    <p style="color:#00ff88;font-size:11px;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin-bottom:.6rem;">Ready to fix every one of these?</p>
+    <h2 style="color:#fff;font-size:clamp(1.2rem,4vw,1.8rem);margin-bottom:.6rem;">This report shows the surface.<br/>Our full audit goes 10× deeper.</h2>
+    <p style="color:#888;font-size:13px;max-width:500px;margin:0 auto 1.5rem;line-height:1.75;">We don't just identify problems — we fix them. Landing pages, checkout flow, ad structure, email sequences. One compounding system.</p>
+    <a href="https://bodeconversionlab.vercel.app/contact" style="display:inline-block;background:linear-gradient(135deg,#00ff88,#00cc6a);color:#040608;border-radius:10px;padding:.8rem 2rem;font-size:15px;font-weight:800;text-decoration:none;">Apply for Full Professional Audit →</a>
+    <p style="color:#444;font-size:11px;margin-top:2rem;">© 2025 Bode Conversion Lab · bodeconversionlab.vercel.app · Built to convert. Engineered to scale.</p>
+  </div>
+
+</div>
+</body>
+</html>`;
 }
 
 /* ══════════════════════════════════════
@@ -403,7 +501,6 @@ export default function Audit() {
     setError(""); setLoading(true); setResults(null); setRevealed(false);
     setStageIdx(0); setProgress(0);
 
-    // Staggered stage progression
     const stageTimings = [0, 2200, 4400, 6600, 10000, 14000, 18000, 22000];
     const timers = stageTimings.map((t, i) => setTimeout(() => setStageIdx(i), t));
     const progTimers = [
@@ -423,7 +520,6 @@ export default function Audit() {
       const desktop = dRes.status === "fulfilled" ? dRes.value : null;
       if (!mobile && !desktop) throw new Error("Could not reach Google PageSpeed API");
       setProgress(100);
-      // Staggered reveal
       setTimeout(() => { setResults(buildReport(desktop, mobile, cleaned)); setLoading(false); setTimeout(() => setRevealed(true), 200); }, 600);
     } catch (e) {
       setError(`Scan failed — ${e.message}. The URL must be publicly accessible. Try again in a moment.`);
@@ -432,6 +528,21 @@ export default function Audit() {
       timers.forEach(clearTimeout);
       progTimers.forEach(clearTimeout);
     }
+  };
+
+  /* ── DOWNLOAD REPORT ── */
+  const downloadReport = () => {
+    if (!results) return;
+    const html = generateReportHTML(results, oGrade);
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = `${results.domain}-bode-audit-report.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
   };
 
   const oCol   = results ? col(results.overall)   : G;
@@ -524,25 +635,21 @@ export default function Audit() {
         </div>
       </section>
 
-      {/* ── LOADING — RADAR + STAGGERED STAGES ── */}
+      {/* ── LOADING ── */}
       {loading && (
         <div style={{ maxWidth:580, margin:"0 auto", padding:"0 1.5rem 5rem" }}>
-          {/* Progress bar */}
           <div style={{ height:2, background:trackBg, borderRadius:2, overflow:"hidden", marginBottom:"2rem" }}>
             <div style={{ height:"100%", background:"linear-gradient(90deg,#FF3B3B,#FF9900,#00ff88)", borderRadius:2, width:`${progress}%`, transition:"width 1.2s cubic-bezier(.22,1,.36,1)", boxShadow:"0 0 8px rgba(0,255,136,.5)" }}/>
           </div>
           <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:24, padding:"2.5rem 2rem", position:"relative", overflow:"hidden", textAlign:"center" }}>
             <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.4),transparent)" }}/>
-            {/* Radar */}
             <div style={{ position:"relative", width:140, height:140, margin:"0 auto 1.5rem" }}>
               <RadarCanvas loading={loading}/>
               <div style={{ position:"absolute", inset:"50%", transform:"translate(-50%,-50%)", width:16, height:16, borderRadius:"50%", border:"1px solid rgba(0,255,136,.5)", animation:"ping 1.8s ease-out infinite" }}/>
               <div style={{ position:"absolute", inset:"50%", transform:"translate(-50%,-50%)", width:16, height:16, borderRadius:"50%", border:"1px solid rgba(0,255,136,.3)", animation:"ping 1.8s ease-out infinite .9s" }}/>
             </div>
-            {/* Stage message */}
-            <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.05rem", fontWeight:700, color:headingColor, marginBottom:".3rem", animation:"staggerIn .4s cubic-bezier(.22,1,.36,1)", key:stageIdx }}>{stage.msg}</p>
+            <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.05rem", fontWeight:700, color:headingColor, marginBottom:".3rem" }}>{stage.msg}</p>
             <p style={{ fontSize:12, color:"#FF9900", marginBottom:"1.8rem", fontStyle:"italic" }}>{stage.sub}</p>
-            {/* Live check list */}
             <div style={{ display:"flex", flexDirection:"column", gap:7, textAlign:"left" }}>
               {CHECKS.map((c, i) => (
                 <div key={c.id} style={{ display:"flex", alignItems:"center", gap:10, opacity:i <= stageIdx ? 1 : 0.25, transition:`opacity .4s ${i*.1}s` }}>
@@ -563,7 +670,7 @@ export default function Audit() {
       {results && !loading && (
         <div style={{ maxWidth:940, margin:"0 auto", padding:"0 clamp(1rem,4vw,2rem) 5rem", opacity:revealed?1:0, transition:"opacity .5s cubic-bezier(.22,1,.36,1)" }}>
 
-          {/* ── CRITICAL BANNER ── */}
+          {/* CRITICAL BANNER */}
           {results.isCritical && (
             <div style={{ background:"linear-gradient(135deg,rgba(255,59,59,.12),rgba(255,59,59,.05))", border:"1px solid rgba(255,59,59,.4)", borderRadius:16, padding:"1rem 1.4rem", marginBottom:"1.2rem", display:"flex", alignItems:"center", gap:12, animation:"criticalPulse 2.5s ease-in-out infinite" }}>
               <span style={{ fontSize:22, flexShrink:0 }}>🚨</span>
@@ -574,7 +681,7 @@ export default function Audit() {
             </div>
           )}
 
-          {/* ── OVERALL SCORE ── */}
+          {/* OVERALL SCORE */}
           <div style={{ background:cardBg, border:`.5px solid ${results.isCritical?"rgba(255,59,59,.3)":cardBorder}`, borderTop:`.5px solid ${oCol}66`, borderRadius:24, padding:"clamp(1.5rem,4vw,2.2rem)", marginBottom:"1.2rem", position:"relative", overflow:"hidden", animation:"staggerIn .5s cubic-bezier(.22,1,.36,1)" }}>
             <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:`linear-gradient(90deg,transparent,${oCol}66,transparent)` }}/>
             <div style={{ display:"flex", gap:"clamp(.8rem,3vw,2rem)", alignItems:"center", flexWrap:"wrap" }}>
@@ -605,7 +712,7 @@ export default function Audit() {
             </div>
           </div>
 
-          {/* ── TOP 3 PRIORITIES ── */}
+          {/* TOP 3 PRIORITIES */}
           <div style={{ background:"linear-gradient(135deg,rgba(255,59,59,.08),rgba(255,59,59,.02))", border:".5px solid rgba(255,59,59,.25)", borderRadius:16, padding:"1.2rem 1.5rem", marginBottom:"1.2rem", animation:"staggerIn .5s .1s cubic-bezier(.22,1,.36,1) both" }}>
             <p style={{ fontSize:10, color:"#FF9999", letterSpacing:".12em", textTransform:"uppercase", fontWeight:700, marginBottom:".8rem" }}>🔥 Fix These First — In This Order</p>
             {results.topPriorities.map((p, i) => (
@@ -616,13 +723,13 @@ export default function Audit() {
             ))}
           </div>
 
-          {/* ── SOFT DISQUALIFICATION ── */}
+          {/* SOFT DISQUALIFICATION */}
           <div style={{ background:dark?"rgba(255,255,255,.03)":"rgba(0,0,0,.02)", border:`.5px solid ${cardBorder}`, borderLeft:"3px solid rgba(0,255,136,.4)", borderRadius:16, padding:"1.2rem 1.4rem", marginBottom:"1.4rem", animation:"staggerIn .5s .2s cubic-bezier(.22,1,.36,1) both" }}>
             <p style={{ fontSize:10, color:G, letterSpacing:".1em", textTransform:"uppercase", fontWeight:700, marginBottom:".6rem" }}>🧠 The Reality Check</p>
             <p style={{ fontSize:13, color:mutedText, lineHeight:1.8, margin:0, fontStyle:"italic" }}>"{results.disqualMsg}"</p>
           </div>
 
-          {/* ── CHECK CARDS ── */}
+          {/* CHECK CARDS */}
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:"1rem", marginBottom:"1.5rem" }}>
             {CHECKS.map(c => {
               const chk = results.checks?.[c.id];
@@ -640,7 +747,7 @@ export default function Audit() {
             Raw data from Google PageSpeed Insights API.
           </p>
 
-          {/* ── CTA ── */}
+          {/* CTA */}
           <TiltCard style={{ background:"linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border:".5px solid rgba(0,255,136,.25)", borderRadius:24, padding:"clamp(2rem,5vw,3rem)", textAlign:"center", position:"relative", overflow:"hidden" }}>
             <div style={{ position:"absolute", top:0, left:"20%", right:"20%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.45),transparent)" }}/>
             <p style={{ fontSize:10, color:G, letterSpacing:".14em", textTransform:"uppercase", marginBottom:".6rem", fontWeight:700 }}>Ready to fix every one of these?</p>
@@ -652,7 +759,20 @@ export default function Audit() {
             </p>
             <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
               <Link to="/contact" className="btn-g" style={{ display:"inline-block" }}>Apply for full professional audit →</Link>
-              <button onClick={() => { setResults(null); setUrl(""); setRevealed(false); }} className="btn-ghost">Scan another store</button>
+              <button
+                onClick={downloadReport}
+                style={{ background:"transparent", border:".5px solid rgba(0,255,136,.4)", color:G, borderRadius:10, padding:".65rem 1.4rem", fontSize:14, fontWeight:600, cursor:"pointer", fontFamily:"inherit", transition:"all .2s", display:"inline-flex", alignItems:"center", gap:6 }}
+                onMouseEnter={e => { e.currentTarget.style.background="rgba(0,255,136,.08)"; e.currentTarget.style.borderColor="rgba(0,255,136,.7)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background="transparent"; e.currentTarget.style.borderColor="rgba(0,255,136,.4)"; }}
+              >
+                ⬇ Download Report
+              </button>
+              <button
+                onClick={() => { setResults(null); setUrl(""); setRevealed(false); }}
+                className="btn-ghost"
+              >
+                Scan another store
+              </button>
             </div>
           </TiltCard>
         </div>

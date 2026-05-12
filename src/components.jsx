@@ -1,3 +1,13 @@
+import { createContext, useContext, useState } from "react";
+import { Link } from "react-router-dom";
+
+/* ─── THEME CONTEXT ─── */
+export const ThemeContext = createContext();
+
+export function useTheme() {
+  return useContext(ThemeContext);
+}
+
 export function WhatsAppButton() {
   /* Pre-filled message when they tap the WhatsApp button */
   const msg = encodeURIComponent(
