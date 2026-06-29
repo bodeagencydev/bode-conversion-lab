@@ -53,18 +53,17 @@ const NAV_LINKS = [
 
 /* ─── LOGO ─── */
 export function Logo({ size = 40, textSize = 14 }) {
-  const { dark } = useTheme();
   return (
-    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-      {/* Green circle with B — your brand mark */}
-      <div style={{ width:size, height:size, borderRadius:"50%", background:GG, display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 0 18px rgba(0,255,136,.35)", flexShrink:0 }}>
-        <span style={{ fontSize:size*.42, fontWeight:900, color:"#040608", fontFamily:"'Syne',sans-serif", letterSpacing:"-0.03em" }}>B</span>
-      </div>
-      <div style={{ lineHeight:1.1 }}>
-        <p style={{ fontSize:textSize, fontWeight:800, color:dark?"#fff":"#040608", margin:0, fontFamily:"'Syne',sans-serif", letterSpacing:"-0.02em" }}>Bode</p>
-        <p style={{ fontSize:textSize*.78, fontWeight:600, color:G, margin:0, letterSpacing:".06em", textTransform:"uppercase" }}>Conversion Lab</p>
-      </div>
-    </div>
+    <img
+      src="/logo.png"
+      alt="Bode Conversion Lab"
+      style={{
+        height: size,
+        width: "auto",
+        objectFit: "contain",
+        display: "block",
+      }}
+    />
   );
 }
 
