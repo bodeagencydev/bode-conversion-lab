@@ -26,7 +26,7 @@ function PageSkeleton() {
           <div style={{ position:"absolute", inset:0, borderRadius:"50%", border:"2px solid #00ff88", borderTopColor:"transparent", animation:"auditSpin .8s linear infinite" }}/>
           <div style={{ position:"absolute", inset:6, borderRadius:"50%", border:"1px solid #00ff88", borderBottomColor:"transparent", animation:"auditSpin 1.2s linear infinite reverse" }}/>
         </div>
-        <p style={{ fontSize:12, color:"rgba(0,255,136,.6)", fontFamily:"'Syne',sans-serif", fontWeight:600, letterSpacing:".08em", textTransform:"uppercase" }}>Loading...</p>
+        <p style={{ fontSize:12, color:"rgba(0,255,136,.6)", fontFamily:"'Plus Jakarta Sans',sans-serif", fontWeight:600, letterSpacing:".08em", textTransform:"uppercase" }}>Loading...</p>
       </div>
       <style>{`@keyframes auditSpin{to{transform:rotate(360deg);}}`}</style>
     </div>
@@ -57,7 +57,7 @@ function AppInner({ dark }) {
   usePageTracking();
 
   const bg = dark ? "#040608" : "#FCDA6A";
-  const fg = dark ? "#1A1408" : "#1A1408"; // Kept dark text contrast clear for readability on light gold
+  const fg = dark ? "#1A1408" : "#1A1408"; 
 
   return (
     <div
@@ -72,12 +72,11 @@ function AppInner({ dark }) {
       <NoiseOverlay opacity={dark ? 0.025 : 0.015} />
 
       <style>{`
-        /* Import Plus Jakarta Sans alongside Syne for headlines */
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
-        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; font-family:'Plus Jakarta Sans', sans-serif; }
+        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; font-family:'Plus Jakarta Sans', sans-serif !important; }
         html { scroll-behavior:smooth; overflow-x:hidden; }
-        body { overflow-x:hidden; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { overflow-x:hidden; font-family:'Plus Jakarta Sans', sans-serif !important; }
         [lang], font { color:inherit !important; }
         ::selection { background:#00ff88; color:#040608; }
         div::-webkit-scrollbar { display:none; }
