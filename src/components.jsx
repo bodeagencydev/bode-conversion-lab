@@ -55,18 +55,35 @@ const NAV_LINKS = [
 export function Logo({ size = 40, textSize = 14 }) {
   const { dark } = useTheme();
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <img
-        src="/logo.png"
-        alt="Bode Conversion Lab"
+    <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+      <div
         style={{
-          height: size,
           width: size,
-          objectFit: "contain",
-          display: "block",
+          height: size,
+          borderRadius: "30%",
+          background: dark
+            ? "linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.01))"
+            : "linear-gradient(135deg, rgba(0,0,0,.03), rgba(0,0,0,.01))",
+          border: dark ? ".5px solid rgba(255,255,255,.1)" : ".5px solid rgba(0,0,0,.08)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           flexShrink: 0,
+          overflow: "hidden",
+          boxShadow: "0 2px 10px rgba(0,255,136,.18)",
         }}
-      />
+      >
+        <img
+          src="/logo.png"
+          alt="Bode Conversion Lab"
+          style={{
+            width: "78%",
+            height: "78%",
+            objectFit: "contain",
+            display: "block",
+          }}
+        />
+      </div>
       <div style={{ lineHeight: 1.1 }}>
         <p style={{ fontSize: textSize, fontWeight: 800, color: dark ? "#fff" : "#040608", margin: 0, fontFamily: "'Syne',sans-serif", letterSpacing: "-0.02em" }}>Bode</p>
         <p style={{ fontSize: textSize * 0.78, fontWeight: 600, color: "#00ff88", margin: 0, letterSpacing: ".06em", textTransform: "uppercase" }}>Conversion Lab</p>
