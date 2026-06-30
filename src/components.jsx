@@ -55,7 +55,7 @@ const NAV_LINKS = [
 export function Logo({ size = 40, textSize = 14 }) {
   return (
     <img
-      src="/logo.jpeg"
+      src="/logo.png"
       alt="Bode Conversion Lab"
       style={{
         height: size,
