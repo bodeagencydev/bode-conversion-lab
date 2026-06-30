@@ -57,7 +57,7 @@ export function Logo({ size = 40, textSize = 14 }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <img
-        src="/logo.jpeg"
+        src="/logo.png"
         alt="Bode Conversion Lab"
         style={{
           height: size,
