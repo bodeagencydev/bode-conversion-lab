@@ -534,7 +534,7 @@ export function Footer() {
           </div>
         </div>
         <div style={{ borderTop:`.5px solid ${dark?"rgba(255,255,255,.06)":"rgba(150,110,40,.12)"}`, paddingTop:"1rem", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:".4rem" }}>
-          <p style={{ fontSize:11.5, color:tc2, margin:0 }}>© 2025 Bode Conversion Lab. All rights reserved.</p>
+          <p style={{ fontSize:11.5, color:tc2, margin:0 }}>© 2026 Bode Conversion Lab. All rights reserved.</p>
           <p style={{ fontSize:11.5, color:tc2, margin:0 }}>Built to convert. Engineered to scale.</p>
         </div>
       </div>
