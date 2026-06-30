@@ -7,12 +7,12 @@ export default function Home() {
   const { dark } = useTheme();
   const [statsRef, statsInView] = useInView(0.2);
 
-  const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.5)";
-  const mutedText2   = dark ? "rgba(255,255,255,.4)"  : "rgba(0,0,0,.4)";
-  const mutedText3   = dark ? "rgba(255,255,255,.3)"  : "rgba(0,0,0,.35)";
-  const borderCol    = dark ? "rgba(255,255,255,.06)"  : "rgba(0,0,0,.08)";
-  const tickerBg     = dark ? "rgba(255,255,255,.01)"  : "rgba(0,0,0,.02)";
-  const headingColor = dark ? "#fff" : "#0a0a0a";
+  const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
+  const mutedText2   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.55)";
+  const mutedText3   = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.45)";
+  const borderCol    = dark ? "rgba(255,255,255,.06)"  : "rgba(26,20,8,.12)";
+  const tickerBg     = dark ? "rgba(255,255,255,.01)"  : "rgba(26,20,8,.03)";
+  const headingColor = dark ? "#fff" : "#1A1408";
 
   return (
     <PageWrapper>
@@ -64,14 +64,21 @@ export default function Home() {
             </p>
           </ScrollReveal>
 
+          {/* ── SINGLE PRIMARY CTA ── */}
           <ScrollReveal delay={0.4}>
-            <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap", marginBottom:"3.5rem" }}>
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:14, marginBottom:"3.5rem" }}>
               <Magnetic>
-                <Link to="/audit" className="btn-g" data-cursor="Audit">See if your store qualifies →</Link>
+                <Link to="/contact" className="btn-g" data-cursor="Apply">
+                  Apply for a free strategy call →
+                </Link>
               </Magnetic>
-              <Magnetic>
-                <Link to="/case-studies" className="btn-ghost">View client results</Link>
-              </Magnetic>
+              <Link
+                to="/case-studies"
+                style={{ fontSize:13, color:mutedText2, textDecoration:"none", borderBottom:`.5px solid ${mutedText3}`, paddingBottom:1, transition:"color .2s" }}
+                onMouseEnter={e => e.currentTarget.style.color = G}
+                onMouseLeave={e => e.currentTarget.style.color = mutedText2}>
+                See what we've done for other stores →
+              </Link>
             </div>
           </ScrollReveal>
 
@@ -83,8 +90,8 @@ export default function Home() {
                 { n:"4x+", l:"Average ROAS\nimprovement" },
                 { n:"$0",  l:"Extra ad spend\nrequired" },
               ].map((c, i) => (
-                <TiltCard key={i} style={{ background:"linear-gradient(135deg,rgba(0,255,136,.09),rgba(0,204,106,.03))", border:".5px solid rgba(0,255,136,.22)", borderTop:".5px solid rgba(0,255,136,.38)", borderRadius:16, padding:"1.3rem 1rem", textAlign:"center" }}>
-                  <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)" }}/>
+                <TiltCard key={i} style={{ background: dark ? "linear-gradient(135deg,rgba(0,255,136,.09),rgba(0,204,106,.03))" : "linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.25))", border: dark ? ".5px solid rgba(0,255,136,.22)" : ".5px solid rgba(26,20,8,.15)", borderTop: dark ? ".5px solid rgba(0,255,136,.38)" : ".5px solid rgba(255,255,255,.7)", borderRadius:16, padding:"1.3rem 1rem", textAlign:"center" }}>
+                  <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background: dark ? "linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)" : "linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent)" }}/>
                   <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.4rem,4vw,1.9rem)", fontWeight:800, background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", lineHeight:1.1, marginBottom:6 }}>{c.n}</div>
                   <div style={{ fontSize:11, color:mutedText2, lineHeight:1.5, whiteSpace:"pre-line" }}>{c.l}</div>
                 </TiltCard>
@@ -104,7 +111,7 @@ export default function Home() {
         <ContinuousTicker items={AD_PLATFORMS} speed={25} reverse={true} />
       </div>
 
-      {/* ── STATS — Spring Counter ── */}
+      {/* ── STATS ── */}
       <Section id="results">
         <div ref={statsRef} style={{ maxWidth:960, margin:"0 auto" }}>
           <ScrollReveal delay={0}>
@@ -115,14 +122,13 @@ export default function Home() {
           </ScrollReveal>
           <div className="stat-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1.5rem" }}>
             {[
-              { n:70,  s:"x",   l:"Revenue multiplier" },
+              { n:70,  s:"x",    l:"Revenue multiplier" },
               { n:90,  s:" days", l:"Time to results" },
-              { n:4,   s:"x+",  l:"ROAS improvement" },
+              { n:4,   s:"x+",   l:"ROAS improvement" },
             ].map((s, i) => (
               <ScrollReveal key={i} delay={i * 0.12}>
                 <div className="stat-card">
                   <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(2rem,5vw,3rem)", fontWeight:800, background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", lineHeight:1, marginBottom:8 }}>
-                    {/* Spring physics counter — stiffness:100, damping:10 */}
                     {statsInView
                       ? <SpringCounter to={s.n} suffix={s.s} stiffness={100} damping={10} />
                       : `0${s.s}`}
@@ -232,7 +238,7 @@ export default function Home() {
         <ScrollReveal delay={0}>
           <div style={{ maxWidth:760, margin:"0 auto", textAlign:"center" }}>
             <GlowBorder
-              style={{ background:"linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border:".5px solid rgba(0,255,136,.25)", borderRadius:24, padding:"clamp(2.5rem,5vw,5rem) clamp(1.5rem,4vw,3rem)" }}>
+              style={{ background: dark ? "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))" : "linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.25))", border:".5px solid rgba(0,255,136,.25)", borderRadius:24, padding:"clamp(2.5rem,5vw,5rem) clamp(1.5rem,4vw,3rem)" }}>
               <SectionLabel>Ready to scale?</SectionLabel>
               <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.6rem,4vw,2.8rem)", fontWeight:800, letterSpacing:"-.02em", color:headingColor, lineHeight:1.2, wordBreak:"break-word", overflowWrap:"break-word" }}>
                 Stop burning money.<br /><GradText>Start compounding it.</GradText>
@@ -241,8 +247,7 @@ export default function Home() {
                 Join stores that went from struggling to scaling. Get your free store audit today — no commitment needed.
               </p>
               <Magnetic>
-                {/* ✅ Points to /audit */}
-                <Link to="/audit" className="btn-g" style={{ display:"inline-block" }} data-cursor="Audit">
+                <Link to="/contact" className="btn-g" style={{ display:"inline-block" }} data-cursor="Apply">
                   Apply for your free audit →
                 </Link>
               </Magnetic>
