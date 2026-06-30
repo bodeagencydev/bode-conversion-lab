@@ -56,7 +56,7 @@ function AppInner({ dark }) {
   /* ── Page tracking — fires on every route change ── */
   usePageTracking();
 
-  const bg = dark ? "#040608" : "#F5C842";
+  const bg = dark ? "#040608" : "#FFEFC2";
   const fg = dark ? "#f0f0f0" : "#1A1408";
 
   return (
