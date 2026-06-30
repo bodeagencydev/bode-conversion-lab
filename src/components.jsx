@@ -183,11 +183,30 @@ export function ThemeToggle() {
   const { dark, toggle } = useTheme();
   return (
     <button onClick={toggle}
-      style={{ position:"fixed", bottom:24, left:24, zIndex:9999, width:44, height:44, borderRadius:"50%", background:dark?"rgba(255,255,255,.1)":"rgba(0,0,0,.08)", border:`.5px solid ${dark?"rgba(255,255,255,.15)":"rgba(0,0,0,.12)"}`, backdropFilter:"blur(12px)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:18, transition:"transform .2s,background .2s", boxShadow:"0 2px 12px rgba(0,0,0,.15)" }}
-      onMouseEnter={e => e.currentTarget.style.transform="scale(1.1)"}
-      onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
+      style={{
+        position: "fixed", bottom: 24, left: 24, zIndex: 9999,
+        width: 44, height: 44, borderRadius: "50%",
+        background: dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)",
+        border: `.5px solid ${dark ? "rgba(255,255,255,.14)" : "rgba(0,0,0,.12)"}`,
+        backdropFilter: "blur(12px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        cursor: "pointer",
+        transition: "transform .25s cubic-bezier(.22,1,.36,1), background .25s, box-shadow .25s",
+        boxShadow: dark ? "0 2px 14px rgba(0,255,136,.12)" : "0 2px 12px rgba(0,0,0,.1)",
+      }}
+      onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,255,136,.3)"; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = dark ? "0 2px 14px rgba(0,255,136,.12)" : "0 2px 12px rgba(0,0,0,.1)"; }}
       aria-label="Toggle theme">
-      {dark ? "☀️" : "🌙"}
+      {dark ? (
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#00ff88" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="4.5"/>
+          <path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>
+        </svg>
+      ) : (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#040608" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+      )}
     </button>
   );
 }
