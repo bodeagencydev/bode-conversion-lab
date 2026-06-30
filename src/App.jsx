@@ -56,8 +56,9 @@ function AppInner({ dark }) {
   /* ── Page tracking — fires on every route change ── */
   usePageTracking();
 
-  const bg = dark ? "#040608" : "#FCDA6A";
-  const fg = dark ? "#1A1408" : "#1A1408"; 
+  // Restored back to your original light theme background color sequence
+  const bg = dark ? "#040608" : "#FFEFC2";
+  const fg = dark ? "#f0f0f0" : "#1A1408";
 
   return (
     <div
