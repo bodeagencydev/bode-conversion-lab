@@ -1,3 +1,56 @@
+import { useState, Suspense, lazy } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Nav, Footer, WhatsAppButton, ThemeToggle, ThemeContext } from "./components.jsx";
+import { CursorSystem, MorphOrbs, ClickRipple, ScrollProgress, NoiseOverlay } from "./AnimationSystem.jsx";
+import { usePageTracking } from "./NotificationSystem.js";
+import NotFound from "./NotFound.jsx";
+
+/* ── LAZY LOADING — all pages load on demand ── */
+const Home        = lazy(() => import("./pages/Home.jsx"));
+const About       = lazy(() => import("./pages/About.jsx"));
+const CaseStudies = lazy(() => import("./pages/CaseStudies.jsx").then(m => ({ default: m.CaseStudies })));
+const CaseStudyDetail = lazy(() => import("./pages/CaseStudies.jsx").then(m => ({ default: m.CaseStudyDetail })));
+const Pricing     = lazy(() => import("./pages/Pricing.jsx"));
+const Blog        = lazy(() => import("./pages/Blog.jsx").then(m => ({ default: m.Blog })));
+const BlogPost    = lazy(() => import("./pages/Blog.jsx").then(m => ({ default: m.BlogPost })));
+const Contact     = lazy(() => import("./pages/Contact.jsx"));
+const Audit       = lazy(() => import("./pages/Audit.jsx"));
+const Subscribe   = lazy(() => import("./pages/Subscribe.jsx"));
+
+/* ── Page loading skeleton ── */
+function PageSkeleton() {
+  return (
+    <div style={{ minHeight:"60vh", display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:16 }}>
+        <div style={{ width:40, height:40, position:"relative" }}>
+          <div style={{ position:"absolute", inset:0, borderRadius:"50%", border:"2px solid #00ff88", borderTopColor:"transparent", animation:"auditSpin .8s linear infinite" }}/>
+          <div style={{ position:"absolute", inset:6, borderRadius:"50%", border:"1px solid #00ff88", borderBottomColor:"transparent", animation:"auditSpin 1.2s linear infinite reverse" }}/>
+        </div>
+        <p style={{ fontSize:12, color:"rgba(0,255,136,.6)", fontFamily:"'Syne',sans-serif", fontWeight:600, letterSpacing:".08em", textTransform:"uppercase" }}>Loading...</p>
+      </div>
+      <style>{`@keyframes auditSpin{to{transform:rotate(360deg);}}`}</style>
+    </div>
+  );
+}
+
+export default function App() {
+  const [dark, setDark] = useState(() => {
+    try { const s = localStorage.getItem("bcl-theme"); if (s !== null) return s === "dark"; } catch {}
+    return true;
+  });
+  const toggle = () => setDark(v => {
+    const next = !v;
+    try { localStorage.setItem("bcl-theme", next ? "dark" : "light"); } catch {}
+    return next;
+  });
+  return (
+    <ThemeContext.Provider value={{ dark, toggle }}>
+      <BrowserRouter>
+        <AppInner dark={dark} />
+      </BrowserRouter>
+    </ThemeContext.Provider>
+  );
+}
 function AppInner({ dark }) {
   /* ── Page tracking — fires on every route change ── */
   usePageTracking();
