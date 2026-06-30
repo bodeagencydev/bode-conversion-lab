@@ -56,13 +56,13 @@ function AppInner({ dark }) {
   /* ── Page tracking — fires on every route change ── */
   usePageTracking();
 
-  const bg = dark ? "#040608" : "#F5C842";
-  const fg = dark ? "#f0f0f0" : "#1A1408";
+  const bg = dark ? "#040608" : "#FCDA6A";
+  const fg = dark ? "#1A1408" : "#1A1408"; // Kept dark text contrast clear for readability on light gold
 
   return (
     <div
       data-theme={dark ? "dark" : "light"}
-      style={{ fontFamily:"'Inter','Helvetica Neue',sans-serif", background:bg, color:fg, overflowX:"hidden", minHeight:"100vh", transition:"background .4s,color .4s", position:"relative" }}>
+      style={{ fontFamily:"'Plus Jakarta Sans',sans-serif", background:bg, color:fg, overflowX:"hidden", minHeight:"100vh", transition:"background .4s,color .4s", position:"relative" }}>
 
       {/* ── GLOBAL ANIMATION LAYER ── */}
       <CursorSystem />
@@ -72,10 +72,12 @@ function AppInner({ dark }) {
       <NoiseOverlay opacity={dark ? 0.025 : 0.015} />
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500&display=swap');
-        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+        /* Import Plus Jakarta Sans alongside Syne for headlines */
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        
+        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; font-family:'Plus Jakarta Sans', sans-serif; }
         html { scroll-behavior:smooth; overflow-x:hidden; }
-        body { overflow-x:hidden; }
+        body { overflow-x:hidden; font-family:'Plus Jakarta Sans', sans-serif; }
         [lang], font { color:inherit !important; }
         ::selection { background:#00ff88; color:#040608; }
         div::-webkit-scrollbar { display:none; }
@@ -101,7 +103,7 @@ function AppInner({ dark }) {
           background:linear-gradient(135deg,#00ff88,#00cc6a);
           color:#040608;border:none;border-radius:10px;
           padding:.85rem 1.8rem;font-size:15px;font-weight:700;
-          cursor:pointer;font-family:inherit;
+          cursor:pointer;
           box-shadow:0 4px 22px rgba(0,255,136,.35);
           display:inline-block;text-decoration:none;
           transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s;
@@ -119,7 +121,7 @@ function AppInner({ dark }) {
           color:${dark?"rgba(255,255,255,.7)":"rgba(26,20,8,.78)"};
           border:.5px solid ${dark?"rgba(255,255,255,.15)":"rgba(26,20,8,.22)"};
           border-radius:10px;padding:.85rem 1.8rem;font-size:15px;font-weight:500;
-          cursor:pointer;font-family:inherit;
+          cursor:pointer;
           transition:all .5s cubic-bezier(.22,1,.36,1);
           display:inline-block;text-decoration:none;min-height:44px;
         }
