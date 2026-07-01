@@ -11,13 +11,13 @@ const PROOF_IMAGES = {
     caption: "Shopify Analytics — same traffic, 31× more revenue",
   },
   "priya-beauty": {
-    before: "/proof/priya-before.png", 
-    after:  "/proof/priya-after.png",  
+    before: "/proof/marcus-before.png", 
+    after:  "/proof/marcus-after.png",  
     caption: "WooCommerce + Google Ads Manager — CVR jump from 1.1% to 4.8%",
   },
   "tunde-fashion": {
-    before: "/proof/tunde-before.png", 
-    after:  "/proof/tunde-after.png",  
+    before: "/proof/marcus-before.png", 
+    after:  "/proof/marcus-after.png",  
     caption: "Klaviyo Dashboard — Flow revenue optimization metrics",
   }
 };
@@ -53,7 +53,7 @@ function RealProofDisplay({ studyId, headingColor, mutedText }) {
           <div style={{
             width: "100%",
             borderRadius: "12px",
-            border: "1px solid rgba(10,8,3,0.15)",
+            border: dark => dark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(10,8,3,0.15)",
             overflow: "hidden",
             background: "rgba(10,8,3,0.03)",
             aspectRatio: "16/10",
