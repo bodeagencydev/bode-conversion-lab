@@ -175,13 +175,13 @@ export function ThemeToggle() {
       style={{
         position:"fixed", bottom:24, left:24, zIndex:9999,
         width:44, height:44, borderRadius:"50%",
-        background: dark ? "rgba(255,255,255,.08)" : "rgba(150,110,40,.08)",
-        border:`.5px solid ${dark?"rgba(255,255,255,.14)":"rgba(150,110,40,.18)"}`,
+        background: dark ? "rgba(255,255,255,.08)" : "rgba(4,6,8,.85)",
+        border:`.5px solid ${dark?"rgba(255,255,255,.14)":"rgba(0,255,136,.3)"}`,
         backdropFilter:"blur(12px)",
         display:"flex", alignItems:"center", justifyContent:"center",
         cursor:"pointer",
         transition:"transform .25s cubic-bezier(.22,1,.36,1), background .25s, box-shadow .25s",
-        boxShadow: dark ? "0 2px 14px rgba(0,255,136,.12)" : "0 2px 12px rgba(150,110,40,.12)",
+        boxShadow: dark ? "0 2px 14px rgba(0,255,136,.12)" : "0 2px 14px rgba(0,255,136,.25)",
       }}
       onMouseEnter={e => e.currentTarget.style.transform="scale(1.1)"}
       onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
@@ -192,7 +192,7 @@ export function ThemeToggle() {
           <path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>
         </svg>
       ) : (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00cc6a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00ff88" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
         </svg>
       )}
