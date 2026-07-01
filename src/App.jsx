@@ -97,22 +97,6 @@ function AppInner({ dark }) {
         ::selection { background:var(--brand-green); color:#040608; }
         div::-webkit-scrollbar { display:none; }
 
-        p, span, li, label, small {
-          color: ${dark ? "var(--text-muted)" : "#1c1810"} !important;
-          font-weight: 500;
-        }
-        
-        h1, h2, h3, h4, h5, h6, strong {
-          color: ${fg} !important;
-          font-weight: 800;
-        }
-
-        /* Helper class to easily target and force bold typography on your hero text parts */
-        .hero-bold-text {
-          font-weight: 800 !important;
-          color: ${fg} !important;
-        }
-
         @keyframes float1{0%,100%{transform:translateY(0) rotate(0deg);}33%{transform:translateY(-22px) rotate(8deg);}66%{transform:translateY(-10px) rotate(-5deg);}}
         @keyframes float2{0%,100%{transform:translateY(0) translateX(0);}50%{transform:translateY(-16px) translateX(8px);}}
         @keyframes breathe{0%,100%{transform:scale(1);opacity:.88;}50%{transform:scale(1.045);opacity:1;}}
