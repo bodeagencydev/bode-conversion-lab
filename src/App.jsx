@@ -57,7 +57,6 @@ function AppInner({ dark }) {
   usePageTracking();
 
   const bg = dark ? "#040608" : "#FFEFC2";
-  // Updated light mode foreground to a truer, much deeper black for pure contrast on the creamy background
   const fg = dark ? "#f0f0f0" : "#0A0803"; 
 
   return (
@@ -71,7 +70,6 @@ function AppInner({ dark }) {
         minHeight:"100vh", 
         transition:"background .4s,color .4s", 
         position:"relative",
-        // CSS custom variables passed down to ensure child components pull the deep color profile smoothly
         "--brand-green": dark ? "#00ff88" : "#009951",
         "--brand-green-hover": dark ? "#00cc6a" : "#008043",
         "--text-muted": dark ? "rgba(255,255,255,0.72)" : "#1c1810"
@@ -99,15 +97,20 @@ function AppInner({ dark }) {
         ::selection { background:var(--brand-green); color:#040608; }
         div::-webkit-scrollbar { display:none; }
 
-        /* Global overrides to force body typography elements to be deeply visible black */
         p, span, li, label, small {
           color: ${dark ? "var(--text-muted)" : "#1c1810"} !important;
-          font-weight: 500; /* Added a minor weight bump so thin text stands out completely sharp */
+          font-weight: 500;
         }
         
         h1, h2, h3, h4, h5, h6, strong {
           color: ${fg} !important;
           font-weight: 800;
+        }
+
+        /* Helper class to easily target and force bold typography on your hero text parts */
+        .hero-bold-text {
+          font-weight: 800 !important;
+          color: ${fg} !important;
         }
 
         @keyframes float1{0%,100%{transform:translateY(0) rotate(0deg);}33%{transform:translateY(-22px) rotate(8deg);}66%{transform:translateY(-10px) rotate(-5deg);}}
@@ -129,7 +132,7 @@ function AppInner({ dark }) {
         /* ── BUTTONS ── */
         .btn-g{
           background: linear-gradient(135deg, var(--brand-green), var(--brand-green-hover));
-          color: ${dark ? "#040608" : "#ffffff"} !important; /* White text on light mode deep emerald button ensures proper visibility */
+          color: ${dark ? "#040608" : "#ffffff"} !important;
           border:none;border-radius:10px;
           padding:.85rem 1.8rem;font-size:15px;font-weight:700;
           cursor:pointer;
@@ -224,7 +227,7 @@ function AppInner({ dark }) {
           .nav-links{display:none!important;}.hamburger{display:flex!important;}
           .hero-t{font-size:clamp(1.8rem,7vw,2.5rem)!important;}
           .how-grid,.about-grid,.offer-grid,.partner-grid,.stat-grid,.hero-cards{grid-template-columns:1fr!important;}
-          .float-shape{display:none!important;}
+          /* Fixed: Removed '.float-shape{display:none!important;}' so background spheres/orbs now display beautifully on phones too */
           .btn-g,.btn-ghost{width:100%!important;text-align:center!important;display:block!important;margin-bottom:8px;}
         }
       `}</style>
