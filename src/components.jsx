@@ -205,7 +205,7 @@ export function PageWrapper({ children, style = {} }) {
   const { dark } = useTheme();
   useEffect(() => { window.scrollTo(0, 0); }, []);
   return (
-    <div style={{ minHeight:"100vh", background:dark?"#040608":"#FAF5E9", color:dark?"#fff":"#241D14", paddingTop:60, transition:"background .3s,color .3s", ...style }}>
+    <div style={{ minHeight:"100vh", background:dark?"#040608":"#FFEFC2", color:dark?"#fff":"#241D14", paddingTop:60, transition:"background .3s,color .3s", ...style }}>
       {children}
     </div>
   );
