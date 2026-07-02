@@ -127,7 +127,7 @@ export function Nav() {
             );
           })}
           <Link to="/contact"
-            style={{ background:GG, color:"#040608", borderRadius:8, padding:".42rem 1.1rem", fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:"0 2px 14px rgba(0,255,136,.3)", transition:"transform .2s,box-shadow .2s" }}
+            style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", background:GG, color:"#040608", borderRadius:8, padding:".42rem 1.1rem", fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:"0 2px 14px rgba(0,255,136,.3)", transition:"transform .2s,box-shadow .2s" }}
             onMouseEnter={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 22px rgba(0,255,136,.45)"; }}
             onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 2px 14px rgba(0,255,136,.3)"; }}>
             Apply Now →
@@ -157,7 +157,7 @@ export function Nav() {
             </Link>
           );
         })}
-        <Link to="/contact" style={{ display:"inline-block", marginTop:"1rem", background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none" }}>
+        <Link to="/contact" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", marginTop:"1rem", background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none" }}>
           Apply Now →
         </Link>
       </div>
@@ -503,7 +503,7 @@ export function Footer() {
           </div>
           <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-start", gap:".5rem" }}>
             <Link to="/contact"
-              style={{ display:"inline-block", background:GG, color:"#040608", borderRadius:10, padding:".65rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none", boxShadow:"0 4px 18px rgba(0,255,136,.35)", transition:"transform .2s,box-shadow .2s", whiteSpace:"nowrap" }}
+              style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", background:GG, color:"#040608", borderRadius:10, padding:".65rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none", boxShadow:"0 4px 18px rgba(0,255,136,.35)", transition:"transform .2s,box-shadow .2s", whiteSpace:"nowrap" }}
               onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 8px 28px rgba(0,255,136,.5)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 18px rgba(0,255,136,.35)"; }}>
               Apply Now →
