@@ -37,8 +37,15 @@ export default function Home() {
 
           {/* Badge */}
           <ScrollReveal delay={0}>
-            <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.28)", borderRadius:100, padding:"5px 14px", fontSize:11, color:G, fontWeight:500, letterSpacing:".04em", marginBottom:"1.4rem" }}>
-              <span style={{ width:6, height:6, background:G, borderRadius:"50%", animation:"pulse 2s ease-in-out infinite" }}/>
+            <span style={{
+              display:"inline-flex", alignItems:"center", gap:6,
+              background: dark ? "rgba(0,255,136,.1)" : "#1A1408",
+              border: dark ? ".5px solid rgba(0,255,136,.28)" : "none",
+              borderRadius:100, padding:"6px 16px",
+              fontSize:11, color: dark ? G : "#FFEFC2",
+              fontWeight:600, letterSpacing:".05em", marginBottom:"1.4rem"
+            }}>
+              <span style={{ width:6, height:6, background: dark ? G : "#00ff88", borderRadius:"50%", animation:"pulse 2s ease-in-out infinite" }}/>
               Store Optimization & Ads Engineering
             </span>
           </ScrollReveal>
