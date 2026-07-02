@@ -1,279 +1,252 @@
 import { Link, useParams } from "react-router-dom";
 import { G, GG, CASE_STUDIES, BADGES } from "../data.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
-import { ScrollReveal, TiltCard, MaskedHeading, GlowBorder } from "../AnimationSystem.jsx";
+import { ScrollReveal, TiltCard, GlowBorder } from "../AnimationSystem.jsx";
 
-/* ── PRODUCTION PROOF CONFIGURATION ── */
-const PROOF_IMAGES = {
+/* ── PROOF PLACEHOLDER — swap src with real screenshots when ready ── */
+const PROOF = {
   "marcus-fitness": {
-    before: "/proof/marcus-before.png", 
-    after:  "/proof/marcus-after.png",  
+    before: "/proof/marcus-before.png",
+    after:  "/proof/marcus-after.png",
     caption: "Shopify Analytics — same traffic, 31× more revenue",
   },
   "priya-beauty": {
-    before: "/proof/marcus-before.png", 
-    after:  "/proof/marcus-after.png",  
-    caption: "WooCommerce + Google Ads Manager — CVR jump from 1.1% to 4.8%",
+    before: "/proof/priya-before.png",
+    after:  "/proof/priya-after.png",
+    caption: "WooCommerce + Google Ads — CVR jump from 1.1% to 4.8%",
   },
   "tunde-fashion": {
-    before: "/proof/marcus-before.png", 
-    after:  "/proof/marcus-after.png",  
-    caption: "Klaviyo Dashboard — Flow revenue optimization metrics",
-  }
+    before: "/proof/tunde-before.png",
+    after:  "/proof/tunde-after.png",
+    caption: "Meta Ads Manager — ROAS from 0.9x to 4.3x in 60 days",
+  },
 };
 
-/* ── HIGHLY RESPONSIVE LIVE DASHBOARD DISPLAY ── */
-function RealProofDisplay({ studyId, headingColor, mutedText }) {
-  const proof = PROOF_IMAGES[studyId];
+function ProofPanel({ studyId, dark, mutedText, headingColor }) {
+  const proof = PROOF[studyId];
   if (!proof) return null;
 
+  const imgStyle = {
+    width: "100%", height: "100%",
+    objectFit: "cover", display: "block",
+    borderRadius: 10,
+  };
+
+  const placeholderStyle = (isAfter) => ({
+    width: "100%", aspectRatio: "16/9",
+    borderRadius: 10,
+    display: "flex", flexDirection: "column",
+    alignItems: "center", justifyContent: "center", gap: 8,
+    background: isAfter
+      ? "rgba(0,255,136,.05)"
+      : dark ? "rgba(255,255,255,.03)" : "rgba(26,20,8,.04)",
+    border: isAfter
+      ? ".5px solid rgba(0,255,136,.25)"
+      : `.5px solid ${dark ? "rgba(255,255,255,.1)" : "rgba(26,20,8,.12)"}`,
+  });
+
   return (
-    <div style={{ marginTop: "1.5rem", width: "100%" }}>
-      <div style={{ 
-        display: "grid", 
-        gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", 
-        gap: "1.5rem",
-        width: "100%"
-      }}>
-        {/* BEFORE CONTAINER */}
-        <div style={{ width: "100%" }}>
-          <div style={{ 
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            fontSize: "12px", 
-            fontWeight: 700, 
-            color: headingColor,
-            textTransform: "uppercase",
-            letterSpacing: ".05em",
-            marginBottom: "8px"
-          }}>
-            <span style={{ color: "#FF3B3B" }}>🔴</span> Before Conversion System
+    <div style={{ marginTop: "1.5rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+        {/* BEFORE */}
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#FF3B3B", flexShrink: 0 }}/>
+            <span style={{ fontSize: 11, fontWeight: 700, color: headingColor, textTransform: "uppercase", letterSpacing: ".05em" }}>Before</span>
           </div>
-          <div style={{
-            width: "100%",
-            borderRadius: "12px",
-            border: dark => dark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(10,8,3,0.15)",
-            overflow: "hidden",
-            background: "rgba(10,8,3,0.03)",
-            aspectRatio: "16/10",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}>
-            <img 
-              src={proof.before} 
-              alt="Historical Analytics Dashboard" 
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.parentNode.style.background = 'rgba(10,8,3,0.05)';
-                const txt = document.createElement('p');
-                txt.innerText = 'Analytics Screenshot [Before]';
-                txt.style.color = 'rgba(10,8,3,0.4)';
-                txt.style.fontSize = '13px';
-                txt.style.fontWeight = '600';
-                e.target.parentNode.appendChild(txt);
+          <div style={placeholderStyle(false)}>
+            <img
+              src={proof.before}
+              alt="Before analytics"
+              style={imgStyle}
+              onError={e => {
+                e.target.style.display = "none";
+                e.target.nextSibling.style.display = "flex";
               }}
             />
+            <div style={{ display: "none", flexDirection: "column", alignItems: "center", gap: 6, padding: "2rem" }}>
+              <span style={{ fontSize: 24 }}>📉</span>
+              <span style={{ fontSize: 12, color: mutedText, textAlign: "center" }}>Before screenshot<br/>coming soon</span>
+            </div>
           </div>
         </div>
 
-        {/* AFTER CONTAINER */}
-        <div style={{ width: "100%" }}>
-          <div style={{ 
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            fontSize: "12px", 
-            fontWeight: 700, 
-            color: "var(--brand-green, #009951)", 
-            textTransform: "uppercase",
-            letterSpacing: ".05em",
-            marginBottom: "8px"
-          }}>
-            <span style={{ color: "var(--brand-green)" }}>🟢</span> After Optimization
+        {/* AFTER */}
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: G, flexShrink: 0 }}/>
+            <span style={{ fontSize: 11, fontWeight: 700, color: G, textTransform: "uppercase", letterSpacing: ".05em" }}>After</span>
           </div>
-          <div style={{
-            width: "100%",
-            borderRadius: "12px",
-            border: "1px solid var(--brand-green, #009951)",
-            overflow: "hidden",
-            background: "rgba(0,153,81,0.03)",
-            aspectRatio: "16/10",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}>
-            <img 
-              src={proof.after} 
-              alt="Optimized Revenue Growth Dashboard" 
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.parentNode.style.background = 'rgba(0,153,81,0.08)';
-                const txt = document.createElement('p');
-                txt.innerText = 'Analytics Screenshot [After]';
-                txt.style.color = 'var(--brand-green)';
-                txt.style.fontSize = '13px';
-                txt.style.fontWeight = '700';
-                e.target.parentNode.appendChild(txt);
+          <div style={placeholderStyle(true)}>
+            <img
+              src={proof.after}
+              alt="After analytics"
+              style={imgStyle}
+              onError={e => {
+                e.target.style.display = "none";
+                e.target.nextSibling.style.display = "flex";
               }}
             />
+            <div style={{ display: "none", flexDirection: "column", alignItems: "center", gap: 6, padding: "2rem" }}>
+              <span style={{ fontSize: 24 }}>📈</span>
+              <span style={{ fontSize: 12, color: G, textAlign: "center" }}>After screenshot<br/>coming soon</span>
+            </div>
           </div>
         </div>
       </div>
-      <p style={{ fontSize: "12px", color: mutedText, marginTop: "1rem", fontStyle: "italic", textAlign: "center", fontWeight: 500 }}>
+      <p style={{ fontSize: 12, color: mutedText, marginTop: ".75rem", fontStyle: "italic", textAlign: "center" }}>
         📊 {proof.caption}
       </p>
     </div>
   );
 }
 
-function BadgeRow({ dark }) {
-  return (
-    <div style={{ display:"flex", gap:"clamp(.5rem,2vw,1.25rem)", justifyContent:"center", flexWrap:"wrap", alignItems:"center" }}>
-      {BADGES.map((b, i) => (
-        <div key={i} className="partner-card" style={{ padding:".5rem 1rem", minHeight:"auto", transform:"none", animation:"none" }}>
-          <span style={{ fontSize: dark ? "16px" : "18px" }}>{b.icon}</span>
-          <span style={{ fontSize:12, fontWeight:700, letterSpacing:".02em" }}>{b.text}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function CaseStudies() {
   const { dark } = useTheme();
-  const headingColor = dark ? "#ffffff" : "#0A0803";
-  const mutedText    = dark ? "rgba(255,255,255,0.7)" : "#1C1810";
+
+  const headingColor = dark ? "#fff"                 : "#1A1408";
+  const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.65)";
+  const mutedText2   = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
+  const mutedText3   = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.5)";
+  const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
 
   return (
     <PageWrapper>
-      <Particles count={25} />
-      
-      <Section padding="clamp(4rem,10vw,7rem) 0 clamp(2rem,5vw,4rem)">
-        <div style={{ maxWidth:840, margin:"0 auto", textAlign:"center", padding:"0 1.25rem" }}>
-          <ScrollReveal>
-            <SectionLabel icon="⚡">Validated Proof</SectionLabel>
-            <MaskedHeading>
-              <Heading level={1} style={{ fontSize: "clamp(2.2rem, 7vw, 4.2rem)", lineHeight: 1.1, fontWeight: 800, marginBottom: "1.5rem" }}>
-                Real Stores. <GradText>Real Scaled Revenue.</GradText>
-              </Heading>
-            </MaskedHeading>
-            <p style={{ fontSize: "clamp(1rem, 3vw, 1.25rem)", color: mutedText, lineHeight: 1.6, maxWidth: 620, margin: "0 auto 2.5rem" }}>
-              We do not build speculative designs. We architect high-performance customer conversion systems backed by absolute analytics validation.
-            </p>
-          </ScrollReveal>
+
+      {/* ── HERO ── */}
+      <section style={{ position:"relative", padding:"7rem 2rem 5rem", overflow:"hidden" }}>
+        <Particles />
+        <div style={{ position:"absolute", width:600, height:600, top:-150, left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle,rgba(0,255,136,.12),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
+        <div style={{ maxWidth:720, margin:"0 auto", textAlign:"center", position:"relative", zIndex:1 }}>
+          <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.28)", borderRadius:100, padding:"5px 16px", fontSize:11, color:G, fontWeight:600, letterSpacing:".05em", marginBottom:"1.6rem" }}>
+            <span style={{ width:6, height:6, background:G, borderRadius:"50%", animation:"pulse 2s ease-in-out infinite" }}/> Validated proof
+          </span>
+          <h1 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(2.2rem,6vw,3.8rem)", fontWeight:800, lineHeight:1.08, letterSpacing:"-.03em", color:headingColor, marginBottom:"1.2rem" }}>
+            Real stores.<br /><GradText>Real scaled revenue.</GradText>
+          </h1>
+          <p style={{ fontSize:"clamp(0.95rem,2vw,1.1rem)", color:mutedText2, lineHeight:1.8, maxWidth:520, margin:"0 auto" }}>
+            Every number here came from a real store, a real audit, and a real system we built. No mock-ups. No projections.
+          </p>
         </div>
-      </Section>
+      </section>
 
-      <Section padding="0 0 clamp(4rem,10vw,8rem)">
-        <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 1.25rem" }}>
-          <div style={{ display:"flex", flexDirection:"column", gap:"clamp(3rem,8vw,6rem)" }}>
-            {CASE_STUDIES.map((cs, index) => {
-              const isEven = index % 2 === 0;
-              return (
-                <ScrollReveal key={cs.id} delay={index * 0.05}>
-                  <div style={{ 
-                    display: "flex", 
-                    flexDirection: isEven ? "row" : "row-reverse", 
-                    alignItems: "center", 
-                    gap: "clamp(2rem, 6vw, 4.5rem)",
-                    flexWrap: "wrap"
-                  }}>
-                    {/* CASE GRAPHIC CONTAINER */}
-                    <div style={{ flex: "1 1 440px", minWidth: "300px" }}>
-                      <TiltCard>
-                        <GlowBorder style={{ borderRadius: 24, padding: "clamp(1.2rem, 4vw, 2rem)", background: dark ? "rgba(255,255,255,.02)" : "rgba(255,255,255,.6)" }}>
-                          
-                          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:"1rem" }}>
-                            <div style={{ background: dark ? "rgba(255,255,255,.03)" : "rgba(10,8,3,.04)", padding:"1rem", borderRadius:14, border:`.5px solid ${dark?"rgba(255,255,255,.06)":"rgba(10,8,3,.1)"}` }}>
-                              <p style={{ fontSize:11, textTransform:"uppercase", letterSpacing:".05em", opacity:0.6, marginBottom:4 }}>Metric Scaled</p>
-                              <p style={{ fontSize:"clamp(1.2rem, 3vw, 1.6rem)", fontWeight:800, color:"var(--brand-green)" }}>{cs.stat}</p>
-                            </div>
-                            <div style={{ background: dark ? "rgba(255,255,255,.03)" : "rgba(10,8,3,.04)", padding:"1rem", borderRadius:14, border:`.5px solid ${dark?"rgba(255,255,255,.06)":"rgba(10,8,3,.1)"}` }}>
-                              <p style={{ fontSize:11, textTransform:"uppercase", letterSpacing:".05em", opacity:0.6, marginBottom:4 }}>Time Horizon</p>
-                              <p style={{ fontSize:"clamp(1.2rem, 3vw, 1.6rem)", fontWeight:800, color:headingColor }}>{cs.duration || "45 Days"}</p>
-                            </div>
-                          </div>
+      <hr className="divider" />
 
-                          <RealProofDisplay studyId={cs.id} headingColor={headingColor} mutedText={mutedText} />
-
-                        </GlowBorder>
-                      </TiltCard>
-                    </div>
-
-                    {/* CASE INSIGHT CONTENT AREA */}
-                    <div style={{ flex: "1 1 400px", minWidth: "300px" }}>
-                      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
-                        <span style={{ fontSize:12, fontWeight:800, textTransform:"uppercase", letterSpacing:".1em", color:"var(--brand-green)" }}>{cs.tag}</span>
-                        <span style={{ width:4, height:4, borderRadius:"50%", background:dark?"rgba(255,255,255,.3)":"rgba(0,0,0,.3)" }}/>
-                        <span style={{ fontSize:12, fontWeight:600, opacity:0.7 }}>{cs.industry || "E-Commerce"}</span>
-                      </div>
-                      
-                      <Heading level={2} style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", fontWeight: 800, lineHeight: 1.2, marginBottom: "1rem", color: headingColor }}>
-                        {cs.title}
-                      </Heading>
-                      
-                      <p style={{ fontSize: 15, color: mutedText, lineHeight: 1.7, marginBottom: "2rem" }}>
-                        {cs.desc}
-                      </p>
-
-                      <div style={{ display:"flex", flexDirection:"column", gap:14, marginBottom:"2.5rem" }}>
-                        <div style={{ display:"flex", gap:12 }}>
-                          <div style={{ width:20, height:20, borderRadius:"50%", background:"rgba(0,255,136,.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:2 }}>
-                            <span style={{ color:"var(--brand-green)", fontSize:11, fontWeight:800 }}>✓</span>
-                          </div>
-                          <p style={{ fontSize:14, color:mutedText }}><strong style={{ color:headingColor }}>The Core Leak:</strong> {cs.problem || "High cart drop-off rates due to multi-step friction pipelines."}</p>
-                        </div>
-                        <div style={{ display:"flex", gap:12 }}>
-                          <div style={{ width:20, height:20, borderRadius:"50%", background:"rgba(0,255,136,.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:2 }}>
-                            <span style={{ color:"var(--brand-green)", fontSize:11, fontWeight:800 }}>✓</span>
-                          </div>
-                          <p style={{ fontSize:14, color:mutedText }}><strong style={{ color:headingColor }}>Our Blueprint Deployment:</strong> {cs.solution || "Integrated frictionless unified processing and contextual up-sells."}</p>
-                        </div>
-                      </div>
-
-                      <Link to={`/case-studies/${cs.id}`} className="btn-ghost" style={{ padding: ".75rem 1.5rem", fontSize: "14px" }}>
-                        Analyze conversion breakdown →
-                      </Link>
-                    </div>
-                  </div>
-                </ScrollReveal>
-              );
-            })}
+      {/* ── BADGES ── */}
+      <Section>
+        <div style={{ maxWidth:960, margin:"0 auto" }}>
+          <p style={{ textAlign:"center", fontSize:11, color:mutedText3, letterSpacing:".1em", textTransform:"uppercase", fontWeight:700, marginBottom:"1.2rem" }}>
+            Results delivered by
+          </p>
+          <div style={{ display:"flex", gap:"1rem", justifyContent:"center", flexWrap:"wrap" }}>
+            {BADGES.map((b, i) => (
+              <div key={i} style={{ display:"inline-flex", alignItems:"center", gap:8, background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.5)", border:dark?".5px solid rgba(255,255,255,.1)":`.5px solid rgba(26,20,8,.15)`, borderRadius:100, padding:".5rem 1.1rem" }}>
+                <span style={{ fontSize:16 }}>{b.icon}</span>
+                <div>
+                  <p style={{ fontSize:12, fontWeight:700, color:headingColor, margin:0 }}>{b.title}</p>
+                  <p style={{ fontSize:10, color:mutedText3, margin:0 }}>{b.sub}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </Section>
-      
-      <Section padding={`clamp(3rem,8vw,5rem) 0`} style={{ background: dark ? "rgba(255,255,255,.01)" : "rgba(10,8,3,.02)", borderTop: `.5px solid ${dark?"rgba(255,255,255,.05)":"rgba(10,8,3,.08)"}` }}>
-        <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 1.25rem" }}>
-          <ScrollReveal delay={0}>
-            <div style={{ marginBottom: "2rem" }}>
-              <p style={{ fontSize: 11, color: mutedText, textTransform: "uppercase", letterSpacing: ".1em", fontWeight: 700, marginBottom: "1rem", textAlign: "center" }}>
-                Results delivered by a certified team
-              </p>
-              <BadgeRow dark={dark}/>
-            </div>
-          </ScrollReveal>
 
-          <ScrollReveal delay={0.1}>
-            <GlowBorder style={{ background: "linear-gradient(135deg,rgba(0,153,81,.08),rgba(0,128,67,.03))", border: ".5px solid rgba(0,153,81,.25)", borderRadius: 20, padding: "clamp(1.5rem,4vw,2.5rem)", textAlign: "center" }}>
-              <h3 style={{ fontSize: "clamp(1.4rem,4vw,1.8rem)", fontWeight: 800, color: headingColor, marginBottom: ".75rem" }}>
-                Want results like these?
-              </h3>
-              <p style={{ fontSize: 14, color: mutedText, marginBottom: "1.5rem", lineHeight: 1.7, maxWidth: 540, margin: "0 auto 1.5rem" }}>
-                Apply for a free storefront diagnostic audit. We will locate your site's conversion bottlenecks and deliver a ready blueprint to clear them.
-              </p>
-              <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-                <Link to="/audit" className="btn-g" style={{ display: "inline-block" }}>Get my free store audit →</Link>
-                <Link to="/contact" className="btn-ghost" style={{ display: "inline-block" }}>Talk to a specialist</Link>
+      <hr className="divider" />
+
+      {/* ── CASE STUDIES ── */}
+      <Section>
+        <div style={{ maxWidth:1100, margin:"0 auto", display:"flex", flexDirection:"column", gap:"5rem" }}>
+          {CASE_STUDIES.map((cs, index) => (
+            <ScrollReveal key={cs.id} delay={index * 0.05}>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"clamp(2rem,5vw,4rem)", alignItems:"flex-start" }} className="about-grid">
+
+                {/* ── LEFT: Proof panel ── */}
+                <TiltCard style={{ background:dark?"rgba(255,255,255,.02)":"rgba(255,255,255,.5)", border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.8rem" }}>
+
+                  {/* Result stats */}
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:"1.5rem" }}>
+                    {[cs.result1, cs.result2, cs.result3].map((r, i) => (
+                      <div key={i} style={{ background:dark?"rgba(255,255,255,.04)":"rgba(26,20,8,.04)", border:dark?".5px solid rgba(255,255,255,.08)":".5px solid rgba(26,20,8,.1)", borderRadius:12, padding:"1rem .75rem", textAlign:"center" }}>
+                        <p style={{ fontSize:10, color:mutedText3, textTransform:"uppercase", letterSpacing:".05em", marginBottom:4 }}>{r.label}</p>
+                        <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(.85rem,2vw,1.05rem)", fontWeight:800, background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", margin:0 }}>{r.after}</p>
+                        <p style={{ fontSize:10, color:mutedText3, marginTop:2 }}>from {r.before}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Tags */}
+                  <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:"1.2rem" }}>
+                    {cs.tags.map((t, i) => (
+                      <span key={i} style={{ background:"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.2)", borderRadius:100, padding:"3px 10px", fontSize:10, color:G, fontWeight:600 }}>{t}</span>
+                    ))}
+                    <span style={{ background:dark?"rgba(255,255,255,.05)":"rgba(26,20,8,.05)", border:dark?".5px solid rgba(255,255,255,.1)":".5px solid rgba(26,20,8,.1)", borderRadius:100, padding:"3px 10px", fontSize:10, color:mutedText3, fontWeight:500 }}>{cs.platform}</span>
+                    <span style={{ background:dark?"rgba(255,255,255,.05)":"rgba(26,20,8,.05)", border:dark?".5px solid rgba(255,255,255,.1)":".5px solid rgba(26,20,8,.1)", borderRadius:100, padding:"3px 10px", fontSize:10, color:mutedText3, fontWeight:500 }}>{cs.timeframe}</span>
+                  </div>
+
+                  {/* Before/After proof */}
+                  <ProofPanel studyId={cs.id} dark={dark} mutedText={mutedText} headingColor={headingColor} />
+
+                </TiltCard>
+
+                {/* ── RIGHT: Story ── */}
+                <div>
+                  <p style={{ fontSize:11, color:G, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:".6rem" }}>{cs.category}</p>
+                  <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.4rem,3vw,2rem)", fontWeight:800, color:headingColor, lineHeight:1.2, marginBottom:"1rem" }}>{cs.headline}</h2>
+                  <p style={{ fontSize:15, color:mutedText, lineHeight:1.8, marginBottom:"1.8rem" }}>{cs.summary}</p>
+
+                  {/* Story steps */}
+                  <div style={{ display:"flex", flexDirection:"column", gap:"1.2rem", marginBottom:"2rem" }}>
+                    {cs.story.map((s, i) => (
+                      <div key={i} style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
+                        <div style={{ width:28, height:28, borderRadius:"50%", background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, color:G, flexShrink:0, fontFamily:"'Syne',sans-serif" }}>
+                          {String(i + 1).padStart(2, "0")}
+                        </div>
+                        <div>
+                          <p style={{ fontSize:13, fontWeight:700, color:headingColor, marginBottom:4 }}>{s.heading}</p>
+                          <p style={{ fontSize:13, color:mutedText2, lineHeight:1.7 }}>{s.body}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Testimonial pull quote */}
+                  <div style={{ background:dark?"rgba(0,255,136,.05)":"rgba(0,255,136,.06)", border:".5px solid rgba(0,255,136,.18)", borderLeft:`3px solid ${G}`, borderRadius:"0 12px 12px 0", padding:"1.2rem 1.4rem", marginBottom:"1.8rem" }}>
+                    <p style={{ fontSize:14, color:mutedText, lineHeight:1.7, fontStyle:"italic", marginBottom:".6rem" }}>"{cs.testimonial}"</p>
+                    <p style={{ fontSize:12, fontWeight:700, color:headingColor, margin:0 }}>{cs.clientName} <span style={{ color:mutedText3, fontWeight:400 }}>— {cs.clientRole}</span></p>
+                  </div>
+
+                  <Link to={`/case-studies/${cs.id}`} className="btn-ghost" style={{ display:"inline-block" }}>
+                    Read full breakdown →
+                  </Link>
+                </div>
+
               </div>
-            </GlowBorder>
-          </ScrollReveal>
+            </ScrollReveal>
+          ))}
         </div>
       </Section>
+
+      <hr className="divider" />
+
+      {/* ── BOTTOM CTA ── */}
+      <Section style={{ paddingBottom:"8rem" }}>
+        <div style={{ maxWidth:680, margin:"0 auto" }}>
+          <div style={{ background:"linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border:".5px solid rgba(0,255,136,.25)", borderTop:".5px solid rgba(0,255,136,.45)", borderRadius:24, padding:"clamp(2.5rem,5vw,4rem) clamp(1.5rem,4vw,3rem)", textAlign:"center", position:"relative", overflow:"hidden" }}>
+            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)", pointerEvents:"none" }}/>
+            <SectionLabel>Ready for results like these?</SectionLabel>
+            <Heading size="2rem">Your store could be<br /><GradText>the next case study.</GradText></Heading>
+            <p style={{ fontSize:15, color:mutedText2, lineHeight:1.75, margin:"1.5rem auto 2rem", maxWidth:420 }}>
+              Apply for a free store audit. We'll find your biggest leaks and hand you the roadmap to fix them.
+            </p>
+            <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
+              <Link to="/contact" className="btn-g" style={{ display:"inline-block" }}>Apply for your free audit →</Link>
+              <Link to="/pricing" className="btn-ghost" style={{ display:"inline-block" }}>See pricing →</Link>
+            </div>
+          </div>
+        </div>
+      </Section>
+
     </PageWrapper>
   );
 }
@@ -282,50 +255,93 @@ export function CaseStudyDetail() {
   const { id } = useParams();
   const { dark } = useTheme();
   const cs = CASE_STUDIES.find(item => item.id === id) || CASE_STUDIES[0];
-  const headingColor = dark ? "#ffffff" : "#0A0803";
-  const mutedText    = dark ? "rgba(255,255,255,0.7)" : "#1C1810";
+
+  const headingColor = dark ? "#fff"                 : "#1A1408";
+  const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.65)";
+  const mutedText2   = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
+  const mutedText3   = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.5)";
+  const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
 
   return (
     <PageWrapper>
-      <Section padding="clamp(4rem,10vw,6rem) 0">
-        <div style={{ maxWidth:800, margin:"0 auto", padding:"0 1.25rem" }}>
-          <ScrollReveal>
-            <Link to="/case-studies" style={{ color: "var(--brand-green)", textDecoration: "none", fontSize: 14, fontWeight: 700, display: "inline-block", marginBottom: "1.5rem" }}>
-              ← Back to all cases
-            </Link>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <span style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".1em", color: "var(--brand-green)" }}>{cs.tag}</span>
-              <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.6 }}>{cs.industry || "Case Evaluation"}</span>
-            </div>
-            <Heading level={1} style={{ fontSize: "clamp(2rem, 6vw, 3.5rem)", fontWeight: 800, lineHeight: 1.1, marginBottom: "1.5rem", color: headingColor }}>
-              {cs.title}
-            </Heading>
-            
-            <div style={{ background: dark ? "rgba(255,255,255,.03)" : "rgba(10,8,3,.04)", padding: "1.5rem", borderRadius: 16, border: `.5px solid ${dark?"rgba(255,255,255,.06)":"rgba(10,8,3,.1)"}`, display: "flex", gap: "2rem", marginBottom: "2.5rem", flexWrap: "wrap" }}>
-              <div>
-                <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em", opacity: 0.6, marginBottom: 4 }}>Growth Metrics Achieved</p>
-                <p style={{ fontSize: "24px", fontWeight: 800, color: "var(--brand-green)" }}>{cs.stat}</p>
+      <section style={{ padding:"7rem 2rem 4rem", position:"relative", overflow:"hidden" }}>
+        <Particles />
+        <div style={{ position:"absolute", width:400, height:400, top:-80, left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle,rgba(0,255,136,.1),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
+        <div style={{ maxWidth:800, margin:"0 auto", position:"relative", zIndex:1 }}>
+          <Link to="/case-studies" style={{ display:"inline-flex", alignItems:"center", gap:6, color:mutedText3, textDecoration:"none", fontSize:13, fontWeight:500, marginBottom:"2rem", transition:"color .2s" }}
+            onMouseEnter={e => e.currentTarget.style.color=G}
+            onMouseLeave={e => e.currentTarget.style.color=mutedText3}>
+            ← All case studies
+          </Link>
+          <p style={{ fontSize:11, color:G, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:".6rem" }}>{cs.category}</p>
+          <h1 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.8rem,5vw,2.8rem)", fontWeight:800, lineHeight:1.15, letterSpacing:"-.02em", color:headingColor, marginBottom:"1rem" }}>{cs.headline}</h1>
+
+          {/* Meta row */}
+          <div style={{ display:"flex", gap:"1.5rem", flexWrap:"wrap", marginBottom:"2.5rem" }}>
+            {[{l:"Platform", v:cs.platform},{l:"Timeframe", v:cs.timeframe},{l:"Ad spend", v:cs.adSpend}].map((m,i) => (
+              <div key={i}>
+                <p style={{ fontSize:10, color:mutedText3, textTransform:"uppercase", letterSpacing:".06em", margin:0 }}>{m.l}</p>
+                <p style={{ fontSize:14, fontWeight:700, color:headingColor, margin:0 }}>{m.v}</p>
               </div>
-              <div>
-                <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em", opacity: 0.6, marginBottom: 4 }}>Validation Strategy</p>
-                <p style={{ fontSize: "24px", fontWeight: 800, color: headingColor }}>A/B Verified</p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <hr className="divider" />
+
+      <Section>
+        <div style={{ maxWidth:800, margin:"0 auto" }}>
+
+          {/* Result cards */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1rem", marginBottom:"3rem" }} className="stat-grid">
+            {[cs.result1, cs.result2, cs.result3].map((r, i) => (
+              <div key={i} className="stat-card">
+                <p style={{ fontSize:10, color:mutedText3, textTransform:"uppercase", letterSpacing:".06em", marginBottom:8 }}>{r.label}</p>
+                <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.4rem,4vw,1.8rem)", fontWeight:800, background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", lineHeight:1, marginBottom:4 }}>{r.after}</p>
+                <p style={{ fontSize:12, color:mutedText3 }}>from {r.before}</p>
               </div>
-            </div>
+            ))}
+          </div>
 
-            <RealProofDisplay studyId={cs.id} headingColor={headingColor} mutedText={mutedText} />
+          {/* Before/After proof */}
+          <ProofPanel studyId={cs.id} dark={dark} mutedText={mutedText} headingColor={headingColor} />
 
-            <div style={{ marginTop: "3rem" }}>
-              <Heading level={3} style={{ fontSize: "20px", fontWeight: 800, marginBottom: "1rem", color: headingColor }}>Project Assessment Overview</Heading>
-              <p style={{ fontSize: 15, color: mutedText, lineHeight: 1.8, marginBottom: "1.5rem" }}>{cs.desc}</p>
-              <p style={{ fontSize: 15, color: mutedText, lineHeight: 1.8, marginBottom: "1.5rem" }}>
-                By isolating key traffic metrics, our integration removed micro-friction loops layout-wide, shifting user click weights directly towards multi-item checkouts. The resulting balance preserves customer loyalty variables while maximizing transactional conversion efficiency.
-              </p>
-            </div>
+          {/* Story */}
+          <div style={{ display:"flex", flexDirection:"column", gap:"2.5rem", marginTop:"3rem" }}>
+            {cs.story.map((s, i) => (
+              <div key={i} style={{ borderLeft:`2px solid rgba(0,255,136,.3)`, paddingLeft:"1.5rem" }}>
+                <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>{s.heading}</h2>
+                <p style={{ fontSize:15, color:mutedText, lineHeight:1.9 }}>{s.body}</p>
+              </div>
+            ))}
+          </div>
 
-            <div style={{ marginTop: "3rem", paddingGap: "2rem", borderTop: `.5px solid ${dark?"rgba(255,255,255,.1)":"rgba(10,8,3,.15)"}`, paddingTop: "2rem" }}>
-              <Link to="/audit" className="btn-g">Deploy this conversion system to your store →</Link>
+          {/* Testimonial */}
+          <div style={{ background:dark?"rgba(0,255,136,.05)":"rgba(0,255,136,.06)", border:".5px solid rgba(0,255,136,.18)", borderLeft:`3px solid ${G}`, borderRadius:"0 16px 16px 0", padding:"1.8rem 2rem", margin:"3rem 0" }}>
+            <p style={{ fontSize:16, color:mutedText, lineHeight:1.75, fontStyle:"italic", marginBottom:"1rem" }}>"{cs.testimonial}"</p>
+            <p style={{ fontSize:13, fontWeight:700, color:headingColor, margin:0 }}>{cs.clientName} <span style={{ color:mutedText3, fontWeight:400 }}>— {cs.clientRole}</span></p>
+          </div>
+
+          {/* Tags */}
+          <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:"3rem" }}>
+            {cs.tags.map((t, i) => (
+              <span key={i} style={{ background:"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.2)", borderRadius:100, padding:"4px 12px", fontSize:11, color:G, fontWeight:600 }}>{t}</span>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div style={{ background:"linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border:".5px solid rgba(0,255,136,.25)", borderTop:".5px solid rgba(0,255,136,.45)", borderRadius:20, padding:"2.5rem", textAlign:"center", position:"relative", overflow:"hidden" }}>
+            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)", pointerEvents:"none" }}/>
+            <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.4rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>Want results like {cs.clientName}?</h3>
+            <p style={{ fontSize:14, color:mutedText2, lineHeight:1.7, maxWidth:400, margin:"0 auto 1.5rem" }}>
+              Apply for a free store audit. We'll find your biggest leaks and show you exactly how to fix them.
+            </p>
+            <div style={{ display:"flex", justifyContent:"center" }}>
+              <Link to="/contact" className="btn-g" style={{ display:"inline-block" }}>Apply for your free audit →</Link>
             </div>
-          </ScrollReveal>
+          </div>
+
         </div>
       </Section>
     </PageWrapper>
