@@ -1,213 +1,158 @@
-/**
- * SMART NOTIFICATION SYSTEM
- * ─────────────────────────
- * Uses localStorage to track what has already been reported.
- * You will ONLY be notified:
- *   • First time a unique device visits the site
- *   • First time a device runs an audit (with their URL)
- *   • First time a device clicks each CTA type
- *   • First time a device visits each page
- *
- * After that — silence. No repeated pings from the same person.
- *
- * Notifications arrive as emails to your Formspree inbox.
- * Subject lines are prefixed with 🔔 BCL: so you can filter them.
- */
+/* ── NOTIFICATION SYSTEM — Telegram visitor alerts ── */
 
-const FORMSPREE_ID = "xaqadyal"; // ← your Formspree ID
-const STORAGE_KEY  = "bcl_notified"; // localStorage key
+const TELEGRAM_TOKEN = "8895379108:AAE3MfPdfoirb7LqrOOhQtx4CpOJl-WiWxo"; // replace with new token from @BotFather
+const TELEGRAM_CHAT_ID = "7016026848"; // replace with your chat ID
 
-/* ── Read/write the notification log ── */
-function getLog() {
+/* ── Send message to your Telegram ── */
+async function sendTelegram(message) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-function setLog(log) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(log)); } catch {}
-}
-
-/* Returns true if this event has already been reported from this device */
-function alreadyReported(eventKey) {
-  const log = getLog();
-  return !!log[eventKey];
-}
-
-/* Mark event as reported */
-function markReported(eventKey) {
-  const log = getLog();
-  log[eventKey] = new Date().toISOString();
-  setLog(log);
-}
-
-/* ── Collect device/session info ── */
-function getDeviceInfo() {
-  return {
-    device:   /Mobi|Android/i.test(navigator.userAgent) ? "📱 Mobile" : "🖥 Desktop",
-    browser:  (() => {
-      const ua = navigator.userAgent;
-      if (ua.includes("Chrome") && !ua.includes("Edg")) return "Chrome";
-      if (ua.includes("Safari") && !ua.includes("Chrome")) return "Safari";
-      if (ua.includes("Firefox")) return "Firefox";
-      if (ua.includes("Edg")) return "Edge";
-      return "Other";
-    })(),
-    os: (() => {
-      const ua = navigator.userAgent;
-      if (/iPhone|iPad/.test(ua)) return "iOS";
-      if (/Android/.test(ua))     return "Android";
-      if (/Windows/.test(ua))     return "Windows";
-      if (/Mac/.test(ua))         return "macOS";
-      return "Other";
-    })(),
-    screen:   `${window.screen.width}×${window.screen.height}`,
-    language: navigator.language || "unknown",
-    referrer: document.referrer || "Direct / No referrer",
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Unknown",
-    time:     new Date().toLocaleString("en-GB", { dateStyle:"short", timeStyle:"short" }) + " (local)",
-  };
-}
-
-/* ── Core ping function ── */
-async function ping(subject, fields = {}) {
-  try {
-    await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
-      method:  "POST",
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({
-        _subject:  `🔔 BCL: ${subject}`,
-        _replyto:  "no-reply@bodeconversionlab.com",
-        event:     subject,
-        ...getDeviceInfo(),
-        ...fields,
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: message,
+        parse_mode: "HTML",
       }),
     });
-  } catch {
-    /* Silent fail — never break the user experience */
+  } catch (e) {
+    // fail silently — never break the site for a notification
   }
 }
 
-/* ══════════════════════════════════════════
-   PUBLIC API
-══════════════════════════════════════════ */
+/* ── Get visitor info ── */
+function getVisitorInfo() {
+  const ua = navigator.userAgent;
+  const device = /Mobi|Android/i.test(ua) ? "📱 Mobile" : "🖥️ Desktop";
+  const browser =
+    /Chrome/i.test(ua) ? "Chrome" :
+    /Firefox/i.test(ua) ? "Firefox" :
+    /Safari/i.test(ua) ? "Safari" :
+    /Edge/i.test(ua) ? "Edge" : "Unknown";
 
-/**
- * Track a page view — fires ONCE per page per device
- * Called automatically from App.jsx on every route change
- */
-export function trackPageView(pathname) {
-  const key = `page:${pathname}`;
-  if (alreadyReported(key)) return;
-  markReported(key);
+  // UTM params
+  const params = new URLSearchParams(window.location.search);
+  const utm_source   = params.get("utm_source")   || "direct";
+  const utm_medium   = params.get("utm_medium")   || "—";
+  const utm_campaign = params.get("utm_campaign") || "—";
 
-  // Small delay so it doesn't fire on bounces
-  setTimeout(() => {
-    ping(`New page visit → ${pathname}`, {
-      page:       pathname,
-      event_type: "page_view",
-      full_url:   window.location.href,
-    });
-  }, 3000); // Only report if they stay 3+ seconds
+  // Return visitor check
+  const visits = parseInt(localStorage.getItem("bcl_visits") || "0") + 1;
+  localStorage.setItem("bcl_visits", String(visits));
+  const isReturn = visits > 1;
+
+  // Session ID for grouping
+  if (!sessionStorage.getItem("bcl_session")) {
+    sessionStorage.setItem("bcl_session", Math.random().toString(36).slice(2, 8).toUpperCase());
+  }
+  const session = sessionStorage.getItem("bcl_session");
+
+  return { device, browser, utm_source, utm_medium, utm_campaign, visits, isReturn, session };
 }
 
-/**
- * Track first site visit — fires ONCE per device, ever
- */
-export function trackFirstVisit() {
-  const key = "first_visit";
-  if (alreadyReported(key)) return;
-  markReported(key);
-
-  setTimeout(() => {
-    ping("🌟 New visitor (first time)", {
-      event_type:   "first_visit",
-      landing_page: window.location.pathname,
-      full_url:     window.location.href,
-    });
-  }, 5000); // Only if they stay 5+ seconds
-}
-
-/**
- * Track audit scan — fires ONCE per store URL per device
- * @param {string} storeUrl - The URL they entered
- */
-export function trackAuditRun(storeUrl) {
-  const key = `audit:${storeUrl}`;
-  if (alreadyReported(key)) return;
-  markReported(key);
-
-  ping(`🔍 Audit scan — ${storeUrl}`, {
-    store_url:  storeUrl,
-    event_type: "audit_scan",
+/* ── Format time ── */
+function getTime() {
+  return new Date().toLocaleString("en-GB", {
+    timeZone: "Africa/Lagos",
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
   });
 }
 
-/**
- * Track audit result — fires ONCE per store URL per device
- * @param {string} storeUrl
- * @param {number} score
- * @param {boolean} isCritical
- */
-export function trackAuditResult(storeUrl, score, isCritical) {
-  const key = `audit_result:${storeUrl}`;
-  if (alreadyReported(key)) return;
-  markReported(key);
+/* ── Page visit notification ── */
+async function notifyVisit(page) {
+  // Don't fire on every re-render — only once per page per session
+  const key = `bcl_notified_${page}`;
+  if (sessionStorage.getItem(key)) return;
+  sessionStorage.setItem(key, "1");
 
-  ping(`📊 Audit result — ${storeUrl} → ${score}/100${isCritical?" 🚨 CRITICAL":""}`, {
-    store_url:     storeUrl,
-    overall_score: score,
-    is_critical:   isCritical ? "YES 🚨" : "No",
-    event_type:    "audit_result",
-  });
+  const v = getVisitorInfo();
+  const emoji = v.isReturn ? "🔄" : "👤";
+  const badge = v.isReturn ? `Return visitor (#${v.visits})` : "New visitor";
+
+  const msg = `
+${emoji} <b>${badge}</b> — Session ${v.session}
+
+📄 <b>Page:</b> ${page}
+${v.device} | ${v.browser}
+🕐 <b>Time:</b> ${getTime()}
+
+🔗 <b>Source:</b> ${v.utm_source}
+📣 <b>Medium:</b> ${v.utm_medium}
+🎯 <b>Campaign:</b> ${v.utm_campaign}
+
+🌐 <b>URL:</b> ${window.location.href}
+  `.trim();
+
+  await sendTelegram(msg);
 }
 
-/**
- * Track CTA click — fires ONCE per CTA label per device
- * @param {string} ctaLabel - e.g. "Apply Now", "Get free audit"
- */
-export function trackCTAClick(ctaLabel) {
-  const key = `cta:${ctaLabel}`;
-  if (alreadyReported(key)) return;
-  markReported(key);
+/* ── Pricing CTA click notification ── */
+export async function notifyPricingClick(packageName, price) {
+  const v = getVisitorInfo();
+  const msg = `
+💰 <b>PRICING CTA CLICKED</b> — Session ${v.session}
 
-  ping(`👆 CTA clicked — "${ctaLabel}"`, {
-    cta:        ctaLabel,
-    page:       window.location.pathname,
-    event_type: "cta_click",
-  });
+📦 <b>Package:</b> ${packageName}
+💵 <b>Price:</b> ${price}
+${v.device} | ${v.browser}
+🕐 <b>Time:</b> ${getTime()}
+
+🔗 <b>Source:</b> ${v.utm_source}
+🌐 <b>URL:</b> ${window.location.href}
+  `.trim();
+
+  await sendTelegram(msg);
 }
 
-/**
- * Track contact form submission — always fires (you want every lead)
- * @param {string} email - visitor's email
- * @param {string} name  - visitor's name
- */
-export function trackFormSubmit(email, name) {
-  // Always report form submissions — every lead matters
-  ping(`📩 Form submitted — ${name} (${email})`, {
-    visitor_name:  name,
-    visitor_email: email,
-    page:          window.location.pathname,
-    event_type:    "form_submit",
-  });
+/* ── Contact form submission notification ── */
+export async function notifyFormSubmit(name, email, storeUrl) {
+  const v = getVisitorInfo();
+  const msg = `
+🔥 <b>NEW APPLICATION SUBMITTED</b>
+
+👤 <b>Name:</b> ${name}
+📧 <b>Email:</b> ${email}
+🛒 <b>Store:</b> ${storeUrl || "Not provided"}
+${v.device} | ${v.browser}
+🕐 <b>Time:</b> ${getTime()}
+🔗 <b>Source:</b> ${v.utm_source}
+  `.trim();
+
+  await sendTelegram(msg);
 }
 
-/* ── React hook — use inside BrowserRouter ── */
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+/* ── Payment notification ── */
+export async function notifyPayment(packageName, amount, email) {
+  const msg = `
+✅ <b>PAYMENT INITIATED</b>
 
+📦 <b>Package:</b> ${packageName}
+💵 <b>Amount:</b> $${amount}
+📧 <b>Email:</b> ${email}
+🕐 <b>Time:</b> ${getTime()}
+  `.trim();
+
+  await sendTelegram(msg);
+}
+
+/* ── React hook — fires on every route change ── */
 export function usePageTracking() {
-  const location = useLocation();
+  const location = typeof window !== "undefined" ? window.location : null;
 
-  useEffect(() => {
-    // Track first visit ever
-    trackFirstVisit();
-  }, []);
-
-  useEffect(() => {
-    // Track each page visit (once per page per device)
-    trackPageView(location.pathname);
-  }, [location.pathname]);
+  if (typeof window !== "undefined") {
+    const page = window.location.pathname || "/";
+    const pageNames = {
+      "/": "🏠 Home",
+      "/about": "ℹ️ About",
+      "/pricing": "💰 Pricing",
+      "/case-studies": "📊 Case Studies",
+      "/blog": "📝 Blog",
+      "/contact": "📬 Contact",
+      "/audit": "🔍 Free Audit",
+      "/subscribe": "📧 Subscribe",
+    };
+    const pageName = pageNames[page] || `📄 ${page}`;
+    notifyVisit(pageName);
+  }
 }

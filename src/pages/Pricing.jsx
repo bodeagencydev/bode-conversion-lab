@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { G, GG, FAQS } from "../data.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
 
@@ -34,7 +33,7 @@ export default function Pricing() {
       ],
       feat: false,
       cta: "Get my diagnosis →",
-      badge: null,
+      waMessage: "Hi Bode Conversion Lab 👋 I'd like to go for the Store Diagnosis ($175 one-time). I want to find out exactly where my store is leaking money. Can we get started?",
     },
     {
       tier: "Growth",
@@ -53,7 +52,7 @@ export default function Pricing() {
       ],
       feat: false,
       cta: "Apply for Conversion Fix →",
-      badge: null,
+      waMessage: "Hi Bode Conversion Lab 👋 I'm interested in the Conversion Fix package ($497 one-time). I want you to audit my store AND implement the top 3 fixes. Can you tell me what the next step is?",
     },
     {
       tier: "Most Popular",
@@ -73,7 +72,7 @@ export default function Pricing() {
       ],
       feat: true,
       cta: "Apply for The Lab →",
-      badge: "Most Popular",
+      waMessage: "Hi Bode Conversion Lab 👋 I want to apply for The Lab retainer ($997/mo). I'm ready to build a system that compounds. What's the qualification process?",
     },
     {
       tier: "Elite",
@@ -93,7 +92,7 @@ export default function Pricing() {
       ],
       feat: false,
       cta: "Apply for Full Stack →",
-      badge: "Elite",
+      waMessage: "Hi Bode Conversion Lab 👋 I'm interested in the Full Stack package ($1,997/mo). I want everything handled end-to-end. Can we talk about fit and next steps?",
     },
   ];
 
@@ -104,8 +103,8 @@ export default function Pricing() {
         <div style={{ position:"absolute", width:500, height:500, top:-100, left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle,rgba(0,255,136,.12),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
         <div style={{ maxWidth:700, margin:"0 auto", textAlign:"center", position:"relative", zIndex:1 }}>
           <div style={{ marginBottom:"1.5rem" }}>
-            <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.28)", borderRadius:100, padding:"5px 14px", fontSize:11, color:G, fontWeight:500 }}>
-              <span style={{ width:6, height:6, background:G, borderRadius:"50%" }}/> Investment
+            <span style={{ display:"inline-flex", alignItems:"center", gap:6, background: dark?"rgba(0,255,136,.1)":"#1A1408", border: dark?".5px solid rgba(0,255,136,.28)":"none", borderRadius:100, padding:"6px 16px", fontSize:11, color: dark?G:"#FFEFC2", fontWeight:600, letterSpacing:".05em" }}>
+              <span style={{ width:6, height:6, background: dark?G:"#00ff88", borderRadius:"50%", animation:"pulse 2s ease-in-out infinite" }}/> Investment
             </span>
           </div>
           <h1 style={{ fontFamily:"'Syne',sans-serif", fontSize:"3.2rem", fontWeight:800, lineHeight:1.1, letterSpacing:"-.03em", color:headingColor, marginBottom:"1.2rem" }}>
@@ -158,7 +157,7 @@ export default function Pricing() {
                 <svg width="28" height="28" viewBox="0 0 22 22" fill="none"><rect x="4" y="10" width="14" height="10" rx="3" stroke={G} strokeWidth="1.5"/><path d="M7 10V7a4 4 0 018 0v3" stroke={G} strokeWidth="1.5" strokeLinecap="round"/></svg>
               </div>
               <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.5rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>Pricing is qualification-based</h3>
-              <p style={{ fontSize:15, color:mutedText2, marginBottom:"2rem", lineHeight:1.7, maxWidth:480, margin:"0 auto 2rem" }}>We only work with stores that are the right fit. Not because we're exclusive — because we only take clients we can genuinely help.</p>
+              <p style={{ fontSize:15, color:mutedText2, lineHeight:1.7, maxWidth:480, margin:"0 auto 2rem" }}>We only work with stores that are the right fit. Not because we're exclusive — because we only take clients we can genuinely help.</p>
               <button className="btn-g" onClick={() => setPricingVisible(true)}>I'm ready — show me pricing →</button>
             </div>
           ) : (
@@ -172,15 +171,13 @@ export default function Pricing() {
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"1rem" }} className="offer-grid">
                 {tiers.map((o, i) => (
                   <div key={i} className={`offer-card ${o.feat ? "feat" : ""}`} style={{ display:"flex", flexDirection:"column" }}>
-                    {/* Tier label */}
                     {o.feat
                       ? <div style={{ display:"inline-block", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.4)", borderRadius:100, padding:"3px 12px", fontSize:11, color:G, marginBottom:"1rem", alignSelf:"flex-start" }}>{o.tier}</div>
                       : <p style={{ fontSize:11, color:mutedText4, marginBottom:".5rem", fontWeight:600, textTransform:"uppercase", letterSpacing:".05em" }}>{o.tier}</p>
                     }
-
                     <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:800, marginBottom:".4rem", color:headingColor }}>{o.name}</h3>
                     <p style={{ fontSize:12, color:G, fontWeight:600, marginBottom:".75rem" }}>{o.tagline}</p>
-                    <p style={{ fontSize:12, color:mutedText3, marginBottom:"1.2rem", lineHeight:1.6, flexGrow:0 }}>{o.desc}</p>
+                    <p style={{ fontSize:12, color:mutedText3, marginBottom:"1.2rem", lineHeight:1.6 }}>{o.desc}</p>
 
                     {/* Price */}
                     <div style={{ marginBottom:"1.5rem", paddingBottom:"1.2rem", borderBottom:`.5px solid ${itemBorder}` }}>
@@ -198,17 +195,28 @@ export default function Pricing() {
                       ))}
                     </ul>
 
-                    {/* CTA */}
-                    <Link to="/contact" className={o.feat ? "btn-g" : "btn-ghost"} style={{ display:"block", textAlign:"center", textDecoration:"none", marginTop:"auto" }}>{o.cta}</Link>
+                    {/* ── WhatsApp CTA ── */}
+                    <a
+                      href={"https://wa.me/19454076473?text=" + encodeURIComponent(o.waMessage)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={o.feat ? "btn-g" : "btn-ghost"}
+                      style={{ display:"block", textAlign:"center", textDecoration:"none", marginTop:"auto" }}
+                    >
+                      {o.cta}
+                    </a>
                   </div>
                 ))}
               </div>
 
-              {/* Value anchor note */}
+              {/* Value anchor */}
               <div style={{ textAlign:"center", marginTop:"2.5rem" }}>
                 <p style={{ fontSize:13, color:mutedText3, lineHeight:1.8 }}>
                   All retainers are month-to-month. No contracts. No lock-in.<br />
                   <span style={{ color:G, fontWeight:600 }}>Every tier starts with a store audit.</span> We don't run blind.
+                </p>
+                <p style={{ fontSize:12, color:mutedText4, marginTop:".5rem" }}>
+                  Clicking any package opens WhatsApp — we respond within 4 hours.
                 </p>
               </div>
             </div>
@@ -239,4 +247,4 @@ export default function Pricing() {
       </Section>
     </PageWrapper>
   );
-}
+} 
