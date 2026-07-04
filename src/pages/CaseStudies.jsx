@@ -96,12 +96,12 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
   );
 }
 
-/* ── ALL 6 PROOF GALLERY ITEMS TURNED INTO VIDEO CARDS ── */
+/* ── RESTORED ORIGINAL SALES PROOF GALLERY ITEMS ── */
 const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-1.png",
-    videoSrc: "/proof/marcus-fitness.mp4", 
+    videoSrc: "/proof/marcus-fitness.mp4",
     label: "Shopify Revenue Dashboard",
     tag:   "Marcus T. — $38k/mo",
     color: "#00ff88",
@@ -109,7 +109,7 @@ const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-2.png",
-    videoSrc: "/proof/tunde-fashion.mp4", 
+    videoSrc: "/proof/tunde-fashion.mp4",
     label: "Meta Ads Manager — ROAS Scale",
     tag:   "Tunde N. — 4.3x ROAS",
     color: "#0081FB",
@@ -117,7 +117,7 @@ const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-3.png",
-    videoSrc: "/proof/priya-beauty.mp4", 
+    videoSrc: "/proof/priya-beauty.mp4",
     label: "Google Ads — CPA Reduction",
     tag:   "Priya S. — CPA $68→$19",
     color: "#4285F4",
@@ -125,7 +125,7 @@ const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-4.png",
-    videoSrc: "/proof/marcus-fitness.mp4", 
+    videoSrc: "/proof/marcus-fitness.mp4",
     label: "Klaviyo Email Flow Revenue",
     tag:   "Marcus T. — Email flows",
     color: "#FFD700",
@@ -133,7 +133,7 @@ const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-5.png",
-    videoSrc: "/proof/priya-beauty.mp4", 
+    videoSrc: "/proof/priya-beauty.mp4",
     label: "Shopify Analytics — CVR Jump",
     tag:   "Priya S. — 4.8% CVR",
     color: "#00ff88",
@@ -141,14 +141,14 @@ const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-6.png",
-    videoSrc: "/proof/tunde-fashion.mp4", 
+    videoSrc: "/proof/tunde-fashion.mp4",
     label: "TikTok Ads — Before & After",
     tag:   "Tunde N. — Same budget",
     color: "#ffffff",
   },
 ];
 
-/* ── GALLERY CARD — Streamlined purely for rendering video players ── */
+/* ── GALLERY CARD ── */
 function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
   const cardBorder = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.15)";
 
@@ -181,7 +181,6 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
           }}
         />
         
-        {/* Dynamic error/fallback container if video asset paths fail */}
         <div style={{ display: "none", position: "absolute", inset: 0, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(0,0,0,0.5)" }}>
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 9h18M9 21h6M12 17v4"/>
@@ -244,7 +243,7 @@ export function CaseStudies() {
           <p style={{ textAlign: "center", fontSize: 11, color: mutedText3, letterSpacing: ".1em", textTransform: "uppercase", fontWeight: 700, marginBottom: "1.2rem" }}>
             Results delivered by
           </p>
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap:"wrap" }}>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
             {BADGES && BADGES.map((b, i) => (
               <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: dark ? "rgba(255,255,255,.04)" : "rgba(255,255,255,.5)", border: dark ? ".5px solid rgba(255,255,255,.1)" : `.5px solid rgba(26,20,8,.15)`, borderRadius: 100, padding: ".5rem 1.1rem" }}>
                 <span style={{ fontSize: 16 }}>{b.icon}</span>
