@@ -72,20 +72,20 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
   );
 }
 
-/* ── PROOF GALLERY ITEMS — Save video files in /public/proof/ ── */
+/* ── PROOF GALLERY ITEMS — updated paths to support local files ── */
 const GALLERY = [
   {
     type: "image",
     src:  "/proof/proof-1.png",
-    videoSrc: null, 
+    videoSrc: null,
     label: "Shopify Revenue Dashboard",
     tag:   "Marcus T. — $38k/mo",
     color: "#00ff88",
   },
   {
     type: "video",
-    src:  "/proof/proof-2.png", // Thumbnail image
-    videoSrc: "/proof/video-1.mp4", // Put your mp4 video file in your public/proof/ folder
+    src:  "/proof/proof-2.png",
+    videoSrc: "/proof/video-1.mp4", // Saved inside your /public/proof/ folder
     label: "Meta Ads Manager — ROAS Scale",
     tag:   "Tunde N. — 4.3x ROAS",
     color: "#0081FB",
@@ -100,8 +100,8 @@ const GALLERY = [
   },
   {
     type: "video",
-    src:  "/proof/proof-4.png", // Thumbnail image
-    videoSrc: "/proof/video-2.mp4", // Put your mp4 video file in your public/proof/ folder
+    src:  "/proof/proof-4.png",
+    videoSrc: "/proof/video-2.mp4", // Saved inside your /public/proof/ folder
     label: "Klaviyo Email Flow Revenue",
     tag:   "Marcus T. — Email flows",
     color: "#FFD700",
@@ -116,15 +116,15 @@ const GALLERY = [
   },
   {
     type: "video",
-    src:  "/proof/proof-6.png", // Thumbnail image
-    videoSrc: "/proof/video-3.mp4", // Put your mp4 video file in your public/proof/ folder
+    src:  "/proof/proof-6.png",
+    videoSrc: "/proof/video-3.mp4", // Saved inside your /public/proof/ folder
     label: "TikTok Ads — Before & After",
     tag:   "Tunde N. — Same budget",
     color: "#ffffff",
   },
 ];
 
-/* ── GALLERY CARD — handles both image and video ── */
+/* ── GALLERY CARD ── */
 function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
   const [playing, setPlaying] = useState(false);
   const cardBorder = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.15)";
@@ -142,10 +142,9 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
       onMouseEnter={e => { e.currentTarget.style.transform="translateY(-6px) scale(1.01)"; e.currentTarget.style.boxShadow=dark?"0 24px 48px rgba(0,255,136,.1)":"0 24px 48px rgba(26,20,8,.1)"; e.currentTarget.style.borderColor="rgba(0,255,136,.35)"; }}
       onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; e.currentTarget.style.borderColor=cardBorder; }}>
 
-      {/* Media area */}
       <div style={{ aspectRatio:"16/10", position:"relative", overflow:"hidden", background:dark?"rgba(0,0,0,.4)":"rgba(26,20,8,.06)", cursor: item.type==="video" ? "pointer" : "default" }}>
 
-        {/* Playing state — Local HTML5 Video Player */}
+        {/* Local Video Tag Implementation */}
         {playing && item.videoSrc && (
           <video
             src={item.videoSrc}
@@ -155,7 +154,6 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
           />
         )}
 
-        {/* Thumbnail / image state */}
         {!playing && (
           <>
             <img
@@ -164,7 +162,6 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
               style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
               onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="flex"; }}
             />
-            {/* Placeholder */}
             <div style={{ display:"none", position:"absolute", inset:0, flexDirection:"column", alignItems:"center", justifyContent:"center", gap:8 }}>
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 9h18M9 21h6M12 17v4"/>
@@ -173,33 +170,29 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
               <span style={{ fontSize:10, color:mutedText3, opacity:.6 }}>Drop file in /public/proof/</span>
             </div>
 
-            {/* Video play button overlay */}
             {item.type === "video" && item.videoSrc && (
               <div
                 onClick={() => setPlaying(true)}
                 style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", background:"rgba(0,0,0,.35)", backdropFilter:"blur(2px)", transition:"background .2s" }}
                 onMouseEnter={e => e.currentTarget.style.background="rgba(0,0,0,.5)"}
                 onMouseLeave={e => e.currentTarget.style.background="rgba(0,0,0,.35)"}>
-                <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(0,255,136,.9)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 4px 20px rgba(0,0,0,.4)" }}>
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="black"><path d="M6 4L16 10L6 16Z"/></svg>
+                <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(255,0,0,.9)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 4px 20px rgba(0,0,0,.4)" }}>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M6 4L16 10L6 16Z"/></svg>
                 </div>
               </div>
             )}
           </>
         )}
 
-        {/* Result tag */}
         <div style={{ position:"absolute", bottom:8, left:8, background:"rgba(0,0,0,.75)", backdropFilter:"blur(8px)", borderRadius:100, padding:"3px 10px", border:`.5px solid ${item.color}55` }}>
           <span style={{ fontSize:10, fontWeight:700, color:item.color }}>{item.tag}</span>
         </div>
 
-        {/* Video/Image type badge */}
         <div style={{ position:"absolute", top:8, right:8, background:"rgba(0,0,0,.6)", borderRadius:6, padding:"2px 8px" }}>
-          <span style={{ fontSize:10, color:"rgba(255,255,255,.8)", fontWeight:600 }}>{item.type === "video" ? "▶ Video File" : "📊 Screenshot"}</span>
+          <span style={{ fontSize:10, color:"rgba(255,255,255,.8)", fontWeight:600 }}>{item.type === "video" ? "▶ Video" : "📊 Screenshot"}</span>
         </div>
       </div>
 
-      {/* Label */}
       <div style={{ padding:".9rem 1rem", display:"flex", alignItems:"center", justifyContent:"space-between", gap:8 }}>
         <span style={{ fontSize:12, fontWeight:600, color:headingColor, lineHeight:1.4 }}>{item.label}</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
@@ -248,7 +241,7 @@ export function CaseStudies() {
             Results delivered by
           </p>
           <div style={{ display:"flex", gap:"1rem", justifyContent:"center", flexWrap:"wrap" }}>
-            {BADGES.map((b, i) => (
+            {BADGES && BADGES.map((b, i) => (
               <div key={i} style={{ display:"inline-flex", alignItems:"center", gap:8, background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.5)", border:dark?".5px solid rgba(255,255,255,.1)":`.5px solid rgba(26,20,8,.15)`, borderRadius:100, padding:".5rem 1.1rem" }}>
                 <span style={{ fontSize:16 }}>{b.icon}</span>
                 <div>
@@ -266,7 +259,7 @@ export function CaseStudies() {
       {/* ── CASE STUDIES ── */}
       <Section>
         <div style={{ maxWidth:1100, margin:"0 auto", display:"flex", flexDirection:"column", gap:"5rem" }}>
-          {CASE_STUDIES.map((cs, index) => (
+          {CASE_STUDIES && CASE_STUDIES.map((cs, index) => (
             <ScrollReveal key={cs.id} delay={index * 0.05}>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"clamp(2rem,5vw,4rem)", alignItems:"flex-start" }} className="about-grid">
 
@@ -274,7 +267,7 @@ export function CaseStudies() {
                 <TiltCard style={{ background:dark?"rgba(255,255,255,.02)":"rgba(255,255,255,.5)", border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.8rem" }}>
                   {/* Result stats */}
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:"1.5rem" }}>
-                    {[cs.result1, cs.result2, cs.result3].map((r, i) => (
+                    {[cs.result1, cs.result2, cs.result3].map((r, i) => r && (
                       <div key={i} style={{ background:dark?"rgba(255,255,255,.04)":"rgba(26,20,8,.04)", border:dark?".5px solid rgba(255,255,255,.08)":".5px solid rgba(26,20,8,.1)", borderRadius:12, padding:"1rem .75rem", textAlign:"center" }}>
                         <p style={{ fontSize:10, color:mutedText3, textTransform:"uppercase", letterSpacing:".05em", marginBottom:4 }}>{r.label}</p>
                         <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(.85rem,2vw,1.05rem)", fontWeight:800, background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", margin:0 }}>{r.after}</p>
@@ -284,7 +277,7 @@ export function CaseStudies() {
                   </div>
                   {/* Tags */}
                   <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:"1.2rem" }}>
-                    {cs.tags.map((t, i) => (
+                    {cs.tags && cs.tags.map((t, i) => (
                       <span key={i} style={{ background:"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.2)", borderRadius:100, padding:"3px 10px", fontSize:10, color:G, fontWeight:600 }}>{t}</span>
                     ))}
                     <span style={{ background:dark?"rgba(255,255,255,.05)":"rgba(26,20,8,.05)", border:dark?".5px solid rgba(255,255,255,.1)":".5px solid rgba(26,20,8,.1)", borderRadius:100, padding:"3px 10px", fontSize:10, color:mutedText3, fontWeight:500 }}>{cs.platform}</span>
@@ -300,7 +293,7 @@ export function CaseStudies() {
                   <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.4rem,3vw,2rem)", fontWeight:800, color:headingColor, lineHeight:1.2, marginBottom:"1rem" }}>{cs.headline}</h2>
                   <p style={{ fontSize:15, color:mutedText, lineHeight:1.8, marginBottom:"1.8rem" }}>{cs.summary}</p>
                   <div style={{ display:"flex", flexDirection:"column", gap:"1.2rem", marginBottom:"2rem" }}>
-                    {cs.story.map((s, i) => (
+                    {cs.story && cs.story.map((s, i) => (
                       <div key={i} style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
                         <div style={{ width:28, height:28, borderRadius:"50%", background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, color:G, flexShrink:0, fontFamily:"'Syne',sans-serif" }}>
                           {String(i+1).padStart(2,"0")}
@@ -330,7 +323,7 @@ export function CaseStudies() {
 
       <hr className="divider" />
 
-      {/* ── PROOF GALLERY — 6 boxes, images + videos ── */}
+      {/* ── PROOF GALLERY ── */}
       <Section>
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:"2.5rem" }}>
@@ -387,12 +380,14 @@ export function CaseStudies() {
 export function CaseStudyDetail() {
   const { id } = useParams();
   const { dark } = useTheme();
-  const cs = CASE_STUDIES.find(item => item.id === id) || CASE_STUDIES[0];
+  const cs = CASE_STUDIES?.find(item => item.id === id) || CASE_STUDIES?.[0];
 
   const headingColor = dark ? "#fff"                 : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.65)";
   const mutedText2   = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
   const mutedText3   = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.5)";
+
+  if (!cs) return <div style={{ padding: "10rem", textAlign: "center" }}>Loading breakdown...</div>;
 
   return (
     <PageWrapper>
@@ -424,7 +419,7 @@ export function CaseStudyDetail() {
         <div style={{ maxWidth:800, margin:"0 auto" }}>
           {/* Result cards */}
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1rem", marginBottom:"3rem" }} className="stat-grid">
-            {[cs.result1, cs.result2, cs.result3].map((r, i) => (
+            {[cs.result1, cs.result2, cs.result3].map((r, i) => r && (
               <div key={i} className="stat-card">
                 <p style={{ fontSize:10, color:mutedText3, textTransform:"uppercase", letterSpacing:".06em", marginBottom:8 }}>{r.label}</p>
                 <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.4rem,4vw,1.8rem)", fontWeight:800, background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", lineHeight:1, marginBottom:4 }}>{r.after}</p>
@@ -438,7 +433,7 @@ export function CaseStudyDetail() {
 
           {/* Story */}
           <div style={{ display:"flex", flexDirection:"column", gap:"2.5rem", marginTop:"3rem" }}>
-            {cs.story.map((s, i) => (
+            {cs.story && cs.story.map((s, i) => (
               <div key={i} style={{ borderLeft:`2px solid rgba(0,255,136,.3)`, paddingLeft:"1.5rem" }}>
                 <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>{s.heading}</h2>
                 <p style={{ fontSize:15, color:mutedText, lineHeight:1.9 }}>{s.body}</p>
@@ -454,7 +449,7 @@ export function CaseStudyDetail() {
 
           {/* Tags */}
           <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:"3rem" }}>
-            {cs.tags.map((t, i) => (
+            {cs.tags && cs.tags.map((t, i) => (
               <span key={i} style={{ background:"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.2)", borderRadius:100, padding:"4px 12px", fontSize:11, color:G, fontWeight:600 }}>{t}</span>
             ))}
           </div>
@@ -474,4 +469,4 @@ export function CaseStudyDetail() {
       </Section>
     </PageWrapper>
   );
-}  
+}
