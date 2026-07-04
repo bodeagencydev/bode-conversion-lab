@@ -4,29 +4,14 @@ import { G, GG, CASE_STUDIES, BADGES } from "../data.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
 import { ScrollReveal, TiltCard, GlowBorder } from "../AnimationSystem.jsx";
 
-/* ── PROOF IMAGE MAP (Restored to use static screenshot/proof images) ── */
-const PROOF = {
-  "marcus-fitness": {
-    before: "/proof/proof-1.png",
-    after:  "/proof/proof-4.png",
-    caption: "Shopify Analytics — same traffic, 31× more revenue",
-  },
-  "priya-beauty": {
-    before: "/proof/proof-3.png",
-    after:  "/proof/proof-5.png",
-    caption: "WooCommerce + Google Ads — CVR jump from 1.1% to 4.8%",
-  },
-  "tunde-fashion": {
-    before: "/proof/proof-2.png",
-    after:  "/proof/proof-6.png",
-    caption: "Meta Ads Manager — ROAS from 0.9x to 4.3x in 60 days",
-  },
-};
+/* ── PROOF PANEL (Dynamically pulls the real images from your dataset) ── */
+function ProofPanel({ cs, dark, mutedText, headingColor }) {
+  // Fallback safely if there is no data or missing images
+  if (!cs) return null;
 
-/* ── PROOF PANEL (Updated back to clean image elements) ── */
-function ProofPanel({ studyId, dark, mutedText, headingColor }) {
-  const proof = PROOF[studyId];
-  if (!proof) return null;
+  const beforeSrc = cs.result1?.beforeImg || cs.beforeImg || "/proof/proof-1.png";
+  const afterSrc = cs.result1?.afterImg || cs.afterImg || "/proof/proof-4.png";
+  const caption = cs.headline || "Store Performance Proof";
 
   const containerStyle = (isAfter) => ({
     width: "100%", 
@@ -49,7 +34,7 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
           </div>
           <div style={containerStyle(false)}>
             <img
-              src={proof.before}
+              src={beforeSrc}
               alt="Before performance proof"
               style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               onError={e => { 
@@ -57,9 +42,9 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
                 e.target.nextSibling.style.display = "flex"; 
               }}
             />
-            <div style={{ display: "none", position: "absolute", inset: 0, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "2rem" }}>
+            <div style={{ display: "none", position: "absolute", inset: 0, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "2rem", background: "rgba(0,0,0,0.3)" }}>
               <span style={{ fontSize: 24 }}>📉</span>
-              <span style={{ fontSize: 12, color: mutedText, textAlign: "center" }}>Before proof image<br/>missing</span>
+              <span style={{ fontSize: 12, color: mutedText, textAlign: "center" }}>Before image missing</span>
             </div>
           </div>
         </div>
@@ -72,7 +57,7 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
           </div>
           <div style={containerStyle(true)}>
             <img
-              src={proof.after}
+              src={afterSrc}
               alt="After performance proof"
               style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               onError={e => { 
@@ -80,14 +65,14 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
                 e.target.nextSibling.style.display = "flex"; 
               }}
             />
-            <div style={{ display: "none", position: "absolute", inset: 0, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "2rem" }}>
+            <div style={{ display: "none", position: "absolute", inset: 0, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "2rem", background: "rgba(0,0,0,0.3)" }}>
               <span style={{ fontSize: 24 }}>📈</span>
-              <span style={{ fontSize: 12, color: G, textAlign: "center" }}>After proof image<br/>missing</span>
+              <span style={{ fontSize: 12, color: G, textAlign: "center" }}>After image missing</span>
             </div>
           </div>
         </div>
       </div>
-      <p style={{ fontSize: 12, color: mutedText, marginTop: ".75rem", fontStyle: "italic", textAlign: "center" }}>📊 {proof.caption}</p>
+      <p style={{ fontSize: 12, color: mutedText, marginTop: ".75rem", fontStyle: "italic", textAlign: "center" }}>📊 {caption}</p>
     </div>
   );
 }
@@ -277,7 +262,9 @@ export function CaseStudies() {
                     ))}
                     <span style={{ background: dark ? "rgba(255,255,255,.05)" : "rgba(26,20,8,.05)", border: dark ? ".5px solid rgba(255,255,255,.1)" : ".5px solid rgba(26,20,8,.1)", borderRadius: 100, padding: "3px 10px", fontSize: 10, color: mutedText3, fontWeight: 500 }}>{cs.platform}</span>
                   </div>
-                  <ProofPanel studyId={cs.id} dark={dark} mutedText={mutedText} headingColor={headingColor} />
+                  
+                  {/* Pass down the entire case study object so we pull your real images */}
+                  <ProofPanel cs={cs} dark={dark} mutedText={mutedText} headingColor={headingColor} />
                 </TiltCard>
 
                 <div>
@@ -288,7 +275,7 @@ export function CaseStudies() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem", marginBottom: "2rem" }}>
                     {cs.story && cs.story.map((s, i) => (
                       <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                        <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: G, flexShrink: 0 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.3)", display: "flex", alignItems: "center", center: "center", fontSize: 11, fontWeight: 800, color: G, flexShrink: 0 }}>
                           {String(i+1).padStart(2,"0")}
                         </div>
                         <div>
@@ -379,7 +366,8 @@ export function CaseStudyDetail() {
       </section>
       <Section>
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
-          <ProofPanel studyId={cs.id} dark={dark} mutedText={mutedText} headingColor={headingColor} />
+          {/* Pass down the detail case study data dynamically here too */}
+          <ProofPanel cs={cs} dark={dark} mutedText={mutedText} headingColor={headingColor} />
           
           <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem", marginTop: "3rem" }}>
             {cs.story && cs.story.map((s, i) => (
