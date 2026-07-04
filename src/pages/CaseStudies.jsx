@@ -4,26 +4,26 @@ import { G, GG, CASE_STUDIES, BADGES } from "../data.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
 import { ScrollReveal, TiltCard, GlowBorder } from "../AnimationSystem.jsx";
 
-/* ── PROOF VIDEO MAP ── */
+/* ── PROOF IMAGE MAP (Restored to use static screenshot/proof images) ── */
 const PROOF = {
   "marcus-fitness": {
-    before: "/proof/marcus-fitness-before.mp4",
-    after:  "/proof/marcus-fitness.mp4",
+    before: "/proof/proof-1.png",
+    after:  "/proof/proof-4.png",
     caption: "Shopify Analytics — same traffic, 31× more revenue",
   },
   "priya-beauty": {
-    before: "/proof/priya-beauty-before.mp4",
-    after:  "/proof/priya-beauty.mp4",
+    before: "/proof/proof-3.png",
+    after:  "/proof/proof-5.png",
     caption: "WooCommerce + Google Ads — CVR jump from 1.1% to 4.8%",
   },
   "tunde-fashion": {
-    before: "/proof/tunde-fashion-before.mp4",
-    after:  "/proof/tunde-fashion.mp4",
+    before: "/proof/proof-2.png",
+    after:  "/proof/proof-6.png",
     caption: "Meta Ads Manager — ROAS from 0.9x to 4.3x in 60 days",
   },
 };
 
-/* ── PROOF PANEL ── */
+/* ── PROOF PANEL (Updated back to clean image elements) ── */
 function ProofPanel({ studyId, dark, mutedText, headingColor }) {
   const proof = PROOF[studyId];
   if (!proof) return null;
@@ -41,19 +41,17 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
   return (
     <div style={{ marginTop: "1.5rem" }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+        {/* BEFORE CONTAINER */}
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#FF3B3B", flexShrink: 0 }}/>
             <span style={{ fontSize: 11, fontWeight: 700, color: headingColor, textTransform: "uppercase", letterSpacing: ".05em" }}>Before</span>
           </div>
           <div style={containerStyle(false)}>
-            <video
+            <img
               src={proof.before}
-              autoPlay
-              loop
-              muted
-              playsInline
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              alt="Before performance proof"
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               onError={e => { 
                 e.target.style.display = "none"; 
                 e.target.nextSibling.style.display = "flex"; 
@@ -61,24 +59,22 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
             />
             <div style={{ display: "none", position: "absolute", inset: 0, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "2rem" }}>
               <span style={{ fontSize: 24 }}>📉</span>
-              <span style={{ fontSize: 12, color: mutedText, textAlign: "center" }}>Before video<br/>coming soon</span>
+              <span style={{ fontSize: 12, color: mutedText, textAlign: "center" }}>Before proof image<br/>missing</span>
             </div>
           </div>
         </div>
 
+        {/* AFTER CONTAINER */}
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: G, flexShrink: 0 }}/>
             <span style={{ fontSize: 11, fontWeight: 700, color: G, textTransform: "uppercase", letterSpacing: ".05em" }}>After</span>
           </div>
           <div style={containerStyle(true)}>
-            <video
+            <img
               src={proof.after}
-              autoPlay
-              loop
-              muted
-              playsInline
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              alt="After performance proof"
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               onError={e => { 
                 e.target.style.display = "none"; 
                 e.target.nextSibling.style.display = "flex"; 
@@ -86,7 +82,7 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
             />
             <div style={{ display: "none", position: "absolute", inset: 0, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "2rem" }}>
               <span style={{ fontSize: 24 }}>📈</span>
-              <span style={{ fontSize: 12, color: G, textAlign: "center" }}>After video<br/>coming soon</span>
+              <span style={{ fontSize: 12, color: G, textAlign: "center" }}>After proof image<br/>missing</span>
             </div>
           </div>
         </div>
@@ -96,7 +92,7 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
   );
 }
 
-/* ── RESTORED ORIGINAL SALES PROOF GALLERY ITEMS ── */
+/* ── GALLERY ARRAY ── */
 const GALLERY = [
   {
     type: "video",
@@ -166,7 +162,6 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
       onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; e.currentTarget.style.borderColor=cardBorder; }}>
 
       <div style={{ aspectRatio: "16/10", position: "relative", overflow: "hidden", background: dark ? "rgba(0,0,0,.4)" : "rgba(26,20,8,.06)" }}>
-
         <video
           src={item.videoSrc}
           poster={item.src}
