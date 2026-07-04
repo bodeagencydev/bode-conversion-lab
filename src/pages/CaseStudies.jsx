@@ -9,9 +9,9 @@ function ProofPanel({ cs, dark, mutedText, headingColor }) {
   // Fallback safely if there is no data or missing images
   if (!cs) return null;
 
-  const beforeSrc = cs.result1?.beforeImg || cs.beforeImg || "/proof/proof-1.png";
-  const afterSrc = cs.result1?.afterImg || cs.afterImg || "/proof/proof-4.png";
-  const caption = cs.headline || "Store Performance Proof";
+  const beforeSrc = cs.beforeImg || "/proof/marcus-before.png";
+  const afterSrc  = cs.afterImg  || "/proof/marcus-after.png";
+  const caption   = cs.proofCaption || cs.headline || "Store Performance Proof";
 
   const containerStyle = (isAfter) => ({
     width: "100%", 

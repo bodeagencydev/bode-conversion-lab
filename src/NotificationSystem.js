@@ -1,158 +1,162 @@
-/* ── NOTIFICATION SYSTEM — Telegram visitor alerts ── */
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
-const TELEGRAM_TOKEN = "8895379108:AAE3MfPdfoirb7LqrOOhQtx4CpOJl-WiWxo"; // replace with new token from @BotFather
-const TELEGRAM_CHAT_ID = "7016026848"; // replace with your chat ID
+/* ────────────────────────────────────────────
+   TELEGRAM CONFIG
+   Open this file in Stackblitz, paste your
+   real values below, save, push. Never share
+   these in chat.
+──────────────────────────────────────────── */
+const TELEGRAM_TOKEN   = "8916245771:AAEm0W70LmWuR0qjngFSeqh0MWpPlWc2o3kE";
+const TELEGRAM_CHAT_ID = "7016026848";
 
-/* ── Send message to your Telegram ── */
+/* ── Send to Telegram ── */
 async function sendTelegram(message) {
+  if (TELEGRAM_TOKEN === "8916245771:AAEm0W70LmWuR0qjngFSeqh0MWpPlWc2o3k") return;
   try {
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: "HTML",
-      }),
-    });
-  } catch (e) {
-    // fail silently — never break the site for a notification
+    await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: message,
+          parse_mode: "HTML",
+        }),
+      }
+    );
+  } catch {
+    // fail silently — never break the site
   }
 }
 
-/* ── Get visitor info ── */
-function getVisitorInfo() {
+/* ── Visitor info ── */
+function getInfo() {
   const ua = navigator.userAgent;
-  const device = /Mobi|Android/i.test(ua) ? "📱 Mobile" : "🖥️ Desktop";
+  const device  = /Mobi|Android/i.test(ua) ? "📱 Mobile" : "🖥️ Desktop";
   const browser =
-    /Chrome/i.test(ua) ? "Chrome" :
-    /Firefox/i.test(ua) ? "Firefox" :
-    /Safari/i.test(ua) ? "Safari" :
-    /Edge/i.test(ua) ? "Edge" : "Unknown";
+    /Edg/i.test(ua)    ? "Edge"    :
+    /Chrome/i.test(ua) ? "Chrome"  :
+    /Firefox/i.test(ua)? "Firefox" :
+    /Safari/i.test(ua) ? "Safari"  : "Unknown";
 
-  // UTM params
   const params = new URLSearchParams(window.location.search);
-  const utm_source   = params.get("utm_source")   || "direct";
-  const utm_medium   = params.get("utm_medium")   || "—";
-  const utm_campaign = params.get("utm_campaign") || "—";
+  const src  = params.get("utm_source")   || "direct";
+  const med  = params.get("utm_medium")   || "—";
+  const camp = params.get("utm_campaign") || "—";
 
-  // Return visitor check
-  const visits = parseInt(localStorage.getItem("bcl_visits") || "0") + 1;
-  localStorage.setItem("bcl_visits", String(visits));
-  const isReturn = visits > 1;
+  const visits = parseInt(localStorage.getItem("bcl_v") || "0") + 1;
+  localStorage.setItem("bcl_v", String(visits));
 
-  // Session ID for grouping
-  if (!sessionStorage.getItem("bcl_session")) {
-    sessionStorage.setItem("bcl_session", Math.random().toString(36).slice(2, 8).toUpperCase());
+  if (!sessionStorage.getItem("bcl_sid")) {
+    sessionStorage.setItem("bcl_sid", Math.random().toString(36).slice(2,8).toUpperCase());
   }
-  const session = sessionStorage.getItem("bcl_session");
 
-  return { device, browser, utm_source, utm_medium, utm_campaign, visits, isReturn, session };
+  return {
+    device, browser,
+    src, med, camp,
+    visits,
+    isReturn: visits > 1,
+    session: sessionStorage.getItem("bcl_sid"),
+  };
 }
 
-/* ── Format time ── */
-function getTime() {
+/* ── Time (Lagos) ── */
+function now() {
   return new Date().toLocaleString("en-GB", {
-    timeZone: "Africa/Lagos",
-    day: "2-digit", month: "short", year: "numeric",
-    hour: "2-digit", minute: "2-digit",
+    timeZone:"Africa/Lagos",
+    day:"2-digit", month:"short", year:"numeric",
+    hour:"2-digit", minute:"2-digit",
   });
 }
 
 /* ── Page visit notification ── */
-async function notifyVisit(page) {
-  // Don't fire on every re-render — only once per page per session
-  const key = `bcl_notified_${page}`;
+async function notifyVisit(pageName) {
+  const key = "bcl_seen_" + pageName;
   if (sessionStorage.getItem(key)) return;
   sessionStorage.setItem(key, "1");
 
-  const v = getVisitorInfo();
-  const emoji = v.isReturn ? "🔄" : "👤";
-  const badge = v.isReturn ? `Return visitor (#${v.visits})` : "New visitor";
+  const v = getInfo();
+  const badge = v.isReturn ? `🔄 Return visitor #${v.visits}` : "👤 New visitor";
 
-  const msg = `
-${emoji} <b>${badge}</b> — Session ${v.session}
+  await sendTelegram(
+`${badge} — <b>${v.session}</b>
 
-📄 <b>Page:</b> ${page}
+📄 <b>Page:</b> ${pageName}
 ${v.device} | ${v.browser}
-🕐 <b>Time:</b> ${getTime()}
-
-🔗 <b>Source:</b> ${v.utm_source}
-📣 <b>Medium:</b> ${v.utm_medium}
-🎯 <b>Campaign:</b> ${v.utm_campaign}
-
-🌐 <b>URL:</b> ${window.location.href}
-  `.trim();
-
-  await sendTelegram(msg);
+🕐 ${now()}
+🔗 Source: ${v.src} | ${v.med} | ${v.camp}
+🌐 ${window.location.href}`
+  );
 }
 
-/* ── Pricing CTA click notification ── */
+/* ── Pricing CTA click ── */
 export async function notifyPricingClick(packageName, price) {
-  const v = getVisitorInfo();
-  const msg = `
-💰 <b>PRICING CTA CLICKED</b> — Session ${v.session}
+  const v = getInfo();
+  await sendTelegram(
+`💰 <b>PRICING CTA CLICKED</b>
 
 📦 <b>Package:</b> ${packageName}
-💵 <b>Price:</b> ${price}
-${v.device} | ${v.browser}
-🕐 <b>Time:</b> ${getTime()}
-
-🔗 <b>Source:</b> ${v.utm_source}
-🌐 <b>URL:</b> ${window.location.href}
-  `.trim();
-
-  await sendTelegram(msg);
+💵 <b>Price:</b> $${price}
+${v.device} | Session ${v.session}
+🕐 ${now()}`
+  );
 }
 
-/* ── Contact form submission notification ── */
+/* ── Contact form submit ── */
 export async function notifyFormSubmit(name, email, storeUrl) {
-  const v = getVisitorInfo();
-  const msg = `
-🔥 <b>NEW APPLICATION SUBMITTED</b>
+  const v = getInfo();
+  await sendTelegram(
+`🔥 <b>NEW APPLICATION</b>
 
 👤 <b>Name:</b> ${name}
 📧 <b>Email:</b> ${email}
 🛒 <b>Store:</b> ${storeUrl || "Not provided"}
-${v.device} | ${v.browser}
-🕐 <b>Time:</b> ${getTime()}
-🔗 <b>Source:</b> ${v.utm_source}
-  `.trim();
-
-  await sendTelegram(msg);
+${v.device} | Source: ${v.src}
+🕐 ${now()}`
+  );
 }
 
-/* ── Payment notification ── */
+/* ── Payment initiated ── */
 export async function notifyPayment(packageName, amount, email) {
-  const msg = `
-✅ <b>PAYMENT INITIATED</b>
+  await sendTelegram(
+`✅ <b>PAYMENT INITIATED</b>
 
 📦 <b>Package:</b> ${packageName}
 💵 <b>Amount:</b> $${amount}
 📧 <b>Email:</b> ${email}
-🕐 <b>Time:</b> ${getTime()}
-  `.trim();
+🕐 ${now()}`
+  );
+}
 
-  await sendTelegram(msg);
+/* ── Popup email capture ── */
+export async function notifyPopupCapture(email, type) {
+  await sendTelegram(
+`📬 <b>POPUP EMAIL CAPTURED</b>
+
+📧 <b>Email:</b> ${email}
+🎯 <b>Type:</b> ${type}
+🕐 ${now()}`
+  );
 }
 
 /* ── React hook — fires on every route change ── */
 export function usePageTracking() {
-  const location = typeof window !== "undefined" ? window.location : null;
+  const location = useLocation();
 
-  if (typeof window !== "undefined") {
-    const page = window.location.pathname || "/";
+  useEffect(() => {
     const pageNames = {
-      "/": "🏠 Home",
-      "/about": "ℹ️ About",
-      "/pricing": "💰 Pricing",
+      "/":             "🏠 Home",
+      "/about":        "ℹ️ About",
+      "/pricing":      "💰 Pricing",
       "/case-studies": "📊 Case Studies",
-      "/blog": "📝 Blog",
-      "/contact": "📬 Contact",
-      "/audit": "🔍 Free Audit",
-      "/subscribe": "📧 Subscribe",
+      "/blog":         "📝 Blog",
+      "/contact":      "📬 Contact",
+      "/audit":        "🔍 Free Audit",
+      "/subscribe":    "📧 Subscribe",
     };
-    const pageName = pageNames[page] || `📄 ${page}`;
-    notifyVisit(pageName);
-  }
+    const name = pageNames[location.pathname] || `📄 ${location.pathname}`;
+    notifyVisit(name);
+  }, [location.pathname]);
 }
