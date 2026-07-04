@@ -72,20 +72,20 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
   );
 }
 
-/* ── PROOF GALLERY ITEMS — update src with real files or YouTube embeds ── */
+/* ── PROOF GALLERY ITEMS — Save video files in /public/proof/ ── */
 const GALLERY = [
   {
     type: "image",
     src:  "/proof/proof-1.png",
-    videoId: null,
+    videoSrc: null, 
     label: "Shopify Revenue Dashboard",
     tag:   "Marcus T. — $38k/mo",
     color: "#00ff88",
   },
   {
     type: "video",
-    src:  "/proof/proof-2.png",
-    videoId: "HcNzgUUQI5g", // replace with real Loom/YouTube ID
+    src:  "/proof/proof-2.png", // Thumbnail image
+    videoSrc: "/proof/video-1.mp4", // Put your mp4 video file in your public/proof/ folder
     label: "Meta Ads Manager — ROAS Scale",
     tag:   "Tunde N. — 4.3x ROAS",
     color: "#0081FB",
@@ -93,15 +93,15 @@ const GALLERY = [
   {
     type: "image",
     src:  "/proof/proof-3.png",
-    videoId: null,
+    videoSrc: null,
     label: "Google Ads — CPA Reduction",
     tag:   "Priya S. — CPA $68→$19",
     color: "#4285F4",
   },
   {
     type: "video",
-    src:  "/proof/proof-4.png",
-    videoId: "SklDEDMQmmY", // replace with real Loom/YouTube ID
+    src:  "/proof/proof-4.png", // Thumbnail image
+    videoSrc: "/proof/video-2.mp4", // Put your mp4 video file in your public/proof/ folder
     label: "Klaviyo Email Flow Revenue",
     tag:   "Marcus T. — Email flows",
     color: "#FFD700",
@@ -109,15 +109,15 @@ const GALLERY = [
   {
     type: "image",
     src:  "/proof/proof-5.png",
-    videoId: null,
+    videoSrc: null,
     label: "Shopify Analytics — CVR Jump",
     tag:   "Priya S. — 4.8% CVR",
     color: "#00ff88",
   },
   {
     type: "video",
-    src:  "/proof/proof-6.png",
-    videoId: "vxmXlxLjDRY", // replace with real Loom/YouTube ID
+    src:  "/proof/proof-6.png", // Thumbnail image
+    videoSrc: "/proof/video-3.mp4", // Put your mp4 video file in your public/proof/ folder
     label: "TikTok Ads — Before & After",
     tag:   "Tunde N. — Same budget",
     color: "#ffffff",
@@ -145,14 +145,13 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
       {/* Media area */}
       <div style={{ aspectRatio:"16/10", position:"relative", overflow:"hidden", background:dark?"rgba(0,0,0,.4)":"rgba(26,20,8,.06)", cursor: item.type==="video" ? "pointer" : "default" }}>
 
-        {/* Playing state — YouTube/Loom embed */}
-        {playing && item.videoId && (
-          <iframe
-            src={`https://www.youtube.com/embed/${item.videoId}?autoplay=1&rel=0`}
-            title={item.label}
-            allow="autoplay; fullscreen"
-            allowFullScreen
-            style={{ position:"absolute", inset:0, width:"100%", height:"100%", border:"none" }}
+        {/* Playing state — Local HTML5 Video Player */}
+        {playing && item.videoSrc && (
+          <video
+            src={item.videoSrc}
+            autoPlay
+            controls
+            style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", border:"none" }}
           />
         )}
 
@@ -175,14 +174,14 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
             </div>
 
             {/* Video play button overlay */}
-            {item.type === "video" && item.videoId && (
+            {item.type === "video" && item.videoSrc && (
               <div
                 onClick={() => setPlaying(true)}
                 style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", background:"rgba(0,0,0,.35)", backdropFilter:"blur(2px)", transition:"background .2s" }}
                 onMouseEnter={e => e.currentTarget.style.background="rgba(0,0,0,.5)"}
                 onMouseLeave={e => e.currentTarget.style.background="rgba(0,0,0,.35)"}>
-                <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(255,0,0,.9)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 4px 20px rgba(0,0,0,.4)" }}>
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M6 4L16 10L6 16Z"/></svg>
+                <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(0,255,136,.9)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 4px 20px rgba(0,0,0,.4)" }}>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="black"><path d="M6 4L16 10L6 16Z"/></svg>
                 </div>
               </div>
             )}
@@ -196,7 +195,7 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
 
         {/* Video/Image type badge */}
         <div style={{ position:"absolute", top:8, right:8, background:"rgba(0,0,0,.6)", borderRadius:6, padding:"2px 8px" }}>
-          <span style={{ fontSize:10, color:"rgba(255,255,255,.8)", fontWeight:600 }}>{item.type === "video" ? "▶ Video" : "📊 Screenshot"}</span>
+          <span style={{ fontSize:10, color:"rgba(255,255,255,.8)", fontWeight:600 }}>{item.type === "video" ? "▶ Video File" : "📊 Screenshot"}</span>
         </div>
       </div>
 
@@ -475,4 +474,4 @@ export function CaseStudyDetail() {
       </Section>
     </PageWrapper>
   );
-}
+}  
