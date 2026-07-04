@@ -4,7 +4,7 @@ import { G, GG } from "./data.js";
 import { useTheme } from "./components.jsx";
 import { notifyPopupCapture } from "./NotificationSystem.js";
 
-/* ── Discount code — change this whenever you want ── */
+/* ── Discount code ── */
 const DISCOUNT_CODE = "SCALE7";
 
 /* ── Animated popup base ── */
@@ -47,11 +47,8 @@ function Popup({ visible, onClose, children, dark }) {
           transition: "transform .5s cubic-bezier(.22,1,.36,1), opacity .4s ease",
           opacity: mounted ? 1 : 0,
         }}>
-        {/* Top shimmer */}
         <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)", pointerEvents:"none" }}/>
-        {/* Glow orb */}
         <div style={{ position:"absolute", top:-60, right:-40, width:180, height:180, background:"radial-gradient(circle,rgba(0,255,136,.15),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
-        {/* Close */}
         <button
           onClick={onClose}
           style={{ position:"absolute", top:14, right:16, background:"transparent", border:"none", cursor:"pointer", fontSize:20, lineHeight:1, color: dark?"rgba(255,255,255,.4)":"rgba(26,20,8,.4)", zIndex:1 }}>
@@ -109,7 +106,7 @@ function EmailForm({ onSubmit, dark, submitLabel, mutedText, headingColor, input
   );
 }
 
-/* ── POPUP 1 — General (fires 7 min after any page load) ── */
+/* ── POPUP 1 — General (fires 1 min after page load) ── */
 function GeneralPopup({ dark }) {
   const [visible, setVisible] = useState(false);
   const headingColor = dark ? "#fff"                  : "#1A1408";
@@ -119,7 +116,7 @@ function GeneralPopup({ dark }) {
 
   useEffect(() => {
     if (sessionStorage.getItem("bcl_popup_general")) return;
-    const t = setTimeout(() => setVisible(true), 7 * 60 * 1000); // 7 minutes
+    const t = setTimeout(() => setVisible(true), 1 * 60 * 1000); // 1 minute
     return () => clearTimeout(t);
   }, []);
 
@@ -130,14 +127,13 @@ function GeneralPopup({ dark }) {
 
   async function submit(email) {
     sessionStorage.setItem("bcl_popup_general", "1");
-    await notifyPopupCapture(email, "General — 7min popup");
+    await notifyPopupCapture(email, "General — 1min popup");
   }
 
   return (
     <Popup visible={visible} onClose={close} dark={dark}>
-      {/* Pulse dot */}
       <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:"1.2rem" }}>
-        <span style={{ width:8, height:8, borderRadius:"50%", background:G, animation:"pulse 2s ease-in-out infinite" }}/>
+        <span style={{ width:8, height:8, borderRadius:"50%", background:G }}/>
         <span style={{ fontSize:11, color:G, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase" }}>Free resource</span>
       </div>
 
@@ -165,7 +161,7 @@ function GeneralPopup({ dark }) {
   );
 }
 
-/* ── POPUP 2 — Pricing discount (fires 5 min on /pricing) ── */
+/* ── POPUP 2 — Pricing discount (fires 3 min on /pricing) ── */
 function PricingPopup({ dark }) {
   const [visible, setVisible] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -178,7 +174,7 @@ function PricingPopup({ dark }) {
   useEffect(() => {
     if (location.pathname !== "/pricing") return;
     if (sessionStorage.getItem("bcl_popup_pricing")) return;
-    const t = setTimeout(() => setVisible(true), 5 * 60 * 1000); // 5 minutes
+    const t = setTimeout(() => setVisible(true), 3 * 60 * 1000); // 3 minutes
     return () => clearTimeout(t);
   }, [location.pathname]);
 
@@ -189,7 +185,7 @@ function PricingPopup({ dark }) {
 
   async function submit(email) {
     sessionStorage.setItem("bcl_popup_pricing", "1");
-    await notifyPopupCapture(email, `Pricing discount — 5min popup — ${DISCOUNT_CODE}`);
+    await notifyPopupCapture(email, `Pricing discount — 3min popup — ${DISCOUNT_CODE}`);
   }
 
   function copyCode() {
@@ -200,13 +196,11 @@ function PricingPopup({ dark }) {
 
   return (
     <Popup visible={visible} onClose={close} dark={dark}>
-      {/* Urgency badge */}
       <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.28)", borderRadius:100, padding:"4px 12px", marginBottom:"1.2rem" }}>
         <span style={{ fontSize:14 }}>⚡</span>
         <span style={{ fontSize:11, color:G, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase" }}>Limited offer — just for you</span>
       </div>
 
-      {/* Big discount number */}
       <div style={{ textAlign:"center", margin:"1rem 0 1.4rem" }}>
         <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"5rem", fontWeight:800, background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", lineHeight:1, margin:0 }}>7%</p>
         <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:700, color:headingColor, marginTop:".25rem" }}>off any package</p>
@@ -226,7 +220,6 @@ function PricingPopup({ dark }) {
         inputBorder={inputBorder}
       />
 
-      {/* Show code after submit */}
       {sessionStorage.getItem("bcl_popup_pricing") === "1" && (
         <div
           onClick={copyCode}
@@ -244,7 +237,7 @@ function PricingPopup({ dark }) {
   );
 }
 
-/* ── MAIN EXPORT — drop into App.jsx ── */
+/* ── MAIN EXPORT ── */
 export default function PopupSystem() {
   const { dark } = useTheme();
   return (
