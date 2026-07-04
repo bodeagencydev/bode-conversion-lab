@@ -1,3 +1,4 @@
+import PopupSystem from "./PopupSystem.jsx";
 import { useState, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Nav, Footer, WhatsAppButton, ThemeToggle, ThemeContext } from "./components.jsx";
