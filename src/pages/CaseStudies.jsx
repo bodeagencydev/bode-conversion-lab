@@ -72,7 +72,7 @@ function ProofPanel({ studyId, dark, mutedText, headingColor }) {
   );
 }
 
-/* ── PROOF GALLERY ITEMS — Pointing directly to your video keys ── */
+/* ── PROOF GALLERY ITEMS ── */
 const GALLERY = [
   {
     type: "image",
@@ -126,7 +126,6 @@ const GALLERY = [
 
 /* ── GALLERY CARD ── */
 function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
-  const [playing, setPlaying] = useState(false);
   const cardBorder = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.15)";
 
   return (
@@ -142,18 +141,21 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
       onMouseEnter={e => { e.currentTarget.style.transform="translateY(-6px) scale(1.01)"; e.currentTarget.style.boxShadow=dark?"0 24px 48px rgba(0,255,136,.1)":"0 24px 48px rgba(26,20,8,.1)"; e.currentTarget.style.borderColor="rgba(0,255,136,.35)"; }}
       onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; e.currentTarget.style.borderColor=cardBorder; }}>
 
-      <div style={{ aspectRatio:"16/10", position:"relative", overflow:"hidden", background:dark?"rgba(0,0,0,.4)":"rgba(26,20,8,.06)", cursor: item.type==="video" ? "pointer" : "default" }}>
+      <div style={{ aspectRatio:"16/10", position:"relative", overflow:"hidden", background:dark?"rgba(0,0,0,.4)":"rgba(26,20,8,.06)" }}>
 
-        {playing && item.videoSrc && (
+        {/* If item is a video, render it cleanly with inline controls/autoplay options */}
+        {item.type === "video" && item.videoSrc ? (
           <video
             src={item.videoSrc}
-            autoPlay
+            poster={item.src}
+            muted
+            playsInline
             controls
-            style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", border:"none" }}
+            preload="metadata"
+            style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", border:"none" }}
           />
-        )}
-
-        {!playing && (
+        ) : (
+          /* Image Card Layout */
           <>
             <img
               src={item.src}
@@ -167,26 +169,15 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
               </svg>
               <span style={{ fontSize:12, color:mutedText3, textAlign:"center", padding:"0 1.5rem" }}>{item.label}</span>
             </div>
-
-            {item.type === "video" && item.videoSrc && (
-              <div
-                onClick={() => setPlaying(true)}
-                style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", background:"rgba(0,0,0,.35)", backdropFilter:"blur(2px)" }}
-              >
-                <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(0,255,136,.9)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 4px 20px rgba(0,0,0,.4)" }}>
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="black"><path d="M6 4L16 10L6 16Z"/></svg>
-                </div>
-              </div>
-            )}
           </>
         )}
 
-        <div style={{ position:"absolute", bottom:8, left:8, background:"rgba(0,0,0,.75)", backdropFilter:"blur(8px)", borderRadius:100, padding:"3px 10px", border:`.5px solid ${item.color}55` }}>
+        <div style={{ position:"absolute", bottom:8, left:8, background:"rgba(0,0,0,.75)", backdropFilter:"blur(8px)", borderRadius:100, padding:"3px 10px", border:`.5px solid ${item.color}55`, zIndex:2 }}>
           <span style={{ fontSize:10, fontWeight:700, color:item.color }}>{item.tag}</span>
         </div>
 
-        <div style={{ position:"absolute", top:8, right:8, background:"rgba(0,0,0,.6)", borderRadius:6, padding:"2px 8px" }}>
-          <span style={{ fontSize:10, color:"rgba(255,255,255,.8)", fontWeight:600 }}>{item.type === "video" ? "▶ Video" : "📊 Screenshot"}</span>
+        <div style={{ position:"absolute", top:8, right:8, background:"rgba(0,0,0,.6)", borderRadius:6, padding:"2px 8px", zIndex:2 }}>
+          <span style={{ fontSize:10, color:"rgba(255,255,255,.8)", fontWeight:600 }}>{item.type === "video" ? "▶ Video Clip" : "📊 Screenshot"}</span>
         </div>
       </div>
 
@@ -366,8 +357,6 @@ export function CaseStudyDetail() {
 
   const headingColor = dark ? "#fff"                 : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.65)";
-  const mutedText2   = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
-  const mutedText3   = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.5)";
 
   if (!cs) return <div style={{ padding: "10rem", textAlign: "center" }}>Loading breakdown...</div>;
 
