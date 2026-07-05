@@ -1,21 +1,385 @@
-/**
- * BODE CONVERSION LAB — STORE AUDIT
- * Brutally honest. No flattery. No A+ grades.
- * Mobile Core Web Vitals weighted highest.
- * CRITICAL REVENUE LEAK label when vitals are red/yellow.
- * Soft disqualification message after terrible result.
- * Download Report as branded HTML file.
- */
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { G, GG } from "../data.js";
 import { PageWrapper, GradText, useTheme } from "../components.jsx";
-import { ScrollReveal, TiltCard, MaskedHeading } from "../AnimationSystem.jsx";
+import { ScrollReveal, TiltCard } from "../AnimationSystem.jsx";
 
-/* ─── YOUR GOOGLE PAGESPEED API KEY ─── */
-const PSI_KEY = "AIzaSyCAnT0GIpN-3OVQkP3fPJBwhl6pTU0BN8k";
-/* ────────────────────────────────────── */
+/* ─── CONFIG ─── */
+const PSI_KEY    = "AIzaSyCAnT0GIpN-3OVQkP3fPJBwhl6pTU0BN8k";
+const ADMIN_EMAIL = "bodeagencyofficial@gmail.com";
 
+/* ─── ACCESS CODES — add new ones as clients pay ─── */
+const ACCESS_CODES = {
+  // "BCL-XXXXXXXX": { tier: "diagnosis" | "fix" | "lab" | "fullstack", client: "Name" }
+  "BCL-DEMO1234": { tier: "fullstack", client: "Demo Client" },
+};
+
+/* ─── DEEP DIAGNOSTIC QUESTIONS ─── */
+const DIAGNOSTIC = [
+  {
+    category: "🛒 Checkout & Conversion",
+    questions: [
+      { id:"q1",  text:"Does your checkout require account creation before purchase?",        options:["Yes, mandatory","Optional but default","No — guest checkout available","I don't know"] },
+      { id:"q2",  text:"How many steps does your checkout process have?",                     options:["1-2 steps","3-4 steps","5+ steps","I don't know"] },
+      { id:"q3",  text:"Do you have an abandoned cart recovery system?",                      options:["Yes, email + SMS","Email only","No","I don't know"] },
+      { id:"q4",  text:"Do you display trust badges near your checkout button?",              options:["Yes, multiple","1-2 badges","None","I don't know"] },
+      { id:"q5",  text:"Do you offer multiple payment methods (cards, PayPal, BNPL)?",       options:["3+ options","2 options","Card only","I don't know"] },
+    ]
+  },
+  {
+    category: "📱 Product Page Quality",
+    questions: [
+      { id:"q6",  text:"Is your Add to Cart button visible without scrolling on mobile?",    options:["Yes, always","Sometimes","No","I don't know"] },
+      { id:"q7",  text:"How many product images do you have per product?",                   options:["6+ with video","3-5 images","1-2 images","None"] },
+      { id:"q8",  text:"Do you have customer reviews visible on product pages?",             options:["Yes, above the fold","Yes, below the fold","No reviews","I don't know"] },
+      { id:"q9",  text:"Do you show urgency signals (stock count, limited time)?",           options:["Yes, both","One of them","No","I don't know"] },
+      { id:"q10", text:"Does your product description address buyer objections?",             options:["Yes, specifically","Somewhat","Generic only","No description"] },
+    ]
+  },
+  {
+    category: "📈 Ad Account Health",
+    questions: [
+      { id:"q11", text:"What is your current ROAS (return on ad spend)?",                   options:["4x+","2-4x","Below 2x","Not running ads"] },
+      { id:"q12", text:"Are you running retargeting campaigns?",                             options:["Yes, multiple audiences","Basic retargeting","No","I don't know"] },
+      { id:"q13", text:"How often do you refresh your ad creatives?",                        options:["Weekly","Monthly","Rarely","Never"] },
+      { id:"q14", text:"Do you use lookalike audiences based on purchasers?",                options:["Yes","No","I don't know","Not applicable"] },
+      { id:"q15", text:"Are your ad landing pages different from your homepage?",            options:["Yes, dedicated pages","Sometimes","No, homepage only","I don't know"] },
+    ]
+  },
+  {
+    category: "✉️ Email & Retention",
+    questions: [
+      { id:"q16", text:"Do you have an abandoned cart email sequence?",                      options:["Yes, 3+ emails","1-2 emails","No","Planning to"] },
+      { id:"q17", text:"Do you have a post-purchase email flow?",                            options:["Yes, full sequence","Just order confirmation","No","I don't know"] },
+      { id:"q18", text:"How do you collect customer emails?",                                options:["Popup + checkout","Checkout only","No system","I don't know"] },
+      { id:"q19", text:"Do you run win-back campaigns for lapsed customers?",                options:["Yes, automated","Manual sometimes","No","I don't know"] },
+      { id:"q20", text:"What is your email open rate approximately?",                        options:["25%+","15-25%","Below 15%","Not using email"] },
+    ]
+  },
+  {
+    category: "🔒 Trust & Brand Authority",
+    questions: [
+      { id:"q21", text:"Do you have an About Us page with real team/founder info?",          options:["Yes, detailed","Basic info","No","I don't know"] },
+      { id:"q22", text:"Do you display social proof (press mentions, follower counts)?",     options:["Yes, prominently","Some","No","I don't know"] },
+      { id:"q23", text:"Do you have a clear return/refund policy visible before checkout?",  options:["Yes, clearly visible","Buried in footer","No","I don't know"] },
+      { id:"q24", text:"Do you have UGC (user-generated content) on your store?",            options:["Yes, throughout","Some","No","I don't know"] },
+      { id:"q25", text:"How quickly do you respond to customer inquiries?",                  options:["Within 1 hour","Same day","1-3 days","Not consistently"] },
+    ]
+  },
+];
+
+/* ─── SCORING LOGIC PER ANSWER ─── */
+function scoreAnswer(id, answer) {
+  const goodAnswers = {
+    q1:["No — guest checkout available"],
+    q2:["1-2 steps"],
+    q3:["Yes, email + SMS"],
+    q4:["Yes, multiple"],
+    q5:["3+ options"],
+    q6:["Yes, always"],
+    q7:["6+ with video"],
+    q8:["Yes, above the fold"],
+    q9:["Yes, both"],
+    q10:["Yes, specifically"],
+    q11:["4x+"],
+    q12:["Yes, multiple audiences"],
+    q13:["Weekly"],
+    q14:["Yes"],
+    q15:["Yes, dedicated pages"],
+    q16:["Yes, 3+ emails"],
+    q17:["Yes, full sequence"],
+    q18:["Popup + checkout"],
+    q19:["Yes, automated"],
+    q20:["25%+"],
+    q21:["Yes, detailed"],
+    q22:["Yes, prominently"],
+    q23:["Yes, clearly visible"],
+    q24:["Yes, throughout"],
+    q25:["Within 1 hour"],
+  };
+  const okAnswers = {
+    q1:["Optional but default"],
+    q2:["3-4 steps"],
+    q3:["Email only"],
+    q4:["1-2 badges"],
+    q5:["2 options"],
+    q6:["Sometimes"],
+    q7:["3-5 images"],
+    q8:["Yes, below the fold"],
+    q9:["One of them"],
+    q10:["Somewhat"],
+    q11:["2-4x"],
+    q12:["Basic retargeting"],
+    q13:["Monthly"],
+    q14:["I don't know"],
+    q15:["Sometimes"],
+    q16:["1-2 emails"],
+    q17:["Just order confirmation"],
+    q18:["Checkout only"],
+    q19:["Manual sometimes"],
+    q20:["15-25%"],
+    q21:["Basic info"],
+    q22:["Some"],
+    q23:["Buried in footer"],
+    q24:["Some"],
+    q25:["Same day"],
+  };
+  if (goodAnswers[id]?.includes(answer)) return 100;
+  if (okAnswers[id]?.includes(answer))   return 55;
+  return 10;
+}
+
+/* ─── GENERATE FINDINGS FROM ANSWERS ─── */
+function generateFindings(answers) {
+  const findings = [];
+
+  const findingMap = {
+    q1: { bad:["Yes, mandatory"], finding:"Forced account creation is killing your checkout. Industry data shows this eliminates 35% of buyers before payment — they came to buy, not to register.", severity:"critical", fix:"Enable guest checkout immediately. This is a 20-minute fix that typically lifts conversion by 15-30%." },
+    q2: { bad:["5+ steps"], ok:["3-4 steps"], finding:"Your checkout has too many steps. Every additional step costs you buyers — each extra page reduces conversion by approximately 10-15%.", severity:"high", fix:"Audit every checkout step and eliminate anything that isn't essential to completing the transaction." },
+    q3: { bad:["No"], finding:"You have no abandoned cart recovery. 70% of shoppers who add to cart don't buy on the first visit. Without recovery emails, you're leaving all of that revenue on the table.", severity:"critical", fix:"Set up a 3-email abandoned cart sequence: 1hr reminder, 24hr objection handler, 72hr final offer with urgency." },
+    q4: { bad:["None"], ok:["1-2 badges"], finding:"Missing or insufficient trust badges near checkout. Trust signals at the point of payment reduce buyer anxiety and directly increase completion rates.", severity:"high", fix:"Add SSL badge, payment method logos, money-back guarantee, and any relevant certifications near your checkout button." },
+    q5: { bad:["Card only"], finding:"Limited payment options are creating unnecessary friction. In international markets especially, buyers abandon if their preferred payment method isn't available.", severity:"medium", fix:"Add PayPal, Apple Pay, and at minimum one Buy Now Pay Later option. Each addition increases eligible buyer pool." },
+    q6: { bad:["No"], ok:["Sometimes"], finding:"Your Add to Cart button is not visible above the fold on mobile. If buyers have to scroll to find how to buy, many won't bother.", severity:"critical", fix:"Restructure your mobile product page layout. Price + CTA must be visible within the first screen without scrolling." },
+    q7: { bad:["1-2 images","None"], finding:"Insufficient product imagery. Online shoppers need to feel confident about what they're buying. Thin image galleries signal low quality and increase return anxiety.", severity:"high", fix:"Minimum 6 images per product: front, back, detail, lifestyle, scale reference, and a video. Video alone lifts conversion by 80% on mobile." },
+    q8: { bad:["No reviews"], ok:["Yes, below the fold"], finding:"Reviews are not visible above the fold — or don't exist. Social proof is one of the most powerful conversion elements. Its absence communicates risk.", severity:"critical", fix:"Import or collect reviews and display them prominently. Aim for star rating + count visible near price. Even 5 reviews outperform none." },
+    q9: { bad:["No"], ok:["One of them"], finding:"No urgency signals on product pages. Without scarcity or urgency, buyers rationalize waiting — and then never return.", severity:"medium", fix:"Add real stock counts (\"Only 7 left\"), limited-time offers, or \"X people viewing now\" signals. Must be authentic to maintain trust." },
+    q10:{ bad:["Generic only","No description"], finding:"Your product descriptions aren't addressing buyer objections. Generic copy doesn't convert. Buyers have fears — if your copy doesn't speak to them, they leave.", severity:"high", fix:"Rewrite descriptions around the top 3 buyer objections for each product. Answer: Is this right for me? Will it actually work? What if I don't like it?" },
+    q11:{ bad:["Below 2x","Not running ads"], finding:"Sub-2x ROAS means every ad dollar is losing money after product costs, fulfillment, and platform fees. You're paying to acquire customers at a loss.", severity:"critical", fix:"Stop scaling until ROAS is fixed. Audit your funnel first — ads amplify your conversion rate, they don't fix it." },
+    q12:{ bad:["No"], ok:["Basic retargeting"], finding:"No meaningful retargeting strategy. You're paying to acquire cold traffic and then abandoning 97% of them who don't buy on first visit.", severity:"high", fix:"Build a retargeting stack: product page visitors (3-day), add-to-cart abandoners (1-day), checkout abandoners (6-hour). Each audience needs different messaging." },
+    q13:{ bad:["Rarely","Never"], finding:"Ad creative fatigue is costing you performance. When buyers see the same ads repeatedly, engagement drops sharply — typically within 2-3 weeks.", severity:"medium", fix:"Establish a weekly creative review. Flag any ad with declining CTR or rising CPM for immediate refresh. Build a content bank to pull from." },
+    q14:{ bad:["No"], finding:"No lookalike audiences based on purchasers. This is one of the highest-value targeting methods available — you're ignoring it.", severity:"medium", fix:"Upload your customer list to Meta and Google. Create 1%, 3%, and 5% lookalikes. Test each against your current targeting." },
+    q15:{ bad:["No, homepage only"], ok:["Sometimes"], finding:"Sending ad traffic to your homepage is one of the most common and costly mistakes in e-commerce advertising. Homepage is not a landing page.", severity:"critical", fix:"Build dedicated landing pages for each ad campaign. Match the ad message exactly. Remove navigation to reduce distraction. Every element should lead to one action." },
+    q16:{ bad:["No"], ok:["1-2 emails"], finding:"Weak or absent abandoned cart recovery. This is the single highest-ROI email automation available. A 3-email sequence recovers 15-20% of abandoned carts.", severity:"critical", fix:"Build a 3-part sequence: Email 1 (1hr): simple reminder with product image. Email 2 (24hr): address objections + reviews. Email 3 (72hr): create urgency with a small incentive." },
+    q17:{ bad:["No","Just order confirmation"], finding:"No post-purchase email flow means you're leaving repeat revenue on the table. The easiest customer to convert is one who's already bought from you.", severity:"high", fix:"Build a 5-email post-purchase sequence: confirmation, shipping update, delivery check-in, review request (day 7), related product recommendation (day 14)." },
+    q18:{ bad:["No system"], ok:["Checkout only"], finding:"Poor email collection strategy. Your email list is your owned audience — the only channel that isn't subject to algorithm changes or ad costs.", severity:"high", fix:"Add an exit-intent popup offering a 10% discount or free resource. Add inline email capture to blog posts and product pages. Checkout email is table stakes — build beyond it." },
+    q19:{ bad:["No"], finding:"No win-back campaign for lapsed customers. Customers who've bought once are 9x more likely to convert than cold prospects — but not if you never contact them.", severity:"medium", fix:"Build a 2-email win-back for customers with no purchase in 90 days: Email 1: \"We miss you\" + best products. Email 2: Last chance + incentive." },
+    q20:{ bad:["Below 15%","Not using email"], finding:"Your email open rates are critically low or email isn't being used at all. This indicates poor list hygiene, weak subject lines, or an audience that's disengaged.", severity:"high", fix:"Clean your list — remove contacts with no opens in 90 days. Improve subject lines using curiosity, specificity, and the word 'you'. Aim for 25%+ before scaling list size." },
+    q21:{ bad:["No"], ok:["Basic info"], finding:"Weak or missing About page. In e-commerce, especially for DTC brands, the founder story is a conversion asset. Anonymous stores feel risky.", severity:"medium", fix:"Write a genuine founder story. Address why you started the brand, who it's for, and what you believe. Include a real photo. This page converts better than most product pages." },
+    q22:{ bad:["No"], ok:["Some"], finding:"Insufficient social proof. Beyond product reviews, you need brand-level social proof — press mentions, follower counts, certifications, or industry recognition.", severity:"medium", fix:"Add a social proof bar on your homepage: logos of publications, a follower count if meaningful, a customer counter if you have one. Even niche credibility signals help." },
+    q23:{ bad:["No"], ok:["Buried in footer"], finding:"Return policy not visible at point of decision. Return anxiety is one of the top reasons buyers don't convert — if they can't easily see your policy, they assume it's bad.", severity:"high", fix:"Add return policy summary near your Add to Cart button. \"Free returns within 30 days\" displayed at the point of purchase directly lifts conversion." },
+    q24:{ bad:["No"], ok:["Some"], finding:"No user-generated content strategy. UGC is the most credible form of social proof available — real customers using your product is worth more than any ad you can run.", severity:"medium", fix:"Start collecting UGC immediately: request photos from past customers, run a hashtag campaign, offer a discount for tagged posts. Add to product pages and ads." },
+    q25:{ bad:["1-3 days","Not consistently"], finding:"Slow customer response time is damaging trust and costing sales. Many purchase decisions are made within hours — if a prospect doesn't hear back, they buy from a competitor.", severity:"high", fix:"Set up automated first-response within 1 hour acknowledging the inquiry. Aim for human response within 4 business hours. Response time is a trust signal." },
+  };
+
+  Object.entries(answers).forEach(([id, answer]) => {
+    const map = findingMap[id];
+    if (!map) return;
+    const isBad = map.bad?.includes(answer);
+    const isOk  = map.ok?.includes(answer);
+    if (isBad || isOk) {
+      findings.push({
+        id,
+        finding: map.finding,
+        fix: map.fix,
+        severity: isBad ? map.severity : (map.severity === "critical" ? "high" : map.severity === "high" ? "medium" : "low"),
+        score: isBad ? 10 : 55,
+      });
+    }
+  });
+
+  return findings.sort((a, b) => {
+    const order = { critical:0, high:1, medium:2, low:3 };
+    return order[a.severity] - order[b.severity];
+  });
+}
+
+/* ─── GENERATE PLANS ─── */
+function generatePlans(findings, answers, techResults) {
+  const hasCritical = findings.filter(f => f.severity === "critical");
+  const hasHigh     = findings.filter(f => f.severity === "high");
+
+  const fixingPlan = [
+    {
+      phase: "Phase 1 — Stop the Bleeding (Week 1-2)",
+      priority: "critical",
+      actions: [
+        ...hasCritical.map(f => ({ title: findingTitle(f.id), action: f.fix, impact: "High", effort: "Low-Medium" })),
+        ...(techResults?.raw?.mPerf < 60 ? [{ title:"Fix mobile page speed", action:"Compress all images to WebP, remove unused JavaScript, enable browser caching. Target: under 3 seconds.", impact:"High", effort:"Medium" }] : []),
+      ].slice(0, 5),
+    },
+    {
+      phase: "Phase 2 — Conversion Foundation (Week 3-4)",
+      priority: "high",
+      actions: hasHigh.map(f => ({ title: findingTitle(f.id), action: f.fix, impact: "Medium-High", effort: "Medium" })).slice(0, 5),
+    },
+    {
+      phase: "Phase 3 — Optimize & Test (Month 2)",
+      priority: "medium",
+      actions: [
+        { title:"A/B test product page layouts", action:"Test two versions of your product page CTA placement, imagery, and description format. Run for minimum 1,000 visitors per variant.", impact:"Medium", effort:"Medium" },
+        { title:"Implement heatmap tracking", action:"Install Hotjar or Microsoft Clarity (free) to see exactly where users click, scroll, and drop off. Use this data to prioritize next round of changes.", impact:"Medium", effort:"Low" },
+        { title:"Review and optimize ad creative", action:"Audit all active ads — pause anything with declining CTR. Brief 3 new creative angles based on your top customer objections.", impact:"High", effort:"Medium" },
+      ],
+    },
+  ];
+
+  const growthPlan = [
+    {
+      phase: "Traffic Architecture",
+      actions: [
+        { title:"Build a content marketing engine", action:"Publish 2 SEO-optimised articles per week targeting buyer-intent keywords (e.g. 'best [product] for [use case]'). Each article is a 24/7 traffic source.", metric:"Target: 5,000 organic monthly visitors within 6 months" },
+        { title:"Activate TikTok for discovery", action:"Post 3x/week raw behind-the-scenes content. Don't produce ads — produce content. TikTok rewards authenticity over production value.", metric:"Target: 1 viral post per month (10k+ views)" },
+        { title:"Build influencer pipeline", action:"Identify 20 micro-influencers (5k-50k followers) in your niche. Offer product-for-post collaborations. 1 in 4 will drive meaningful traffic.", metric:"Target: 5 active collaborations within 30 days" },
+      ],
+    },
+    {
+      phase: "Conversion Compounding",
+      actions: [
+        { title:"Launch loyalty programme", action:"Implement a simple points-for-purchase system. Returning customers spend 67% more than new ones. Even a basic loyalty structure dramatically lifts LTV.", metric:"Target: 20% increase in repeat purchase rate" },
+        { title:"Bundle strategy", action:"Create 3 strategic product bundles at 10-15% discount vs individual pricing. Bundles increase AOV and reduce price sensitivity.", metric:"Target: 25% of orders include a bundle" },
+        { title:"Post-purchase upsell", action:"Add a one-click upsell immediately after purchase confirmation. \"Complete your order\" offers convert at 15-25% — highest converting moment in the funnel.", metric:"Target: 15% upsell take rate" },
+      ],
+    },
+    {
+      phase: "Scale Infrastructure",
+      actions: [
+        { title:"Implement attribution tracking", action:"Set up MER (Marketing Efficiency Ratio) tracking across all channels. Stop optimising for ROAS alone — optimise for profit.", metric:"Target: Clear view of true CAC and LTV by channel" },
+        { title:"Build paid media testing framework", action:"Allocate 20% of ad budget to new creative testing weekly. Document what wins and why. Build a swipe file of proven angles.", metric:"Target: 1 new proven creative angle per month" },
+        { title:"Subscription / recurring revenue", action:"If your product allows, introduce a subscription option. Even 10% of customers on subscription transforms your revenue predictability.", metric:"Target: 10% subscription penetration within 90 days" },
+      ],
+    },
+  ];
+
+  const marketingPlan = [
+    {
+      phase: "Brand Positioning",
+      actions: [
+        { title:"Define your singular brand position", action:"You need one sentence that no competitor can honestly say. Not 'high quality' or 'best price' — a specific, verifiable claim. Build all creative around this.", metric:"Deliverable: 1-sentence brand positioning statement" },
+        { title:"Develop customer avatar", action:"Interview 5 existing customers. Understand their exact language, fears, and aspirations. Your ad copy should sound like your customer talking to themselves.", metric:"Deliverable: Detailed customer avatar document" },
+        { title:"Create brand content pillars", action:"Define 4 content themes that reflect your brand values. Every piece of content fits one pillar. This creates consistency without rigidity.", metric:"Deliverable: 4 content pillars with 10 ideas each" },
+      ],
+    },
+    {
+      phase: "Paid Media Strategy",
+      actions: [
+        { title:"Meta campaign architecture", action:"Structure: Awareness (TOF — broad/interest) → Consideration (MOF — video views, page visitors) → Conversion (BOF — add-to-cart, checkout). Each level has different creative, copy, and bidding.", metric:"Target: 4x+ blended ROAS within 60 days" },
+        { title:"Creative strategy by platform", action:"Meta: Problem-agitate-solve format. TikTok: Native, authentic, trend-aware. Google: Intent-based, benefit-led. Pinterest: Aspirational, lifestyle-led. Never run the same creative across all platforms.", metric:"Target: Platform-specific CTR benchmarks hit within 30 days" },
+        { title:"Seasonal planning", action:"Map your top 6 revenue events for the year (BFCM, Valentine's, etc.). Build creative and offer strategy 6 weeks in advance. Don't improvise on peak days.", metric:"Deliverable: 12-month promotional calendar" },
+      ],
+    },
+    {
+      phase: "Email Marketing Architecture",
+      actions: [
+        { title:"Core flow build-out", action:"Priority order: Abandoned Cart → Post-Purchase → Welcome Series → Win-Back. Each flow is an automated revenue engine. Build in this order for maximum ROI.", metric:"Target: Email generates 30% of total revenue" },
+        { title:"Segmentation strategy", action:"Segment by: purchase frequency, average order value, product category, acquisition source. Different segments need different messages — one-size-fits-all email kills deliverability.", metric:"Target: 25%+ open rate across all segments" },
+        { title:"List growth engine", action:"Exit-intent popup (10% off) → Welcome email → Educational sequence (value-first) → Soft sell. Build trust before asking for money. Subscribers who buy once from email have 3x LTV.", metric:"Target: 500 new subscribers per month" },
+      ],
+    },
+  ];
+
+  return { fixingPlan, growthPlan, marketingPlan };
+}
+
+function findingTitle(id) {
+  const titles = {
+    q1:"Enable guest checkout",q2:"Reduce checkout steps",q3:"Build abandoned cart sequence",
+    q4:"Add trust badges",q5:"Expand payment options",q6:"Fix mobile CTA visibility",
+    q7:"Improve product imagery",q8:"Add above-fold reviews",q9:"Add urgency signals",
+    q10:"Rewrite product descriptions",q11:"Fix ROAS before scaling",q12:"Build retargeting stack",
+    q13:"Refresh ad creatives weekly",q14:"Build lookalike audiences",q15:"Build dedicated landing pages",
+    q16:"Build 3-email cart recovery",q17:"Build post-purchase sequence",q18:"Improve email collection",
+    q19:"Build win-back campaign",q20:"Improve email engagement",q21:"Build founder story page",
+    q22:"Add brand social proof",q23:"Make return policy visible",q24:"Collect UGC",q25:"Fix response time",
+  };
+  return titles[id] || id;
+}
+
+/* ─── SEVERITY COLORS ─── */
+function sevColor(s) {
+  if (s === "critical") return "#FF3B3B";
+  if (s === "high")     return "#FF9900";
+  if (s === "medium")   return "#FFD700";
+  return "#00ff88";
+}
+
+/* ─── GENERATE PDF/HTML REPORT ─── */
+function generateReport(storeUrl, findings, plans, techResults, tier) {
+  const now = new Date().toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+  const planSections = tier === "diagnosis" ? [] :
+    tier === "fix" ? [plans.fixingPlan] :
+    tier === "lab" ? [plans.fixingPlan, plans.growthPlan] :
+    [plans.fixingPlan, plans.growthPlan, plans.marketingPlan];
+
+  const planNames = ["🔧 Fixing Plan", "📈 Growth Plan", "📣 Marketing Plan"];
+
+  const planHTML = planSections.map((plan, idx) => `
+    <div style="margin-top:40px">
+      <h2 style="font-size:22px;font-weight:800;color:#00ff88;margin-bottom:20px">${planNames[idx]}</h2>
+      ${plan.map(phase => `
+        <div style="margin-bottom:30px">
+          <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:12px;padding:8px 16px;background:rgba(0,255,136,.1);border-radius:8px;border-left:3px solid #00ff88">${phase.phase}</h3>
+          ${phase.actions.map(action => `
+            <div style="margin-bottom:16px;padding:16px;background:rgba(255,255,255,.04);border-radius:10px;border:.5px solid rgba(255,255,255,.08)">
+              <p style="font-weight:700;color:#fff;margin-bottom:6px">→ ${action.title}</p>
+              <p style="color:rgba(255,255,255,.6);font-size:13px;line-height:1.7;margin-bottom:8px">${action.action}</p>
+              <p style="color:#00ff88;font-size:12px;font-weight:600">${action.metric || `Impact: ${action.impact} | Effort: ${action.effort}`}</p>
+            </div>
+          `).join("")}
+        </div>
+      `).join("")}
+    </div>
+  `).join("");
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>BCL Store Audit — ${storeUrl}</title>
+<style>
+  body{font-family:'Inter',sans-serif;background:#040608;color:#f0f0f0;margin:0;padding:40px;max-width:900px;margin:0 auto;}
+  h1{font-size:32px;font-weight:800;background:linear-gradient(135deg,#00ff88,#00cc6a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .finding{margin-bottom:20px;padding:16px 20px;border-radius:12px;border-left:4px solid;}
+  .critical{background:rgba(255,59,59,.1);border-color:#FF3B3B;}
+  .high{background:rgba(255,153,0,.08);border-color:#FF9900;}
+  .medium{background:rgba(255,215,0,.06);border-color:#FFD700;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;}
+  .watermark{text-align:center;color:rgba(255,255,255,.15);font-size:11px;margin-top:60px;padding-top:20px;border-top:.5px solid rgba(255,255,255,.06);}
+</style>
+</head>
+<body>
+<p style="color:rgba(255,255,255,.4);font-size:12px">Generated ${now} by Bode Conversion Lab</p>
+<h1>Store Audit Report</h1>
+<p style="color:rgba(255,255,255,.6);font-size:16px;margin-bottom:8px">🌐 ${storeUrl}</p>
+${techResults ? `<p style="color:rgba(255,255,255,.5);font-size:13px">Technical Score: ${techResults.overall}/100 | Mobile: ${techResults.raw?.mPerf ?? "—"}/100</p>` : ""}
+<h2 style="font-size:22px;font-weight:800;color:#00ff88;margin:32px 0 16px">Findings — ${findings.length} Issues Identified</h2>
+${findings.map(f => `
+  <div class="finding ${f.severity}">
+    <p><span class="badge" style="background:${sevColor(f.severity)}22;color:${sevColor(f.severity)}">${f.severity.toUpperCase()}</span></p>
+    <p style="font-weight:700;color:#fff;margin:8px 0 4px">${findingTitle(f.id)}</p>
+    <p style="color:rgba(255,255,255,.65);font-size:13px;line-height:1.7;margin-bottom:8px">${f.finding}</p>
+    <p style="color:#00ff88;font-size:13px"><strong>Fix:</strong> ${f.fix}</p>
+  </div>
+`).join("")}
+${planHTML}
+<div class="watermark">Bode Conversion Lab — bodeconversionlab.vercel.app — We don't run ads. We engineer ROAS.</div>
+</body>
+</html>`;
+}
+
+/* ─── DOWNLOAD HELPER ─── */
+function downloadHTML(content, filename) {
+  const blob = new Blob([content], { type:"text/html" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ─── RING SVG ─── */
+function Ring({ score, size=80, color=G }) {
+  const r = size/2 - 6;
+  const circ = 2 * Math.PI * r;
+  const dash = (score / 100) * circ;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform:"rotate(-90deg)" }}>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth={5}/>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={5} strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" style={{ transition:"stroke-dasharray 1s cubic-bezier(.22,1,.36,1)" }}/>
+    </svg>
+  );
+}
+
+/* ─── PSI CHECKS ─── */
 const CHECKS = [
   { id:"mobile",     label:"Mobile Performance",   icon:"📱", weight:0.25, critical:true },
   { id:"vitals",     label:"Core Web Vitals",       icon:"📊", weight:0.22, critical:true },
@@ -28,753 +392,615 @@ const CHECKS = [
 ];
 
 const SCAN_STAGES = [
-  { msg:"Connecting to store...",               sub:"Initialising analysis engine" },
-  { msg:"Scanning mobile performance...",        sub:"This is where most stores fail" },
-  { msg:"Detecting layout shifts (CLS)...",      sub:"Invisible leaks that cost you buyers" },
-  { msg:"Measuring load blocking (TBT)...",      sub:"Every millisecond costs conversion" },
-  { msg:"Auditing SEO signals...",               sub:"Are you invisible on Google?" },
-  { msg:"Checking image optimisation...",        sub:"Bloated images = lost revenue" },
-  { msg:"Calculating friction points...",        sub:"Where buyers abandon your funnel" },
-  { msg:"Running final diagnosis...",            sub:"Compiling your revenue leak report" },
+  { msg:"Connecting to store...",            sub:"Initialising analysis engine" },
+  { msg:"Scanning mobile performance...",     sub:"This is where most stores fail" },
+  { msg:"Detecting layout shifts (CLS)...",   sub:"Invisible leaks that cost you buyers" },
+  { msg:"Measuring load blocking (TBT)...",   sub:"Every millisecond costs conversion" },
+  { msg:"Auditing SEO signals...",            sub:"Are you invisible on Google?" },
+  { msg:"Checking image optimisation...",     sub:"Bloated images = lost revenue" },
+  { msg:"Calculating friction points...",     sub:"Where buyers abandon your funnel" },
+  { msg:"Running final diagnosis...",         sub:"Compiling your revenue leak report" },
 ];
 
-function brutalScore(raw) {
-  if (raw == null) return null;
-  return Math.max(0, Math.min(100, Math.round(raw - 15)));
-}
-function col(s)   { return s >= 75 ? "#00ff88" : s >= 50 ? "#FF9900" : "#FF3B3B"; }
-function grade(s) {
-  if (s >= 80) return "B";
-  if (s >= 65) return "C";
-  if (s >= 45) return "D";
-  return "F";
-}
-function label(s) {
-  if (s >= 80) return "Acceptable";
-  if (s >= 65) return "Sub-Optimal";
-  if (s >= 45) return "Leaking Revenue";
-  return "Critical Failure";
-}
-const clamp = v => Math.max(0, Math.min(100, Math.round(v || 0)));
-const pct   = v => v != null ? clamp(v * 100) : null;
-
-async function fetchPSI(storeUrl, strategy) {
-  const url = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(storeUrl)}&strategy=${strategy}&category=performance&category=seo&category=best-practices&category=accessibility&key=${PSI_KEY}`;
-  const response = await fetch(url, { signal: AbortSignal.timeout(40000) });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const data = await response.json();
-  if (data?.error) throw new Error(data.error.message || "PSI API error");
-  return data;
-}
-
-function buildReport(desktop, mobile, url) {
-  const lh  = mobile?.lighthouseResult;
-  const lhD = desktop?.lighthouseResult;
-
-  const rawMPerf = pct(lh?.categories?.performance?.score);
-  const rawDPerf = pct(lhD?.categories?.performance?.score);
-  const rawSeo   = pct(lh?.categories?.seo?.score);
-  const rawAcc   = pct(lh?.categories?.accessibility?.score);
-  const rawBest  = pct(lh?.categories?.["best-practices"]?.score);
-
-  const lcp = lh?.audits?.["largest-contentful-paint"];
-  const cls = lh?.audits?.["cumulative-layout-shift"];
-  const fid = lh?.audits?.["total-blocking-time"];
-  const si  = lh?.audits?.["speed-index"];
-  const fcp = lh?.audits?.["first-contentful-paint"];
-
-  const lcpMs  = lcp ? parseFloat(lcp.numericValue) : 4500;
-  const clsVal = cls ? parseFloat(cls.numericValue) : 0.25;
-  const fidMs  = fid ? parseFloat(fid.numericValue) : 400;
-  const fcpMs  = fcp ? parseFloat(fcp.numericValue) : 3000;
-
-  const mobileRaw = rawMPerf ?? 50;
-  const mobileScore = mobileRaw >= 95
-    ? brutalScore(mobileRaw) + 5
-    : mobileRaw < 50
-      ? Math.max(0, mobileRaw - 20)
-      : brutalScore(mobileRaw);
-
-  let vitRaw = 100;
-  if (lcpMs > 4000)      vitRaw -= 40;
-  else if (lcpMs > 2500) vitRaw -= 25;
-  else if (lcpMs > 1800) vitRaw -= 12;
-  if (clsVal > 0.25)     vitRaw -= 35;
-  else if (clsVal > 0.1) vitRaw -= 20;
-  else if (clsVal > 0.05)vitRaw -= 8;
-  if (fidMs > 600)       vitRaw -= 30;
-  else if (fidMs > 300)  vitRaw -= 18;
-  else if (fidMs > 200)  vitRaw -= 8;
-  const vitScore = clamp(vitRaw - 10);
-
-  const vitalsCritical = lcpMs > 2500 || clsVal > 0.1 || fidMs > 300 || mobileRaw < 70;
-  const mobileSubOptimal = mobileRaw < 95;
-
-  const speedScore = clamp(((rawMPerf ?? 45) * 0.55 + (rawDPerf ?? 55) * 0.45) - 14);
-
-  const hasMeta    = lh?.audits?.["meta-description"]?.score === 1;
-  const hasTitle   = lh?.audits?.["document-title"]?.score   === 1;
-  const hasCanon   = lh?.audits?.canonical?.score            === 1;
-  const seoRaw     = rawSeo ?? 45;
-  const seoScore   = clamp(seoRaw - (!hasMeta?15:0) - (!hasTitle?12:0) - (!hasCanon?8:0) - 10);
-
-  const imgOpt  = lh?.audits?.["uses-optimized-images"]?.score;
-  const imgWebp = lh?.audits?.["uses-webp-images"]?.score;
-  const imgResp = lh?.audits?.["uses-responsive-images"]?.score;
-  const imgScore = clamp(75 - (imgOpt===0?28:0) - (imgWebp===0?22:0) - (imgResp===0?14:0));
-
-  const httpsScore = lh?.audits?.["is-on-https"]?.score;
-  const sslScore   = httpsScore === 1 ? 82 : httpsScore === 0 ? 5 : 60;
-
-  const checkoutScore = clamp(42 + (mobileRaw >= 80 ? 15 : 0) + ((rawBest ?? 50) * 0.2));
-
-  const convScore = clamp(
-    (mobileScore * 0.3) + ((rawSeo ?? 45) * 0.2) +
-    ((rawBest ?? 45) * 0.2) + ((rawAcc ?? 45) * 0.15) + (sslScore * 0.15) - 8
-  );
-
-  const weightedTotal = CHECKS.reduce((acc, c) => {
-    const scores = { mobile:mobileScore, vitals:vitScore, speed:speedScore, seo:seoScore, images:imgScore, ssl:sslScore, checkout:checkoutScore, conversion:convScore };
-    return acc + (scores[c.id] ?? 50) * c.weight;
-  }, 0);
-  const overall = clamp(weightedTotal);
-
-  const leak = overall >= 75 ? "15-25%" : overall >= 55 ? "30-50%" : overall >= 35 ? "50-65%" : "65-80%";
-  const isCritical = vitalsCritical || overall < 50;
-
-  const ranked = [
-    { id:"mobile",     s:mobileScore },
-    { id:"vitals",     s:vitScore },
-    { id:"speed",      s:speedScore },
-    { id:"seo",        s:seoScore },
-    { id:"images",     s:imgScore },
-    { id:"ssl",        s:sslScore },
-    { id:"checkout",   s:checkoutScore },
-    { id:"conversion", s:convScore },
-  ].sort((a, b) => a.s - b.s);
-
-  const pMap = {
-    mobile:     `Mobile performance is ${mobileScore < 50 ? "critically low" : "sub-optimal"} at ${mobileRaw}/100 — ${mobileScore < 50 ? "most buyers leave before your page finishes loading" : "you're losing buyers on every phone visit"}`,
-    vitals:     `Core Web Vitals are ${vitalsCritical ? "FAILING" : "struggling"} — LCP ${lcp?.displayValue??"-"}, CLS ${cls?.displayValue??"-"}, TBT ${fid?.displayValue??"-"}. Google is actively penalising your rankings`,
-    speed:      `Page speed score ${speedScore}/100 means you're paying for ads that send people to a page they abandon`,
-    seo:        `SEO score ${seoScore}/100 — ${!hasMeta?"missing meta description, ":""}${!hasTitle?"missing title tag, ":""}${!hasCanon?"no canonical tag":""}. You're invisible to buyers who aren't running ads`,
-    images:     `Unoptimised images are ${imgWebp===0?"not using WebP (30% larger than needed), ":""}${imgOpt===0?"not compressed, ":""}costing you 2-3 seconds of load time`,
-    ssl:        httpsScore === 1 ? "SSL is active but review HSTS headers and mixed content warnings" : "No HTTPS detected — buyers will see a security warning and leave immediately",
-    checkout:   `Checkout friction score ${checkoutScore}/100 — slow load times alone cause 35%+ of cart abandonments before buyers reach payment`,
-    conversion: `Conversion readiness is ${convScore}/100 — a combination of performance, accessibility and trust failures is suppressing your revenue`,
-  };
-
-  const disqualMsg = overall < 60
-    ? `Your store is technically live, but it's currently optimized for browsing — not buying. Most brands ignore these friction points until they scale, at which point the leaks become catastrophically expensive. Fix them now, or keep paying the "Inconsistency Tax" on every ad dollar you spend.`
-    : `Your store has the bones of something that can scale, but there are measurable friction points actively suppressing your conversion rate. These aren't cosmetic issues — they're revenue drains that compound every day you leave them unfixed.`;
-
-  let domain = url;
-  try { domain = new URL(url).hostname.replace("www.", ""); } catch {}
-
-  return {
-    domain, overall, isCritical, mobileSubOptimal, vitalsCritical, disqualMsg,
-    leak, mobileRaw,
-    scores: { mobile:mobileScore, vitals:vitScore, speed:speedScore, seo:seoScore, images:imgScore, ssl:sslScore, checkout:checkoutScore, conversion:convScore },
-    raw: { lcp:lcp?.displayValue, cls:cls?.displayValue, fid:fid?.displayValue, fcp:fcp?.displayValue, mPerf:rawMPerf, dPerf:rawDPerf, mSeo:rawSeo },
-    ranked,
-    topPriorities: ranked.slice(0, 3).map(a => pMap[a.id]),
-    verdict: isCritical
-      ? `${domain} has critical revenue leaks. Based on real Google data, your store scores ${overall}/100 — meaning the majority of visitors who land here are experiencing friction that prevents them from buying.`
-      : `${domain} scores ${overall}/100. There are real, measurable friction points costing you revenue on every visitor who lands on your store.`,
-    checks: {
-      mobile:     { score:mobileScore,   grade:grade(mobileScore),   label:label(mobileScore),   summary:`Google measures ${mobileRaw}/100 — we call it ${mobileScore}/100 after accounting for real-world buyer tolerance`, issues: buildMobileIssues(lh, mobileRaw, lcpMs, fidMs), fixes: ["Eliminate render-blocking JS above the fold","Compress and lazy-load all images below fold","Move to a faster hosting plan or CDN","Target LCP under 1.8s — not just 2.5s"] },
-      vitals:     { score:vitScore,      grade:grade(vitScore),      label:label(vitScore),      summary:`LCP ${lcp?.displayValue??"?"} · CLS ${cls?.displayValue??"?"} · TBT ${fid?.displayValue??"?"}`, issues: buildVitalIssues(lcpMs, clsVal, fidMs), fixes: ["Preload hero image with <link rel=preload>","Add explicit width/height to every image and video","Break up long JavaScript tasks into smaller chunks","Score all three vitals GREEN before scaling ads"] },
-      speed:      { score:speedScore,    grade:grade(speedScore),    label:label(speedScore),    summary:`Mobile ${rawMPerf??"-"} · Desktop ${rawDPerf??"-"} — real-world load is worse than lab conditions`, issues:[`Mobile performance ${rawMPerf??"-"}/100 — buyers are waiting`,`Speed Index ${si?.displayValue??"unknown"} — time until page feels interactive`,`FCP ${fcp?.displayValue??"?"} — first content appears late`], fixes:["Minify and defer all non-critical JS/CSS","Enable Brotli/gzip compression at server level","Serve assets from a CDN close to your customers","Remove unused third-party scripts (chat widgets, tracking pixels)"] },
-      seo:        { score:seoScore,      grade:grade(seoScore),      label:label(seoScore),      summary:`SEO ${rawSeo??"-"}/100 — organic traffic is being wasted by technical failures`, issues:[!hasMeta?"❌ Missing meta description — Google writes its own, usually badly":"✓ Meta description found",!hasTitle?"❌ Missing or duplicate title tag — critical for rankings":"✓ Title tag found",!hasCanon?"❌ No canonical tag — duplicate content dilutes authority":"✓ Canonical tag found",rawSeo!=null&&rawSeo<80?`SEO score ${rawSeo}/100 — structured data and schema are likely missing`:""], fixes:["Write unique 150-160 char meta descriptions for every page","Add product schema markup to all product pages","Create an XML sitemap and submit to Google Search Console","Fix any broken internal links — each one wastes crawl budget"] },
-      images:     { score:imgScore,      grade:grade(imgScore),      label:label(imgScore),      summary:"Unoptimised images are the #1 silent revenue killer on mobile", issues:[imgWebp===0?"❌ Not serving WebP/AVIF — images are 30-50% larger than needed":"✓ Modern formats detected",imgOpt===0?"❌ Images not compressed — every product image is a conversion tax":"✓ Images appear compressed",imgResp===0?"❌ Not using srcset — mobile gets full desktop images":"✓ Responsive images detected"], fixes:["Convert ALL product images to WebP immediately","Set explicit width and height on every image element","Lazy-load all images below the fold","Target under 80KB per product image"] },
-      ssl:        { score:sslScore,      grade:grade(sslScore),      label:label(sslScore),      summary:httpsScore===1?"HTTPS active — but check for mixed content warnings":"No HTTPS — buyers see a security warning before they see your product", issues:[httpsScore===1?"SSL certificate is active and valid":"❌ Store not served over HTTPS — this is a conversion emergency"], fixes:[httpsScore===1?"Audit for mixed content (HTTP assets on HTTPS pages)":"Enable HTTPS immediately via your hosting control panel","Set up HSTS headers to force secure connections","Ensure SSL auto-renews — expiry kills conversion instantly"] },
-      checkout:   { score:checkoutScore, grade:grade(checkoutScore), label:label(checkoutScore), summary:"Checkout friction is the last wall between your buyer and their money", issues:[`Slow mobile load (${mobileRaw}/100) causes 35%+ pre-checkout abandonment`,"Guest checkout status requires live manual test","Trust signals at checkout require manual audit","Payment logo visibility requires manual audit"], fixes:["Enable guest checkout — account creation kills 35% of buyers","Reduce checkout to maximum 2 steps","Add payment logos, security badge and return policy above the fold at checkout","Test your entire checkout on a real phone on 4G — not WiFi"] },
-      conversion: { score:convScore,     grade:grade(convScore),     label:label(convScore),     summary:"Conversion readiness is a composite of performance, trust and UX signals", issues:[rawAcc!=null&&rawAcc<80?`Accessibility ${rawAcc}/100 — screen reader and contrast issues deter buyers`:"",rawBest!=null&&rawBest<80?`Best practices ${rawBest}/100 — deprecated APIs and console errors signal a broken experience`:"","CTA placement requires live manual audit","Social proof visibility requires manual audit"].filter(Boolean), fixes:["Place Add-to-Cart button above the fold on mobile — always","Add review count and star rating next to the CTA","Use urgency signals (stock count, limited offer) responsibly","Audit your page on a real iPhone SE — smallest screen, most demanding test"] },
-    },
-  };
-}
-
-function buildMobileIssues(lh, mPerf, lcpMs, fidMs) {
-  const issues = [];
-  if (mPerf < 50)  issues.push(`❌ Mobile score ${mPerf}/100 — critically slow. Most buyers have already left`);
-  else if (mPerf < 75) issues.push(`⚠ Mobile score ${mPerf}/100 — sub-optimal. You're losing buyers on every phone visit`);
-  else if (mPerf < 95) issues.push(`⚠ Mobile score ${mPerf}/100 — we classify anything under 95 as sub-optimal`);
-  if (lh?.audits?.["tap-targets"]?.score < 1) issues.push("❌ Tap targets too small — buttons are hard to press on phones");
-  if (lh?.audits?.viewport?.score === 0) issues.push("❌ No viewport meta tag — page may not render correctly on mobile");
-  if (lcpMs > 3000) issues.push(`❌ LCP ${(lcpMs/1000).toFixed(1)}s on mobile — buyer attention is gone by 3s`);
-  if (!issues.length) issues.push("Mobile score is within range but still sub-optimal for scaling");
-  return issues;
-}
-
-function buildVitalIssues(lcpMs, clsVal, fidMs) {
-  const issues = [];
-  if (lcpMs > 4000)      issues.push(`❌ LCP ${(lcpMs/1000).toFixed(2)}s — POOR. Google's threshold is 2.5s. You're 60%+ over`);
-  else if (lcpMs > 2500) issues.push(`⚠ LCP ${(lcpMs/1000).toFixed(2)}s — NEEDS IMPROVEMENT. Buyers notice this delay`);
-  if (clsVal > 0.25)     issues.push(`❌ CLS ${clsVal.toFixed(3)} — POOR. Your page is jumping around as it loads. Buyers hate this`);
-  else if (clsVal > 0.1) issues.push(`⚠ CLS ${clsVal.toFixed(3)} — NEEDS IMPROVEMENT. Subtle layout shifts erode trust`);
-  if (fidMs > 600)       issues.push(`❌ TBT ${fidMs}ms — POOR. Main thread is blocked. Taps and clicks are delayed`);
-  else if (fidMs > 300)  issues.push(`⚠ TBT ${fidMs}ms — NEEDS IMPROVEMENT. Interaction feels sluggish`);
-  if (!issues.length)    issues.push("Vitals within threshold but optimise further before scaling ad spend");
-  return issues;
-}
-
-/* ── Score Ring ── */
-function Ring({ score, size = 96, color: c }) {
-  const r = (size-10)/2, circ = 2*Math.PI*r, dash = (score/100)*circ;
-  return (
-    <svg width={size} height={size} style={{ transform:"rotate(-90deg)", flexShrink:0 }}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(80,80,80,.2)" strokeWidth={7}/>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={c} strokeWidth={7}
-        strokeDasharray={`${dash} ${circ-dash}`} strokeLinecap="round"
-        style={{ transition:"stroke-dasharray 1.6s cubic-bezier(.22,1,.36,1)", filter:`drop-shadow(0 0 6px ${c})`}}/>
-    </svg>
-  );
-}
-
-/* ── Check Card ── */
-function CheckCard({ check, id, label: lbl, icon, dark, cardBg, cardBorder, mutedText, headingColor, trackBg }) {
-  const [open, setOpen] = useState(false);
-  const c = col(check.score);
-  const isBad = check.score < 50;
-
-  return (
-    <div onClick={() => setOpen(v => !v)}
-      style={{ background: isBad ? (dark?"rgba(255,59,59,.06)":"rgba(255,59,59,.04)") : cardBg,
-        border: `.5px solid ${open ? c+"77" : isBad ? "rgba(255,59,59,.25)" : cardBorder}`,
-        borderTop: `.5px solid ${c}66`, borderRadius:16, padding:"1.3rem",
-        cursor:"pointer", transition:"all .3s cubic-bezier(.22,1,.36,1)", position:"relative", overflow:"hidden" }}
-      onMouseEnter={e => { e.currentTarget.style.transform="translateY(-4px)"; e.currentTarget.style.boxShadow=`0 16px 40px ${c}1a`; }}
-      onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
-
-      {isBad && <div style={{ position:"absolute", top:10, right:10, background:"rgba(255,59,59,.15)", border:".5px solid rgba(255,59,59,.35)", borderRadius:100, padding:"2px 8px", fontSize:9, color:"#FF3B3B", fontWeight:700, letterSpacing:".08em" }}>CRITICAL</div>}
-      <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:`linear-gradient(90deg,transparent,${c}55,transparent)` }}/>
-
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:".6rem", paddingRight:isBad?"60px":"0" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:7 }}>
-          <span style={{ fontSize:17 }}>{icon}</span>
-          <span style={{ fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:700, color:headingColor }}>{lbl}</span>
-        </div>
-        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-          <span style={{ fontFamily:"'Syne',sans-serif", fontSize:20, fontWeight:800, color:c, lineHeight:1, textShadow:open?`0 0 16px ${c}88`:"none" }}>{check.grade}</span>
-          <span style={{ fontSize:11, color:mutedText }}>{check.score}/100</span>
-          <span style={{ color:c, fontSize:14, transition:"transform .3s cubic-bezier(.22,1,.36,1)", transform:open?"rotate(45deg)":"none", display:"inline-block" }}>+</span>
-        </div>
-      </div>
-
-      <div style={{ height:4, background:trackBg, borderRadius:4, overflow:"hidden", marginBottom:".5rem" }}>
-        <div style={{ height:"100%", borderRadius:4, width:`${check.score}%`, background:`linear-gradient(90deg,${c}cc,${c})`, boxShadow:`0 0 6px ${c}55`, transition:"width 1.4s cubic-bezier(.22,1,.36,1)" }}/>
-      </div>
-
-      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:open?".8rem":0 }}>
-        <span style={{ fontSize:11, color:c, fontWeight:600 }}>{check.label}</span>
-        <span style={{ fontSize:11, color:mutedText }}>— {check.summary}</span>
-      </div>
-
-      {open && (
-        <div style={{ borderTop:dark?".5px solid rgba(255,255,255,.08)":".5px solid rgba(0,0,0,.08)", paddingTop:".8rem", animation:"expandIn .3s cubic-bezier(.22,1,.36,1)" }}>
-          <style>{`@keyframes expandIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}`}</style>
-          {check.issues?.filter(Boolean).length > 0 && (
-            <div style={{ marginBottom:".8rem" }}>
-              <p style={{ fontSize:10, color:"#FF6B6B", letterSpacing:".1em", textTransform:"uppercase", fontWeight:700, marginBottom:".5rem" }}>⚠ What we found</p>
-              {check.issues.filter(Boolean).map((iss, i) => (
-                <div key={i} style={{ display:"flex", gap:8, marginBottom:5, padding:"5px 8px", background:iss.startsWith("❌")?"rgba(255,59,59,.07)":"rgba(255,153,0,.05)", borderRadius:8, borderLeft:`2px solid ${iss.startsWith("❌")?"#FF3B3B":"#FF9900"}` }}>
-                  <p style={{ fontSize:12, color:dark?"rgba(255,255,255,.65)":"rgba(0,0,0,.65)", margin:0, lineHeight:1.5 }}>{iss}</p>
-                </div>
-              ))}
-            </div>
-          )}
-          {check.fixes?.length > 0 && (
-            <div>
-              <p style={{ fontSize:10, color:"#00ff88bb", letterSpacing:".1em", textTransform:"uppercase", fontWeight:700, marginBottom:".5rem" }}>→ How to fix it</p>
-              {check.fixes.map((fix, i) => (
-                <div key={i} style={{ display:"flex", gap:8, marginBottom:5, padding:"5px 8px", background:"rgba(0,255,136,.05)", borderRadius:8, borderLeft:"2px solid rgba(0,255,136,.35)" }}>
-                  <p style={{ fontSize:12, color:dark?"rgba(255,255,255,.68)":"rgba(0,0,0,.68)", margin:0, lineHeight:1.5 }}>{fix}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── RADAR CANVAS ── */
-function RadarCanvas({ loading }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (!loading || !ref.current) return;
-    const c = ref.current, ctx = c.getContext("2d");
-    c.width = c.height = 180;
-    let angle = 0, raf;
-    const draw = () => {
-      ctx.clearRect(0, 0, 180, 180);
-      const cx = 90, cy = 90;
-      [30,50,70,90].forEach(r => {
-        ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
-        ctx.strokeStyle = `rgba(0,255,136,${r===30?.15:.06})`; ctx.lineWidth=1; ctx.stroke();
-      });
-      ctx.strokeStyle="rgba(0,255,136,.06)"; ctx.lineWidth=1;
-      ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,180); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(180,cy); ctx.stroke();
-      const g=ctx.createLinearGradient(cx,cy,cx+Math.cos(angle)*90,cy+Math.sin(angle)*90);
-      g.addColorStop(0,"rgba(0,255,136,0)"); g.addColorStop(1,"rgba(0,255,136,.3)");
-      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,90,angle-Math.PI*.4,angle); ctx.closePath();
-      ctx.fillStyle=g; ctx.fill();
-      ctx.beginPath(); ctx.moveTo(cx,cy);
-      ctx.lineTo(cx+Math.cos(angle)*90,cy+Math.sin(angle)*90);
-      ctx.strokeStyle="rgba(0,255,136,.8)"; ctx.lineWidth=1.5; ctx.stroke();
-      ctx.beginPath(); ctx.arc(cx+Math.cos(angle)*90,cy+Math.sin(angle)*90,3,0,Math.PI*2);
-      ctx.fillStyle="#00ff88"; ctx.fill();
-      ctx.beginPath(); ctx.arc(cx,cy,4,0,Math.PI*2); ctx.fillStyle="#00ff88"; ctx.fill();
-      angle=(angle+0.035)%(Math.PI*2);
-      raf=requestAnimationFrame(draw);
-    };
-    draw();
-    return () => cancelAnimationFrame(raf);
-  }, [loading]);
-  return <canvas ref={ref} width={180} height={180} style={{ width:180, height:180 }}/>;
-}
-
-/* ── DOWNLOAD REPORT (branded HTML) ── */
-function generateReportHTML(results, oGrade) {
-  const scoreColor = (s) => s >= 75 ? "#00ff88" : s >= 50 ? "#FF9900" : "#FF3B3B";
-
-  const checksHTML = CHECKS.map(c => {
-    const chk = results.checks?.[c.id];
-    if (!chk) return "";
-    const sc = scoreColor(chk.score);
-    const issuesHTML = (chk.issues || []).filter(Boolean).map(i =>
-      `<li style="color:${i.startsWith("❌") ? "#FF6B6B" : "#FF9900"};margin-bottom:4px;">${i}</li>`
-    ).join("");
-    const fixesHTML = (chk.fixes || []).map(f =>
-      `<li style="color:#00ff88;margin-bottom:4px;">${f}</li>`
-    ).join("");
-    return `
-      <div style="background:#0d1117;border:.5px solid ${sc}44;border-top:2px solid ${sc};border-radius:12px;padding:1.2rem;margin-bottom:1rem;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;">
-          <span style="font-size:15px;font-weight:700;color:#fff;">${c.icon} ${c.label}</span>
-          <span style="font-size:22px;font-weight:800;color:${sc};">${chk.grade} <span style="font-size:13px;color:#888;">${chk.score}/100</span></span>
-        </div>
-        <div style="height:5px;background:#1a1a1a;border-radius:5px;margin-bottom:.8rem;">
-          <div style="height:100%;width:${chk.score}%;background:${sc};border-radius:5px;"></div>
-        </div>
-        <p style="color:#888;font-size:12px;margin-bottom:.8rem;font-style:italic;">${chk.label} — ${chk.summary}</p>
-        ${issuesHTML ? `<p style="color:#FF6B6B;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem;">⚠ What We Found</p><ul style="padding-left:1.2rem;margin-bottom:.8rem;">${issuesHTML}</ul>` : ""}
-        ${fixesHTML ? `<p style="color:#00ff88;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem;">→ How To Fix It</p><ul style="padding-left:1.2rem;">${fixesHTML}</ul>` : ""}
-      </div>`;
-  }).join("");
-
-  const prioritiesHTML = results.topPriorities.map((p, i) =>
-    `<div style="display:flex;gap:10px;margin-bottom:10px;padding:10px 12px;background:${i===0?"rgba(255,59,59,.1)":"rgba(255,153,0,.07)"};border-radius:10px;border-left:3px solid ${i===0?"#FF3B3B":"#FF9900"};">
-      <span style="color:${i===0?"#FF3B3B":"#FF9900"};font-weight:800;min-width:20px;">${i+1}.</span>
-      <p style="color:#ccc;font-size:13px;margin:0;line-height:1.6;">${p}</p>
-    </div>`
-  ).join("");
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Store Audit Report — ${results.domain} — Bode Conversion Lab</title>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:#040608;color:#f0f0f0;font-family:'Segoe UI',system-ui,sans-serif;padding:2rem 1rem;}
-  h1,h2,h3{font-weight:800;line-height:1.1;}
-  ul{list-style:none;}
-  @media print{body{background:#fff;color:#000;}}
-</style>
-</head>
-<body>
-<div style="max-width:860px;margin:0 auto;">
-
-  <!-- HEADER -->
-  <div style="text-align:center;padding:2.5rem 1rem 2rem;border-bottom:.5px solid rgba(0,255,136,.2);margin-bottom:2rem;">
-    <p style="color:#00ff88;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;margin-bottom:.8rem;">BODE CONVERSION LAB</p>
-    <h1 style="font-size:clamp(1.5rem,5vw,2.5rem);color:#fff;margin-bottom:.5rem;">Store Audit Report</h1>
-    <p style="color:#888;font-size:13px;">Generated ${new Date().toLocaleString()} · Data from Google PageSpeed Insights API</p>
-    <p style="color:#00ff88;font-size:15px;font-weight:600;margin-top:.8rem;">${results.domain}</p>
-  </div>
-
-  <!-- OVERALL SCORE -->
-  <div style="background:linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.02));border:.5px solid rgba(0,255,136,.25);border-radius:16px;padding:2rem;margin-bottom:1.5rem;text-align:center;">
-    <p style="font-size:11px;color:#00ff88;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin-bottom:.8rem;">Overall Score</p>
-    <div style="font-size:72px;font-weight:800;color:${scoreColor(results.overall)};line-height:1;margin-bottom:.3rem;">${oGrade}</div>
-    <div style="font-size:18px;color:#888;margin-bottom:1rem;">${results.overall}/100</div>
-    <p style="color:#ccc;font-size:14px;line-height:1.7;max-width:600px;margin:0 auto 1.2rem;">${results.verdict}</p>
-    <div style="display:inline-block;background:rgba(255,59,59,.1);border:.5px solid rgba(255,59,59,.3);border-radius:10px;padding:.6rem 1.2rem;">
-      <p style="font-size:10px;color:#FF9999;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:3px;">Estimated Revenue Leak</p>
-      <p style="font-size:20px;font-weight:800;color:#FF6B6B;">${results.leak}</p>
-    </div>
-  </div>
-
-  <!-- CRITICAL BANNER -->
-  ${results.isCritical ? `<div style="background:rgba(255,59,59,.1);border:1px solid rgba(255,59,59,.4);border-radius:12px;padding:1rem 1.4rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:12px;">
-    <span style="font-size:24px;">🚨</span>
-    <div>
-      <p style="color:#FF3B3B;font-weight:800;margin-bottom:4px;">CRITICAL REVENUE LEAK DETECTED</p>
-      <p style="color:rgba(255,100,100,.8);font-size:13px;">Mobile performance and Core Web Vitals are below acceptable thresholds. Every ad you run is sending buyers to a broken experience.</p>
-    </div>
-  </div>` : ""}
-
-  <!-- TOP 3 PRIORITIES -->
-  <div style="background:rgba(255,59,59,.06);border:.5px solid rgba(255,59,59,.2);border-radius:12px;padding:1.4rem;margin-bottom:1.5rem;">
-    <p style="color:#FF9999;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:1rem;">🔥 Fix These First — In This Order</p>
-    ${prioritiesHTML}
-  </div>
-
-  <!-- REALITY CHECK -->
-  <div style="background:rgba(0,255,136,.04);border:.5px solid rgba(0,255,136,.2);border-left:3px solid #00ff88;border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:2rem;">
-    <p style="color:#00ff88;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:.6rem;">🧠 The Reality Check</p>
-    <p style="color:#aaa;font-size:13px;line-height:1.8;font-style:italic;">"${results.disqualMsg}"</p>
-  </div>
-
-  <!-- RAW VITALS -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem;margin-bottom:2rem;">
-    ${[
-      ["LCP", results.raw.lcp ?? "-"],
-      ["CLS", results.raw.cls ?? "-"],
-      ["TBT", results.raw.fid ?? "-"],
-      ["Mobile Perf", `${results.raw.mPerf ?? "-"}/100`],
-      ["Desktop Perf", `${results.raw.dPerf ?? "-"}/100`],
-      ["SEO", `${results.raw.mSeo ?? "-"}/100`],
-    ].map(([k, v]) => `
-      <div style="background:#0d1117;border:.5px solid #222;border-radius:10px;padding:.8rem;text-align:center;">
-        <p style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">${k}</p>
-        <p style="font-size:16px;font-weight:700;color:#fff;">${v}</p>
-      </div>`).join("")}
-  </div>
-
-  <!-- DETAILED CHECK CARDS -->
-  <h2 style="color:#fff;font-size:18px;margin-bottom:1.2rem;padding-bottom:.8rem;border-bottom:.5px solid rgba(255,255,255,.08);">Detailed Breakdown</h2>
-  ${checksHTML}
-
-  <!-- FOOTER CTA -->
-  <div style="text-align:center;padding:2.5rem 1rem;margin-top:2rem;border-top:.5px solid rgba(0,255,136,.15);">
-    <p style="color:#00ff88;font-size:11px;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin-bottom:.6rem;">Ready to fix every one of these?</p>
-    <h2 style="color:#fff;font-size:clamp(1.2rem,4vw,1.8rem);margin-bottom:.6rem;">This report shows the surface.<br/>Our full audit goes 10× deeper.</h2>
-    <p style="color:#888;font-size:13px;max-width:500px;margin:0 auto 1.5rem;line-height:1.75;">We don't just identify problems — we fix them. Landing pages, checkout flow, ad structure, email sequences. One compounding system.</p>
-    <a href="https://bodeconversionlab.vercel.app/contact" style="display:inline-block;background:linear-gradient(135deg,#00ff88,#00cc6a);color:#040608;border-radius:10px;padding:.8rem 2rem;font-size:15px;font-weight:800;text-decoration:none;">Apply for Full Professional Audit →</a>
-    <p style="color:#444;font-size:11px;margin-top:2rem;">© 2025 Bode Conversion Lab · bodeconversionlab.vercel.app · Built to convert. Engineered to scale.</p>
-  </div>
-
-</div>
-</body>
-</html>`;
-}
-
-/* ══════════════════════════════════════
+/* ═══════════════════════════════════════════
    MAIN COMPONENT
-══════════════════════════════════════ */
+═══════════════════════════════════════════ */
 export default function Audit() {
   const { dark } = useTheme();
-  const [url,      setUrl]      = useState("");
-  const [loading,  setLoading]  = useState(false);
+
+  /* ── URL input ── */
+  const [url, setUrl]           = useState("");
+  const [email, setEmail]       = useState("");
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState("");
   const [stageIdx, setStageIdx] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [results,  setResults]  = useState(null);
-  const [error,    setError]    = useState("");
-  const [revealed, setRevealed] = useState(false);
+  const [techResults, setTechResults] = useState(null);
 
-  const headingColor = dark?"#fff":"#0a0a0a";
-  const mutedText    = dark?"rgba(255,255,255,.45)":"rgba(0,0,0,.5)";
-  const mutedText2   = dark?"rgba(255,255,255,.3)":"rgba(0,0,0,.35)";
-  const cardBg       = dark?"linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))":"linear-gradient(135deg,rgba(0,0,0,.03),rgba(0,0,0,.01))";
-  const cardBorder   = dark?"rgba(255,255,255,.12)":"rgba(0,0,0,.1)";
-  const inputBg      = dark?"rgba(255,255,255,.06)":"rgba(0,0,0,.04)";
-  const inputBorder  = dark?"rgba(255,255,255,.14)":"rgba(0,0,0,.12)";
-  const inputColor   = dark?"#f0f0f0":"#0a0a0a";
-  const trackBg      = dark?"rgba(255,255,255,.08)":"rgba(0,0,0,.08)";
+  /* ── Diagnostic quiz ── */
+  const [showDiag, setShowDiag]       = useState(false);
+  const [diagStep, setDiagStep]       = useState(0);
+  const [diagAnswers, setDiagAnswers] = useState({});
 
-  const runAudit = async () => {
-    let cleaned = url.trim();
-    if (!cleaned) { setError("Enter your store URL to begin."); return; }
-    if (!/^https?:\/\//i.test(cleaned)) cleaned = "https://" + cleaned;
-    try { new URL(cleaned); } catch { setError("That doesn't look like a valid URL. Try: https://yourstore.com"); return; }
+  /* ── Final results ── */
+  const [findings, setFindings]   = useState(null);
+  const [plans, setPlans]         = useState(null);
+  const [revealed, setRevealed]   = useState(false);
 
-    if (PSI_KEY === "YOUR_GOOGLE_PAGESPEED_API_KEY") {
-      setError("⚠ Add your Google PageSpeed API key to Audit.jsx line 8 to activate the analyser.");
-      return;
-    }
+  /* ── Access control ── */
+  const [accessCode, setAccessCode]     = useState("");
+  const [accessTier, setAccessTier]     = useState(null); // null | "admin" | "diagnosis" | "fix" | "lab" | "fullstack"
+  const [accessError, setAccessError]   = useState("");
+  const [showAccessModal, setShowAccessModal] = useState(false);
 
-    setError(""); setLoading(true); setResults(null); setRevealed(false);
-    setStageIdx(0); setProgress(0);
+  const headingColor = dark ? "#fff"                  : "#1A1408";
+  const mutedText    = dark ? "rgba(255,255,255,.5)"   : "rgba(26,20,8,.65)";
+  const mutedText2   = dark ? "rgba(255,255,255,.4)"   : "rgba(26,20,8,.55)";
+  const mutedText3   = dark ? "rgba(255,255,255,.3)"   : "rgba(26,20,8,.45)";
+  const cardBg       = dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.2))";
+  const cardBorder   = dark ? "rgba(255,255,255,.1)"   : "rgba(26,20,8,.15)";
+  const inputBg      = dark ? "rgba(255,255,255,.05)"  : "rgba(255,255,255,.5)";
+  const inputBorder  = dark ? "rgba(255,255,255,.12)"  : "rgba(26,20,8,.18)";
+  const trackBg      = dark ? "rgba(255,255,255,.08)"  : "rgba(26,20,8,.1)";
 
-    const stageTimings = [0, 2200, 4400, 6600, 10000, 14000, 18000, 22000];
-    const timers = stageTimings.map((t, i) => setTimeout(() => setStageIdx(i), t));
-    const progTimers = [
-      setTimeout(() => setProgress(8),  500),
-      setTimeout(() => setProgress(25), 4000),
-      setTimeout(() => setProgress(50), 10000),
-      setTimeout(() => setProgress(75), 18000),
-      setTimeout(() => setProgress(88), 24000),
-    ];
+  /* ── PSI fetch & score ── */
+  async function runTechScan(storeUrl) {
+    let stage = 0;
+    const interval = setInterval(() => {
+      stage = Math.min(stage + 1, SCAN_STAGES.length - 1);
+      setStageIdx(stage);
+    }, 3500);
 
     try {
-      const [mRes, dRes] = await Promise.allSettled([
-        fetchPSI(cleaned, "mobile"),
-        fetchPSI(cleaned, "desktop"),
+      const [desktop, mobile] = await Promise.all([
+        fetchPSI(storeUrl, "desktop").catch(() => null),
+        fetchPSI(storeUrl, "mobile").catch(() => null),
       ]);
-      const mobile  = mRes.status === "fulfilled" ? mRes.value : null;
-      const desktop = dRes.status === "fulfilled" ? dRes.value : null;
-      if (!mobile && !desktop) throw new Error("Could not reach Google PageSpeed API");
-      setProgress(100);
-      setTimeout(() => { setResults(buildReport(desktop, mobile, cleaned)); setLoading(false); setTimeout(() => setRevealed(true), 200); }, 600);
+      clearInterval(interval);
+      return buildReport(desktop, mobile, storeUrl);
     } catch (e) {
-      setError(`Scan failed — ${e.message}. The URL must be publicly accessible. Try again in a moment.`);
-      setLoading(false);
-    } finally {
-      timers.forEach(clearTimeout);
-      progTimers.forEach(clearTimeout);
+      clearInterval(interval);
+      throw e;
     }
-  };
+  }
 
-  /* ── DOWNLOAD REPORT ── */
-  const downloadReport = () => {
-    if (!results) return;
-    const html = generateReportHTML(results, oGrade);
-    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-    const blobUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = blobUrl;
-    a.download = `${results.domain}-bode-audit-report.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(blobUrl);
-  };
+  /* ── Start scan ── */
+  async function handleScan() {
+    if (!url.trim()) return setError("Please enter your store URL.");
+    if (!email.trim() || !email.includes("@")) return setError("Please enter your email address.");
+    setError(""); setLoading(true); setStageIdx(0);
+    setTechResults(null); setFindings(null); setPlans(null); setRevealed(false);
 
-  const oCol   = results ? col(results.overall)   : G;
-  const oGrade = results ? grade(results.overall)  : "?";
-  const stage  = SCAN_STAGES[stageIdx] || SCAN_STAGES[SCAN_STAGES.length - 1];
+    try {
+      const tech = await runTechScan(url.trim());
+      setTechResults(tech);
+      setLoading(false);
+      setShowDiag(true);
+      setDiagStep(0);
+      setDiagAnswers({});
+    } catch (e) {
+      setLoading(false);
+      setError("Could not reach that store URL. Please check it's correct and publicly accessible.");
+    }
+  }
 
+  /* ── Answer diagnostic question ── */
+  function answerQuestion(questionId, answer) {
+    const newAnswers = { ...diagAnswers, [questionId]: answer };
+    setDiagAnswers(newAnswers);
+
+    const allQuestions = DIAGNOSTIC.flatMap(c => c.questions);
+    const currentQ = allQuestions.find(q => q.id === questionId);
+    const currentIdx = allQuestions.indexOf(currentQ);
+
+    if (currentIdx < allQuestions.length - 1) {
+      setDiagStep(currentIdx + 1);
+    } else {
+      // All questions answered — generate results
+      const f = generateFindings(newAnswers);
+      const p = generatePlans(f, newAnswers, techResults);
+      setFindings(f);
+      setPlans(p);
+      setShowDiag(false);
+      setTimeout(() => setRevealed(true), 100);
+    }
+  }
+
+  /* ── Access code verification ── */
+  function verifyAccess() {
+    const code = accessCode.trim().toUpperCase();
+    if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+      setAccessTier("admin");
+      setShowAccessModal(false);
+      return;
+    }
+    const entry = ACCESS_CODES[code];
+    if (entry) {
+      setAccessTier(entry.tier);
+      setShowAccessModal(false);
+      setAccessError("");
+    } else {
+      setAccessError("Invalid access code. Please check your payment confirmation email.");
+    }
+  }
+
+  /* ── Download logic ── */
+  function handleDownload(type) {
+    if (!accessTier) { setShowAccessModal(true); return; }
+
+    const tierOrder = { diagnosis:0, fix:1, lab:2, fullstack:3, admin:99 };
+    const typeOrder = { analysis:0, fixing:1, growth:2, marketing:3 };
+
+    if (accessTier !== "admin") {
+      const allowedByTier = {
+        diagnosis: ["analysis"],
+        fix:       ["analysis","fixing"],
+        lab:       ["analysis","fixing","growth"],
+        fullstack: ["analysis","fixing","growth","marketing"],
+      };
+      if (!allowedByTier[accessTier]?.includes(type)) {
+        alert(`Your current package (${accessTier}) doesn't include the ${type} plan. Upgrade to unlock.`);
+        return;
+      }
+    }
+
+    const domain = url.replace(/https?:\/\//, "").split("/")[0];
+    if (type === "analysis") {
+      const content = generateReport(url, findings, plans, techResults, accessTier === "admin" ? "fullstack" : accessTier);
+      downloadHTML(content, `BCL-Analysis-${domain}.html`);
+    } else if (type === "fixing") {
+      const content = generateReport(url, findings, { fixingPlan: plans.fixingPlan }, techResults, "fix");
+      downloadHTML(content, `BCL-FixingPlan-${domain}.html`);
+    } else if (type === "growth") {
+      const content = generateReport(url, [], { growthPlan: plans.growthPlan }, techResults, "lab");
+      downloadHTML(content, `BCL-GrowthPlan-${domain}.html`);
+    } else if (type === "marketing") {
+      const content = generateReport(url, [], { marketingPlan: plans.marketingPlan }, techResults, "fullstack");
+      downloadHTML(content, `BCL-MarketingPlan-${domain}.html`);
+    }
+  }
+
+  /* ── PSI helpers ── */
+  function fetchPSI(storeUrl, strategy) {
+    const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(storeUrl)}&strategy=${strategy}&category=performance&category=seo&category=best-practices&category=accessibility&key=${PSI_KEY}`;
+    return fetch(apiUrl, { signal: AbortSignal.timeout(40000) })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); });
+  }
+
+  function buildReport(desktop, mobile, storeUrl) {
+    const lh  = mobile?.lighthouseResult;
+    const lhD = desktop?.lighthouseResult;
+    const pct = v => v != null ? Math.max(0, Math.min(100, Math.round(v * 100))) : null;
+    const clamp = v => Math.max(0, Math.min(100, Math.round(v || 0)));
+
+    const rawMPerf = pct(lh?.categories?.performance?.score);
+    const rawDPerf = pct(lhD?.categories?.performance?.score);
+    const rawSeo   = pct(lh?.categories?.seo?.score);
+
+    const lcp = parseFloat(lh?.audits?.["largest-contentful-paint"]?.numericValue || 4500);
+    const cls = parseFloat(lh?.audits?.["cumulative-layout-shift"]?.numericValue  || 0.25);
+    const tbt = parseFloat(lh?.audits?.["total-blocking-time"]?.numericValue      || 400);
+
+    const mobileScore = clamp((rawMPerf ?? 50) - 15);
+    let vitRaw = 100;
+    if (lcp > 4000) vitRaw -= 40; else if (lcp > 2500) vitRaw -= 25; else if (lcp > 1800) vitRaw -= 12;
+    if (cls > 0.25) vitRaw -= 35; else if (cls > 0.1) vitRaw -= 20;  else if (cls > 0.05) vitRaw -= 8;
+    if (tbt > 600)  vitRaw -= 30; else if (tbt > 300) vitRaw -= 18;  else if (tbt > 200)  vitRaw -= 8;
+    const vitScore   = clamp(vitRaw - 10);
+    const speedScore = clamp(((rawMPerf ?? 45) * 0.55 + (rawDPerf ?? 55) * 0.45) - 14);
+    const seoScore   = clamp((rawSeo ?? 45) - 10);
+    const imgScore   = clamp(75 - (lh?.audits?.["uses-optimized-images"]?.score===0?28:0) - (lh?.audits?.["uses-webp-images"]?.score===0?22:0));
+    const sslScore   = lh?.audits?.["is-on-https"]?.score === 1 ? 82 : 12;
+    const checkoutScore = clamp(55 - (cls > 0.1 ? 20 : 0) - (tbt > 300 ? 20 : 0));
+    const convScore  = clamp(mobileScore * 0.4 + vitScore * 0.3 + seoScore * 0.3);
+
+    const scores = { mobile:mobileScore, vitals:vitScore, speed:speedScore, seo:seoScore, images:imgScore, ssl:sslScore, checkout:checkoutScore, conversion:convScore };
+    const overall = clamp(CHECKS.reduce((acc, c) => acc + (scores[c.id] || 0) * c.weight, 0));
+
+    const isCritical = overall < 50 || mobileScore < 50 || vitScore < 40;
+    const leak = overall < 40 ? "40-60% of potential revenue" : overall < 60 ? "20-40% of potential revenue" : overall < 75 ? "10-20% of potential revenue" : "Under 10%";
+
+    const verdicts = {
+      F: "Your store is critically broken. Buyers are landing and leaving before they even see your product properly. Every ad dollar you spend is being poured into a leaking bucket.",
+      D: "Significant revenue leaks detected across multiple areas. Your store is functional but underperforming in ways that compound monthly.",
+      C: "Your store has a foundation but several high-impact issues are suppressing conversion. These are fixable — but every week they're unfixed costs you real money.",
+      B: "Decent baseline with specific areas that need attention. Small improvements here will have disproportionate revenue impact.",
+    };
+
+    const oGrade = overall >= 80 ? "B" : overall >= 65 ? "C" : overall >= 45 ? "D" : "F";
+
+    const topPriorities = [];
+    if (mobileScore < 60) topPriorities.push("Fix mobile page speed — your mobile experience is actively repelling buyers");
+    if (vitScore < 50)    topPriorities.push("Resolve Core Web Vitals failures — layout shifts and blocking time are killing your conversion rate");
+    if (seoScore < 55)    topPriorities.push("Fix critical SEO issues — you're partially invisible to search engines");
+    if (imgScore < 50)    topPriorities.push("Optimize all images — uncompressed images are the single fastest performance fix");
+    if (sslScore < 50)    topPriorities.push("Fix HTTPS/SSL immediately — browsers are warning visitors your site is insecure");
+    if (topPriorities.length < 3) topPriorities.push("Run a full conversion rate audit across your product pages and checkout");
+
+    const disqualMessages = {
+      F: "We need to be honest with you — running paid traffic to this store right now would accelerate your losses, not fix them. The foundation needs to be rebuilt before ads will work. Our Store Diagnosis will show you exactly what to fix first.",
+      D: "Your store can be profitable, but not without fixing these leaks first. The good news: most of these issues are solvable within 2-4 weeks. Our Conversion Fix package handles the highest-impact ones for you.",
+      C: "You're closer than most store owners we audit. The issues here are specific and fixable. A targeted conversion fix on your top 3 problems will have measurable impact within 30 days.",
+      B: "Solid foundation. The opportunities here are in optimization and scaling, not repair. You're ready for a growth system — this is where compounding starts.",
+    };
+
+    return {
+      overall, isCritical, leak,
+      verdict: verdicts[oGrade],
+      disqualMsg: disqualMessages[oGrade],
+      mobileSubOptimal: mobileScore < 85,
+      domain: storeUrl.replace(/https?:\/\//, "").split("/")[0],
+      checks: Object.fromEntries(CHECKS.map(c => [c.id, {
+        score: scores[c.id],
+        grade: scores[c.id] >= 80 ? "B" : scores[c.id] >= 65 ? "C" : scores[c.id] >= 45 ? "D" : "F",
+        label: scores[c.id] >= 80 ? "Acceptable" : scores[c.id] >= 65 ? "Sub-Optimal" : scores[c.id] >= 45 ? "Leaking Revenue" : "Critical Failure",
+        color: scores[c.id] >= 75 ? "#00ff88" : scores[c.id] >= 50 ? "#FF9900" : "#FF3B3B",
+        critical: c.critical && scores[c.id] < 60,
+      }])),
+      raw: { mPerf: rawMPerf, dPerf: rawDPerf },
+      topPriorities: topPriorities.slice(0, 3),
+    };
+  }
+
+  /* ── Progress through diagnostic ── */
+  const allQuestions = DIAGNOSTIC.flatMap(c => c.questions);
+  const currentQuestion = allQuestions[diagStep];
+  const currentCategory = DIAGNOSTIC.find(c => c.questions.includes(currentQuestion));
+  const diagProgress = Math.round((diagStep / allQuestions.length) * 100);
+
+  /* ─────────────────────────────────
+     RENDER
+  ───────────────────────────────── */
   return (
     <PageWrapper>
-      <style>{`
-        @keyframes auditSpin{to{transform:rotate(360deg);}}
-        @keyframes auditSpin2{to{transform:rotate(-360deg);}}
-        @keyframes ping{0%{transform:scale(1);opacity:.7;}100%{transform:scale(2.8);opacity:0;}}
-        @keyframes staggerIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
-        @keyframes criticalPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,59,.4);}50%{box-shadow:0 0 0 12px rgba(255,59,59,0);}}
-        .check-card-enter{animation:staggerIn .5s cubic-bezier(.22,1,.36,1) both;}
-        .check-card-enter:nth-child(1){animation-delay:.05s;}
-        .check-card-enter:nth-child(2){animation-delay:.12s;}
-        .check-card-enter:nth-child(3){animation-delay:.19s;}
-        .check-card-enter:nth-child(4){animation-delay:.26s;}
-        .check-card-enter:nth-child(5){animation-delay:.33s;}
-        .check-card-enter:nth-child(6){animation-delay:.40s;}
-        .check-card-enter:nth-child(7){animation-delay:.47s;}
-        .check-card-enter:nth-child(8){animation-delay:.54s;}
-      `}</style>
 
-      {/* ── HERO ── */}
-      <section style={{ position:"relative", padding:"clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 2.5rem", overflow:"hidden" }}>
-        <div style={{ position:"absolute", width:600, height:600, top:-150, left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle,rgba(0,255,136,.1),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
+      {/* ── ACCESS CODE MODAL ── */}
+      {showAccessModal && (
+        <div onClick={() => setShowAccessModal(false)} style={{ position:"fixed", inset:0, zIndex:99000, background:"rgba(0,0,0,.7)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"1rem" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background:dark?"rgba(4,6,8,.97)":"rgba(255,248,225,.98)", border:dark?".5px solid rgba(255,255,255,.12)":".5px solid rgba(26,20,8,.18)", borderTop:".5px solid rgba(0,255,136,.4)", borderRadius:24, padding:"2rem", width:"100%", maxWidth:420, position:"relative" }}>
+            <button onClick={() => setShowAccessModal(false)} style={{ position:"absolute", top:14, right:16, background:"transparent", border:"none", cursor:"pointer", fontSize:20, color:mutedText3 }}>×</button>
 
-        <div style={{ maxWidth:800, margin:"0 auto", textAlign:"center", position:"relative", zIndex:1 }}>
-          <ScrollReveal delay={0}>
-            <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.25)", borderRadius:100, padding:"5px 14px", fontSize:11, color:G, fontWeight:500, marginBottom:"1.4rem" }}>
-              <span style={{ width:6, height:6, background:G, borderRadius:"50%", animation:"pulse 2s infinite" }}/> Real Data. No Flattery. Google PageSpeed API.
-            </span>
-          </ScrollReveal>
-
-          <MaskedHeading text="Your store has leaks." tag="h1" delay={0.05} stagger={0.07}
-            style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(2rem,6vw,3.5rem)", fontWeight:800, lineHeight:1.06, color:headingColor, marginBottom:".5rem", justifyContent:"center" }}/>
-          <ScrollReveal delay={0.5}>
-            <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.5rem,4vw,2.5rem)", fontWeight:800, lineHeight:1.1, marginBottom:"1rem" }}>
-              <GradText>Find every one of them.</GradText>
-            </h2>
-          </ScrollReveal>
-          <ScrollReveal delay={0.6}>
-            <p style={{ fontSize:"clamp(.9rem,2.5vw,1rem)", color:mutedText, lineHeight:1.8, maxWidth:500, margin:"0 auto 2rem" }}>
-              8 conversion checks. Brutally honest scores. We don't give A+ grades — we expose the friction costing you buyers.
-            </p>
-          </ScrollReveal>
-
-          {/* ── URL INPUT ── */}
-          <ScrollReveal delay={0.7}>
-            <div style={{ maxWidth:640, margin:"0 auto" }}>
-              <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-                <div style={{ flex:1, minWidth:220, position:"relative" }}>
-                  <span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", fontSize:15, pointerEvents:"none" }}>🔗</span>
-                  <input type="text" placeholder="yourstore.com" value={url}
-                    onChange={e => { setUrl(e.target.value); setError(""); }}
-                    onKeyDown={e => e.key === "Enter" && !loading && runAudit()}
-                    style={{ width:"100%", background:inputBg, border:`.5px solid ${error?"#FF3B3B":inputBorder}`, borderRadius:12, padding:".9rem 1rem .9rem 3rem", color:inputColor, fontSize:15, fontFamily:"inherit", outline:"none", boxSizing:"border-box", transition:"border-color .2s, box-shadow .2s", minHeight:48 }}
-                    onFocus={e => { e.target.style.borderColor="rgba(0,255,136,.6)"; e.target.style.boxShadow="0 0 0 3px rgba(0,255,136,.1)"; }}
-                    onBlur={e => { e.target.style.borderColor=error?"#FF3B3B":inputBorder; e.target.style.boxShadow="none"; }}/>
-                </div>
-                <button onClick={runAudit} disabled={loading}
-                  style={{ background:GG, color:"#040608", border:"none", borderRadius:12, padding:".9rem 1.8rem", fontSize:15, fontWeight:700, cursor:loading?"not-allowed":"pointer", fontFamily:"inherit", opacity:loading?.85:1, whiteSpace:"nowrap", boxShadow:"0 4px 24px rgba(0,255,136,.4)", transition:"transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s", minHeight:48 }}
-                  onMouseEnter={e => { if(!loading){e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 10px 36px rgba(0,255,136,.6)";} }}
-                  onMouseLeave={e => { e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="0 4px 24px rgba(0,255,136,.4)"; }}>
-                  {loading ? "Scanning..." : "Expose My Leaks →"}
-                </button>
-              </div>
-              {error && (
-                <div style={{ marginTop:10, padding:"10px 14px", background:"rgba(255,59,59,.08)", border:".5px solid rgba(255,59,59,.3)", borderRadius:10 }}>
-                  <p style={{ color:"#FF6B6B", fontSize:13, lineHeight:1.5, margin:0 }}>{error}</p>
-                </div>
-              )}
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:"1.2rem" }}>
+              <span style={{ fontSize:20 }}>🔐</span>
+              <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:800, color:headingColor, margin:0 }}>Unlock Downloads</h3>
             </div>
-          </ScrollReveal>
 
-          {/* Check pills */}
-          {!loading && !results && (
-            <ScrollReveal delay={0.8}>
-              <div style={{ display:"flex", flexWrap:"wrap", gap:8, justifyContent:"center", marginTop:"1.8rem" }}>
-                {CHECKS.map(c => (
-                  <span key={c.id} style={{ display:"inline-flex", alignItems:"center", gap:5, background:dark?"rgba(255,255,255,.04)":"rgba(0,0,0,.04)", border:c.critical?".5px solid rgba(255,59,59,.2)":dark?".5px solid rgba(255,255,255,.09)":".5px solid rgba(0,0,0,.08)", borderRadius:100, padding:"4px 12px", fontSize:11.5, color:c.critical?"#FF9999":mutedText }}>
-                    {c.icon} {c.label} {c.critical && <span style={{ fontSize:9, color:"#FF6B6B", fontWeight:700 }}>HIGH WEIGHT</span>}
-                  </span>
-                ))}
-              </div>
-            </ScrollReveal>
-          )}
+            <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:"1.2rem" }}>
+              Enter your payment access code to download your reports. Your code was sent in your payment confirmation email.
+            </p>
+
+            <input
+              type="text"
+              placeholder="Access code (e.g. BCL-X7K2P9)"
+              value={accessCode}
+              onChange={e => setAccessCode(e.target.value.toUpperCase())}
+              style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".8rem 1rem", color:headingColor, fontSize:14, fontFamily:"inherit", outline:"none", boxSizing:"border-box", marginBottom:8, letterSpacing:".08em" }}
+              onFocus={e => e.target.style.borderColor="rgba(0,255,136,.5)"}
+              onBlur={e => e.target.style.borderColor=inputBorder}
+              onKeyDown={e => e.key === "Enter" && verifyAccess()}
+            />
+
+            {accessError && <p style={{ fontSize:12, color:"#FF6B6B", marginBottom:8 }}>{accessError}</p>}
+
+            <button onClick={verifyAccess} className="btn-g" style={{ width:"100%", fontFamily:"inherit", cursor:"pointer", marginBottom:"1rem" }}>
+              Unlock my reports →
+            </button>
+
+            <p style={{ fontSize:12, color:mutedText3, textAlign:"center" }}>
+              Don't have a code?{" "}
+              <a href={"https://wa.me/19454076473?text=" + encodeURIComponent("Hi, I need my audit access code. I paid for the [package name].")} target="_blank" rel="noopener noreferrer" style={{ color:G, textDecoration:"none", fontWeight:600 }}>
+                Message us on WhatsApp
+              </a>
+            </p>
+          </div>
         </div>
-      </section>
+      )}
+
+      {/* ── HERO / INPUT ── */}
+      {!showDiag && !findings && (
+        <section style={{ position:"relative", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"clamp(5rem,10vw,7rem) clamp(1rem,4vw,2rem) 4rem", overflow:"hidden" }}>
+          <div style={{ position:"absolute", width:"min(600px,100%)", height:"min(600px,100vw)", top:-150, left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle at 40% 40%,rgba(0,255,136,.15),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
+
+          <div style={{ maxWidth:640, width:"100%", textAlign:"center", position:"relative", zIndex:1 }}>
+            <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:dark?"rgba(0,255,136,.1)":"#1A1408", border:dark?".5px solid rgba(0,255,136,.28)":"none", borderRadius:100, padding:"6px 16px", fontSize:11, color:dark?G:"#FFEFC2", fontWeight:600, letterSpacing:".05em", marginBottom:"1.6rem" }}>
+              <span style={{ width:6, height:6, background:G, borderRadius:"50%", animation:"pulse 2s ease-in-out infinite" }}/> Free store diagnostic
+            </span>
+
+            <h1 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(2rem,6vw,3.5rem)", fontWeight:800, lineHeight:1.08, letterSpacing:"-.03em", color:headingColor, marginBottom:"1rem" }}>
+              Find every leak in<br /><GradText>your store — free.</GradText>
+            </h1>
+
+            <p style={{ fontSize:"clamp(0.9rem,2vw,1.05rem)", color:mutedText, lineHeight:1.8, maxWidth:500, margin:"0 auto 2.5rem" }}>
+              25-question deep diagnostic + live technical scan. We check 8 technical factors and 25 conversion elements. Nothing gets ignored. Not even the small things.
+            </p>
+
+            {/* What we check */}
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"0.6rem", marginBottom:"2.5rem", textAlign:"left" }}>
+              {["Mobile speed & Core Web Vitals","Checkout friction points","Product page conversion elements","Ad account & ROAS health","Email & retention setup","Trust signals & social proof","SEO visibility","Image optimization"].map((item, i) => (
+                <div key={i} style={{ display:"flex", alignItems:"center", gap:8, background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.4)", border:`.5px solid ${cardBorder}`, borderRadius:8, padding:".5rem .75rem" }}>
+                  <span style={{ color:G, fontSize:12, fontWeight:800 }}>✓</span>
+                  <span style={{ fontSize:12, color:mutedText2 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Input form */}
+            <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderTop:dark?".5px solid rgba(255,255,255,.2)":".5px solid rgba(255,255,255,.6)", borderRadius:20, padding:"1.8rem", position:"relative", overflow:"hidden" }}>
+              <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.4),transparent)", pointerEvents:"none" }}/>
+
+              <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:"1rem" }}>
+                <input
+                  type="url"
+                  placeholder="Your store URL (e.g. mystore.com)"
+                  value={url}
+                  onChange={e => setUrl(e.target.value)}
+                  style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".8rem 1.1rem", color:headingColor, fontSize:15, fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
+                  onFocus={e => e.target.style.borderColor="rgba(0,255,136,.5)"}
+                  onBlur={e => e.target.style.borderColor=inputBorder}
+                  onKeyDown={e => e.key==="Enter" && handleScan()}
+                />
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".8rem 1.1rem", color:headingColor, fontSize:15, fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
+                  onFocus={e => e.target.style.borderColor="rgba(0,255,136,.5)"}
+                  onBlur={e => e.target.style.borderColor=inputBorder}
+                />
+              </div>
+
+              {error && <p style={{ fontSize:13, color:"#FF6B6B", marginBottom:"1rem", padding:".75rem", background:"rgba(255,107,107,.08)", border:".5px solid rgba(255,107,107,.25)", borderRadius:8 }}>{error}</p>}
+
+              <button onClick={handleScan} disabled={loading} className="btn-g" style={{ width:"100%", fontFamily:"inherit", cursor:"pointer" }}>
+                Run my free diagnostic →
+              </button>
+
+              <p style={{ fontSize:11, color:mutedText3, textAlign:"center", marginTop:".75rem" }}>
+                Takes 3-5 minutes. 25 questions + live technical scan. No credit card.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── LOADING ── */}
       {loading && (
-        <div style={{ maxWidth:580, margin:"0 auto", padding:"0 1.5rem 5rem" }}>
-          <div style={{ height:2, background:trackBg, borderRadius:2, overflow:"hidden", marginBottom:"2rem" }}>
-            <div style={{ height:"100%", background:"linear-gradient(90deg,#FF3B3B,#FF9900,#00ff88)", borderRadius:2, width:`${progress}%`, transition:"width 1.2s cubic-bezier(.22,1,.36,1)", boxShadow:"0 0 8px rgba(0,255,136,.5)" }}/>
-          </div>
-          <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:24, padding:"2.5rem 2rem", position:"relative", overflow:"hidden", textAlign:"center" }}>
-            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.4),transparent)" }}/>
-            <div style={{ position:"relative", width:140, height:140, margin:"0 auto 1.5rem" }}>
-              <RadarCanvas loading={loading}/>
-              <div style={{ position:"absolute", inset:"50%", transform:"translate(-50%,-50%)", width:16, height:16, borderRadius:"50%", border:"1px solid rgba(0,255,136,.5)", animation:"ping 1.8s ease-out infinite" }}/>
-              <div style={{ position:"absolute", inset:"50%", transform:"translate(-50%,-50%)", width:16, height:16, borderRadius:"50%", border:"1px solid rgba(0,255,136,.3)", animation:"ping 1.8s ease-out infinite .9s" }}/>
+        <section style={{ minHeight:"80vh", display:"flex", alignItems:"center", justifyContent:"center", padding:"4rem 2rem" }}>
+          <div style={{ maxWidth:520, width:"100%", textAlign:"center" }}>
+            <div style={{ width:56, height:56, position:"relative", margin:"0 auto 1.5rem" }}>
+              <div style={{ position:"absolute", inset:0, borderRadius:"50%", border:"2px solid rgba(0,255,136,.3)", borderTopColor:G, animation:"auditSpin .8s linear infinite" }}/>
+              <div style={{ position:"absolute", inset:8, borderRadius:"50%", border:"1px solid rgba(0,255,136,.2)", borderBottomColor:G, animation:"auditSpin 1.2s linear infinite reverse" }}/>
             </div>
-            <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.05rem", fontWeight:700, color:headingColor, marginBottom:".3rem" }}>{stage.msg}</p>
-            <p style={{ fontSize:12, color:"#FF9900", marginBottom:"1.8rem", fontStyle:"italic" }}>{stage.sub}</p>
-            <div style={{ display:"flex", flexDirection:"column", gap:7, textAlign:"left" }}>
+            <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:800, color:headingColor, marginBottom:".4rem" }}>{SCAN_STAGES[stageIdx]?.msg}</h3>
+            <p style={{ fontSize:13, color:mutedText3, marginBottom:"2rem" }}>{SCAN_STAGES[stageIdx]?.sub}</p>
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
               {CHECKS.map((c, i) => (
-                <div key={c.id} style={{ display:"flex", alignItems:"center", gap:10, opacity:i <= stageIdx ? 1 : 0.25, transition:`opacity .4s ${i*.1}s` }}>
+                <div key={c.id} style={{ display:"flex", alignItems:"center", gap:10 }}>
                   <span style={{ fontSize:13, flexShrink:0 }}>{c.icon}</span>
                   <div style={{ flex:1, height:3, background:trackBg, borderRadius:3, overflow:"hidden" }}>
-                    <div style={{ height:"100%", background:i<=stageIdx?GG:"transparent", borderRadius:3, animation:i<=stageIdx?`scanBar 1.8s ${i*.2}s ease-in-out infinite alternate`:"none" }}/>
+                    <div style={{ height:"100%", background:i<=stageIdx?GG:"transparent", borderRadius:3, width:i<=stageIdx?"100%":"0%", transition:"width 1s ease" }}/>
                   </div>
-                  <span style={{ fontSize:11, color:i<=stageIdx?G:mutedText2, whiteSpace:"nowrap", minWidth:130, textAlign:"right", fontWeight:i<=stageIdx?600:400 }}>{c.label}</span>
+                  <span style={{ fontSize:11, color:i<=stageIdx?G:mutedText3, minWidth:130, textAlign:"right", fontWeight:i<=stageIdx?600:400 }}>{c.label}</span>
                 </div>
               ))}
             </div>
           </div>
-          <style>{`@keyframes scanBar{from{width:8%;opacity:.25;}to{width:100%;opacity:1;}}`}</style>
-        </div>
+        </section>
       )}
 
-      {/* ── RESULTS ── */}
-      {results && !loading && (
-        <div style={{ maxWidth:940, margin:"0 auto", padding:"0 clamp(1rem,4vw,2rem) 5rem", opacity:revealed?1:0, transition:"opacity .5s cubic-bezier(.22,1,.36,1)" }}>
+      {/* ── DIAGNOSTIC QUESTIONNAIRE ── */}
+      {showDiag && !findings && (
+        <section style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", padding:"4rem 2rem" }}>
+          <div style={{ maxWidth:620, width:"100%" }}>
 
-          {/* CRITICAL BANNER */}
-          {results.isCritical && (
-            <div style={{ background:"linear-gradient(135deg,rgba(255,59,59,.12),rgba(255,59,59,.05))", border:"1px solid rgba(255,59,59,.4)", borderRadius:16, padding:"1rem 1.4rem", marginBottom:"1.2rem", display:"flex", alignItems:"center", gap:12, animation:"criticalPulse 2.5s ease-in-out infinite" }}>
-              <span style={{ fontSize:22, flexShrink:0 }}>🚨</span>
-              <div>
-                <p style={{ fontFamily:"'Syne',sans-serif", fontSize:14, fontWeight:800, color:"#FF3B3B", marginBottom:2 }}>CRITICAL REVENUE LEAK DETECTED</p>
-                <p style={{ fontSize:12, color:"rgba(255,100,100,.8)", margin:0 }}>Mobile performance and Core Web Vitals are below acceptable thresholds. Every ad you run is sending buyers to a broken experience.</p>
+            {/* Progress */}
+            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
+              <span style={{ fontSize:12, color:mutedText3 }}>Question {diagStep + 1} of {allQuestions.length}</span>
+              <span style={{ fontSize:12, color:mutedText3 }}>{diagProgress}% complete</span>
+            </div>
+            <div style={{ height:3, background:trackBg, borderRadius:3, overflow:"hidden", marginBottom:"1.5rem" }}>
+              <div style={{ height:"100%", background:GG, width:`${diagProgress}%`, transition:"width .4s ease", borderRadius:3 }}/>
+            </div>
+
+            {/* Category label */}
+            <p style={{ fontSize:11, color:G, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:".75rem" }}>{currentCategory?.category}</p>
+
+            {/* Question */}
+            <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.1rem,3vw,1.4rem)", fontWeight:800, color:headingColor, lineHeight:1.3, marginBottom:"1.5rem" }}>
+              {currentQuestion?.text}
+            </h2>
+
+            {/* Options */}
+            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+              {currentQuestion?.options.map((opt, i) => (
+                <button
+                  key={i}
+                  onClick={() => answerQuestion(currentQuestion.id, opt)}
+                  style={{ width:"100%", textAlign:"left", background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.45)", border:`.5px solid ${cardBorder}`, borderRadius:12, padding:"1rem 1.2rem", color:headingColor, fontSize:14, cursor:"pointer", fontFamily:"inherit", transition:"all .2s", display:"flex", alignItems:"center", gap:12 }}
+                  onMouseEnter={e => { e.currentTarget.style.background="rgba(0,255,136,.1)"; e.currentTarget.style.borderColor="rgba(0,255,136,.5)"; e.currentTarget.style.transform="translateX(4px)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background=dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.45)"; e.currentTarget.style.borderColor=cardBorder; e.currentTarget.style.transform="none"; }}>
+                  <span style={{ width:22, height:22, borderRadius:"50%", background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, color:G, flexShrink:0 }}>
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  {opt}
+                </button>
+              ))}
+            </div>
+
+            {/* Back button */}
+            {diagStep > 0 && (
+              <button
+                onClick={() => setDiagStep(diagStep - 1)}
+                style={{ marginTop:"1rem", background:"transparent", border:"none", color:mutedText3, fontSize:13, cursor:"pointer", fontFamily:"inherit" }}>
+                ← Back
+              </button>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ── FULL RESULTS ── */}
+      {findings && !showDiag && (
+        <div style={{ maxWidth:980, margin:"0 auto", padding:"clamp(2rem,5vw,4rem) clamp(1rem,4vw,2rem) 6rem", opacity:revealed?1:0, transition:"opacity .6s ease" }}>
+
+          {/* Header */}
+          <div style={{ textAlign:"center", marginBottom:"2.5rem" }}>
+            <h1 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.8rem,5vw,2.8rem)", fontWeight:800, color:headingColor, marginBottom:".5rem" }}>
+              Your Store Diagnostic Report
+            </h1>
+            <p style={{ fontSize:14, color:mutedText2 }}>🌐 {url} — {new Date().toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" })}</p>
+          </div>
+
+          {/* Technical score summary */}
+          {techResults && (
+            <div style={{ background:cardBg, border:`.5px solid ${techResults.isCritical?"rgba(255,59,59,.3)":cardBorder}`, borderRadius:20, padding:"1.8rem", marginBottom:"1.5rem", display:"flex", gap:"2rem", alignItems:"center", flexWrap:"wrap" }}>
+              <div style={{ position:"relative", flexShrink:0 }}>
+                <Ring score={techResults.overall} size={90} color={techResults.isCritical?"#FF3B3B":techResults.overall>70?G:"#FF9900"}/>
+                <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
+                  <span style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.4rem", fontWeight:800, color:techResults.isCritical?"#FF3B3B":techResults.overall>70?G:"#FF9900" }}>{techResults.overall}</span>
+                  <span style={{ fontSize:9, color:mutedText3 }}>/ 100</span>
+                </div>
+              </div>
+              <div style={{ flex:1, minWidth:200 }}>
+                <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:800, color:headingColor, marginBottom:".3rem" }}>Technical Score — {techResults.domain}</h2>
+                <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:".75rem" }}>{techResults.verdict}</p>
+                <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                  <span style={{ background:"rgba(255,59,59,.1)", border:".5px solid rgba(255,59,59,.25)", borderRadius:8, padding:"3px 10px", fontSize:12, color:"#FF6B6B", fontWeight:700 }}>Revenue leak: {techResults.leak}</span>
+                  <span style={{ background:dark?"rgba(255,255,255,.05)":"rgba(255,255,255,.4)", border:`.5px solid ${cardBorder}`, borderRadius:8, padding:"3px 10px", fontSize:12, color:mutedText2 }}>Mobile: {techResults.raw?.mPerf ?? "—"}/100</span>
+                </div>
+              </div>
+              {/* Tech check mini grid */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, width:"100%" }}>
+                {CHECKS.map(c => {
+                  const chk = techResults.checks?.[c.id];
+                  if (!chk) return null;
+                  return (
+                    <div key={c.id} style={{ background:dark?"rgba(255,255,255,.03)":"rgba(255,255,255,.35)", border:`.5px solid ${chk.critical?"rgba(255,59,59,.3)":cardBorder}`, borderRadius:10, padding:".75rem", textAlign:"center" }}>
+                      <span style={{ fontSize:16 }}>{c.icon}</span>
+                      <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"1rem", fontWeight:800, color:chk.color, margin:"4px 0 2px" }}>{chk.grade}</p>
+                      <p style={{ fontSize:9, color:mutedText3, lineHeight:1.3 }}>{c.label}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* OVERALL SCORE */}
-          <div style={{ background:cardBg, border:`.5px solid ${results.isCritical?"rgba(255,59,59,.3)":cardBorder}`, borderTop:`.5px solid ${oCol}66`, borderRadius:24, padding:"clamp(1.5rem,4vw,2.2rem)", marginBottom:"1.2rem", position:"relative", overflow:"hidden", animation:"staggerIn .5s cubic-bezier(.22,1,.36,1)" }}>
-            <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:`linear-gradient(90deg,transparent,${oCol}66,transparent)` }}/>
-            <div style={{ display:"flex", gap:"clamp(.8rem,3vw,2rem)", alignItems:"center", flexWrap:"wrap" }}>
-              <div style={{ position:"relative", flexShrink:0 }}>
-                <Ring score={results.overall} size={100} color={oCol}/>
-                <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-                  <span style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.6rem", fontWeight:800, color:oCol, lineHeight:1, textShadow:`0 0 20px ${oCol}88` }}>{oGrade}</span>
-                  <span style={{ fontSize:10, color:mutedText }}>{results.overall}/100</span>
+          {/* Findings summary bar */}
+          <div style={{ display:"flex", gap:10, marginBottom:"1.5rem", flexWrap:"wrap" }}>
+            {["critical","high","medium"].map(sev => {
+              const count = findings.filter(f => f.severity === sev).length;
+              if (!count) return null;
+              return (
+                <div key={sev} style={{ background:`${sevColor(sev)}18`, border:`.5px solid ${sevColor(sev)}44`, borderRadius:10, padding:".6rem 1rem", display:"flex", alignItems:"center", gap:8 }}>
+                  <span style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:800, color:sevColor(sev) }}>{count}</span>
+                  <span style={{ fontSize:12, color:mutedText2, textTransform:"capitalize" }}>{sev} issues</span>
                 </div>
-              </div>
-              <div style={{ flex:1, minWidth:180 }}>
-                <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom:".4rem" }}>
-                  <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.1rem,3.5vw,1.5rem)", fontWeight:800, color:headingColor, margin:0 }}>{results.domain}</h2>
-                  {results.mobileSubOptimal && <span style={{ background:"rgba(255,153,0,.12)", border:".5px solid rgba(255,153,0,.35)", borderRadius:100, padding:"2px 8px", fontSize:10, color:"#FF9900", fontWeight:700 }}>MOBILE SUB-OPTIMAL</span>}
-                </div>
-                <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:".9rem" }}>{results.verdict}</p>
-                <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-                  <div style={{ background:"rgba(255,59,59,.1)", border:".5px solid rgba(255,59,59,.25)", borderRadius:10, padding:".45rem .9rem" }}>
-                    <p style={{ fontSize:9, color:"rgba(255,100,100,.7)", marginBottom:1, textTransform:"uppercase", letterSpacing:".06em", fontWeight:600 }}>Revenue Leak</p>
-                    <p style={{ fontSize:14, fontWeight:800, color:"#FF6B6B", margin:0 }}>{results.leak}</p>
-                  </div>
-                  <div style={{ background:dark?"rgba(255,255,255,.04)":"rgba(0,0,0,.04)", border:`.5px solid ${cardBorder}`, borderRadius:10, padding:".45rem .9rem" }}>
-                    <p style={{ fontSize:9, color:mutedText2, marginBottom:1, textTransform:"uppercase", letterSpacing:".06em", fontWeight:600 }}>Raw Google Score</p>
-                    <p style={{ fontSize:14, fontWeight:800, color:headingColor, margin:0 }}>Mobile: {results.raw.mPerf ?? "-"}/100</p>
-                  </div>
-                </div>
-              </div>
+              );
+            })}
+            <div style={{ background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.4)", border:`.5px solid ${cardBorder}`, borderRadius:10, padding:".6rem 1rem", display:"flex", alignItems:"center", gap:8 }}>
+              <span style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:800, color:G }}>{findings.length}</span>
+              <span style={{ fontSize:12, color:mutedText2 }}>total findings</span>
             </div>
           </div>
 
-          {/* TOP 3 PRIORITIES */}
-          <div style={{ background:"linear-gradient(135deg,rgba(255,59,59,.08),rgba(255,59,59,.02))", border:".5px solid rgba(255,59,59,.25)", borderRadius:16, padding:"1.2rem 1.5rem", marginBottom:"1.2rem", animation:"staggerIn .5s .1s cubic-bezier(.22,1,.36,1) both" }}>
-            <p style={{ fontSize:10, color:"#FF9999", letterSpacing:".12em", textTransform:"uppercase", fontWeight:700, marginBottom:".8rem" }}>🔥 Fix These First — In This Order</p>
-            {results.topPriorities.map((p, i) => (
-              <div key={i} style={{ display:"flex", gap:10, marginBottom:i < results.topPriorities.length-1 ? 10 : 0, padding:"8px 10px", background:i===0?"rgba(255,59,59,.07)":"rgba(255,153,0,.04)", borderRadius:10, borderLeft:`3px solid ${i===0?"#FF3B3B":"#FF9900"}` }}>
-                <span style={{ fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:800, color:i===0?"#FF3B3B":"#FF9900", flexShrink:0, minWidth:20 }}>{i+1}.</span>
-                <p style={{ fontSize:13, color:dark?"rgba(255,255,255,.75)":"rgba(0,0,0,.7)", margin:0, lineHeight:1.55 }}>{p}</p>
+          {/* All findings */}
+          <div style={{ display:"flex", flexDirection:"column", gap:"1rem", marginBottom:"2rem" }}>
+            {findings.map((f, i) => (
+              <div key={i} style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderLeft:`3px solid ${sevColor(f.severity)}`, borderRadius:"0 14px 14px 0", padding:"1.2rem 1.5rem" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:".5rem", flexWrap:"wrap" }}>
+                  <span style={{ background:`${sevColor(f.severity)}22`, border:`.5px solid ${sevColor(f.severity)}55`, borderRadius:6, padding:"2px 8px", fontSize:10, fontWeight:700, color:sevColor(f.severity), textTransform:"uppercase" }}>{f.severity}</span>
+                  <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1rem", fontWeight:800, color:headingColor, margin:0 }}>{findingTitle(f.id)}</h3>
+                </div>
+                <p style={{ fontSize:13, color:mutedText, lineHeight:1.75, marginBottom:".75rem" }}>{f.finding}</p>
+                <div style={{ background:dark?"rgba(0,255,136,.04)":"rgba(0,255,136,.06)", border:".5px solid rgba(0,255,136,.18)", borderRadius:8, padding:".75rem 1rem" }}>
+                  <span style={{ fontSize:11, color:G, fontWeight:700, textTransform:"uppercase", letterSpacing:".05em" }}>Fix → </span>
+                  <span style={{ fontSize:13, color:mutedText, lineHeight:1.7 }}>{f.fix}</span>
+                </div>
               </div>
             ))}
           </div>
 
-          {/* SOFT DISQUALIFICATION */}
-          <div style={{ background:dark?"rgba(255,255,255,.03)":"rgba(0,0,0,.02)", border:`.5px solid ${cardBorder}`, borderLeft:"3px solid rgba(0,255,136,.4)", borderRadius:16, padding:"1.2rem 1.4rem", marginBottom:"1.4rem", animation:"staggerIn .5s .2s cubic-bezier(.22,1,.36,1) both" }}>
-            <p style={{ fontSize:10, color:G, letterSpacing:".1em", textTransform:"uppercase", fontWeight:700, marginBottom:".6rem" }}>🧠 The Reality Check</p>
-            <p style={{ fontSize:13, color:mutedText, lineHeight:1.8, margin:0, fontStyle:"italic" }}>"{results.disqualMsg}"</p>
+          {/* Access tier indicator */}
+          {accessTier && (
+            <div style={{ background:"rgba(0,255,136,.06)", border:".5px solid rgba(0,255,136,.25)", borderRadius:12, padding:".9rem 1.2rem", marginBottom:"1.5rem", display:"flex", alignItems:"center", gap:10 }}>
+              <span style={{ fontSize:16 }}>🔓</span>
+              <span style={{ fontSize:13, color:G, fontWeight:600 }}>
+                {accessTier === "admin" ? "Admin access — all downloads unlocked" : `${ACCESS_CODES[accessCode.toUpperCase()]?.client || "Client"} — ${accessTier} package unlocked`}
+              </span>
+            </div>
+          )}
+
+          {/* Download section */}
+          <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.8rem", marginBottom:"2rem" }}>
+            <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:".4rem" }}>Download Your Reports</h3>
+            <p style={{ fontSize:13, color:mutedText2, marginBottom:"1.2rem", lineHeight:1.6 }}>
+              Analysis report is available to all users. Fixing, Growth, and Marketing plans are unlocked based on your package.
+            </p>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"0.75rem" }} className="stat-grid">
+              {[
+                { type:"analysis",   label:"📊 Analysis Report",    desc:"Full diagnostic findings",         always:true },
+                { type:"fixing",     label:"🔧 Fixing Plan",         desc:"Step-by-step remediation plan",   tier:["fix","lab","fullstack","admin"] },
+                { type:"growth",     label:"📈 Growth Plan",          desc:"Traffic & conversion strategy",   tier:["lab","fullstack","admin"] },
+                { type:"marketing",  label:"📣 Marketing Plan",      desc:"Ad, email & brand strategy",      tier:["fullstack","admin"] },
+              ].map((d, i) => {
+                const unlocked = d.always || (accessTier && (d.tier?.includes(accessTier)));
+                return (
+                  <div key={i} style={{ background:unlocked?dark?"rgba(0,255,136,.06)":"rgba(0,255,136,.08)":dark?"rgba(255,255,255,.02)":"rgba(26,20,8,.03)", border:unlocked?".5px solid rgba(0,255,136,.25)":`.5px solid ${cardBorder}`, borderRadius:12, padding:"1rem" }}>
+                    <p style={{ fontSize:13, fontWeight:700, color:unlocked?headingColor:mutedText3, marginBottom:3 }}>{d.label}</p>
+                    <p style={{ fontSize:11, color:mutedText3, marginBottom:".75rem" }}>{d.desc}</p>
+                    <button
+                      onClick={() => handleDownload(d.type)}
+                      style={{ width:"100%", background:unlocked?GG:"transparent", color:unlocked?"#040608":mutedText3, border:unlocked?"none":`.5px solid ${cardBorder}`, borderRadius:8, padding:".55rem", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                      {unlocked ? "⬇ Download" : "🔒 Unlock"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* CHECK CARDS */}
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:"1rem", marginBottom:"1.5rem" }}>
-            {CHECKS.map(c => {
-              const chk = results.checks?.[c.id];
-              if (!chk) return null;
-              return (
-                <div key={c.id} className="check-card-enter">
-                  <CheckCard check={chk} id={c.id} label={c.label} icon={c.icon} dark={dark} cardBg={cardBg} cardBorder={cardBorder} mutedText={mutedText} headingColor={headingColor} trackBg={trackBg}/>
+          {/* Teaser of fixing plan (blurred for non-subscribers) */}
+          <div style={{ position:"relative", marginBottom:"2rem" }}>
+            <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.8rem", filter:accessTier ? "none" : "blur(4px)", pointerEvents:accessTier?"auto":"none", userSelect:accessTier?"auto":"none" }}>
+              <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:"1rem" }}>🔧 Your Fixing Plan — Phase 1</h3>
+              {plans?.fixingPlan?.[0]?.actions?.slice(0, 2).map((action, i) => (
+                <div key={i} style={{ background:dark?"rgba(255,255,255,.03)":"rgba(255,255,255,.35)", border:`.5px solid ${cardBorder}`, borderRadius:10, padding:"1rem", marginBottom:".75rem" }}>
+                  <p style={{ fontSize:13, fontWeight:700, color:headingColor, marginBottom:4 }}>→ {action.title}</p>
+                  <p style={{ fontSize:12, color:mutedText, lineHeight:1.7 }}>{action.action}</p>
                 </div>
-              );
-            })}
+              ))}
+              <p style={{ fontSize:12, color:mutedText3, textAlign:"center", marginTop:"1rem" }}>+ {(plans?.fixingPlan?.[0]?.actions?.length || 0) + (plans?.fixingPlan?.[1]?.actions?.length || 0) + (plans?.fixingPlan?.[2]?.actions?.length || 0) - 2} more actions across 3 phases...</p>
+            </div>
+            {!accessTier && (
+              <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:12 }}>
+                <span style={{ fontSize:28 }}>🔒</span>
+                <p style={{ fontSize:14, fontWeight:700, color:headingColor, textAlign:"center" }}>Unlock your Fixing Plan</p>
+                <button onClick={() => setShowAccessModal(true)} className="btn-g" style={{ fontFamily:"inherit", cursor:"pointer" }}>Enter access code →</button>
+              </div>
+            )}
           </div>
-
-          <p style={{ fontSize:11, color:mutedText2, textAlign:"center", marginBottom:"1.5rem", lineHeight:1.6 }}>
-            Scores are weighted by conversion impact. Mobile Performance (25%) and Core Web Vitals (22%) carry the highest weight.
-            Raw data from Google PageSpeed Insights API.
-          </p>
 
           {/* CTA */}
-          <TiltCard style={{ background:"linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border:".5px solid rgba(0,255,136,.25)", borderRadius:24, padding:"clamp(2rem,5vw,3rem)", textAlign:"center", position:"relative", overflow:"hidden" }}>
-            <div style={{ position:"absolute", top:0, left:"20%", right:"20%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.45),transparent)" }}/>
-            <p style={{ fontSize:10, color:G, letterSpacing:".14em", textTransform:"uppercase", marginBottom:".6rem", fontWeight:700 }}>Ready to fix every one of these?</p>
+          <div style={{ background:"linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border:".5px solid rgba(0,255,136,.25)", borderTop:".5px solid rgba(0,255,136,.45)", borderRadius:24, padding:"clamp(2rem,5vw,3rem)", textAlign:"center", position:"relative", overflow:"hidden" }}>
+            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)", pointerEvents:"none" }}/>
+            <p style={{ fontSize:10, color:G, letterSpacing:".14em", textTransform:"uppercase", marginBottom:".6rem", fontWeight:700 }}>Ready to fix all of this?</p>
             <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.3rem,4vw,2rem)", fontWeight:800, color:headingColor, marginBottom:".6rem", lineHeight:1.15 }}>
-              This is the surface.<br/><GradText>Our full audit goes 10× deeper.</GradText>
+              This is the surface.<br /><GradText>Our paid audit goes 10× deeper.</GradText>
             </h3>
             <p style={{ fontSize:14, color:mutedText, maxWidth:460, margin:"0 auto 1.5rem", lineHeight:1.75 }}>
-              We don't just identify problems — we fix them. Landing pages, checkout flow, ad structure, email sequences. One compounding system.
+              We don't just identify problems — we fix them. Landing pages, checkout, ad structure, email flows. One compounding system.
             </p>
             <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
-              <Link to="/contact" className="btn-g" style={{ display:"inline-block" }}>Apply for full professional audit →</Link>
-              <button
-                onClick={downloadReport}
-                style={{ background:"transparent", border:".5px solid rgba(0,255,136,.4)", color:G, borderRadius:10, padding:".65rem 1.4rem", fontSize:14, fontWeight:600, cursor:"pointer", fontFamily:"inherit", transition:"all .2s", display:"inline-flex", alignItems:"center", gap:6 }}
-                onMouseEnter={e => { e.currentTarget.style.background="rgba(0,255,136,.08)"; e.currentTarget.style.borderColor="rgba(0,255,136,.7)"; }}
-                onMouseLeave={e => { e.currentTarget.style.background="transparent"; e.currentTarget.style.borderColor="rgba(0,255,136,.4)"; }}
-              >
-                ⬇ Download Report
-              </button>
-              <button
-                onClick={() => { setResults(null); setUrl(""); setRevealed(false); }}
-                className="btn-ghost"
-              >
+              <a href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi Bode Conversion Lab 👋 I just ran my store audit for ${url} and I'm ready to fix these issues. Can we talk about the right package?`)} target="_blank" rel="noopener noreferrer" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>
+                Apply for professional audit →
+              </a>
+              <button onClick={() => { setFindings(null); setTechResults(null); setUrl(""); setEmail(""); setRevealed(false); setDiagAnswers({}); setDiagStep(0); }} className="btn-ghost" style={{ fontFamily:"inherit", cursor:"pointer" }}>
                 Scan another store
               </button>
             </div>
-          </TiltCard>
+          </div>
+
         </div>
       )}
     </PageWrapper>

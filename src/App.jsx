@@ -237,6 +237,7 @@ function AppInner({ dark }) {
       </div>
       <Footer />
       <WhatsAppButton />
+      <PopupSystem />
       <ThemeToggle />
     </div>
   );
