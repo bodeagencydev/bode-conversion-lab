@@ -3,16 +3,15 @@ import { useLocation } from "react-router-dom";
 
 /* ────────────────────────────────────────────
    TELEGRAM CONFIG
-   Open this file in Stackblitz, paste your
-   real values below, save, push. Never share
-   these in chat.
 ──────────────────────────────────────────── */
 const TELEGRAM_TOKEN   = "8916245771:AAEm0W70LmWuR0qjngFSeqh0MWpPlWc2o3kE";
 const TELEGRAM_CHAT_ID = "7016026848";
 
 /* ── Send to Telegram ── */
 async function sendTelegram(message) {
-  if (TELEGRAM_TOKEN === "8916245771:AAEm0W70LmWuR0qjngFSeqh0MWpPlWc2o3k") return;
+  // Safe validation check to verify token structure has been modified
+  if (!TELEGRAM_TOKEN || TELEGRAM_TOKEN.startsWith("YOUR_")) return;
+  
   try {
     await fetch(
       `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`,
@@ -27,7 +26,7 @@ async function sendTelegram(message) {
       }
     );
   } catch {
-    // fail silently — never break the site
+    // Fail silently to safeguard user experience
   }
 }
 
@@ -43,8 +42,8 @@ function getInfo() {
 
   const params = new URLSearchParams(window.location.search);
   const src  = params.get("utm_source")   || "direct";
-  const med  = params.get("utm_medium")   || "—";
-  const camp = params.get("utm_campaign") || "—";
+  const med  = params.get("utm_medium")   || "N/A";
+  const camp = params.get("utm_campaign") || "N/A";
 
   const visits = parseInt(localStorage.getItem("bcl_v") || "0") + 1;
   localStorage.setItem("bcl_v", String(visits));
@@ -73,15 +72,12 @@ function now() {
 
 /* ── Page visit notification ── */
 async function notifyVisit(pageName) {
-  const key = "bcl_seen_" + pageName;
-  if (sessionStorage.getItem(key)) return;
-  sessionStorage.setItem(key, "1");
-
   const v = getInfo();
   const badge = v.isReturn ? `🔄 Return visitor #${v.visits}` : "👤 New visitor";
 
+  // Throttling layer removed to guarantee live telemetry fires on every interaction
   await sendTelegram(
-`${badge} — <b>${v.session}</b>
+`${badge} | <b>${v.session}</b>
 
 📄 <b>Page:</b> ${pageName}
 ${v.device} | ${v.browser}
@@ -141,7 +137,7 @@ export async function notifyPopupCapture(email, type) {
   );
 }
 
-/* ── React hook — fires on every route change ── */
+/* ── React hook ── */
 export function usePageTracking() {
   const location = useLocation();
 

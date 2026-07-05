@@ -127,7 +127,7 @@ const GALLERY = [
     tag:   "Tunde N. — Same budget",
     color: "#ffffff",
   },
-];
+]; 
 
 /* ── GALLERY CARD ── */
 function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
