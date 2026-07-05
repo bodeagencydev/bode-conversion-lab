@@ -78,12 +78,11 @@ function ProofPanel({ cs, dark, mutedText, headingColor }) {
 }
 
 /* ── GALLERY ARRAY ── */
-/* ── GALLERY ARRAY ── */
 const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-1.png",
-    videoSrc: "/Videoproof1.mp4",
+    videoSrc: "/proof/Videoproof1.mp4",
     label: "Shopify Revenue Dashboard",
     tag:   "Marcus T. — $38k/mo",
     color: "#00ff88",
@@ -91,7 +90,7 @@ const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-2.png",
-    videoSrc: "/Videoproof2.mp4",
+    videoSrc: "/proof/Videoproof2.mp4",
     label: "Meta Ads Manager — ROAS Scale",
     tag:   "Tunde N. — 4.3x ROAS",
     color: "#0081FB",
@@ -99,7 +98,7 @@ const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-3.png",
-    videoSrc: "/Videoproof3.mp4",
+    videoSrc: "/proof/Videoproof3.mp4",
     label: "Google Ads — CPA Reduction",
     tag:   "Priya S. — CPA $68→$19",
     color: "#4285F4",
@@ -107,7 +106,7 @@ const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-4.png",
-    videoSrc: "/Videoproof1.mp4",
+    videoSrc: "/proof/Videoproof1.mp4",
     label: "Klaviyo Email Flow Revenue",
     tag:   "Marcus T. — Email flows",
     color: "#FFD700",
@@ -115,7 +114,7 @@ const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-5.png",
-    videoSrc: "/Videoproof3.mp4",
+    videoSrc: "/proof/Videoproof3.mp4",
     label: "Shopify Analytics — CVR Jump",
     tag:   "Priya S. — 4.8% CVR",
     color: "#00ff88",
@@ -123,7 +122,7 @@ const GALLERY = [
   {
     type: "video",
     src:  "/proof/proof-6.png",
-    videoSrc: "/Videoproof2.mp4",
+    videoSrc: "/proof/Videoproof2.mp4",
     label: "TikTok Ads — Before & After",
     tag:   "Tunde N. — Same budget",
     color: "#ffffff",
