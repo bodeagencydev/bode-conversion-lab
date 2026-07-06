@@ -103,9 +103,9 @@ export function Nav() {
 
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
-  const bg     = dark ? (scrolled?"rgba(4,6,8,.95)":"rgba(4,6,8,.7)") : (scrolled?"rgba(250,245,233,.95)":"rgba(250,245,233,.72)");
-  const border = dark ? "rgba(255,255,255,.07)" : "rgba(150,110,40,.14)";
-  const tc     = dark ? "rgba(255,255,255,.75)"  : "rgba(50,38,22,.72)";
+  const bg = dark
+  ? (scrolled?"rgba(4,6,8,.95)":"rgba(4,6,8,.7)")
+  : (scrolled?"rgba(212,148,10,.97)":"rgba(230,168,0,.85)");
 
   return (
     <>
@@ -202,13 +202,23 @@ export function ThemeToggle() {
 
 /* ─── PAGE WRAPPER ─── */
 export function PageWrapper({ children, style = {} }) {
+  const { dark } = useTheme();
   useEffect(() => { window.scrollTo(0, 0); }, []);
   return (
-    <div style={{ minHeight:"100vh", background:"var(--page-bg)", color:"var(--page-fg)", paddingTop:60, transition:"background .3s,color .3s", ...style }}>
+    <div style={{
+      minHeight:"100vh",
+      background: dark
+        ? "#040608"
+        : "radial-gradient(ellipse at 40% 30%, #F5D020 0%, #E8A800 45%, #C8880A 100%)",
+      color: dark ? "#fff" : "#1A1005",
+      paddingTop:60,
+      transition:"background .3s,color .3s",
+      ...style
+    }}>
       {children}
     </div>
   );
-} 
+}
 
 /* ─── GRAD TEXT ─── */
 export function GradText({ children, style = {} }) {
