@@ -3,7 +3,7 @@ import { G, GG, FAQS } from "../data.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
 import { notifyPayment } from "../NotificationSystem.js";
 
-const PAYSTACK_KEY = "pk_test_469a79a7423df47Xb9e51cf45da2bbd640187dcd";
+const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_KEY || "pk_test_469a79a7423df47Xb9e51cf45da2bbd640187dcd";
 
 function loadPaystack() {
   return new Promise((resolve) => {
