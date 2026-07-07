@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy, useEffect } from "react";
+import { useState, Suspense, lazy, useEffect, useContext } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Nav, Footer, WhatsAppButton, ThemeToggle, ThemeContext } from "./components.jsx";
 import { CursorSystem, MorphOrbs, ClickRipple, ScrollProgress, NoiseOverlay } from "./AnimationSystem.jsx";
@@ -31,6 +31,7 @@ export default function App() {
   const [dark, setDark] = useState(true);
   const toggle = () => setDark(!dark);
 
+  // Syncs the dynamic background toggle without overriding your layout styles
   useEffect(() => {
     document.documentElement.style.setProperty('--bg-color', dark ? '#040608' : '#F8F9FA');
     document.documentElement.style.setProperty('--text-color', dark ? '#f0f0f0' : '#0A0F12');
@@ -58,7 +59,7 @@ function AppInner() {
       <MorphOrbs dark={dark} />
 
       <style>{`
-        /* Global Reset Utilities */
+        /* Your Global Brand Utilities */
         .glass {
           background: ${dark ? "linear-gradient(135deg,rgba(255,255,255,.03),rgba(255,255,255,.01))" : "linear-gradient(135deg,rgba(255,255,255,.8),rgba(255,255,255,.4))"};
           backdrop-filter: blur(16px);
@@ -156,4 +157,3 @@ function AppInner() {
     </div>
   );
 }
-import { useContext } from "react";
