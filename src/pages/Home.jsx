@@ -19,19 +19,19 @@ export default function Home() {
 
       {/* ── HERO ── */}
       <section style={{ position:"relative", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"clamp(5rem,10vw,8rem) clamp(1rem,4vw,2rem) 4rem", overflow:"hidden" }}>
-        <Particles />
-        <ParallaxGrid />
+        <Particles dark={dark} />
+        <ParallaxGrid dark={dark} />
 
         {/* Radial glow */}
-        <div style={{ position:"absolute", width:"min(700px,100%)", height:"min(700px,100vw)", top:-200, left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle at 40% 40%,rgba(0,255,136,.18),rgba(0,180,80,.05) 55%,transparent 75%)", borderRadius:"50%", pointerEvents:"none" }}/>
+        <div style={{ position:"absolute", width:"min(700px,100%)", height:"min(700px,100vw)", top:-200, left:"50%", transform:"translateX(-50%)", background: dark ? "radial-gradient(circle at 40% 40%,rgba(0,255,136,.18),rgba(0,180,80,.05) 55%,transparent 75%)" : "radial-gradient(circle at 40% 40%,rgba(0,255,136,.08),rgba(0,163,92,.03) 55%,transparent 75%)", borderRadius:"50%", pointerEvents:"none" }}/>
 
         {/* Scan line */}
-        <div style={{ position:"absolute", left:0, right:0, height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.7),transparent)", animation:"scan 5s ease-in-out infinite", pointerEvents:"none" }}/>
+        <div style={{ position:"absolute", left:0, right:0, height:1, background: dark ? "linear-gradient(90deg,transparent,rgba(0,255,136,.7),transparent)" : "linear-gradient(90deg,transparent,rgba(0,163,92,.4),transparent)", animation:"scan 5s ease-in-out infinite", pointerEvents:"none" }}/>
 
         {/* Floating shapes */}
         <div className="float-shape" style={{ position:"absolute", top:"13%", right:"5%", width:90, height:90, borderRadius:"50%", background:"radial-gradient(circle at 33% 28%,rgba(0,255,136,.85),rgba(0,180,80,.3) 45%,transparent 70%)", boxShadow:"inset -14px -14px 28px rgba(0,0,0,.55),inset 8px 8px 20px rgba(0,255,136,.28),0 0 40px rgba(0,255,136,.2)", animation:"float1 7s ease-in-out infinite", pointerEvents:"none" }}/>
-        <div className="float-shape" style={{ position:"absolute", bottom:"22%", left:"4%", width:65, height:65, background:"linear-gradient(135deg,rgba(0,255,136,.14),rgba(0,204,106,.04))", border:".5px solid rgba(0,255,136,.28)", borderRadius:14, animation:"float2 9s ease-in-out infinite", pointerEvents:"none" }}/>
-        <div className="float-shape" style={{ position:"absolute", top:"32%", left:"6%", width:72, height:72, borderRadius:"50%", border:"1.5px solid rgba(0,255,136,.2)", animation:"float1 11s ease-in-out infinite 2s", pointerEvents:"none" }}/>
+        <div className="float-shape" style={{ position:"absolute", bottom:"22%", left:"4%", width:65, height:65, background: dark ? "linear-gradient(135deg,rgba(0,255,136,.14),rgba(0,204,106,.04))" : "linear-gradient(135deg,rgba(0,163,92,.1),rgba(0,163,92,.02))", border: dark ? ".5px solid rgba(0,255,136,.28)" : ".5px solid rgba(0,163,92,.3)", borderRadius:14, animation:"float2 9s ease-in-out infinite", pointerEvents:"none" }}/>
+        <div className="float-shape" style={{ position:"absolute", top:"32%", left:"6%", width:72, height:72, borderRadius:"50%", border: dark ? "1.5px solid rgba(0,255,136,.2)" : "1.5px solid rgba(0,163,92,.15)", animation:"float1 11s ease-in-out infinite 2s", pointerEvents:"none" }}/>
 
         <div style={{ maxWidth:780, textAlign:"center", position:"relative", zIndex:1, width:"100%" }}>
 
