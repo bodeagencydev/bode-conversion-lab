@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { G, GG } from "./data.js";
 import { useTheme } from "./components.jsx";
 import { notifyPopupCapture } from "./NotificationSystem.js";
 
@@ -8,6 +7,7 @@ const DISCOUNT_CODE = "SCALE7";
 
 function Popup({ visible, onClose, children, dark }) {
   const [mounted, setMounted] = useState(false);
+  const currentG = dark ? "#00ff88" : "#00A35C";
 
   useEffect(() => {
     if (visible) {
@@ -24,7 +24,7 @@ function Popup({ visible, onClose, children, dark }) {
       onClick={onClose}
       style={{
         position:"fixed", inset:0, zIndex:99000,
-        background:"rgba(0,0,0,.65)",
+        background: "rgba(4,6,8,.4)",
         backdropFilter:"blur(8px)",
         display:"flex", alignItems:"center", justifyContent:"center",
         padding:"1rem",
@@ -34,9 +34,9 @@ function Popup({ visible, onClose, children, dark }) {
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background: dark ? "rgba(4,6,8,.97)" : "rgba(255,248,225,.98)",
-          border: dark ? ".5px solid rgba(255,255,255,.12)" : ".5px solid rgba(26,20,8,.18)",
-          borderTop:".5px solid rgba(0,255,136,.4)",
+          background: dark ? "rgba(4,6,8,.97)" : "#ffffff",
+          border: dark ? ".5px solid rgba(255,255,255,.12)" : ".5px solid rgba(10,15,18,.1)",
+          borderTop:`.5px solid ${currentG}`,
           borderRadius:24,
           padding:"clamp(1.8rem,4vw,2.8rem)",
           width:"100%", maxWidth:480,
@@ -44,12 +44,13 @@ function Popup({ visible, onClose, children, dark }) {
           transform: mounted ? "translateY(0) scale(1)" : "translateY(40px) scale(.96)",
           transition:"transform .5s cubic-bezier(.22,1,.36,1), opacity .4s ease",
           opacity: mounted ? 1 : 0,
+          boxShadow: dark ? "0 20px 50px rgba(0,0,0,.3)" : "0 20px 50px rgba(10,15,18,.05)"
         }}>
-        <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)", pointerEvents:"none" }}/>
-        <div style={{ position:"absolute", top:-60, right:-40, width:180, height:180, background:"radial-gradient(circle,rgba(0,255,136,.15),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
+        <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:`linear-gradient(90deg,transparent,${currentG},transparent)`, pointerEvents:"none" }}/>
+        <div style={{ position:"absolute", top:-60, right:-40, width:180, height:180, background:dark?"radial-gradient(circle,rgba(0,255,136,.15),transparent 70%)":"radial-gradient(circle,rgba(0,163,92,.06),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
         <button
           onClick={onClose}
-          style={{ position:"absolute", top:14, right:16, background:"transparent", border:"none", cursor:"pointer", fontSize:20, lineHeight:1, color:dark?"rgba(255,255,255,.4)":"rgba(26,20,8,.4)", zIndex:1 }}>
+          style={{ position:"absolute", top:14, right:16, background:"transparent", border:"none", cursor:"pointer", fontSize:20, lineHeight:1, color:dark?"rgba(255,255,255,.4)":"rgba(10,15,18,.4)", zIndex:1 }}>
           ×
         </button>
         {children}
@@ -62,6 +63,7 @@ function EmailForm({ onSubmit, dark, submitLabel, mutedText, headingColor, input
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
   const [err, setErr] = useState("");
+  const currentG = dark ? "#00ff88" : "#00A35C";
 
   async function handleSubmit() {
     if (!email || !email.includes("@")) return setErr("Please enter a valid email.");
@@ -72,8 +74,8 @@ function EmailForm({ onSubmit, dark, submitLabel, mutedText, headingColor, input
 
   if (done) return (
     <div style={{ textAlign:"center", padding:"1rem 0" }}>
-      <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.4)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1rem" }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={G} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      <div style={{ width:52, height:52, borderRadius:"50%", background:dark?"rgba(0,255,136,.15)":"rgba(0,163,92,.1)", border:`.5px solid ${currentG}`, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1rem" }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={currentG} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
       </div>
       <p style={{ fontSize:15, fontWeight:700, color:headingColor, marginBottom:".5rem" }}>You're in!</p>
       <p style={{ fontSize:13, color:mutedText, lineHeight:1.6 }}>Check your inbox. We'll be in touch soon.</p>
@@ -89,7 +91,7 @@ function EmailForm({ onSubmit, dark, submitLabel, mutedText, headingColor, input
         onChange={e => setEmail(e.target.value)}
         onKeyDown={e => e.key === "Enter" && handleSubmit()}
         style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".8rem 1rem", color:headingColor, fontSize:14, fontFamily:"inherit", outline:"none", boxSizing:"border-box", marginBottom:8 }}
-        onFocus={e => e.target.style.borderColor="rgba(0,255,136,.5)"}
+        onFocus={e => e.target.style.borderColor=currentG}
         onBlur={e => e.target.style.borderColor=inputBorder}
       />
       {err && <p style={{ fontSize:12, color:"#FF6B6B", marginBottom:8 }}>{err}</p>}
@@ -105,14 +107,16 @@ function EmailForm({ onSubmit, dark, submitLabel, mutedText, headingColor, input
 
 function GeneralPopup({ dark }) {
   const [visible, setVisible] = useState(false);
-  const headingColor = dark ? "#fff"                 : "#1A1408";
-  const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.62)";
-  const inputBg      = dark ? "rgba(255,255,255,.05)" : "rgba(255,255,255,.6)";
-  const inputBorder  = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
+  const currentG = dark ? "#00ff88" : "#00A35C";
+  
+  const headingColor = dark ? "#fff"                 : "#0A0F12";
+  const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(10,15,18,.6)";
+  const inputBg      = dark ? "rgba(255,255,255,.05)" : "#F8F9FA";
+  const inputBorder  = dark ? "rgba(255,255,255,.12)" : "rgba(10,15,18,.12)";
 
   useEffect(() => {
     if (sessionStorage.getItem("bcl_popup_general")) return;
-    const t = setTimeout(() => setVisible(true), 1 * 60 * 1000); // Change to 5000 for a 5-sec test
+    const t = setTimeout(() => setVisible(true), 1 * 60 * 1000);
     return () => clearTimeout(t);
   }, []);
 
@@ -129,8 +133,8 @@ function GeneralPopup({ dark }) {
   return (
     <Popup visible={visible} onClose={close} dark={dark}>
       <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:"1.2rem" }}>
-        <span style={{ width:8, height:8, borderRadius:"50%", background:G, animation:"pulse 2s ease-in-out infinite" }}/>
-        <span style={{ fontSize:11, color:G, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase" }}>Free resource</span>
+        <span style={{ width:8, height:8, borderRadius:"50%", background:currentG }}/>
+        <span style={{ fontSize:11, color:currentG, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase" }}>Free resource</span>
       </div>
       <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.3rem,4vw,1.7rem)", fontWeight:800, color:headingColor, lineHeight:1.2, marginBottom:".75rem" }}>
         Is your store leaking money right now?
@@ -159,15 +163,19 @@ function PricingPopup({ dark }) {
   const [submitted, setSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
   const location = useLocation();
-  const headingColor = dark ? "#fff"                 : "#1A1408";
-  const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.62)";
-  const inputBg      = dark ? "rgba(255,255,255,.05)" : "rgba(255,255,255,.6)";
-  const inputBorder  = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
+  
+  const currentG  = dark ? "#00ff88" : "#00A35C";
+  const currentGG = dark ? "linear-gradient(135deg,#00ff88,#00e676,#00cc6a)" : "linear-gradient(135deg,#00A35C,#00b869,#009957)";
+
+  const headingColor = dark ? "#fff"                 : "#0A0F12";
+  const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(10,15,18,.6)";
+  const inputBg      = dark ? "rgba(255,255,255,.05)" : "#F8F9FA";
+  const inputBorder  = dark ? "rgba(255,255,255,.12)" : "rgba(10,15,18,.12)";
 
   useEffect(() => {
     if (location.pathname !== "/pricing") return;
     if (sessionStorage.getItem("bcl_popup_pricing")) return;
-    const t = setTimeout(() => setVisible(true), 3 * 60 * 1000); // Change to 5000 for a 5-sec test
+    const t = setTimeout(() => setVisible(true), 3 * 60 * 1000);
     return () => clearTimeout(t);
   }, [location.pathname]);
 
@@ -190,13 +198,13 @@ function PricingPopup({ dark }) {
 
   return (
     <Popup visible={visible} onClose={close} dark={dark}>
-      <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.28)", borderRadius:100, padding:"4px 12px", marginBottom:"1.2rem" }}>
+      <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:dark?"rgba(0,255,136,.1)":"rgba(0,163,92,.08)", border:dark?".5px solid rgba(0,255,136,.28)":".5px solid rgba(0,163,92,.25)", borderRadius:100, padding:"4px 12px", marginBottom:"1.2rem" }}>
         <span style={{ fontSize:14 }}>⚡</span>
-        <span style={{ fontSize:11, color:G, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase" }}>Limited offer — just for you</span>
+        <span style={{ fontSize:11, color:currentG, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase" }}>Limited offer — just for you</span>
       </div>
 
       <div style={{ textAlign:"center", margin:"1rem 0 1.4rem" }}>
-        <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"5rem", fontWeight:800, background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", lineHeight:1, margin:0 }}>7%</p>
+        <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"5rem", fontWeight:800, background:currentGG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", lineHeight:1, margin:0 }}>7%</p>
         <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:700, color:headingColor, marginTop:".25rem" }}>off any package</p>
       </div>
 
@@ -222,12 +230,12 @@ function PricingPopup({ dark }) {
           </p>
           <div
             onClick={copyCode}
-            style={{ background:"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.3)", borderRadius:12, padding:"1.2rem", textAlign:"center", cursor:"pointer", transition:"background .2s" }}
-            onMouseEnter={e => e.currentTarget.style.background="rgba(0,255,136,.14)"}
-            onMouseLeave={e => e.currentTarget.style.background="rgba(0,255,136,.08)"}>
+            style={{ background:dark?"rgba(0,255,136,.08)":"rgba(0,163,92,.04)", border:dark?".5px solid rgba(0,255,136,.3)":".5px solid rgba(0,163,92,.3)", borderRadius:12, padding:"1.2rem", textAlign:"center", cursor:"pointer", transition:"background .2s" }}
+            onMouseEnter={e => e.currentTarget.style.background=dark?"rgba(0,255,136,.14)":"rgba(0,163,92,.08)"}
+            onMouseLeave={e => e.currentTarget.style.background=dark?"rgba(0,255,136,.08)":"rgba(0,163,92,.04)"}>
             <p style={{ fontSize:11, color:mutedText, marginBottom:6 }}>Your discount code — click to copy</p>
-            <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"2rem", fontWeight:800, color:G, letterSpacing:".15em", margin:0 }}>{DISCOUNT_CODE}</p>
-            <p style={{ fontSize:12, color:copied?G:mutedText, marginTop:6, fontWeight:copied?700:400 }}>
+            <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"2rem", fontWeight:800, color:currentG, letterSpacing:".15em", margin:0 }}>{DISCOUNT_CODE}</p>
+            <p style={{ fontSize:12, color:copied?currentG:mutedText, marginTop:6, fontWeight:copied?700:400 }}>
               {copied ? "✅ Copied to clipboard!" : "Tap to copy"}
             </p>
           </div>
