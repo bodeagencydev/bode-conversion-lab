@@ -1,73 +1,16 @@
-import { useState, useEffect, Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Nav, Footer, WhatsAppButton, ThemeToggle, ThemeContext } from "./components.jsx";
-import { CursorSystem, MorphOrbs, ClickRipple, ScrollProgress, NoiseOverlay } from "./AnimationSystem.jsx";
-import { usePageTracking } from "./NotificationSystem.js";
-import NotFound from "./NotFound.jsx";
-import PopupSystem from "./PopupSystem.jsx";
-
-const Home            = lazy(() => import("./pages/Home.jsx"));
-const About           = lazy(() => import("./pages/About.jsx"));
-const CaseStudies     = lazy(() => import("./pages/CaseStudies.jsx").then(m => ({ default: m.CaseStudies })));
-const CaseStudyDetail = lazy(() => import("./pages/CaseStudies.jsx").then(m => ({ default: m.CaseStudyDetail })));
-const Pricing         = lazy(() => import("./pages/Pricing.jsx"));
-const Blog            = lazy(() => import("./pages/Blog.jsx").then(m => ({ default: m.Blog })));
-const BlogPost        = lazy(() => import("./pages/Blog.jsx").then(m => ({ default: m.BlogPost })));
-const Contact         = lazy(() => import("./pages/Contact.jsx"));
-const Audit           = lazy(() => import("./pages/Audit.jsx"));
-const Subscribe       = lazy(() => import("./pages/Subscribe.jsx"));
-const Admin           = lazy(() => import("./pages/Admin.jsx"));
-
-function PageSkeleton() {
-  return (
-    <div style={{ minHeight:"60vh", display:"flex", alignItems:"center", justifyContent:"center" }}>
-      <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:16 }}>
-        <div style={{ width:40, height:40, position:"relative" }}>
-          <div style={{ position:"absolute", inset:0, borderRadius:"50%", border:"2px solid #00ff88", borderTopColor:"transparent", animation:"auditSpin .8s linear infinite" }}/>
-          <div style={{ position:"absolute", inset:6, borderRadius:"50%", border:"1px solid #00ff88", borderBottomColor:"transparent", animation:"auditSpin 1.2s linear infinite reverse" }}/>
-        </div>
-        <p style={{ fontSize:12, color:"#00ff88", fontFamily:"'Syne',sans-serif", fontWeight:600, letterSpacing:".08em", textTransform:"uppercase" }}>Loading...</p>
-      </div>
-      <style>{`@keyframes auditSpin{to{transform:rotate(360deg);}}`}</style>
-    </div>
-  );
-}
-
-export default function App() {
-  const [dark, setDark] = useState(() => {
-    try { const s = localStorage.getItem("bcl-theme"); if (s !== null) return s === "dark"; } catch {}
-    return true;
-  });
-  const toggle = () => setDark(v => {
-    const next = !v;
-    try { localStorage.setItem("bcl-theme", next ? "dark" : "light"); } catch {}
-    return next;
-  });
-  return (
-    <ThemeContext.Provider value={{ dark, toggle }}>
-      <BrowserRouter>
-        <AppInner dark={dark} />
-      </BrowserRouter>
-    </ThemeContext.Provider>
-  );
-}
-
 function AppInner({ dark }) {
   usePageTracking();
-
-  const bg = dark ? "#040608" : "#F8F9FA";
-  const fg = dark ? "#f0f0f0" : "#0A0F12";
-  const G  = dark ? "#00ff88" : "#00A35C";
-
-  // Safely sync the root body background color on theme switch
-  useEffect(() => {
-    document.body.style.backgroundColor = bg;
-  }, [bg]);
 
   return (
     <div
       data-theme={dark ? "dark" : "light"}
-      style={{ fontFamily:"'Inter','Helvetica Neue',sans-serif", background:bg, color:fg, overflowX:"hidden", minHeight:"100vh", transition:"background .4s,color .4s", position:"relative" }}>
+      style={{
+        fontFamily:"'Inter','Helvetica Neue',sans-serif",
+        overflowX:"hidden",
+        minHeight:"100vh",
+        transition:"background .4s,color .4s",
+        position:"relative"
+      }}>
 
       <CursorSystem />
       <MorphOrbs />
@@ -77,29 +20,50 @@ function AppInner({ dark }) {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500&display=swap');
+
+        :root {
+          --bg:          #040608;
+          --fg:          #f0f0f0;
+          --g:           #00ff88;
+          --gg:          linear-gradient(135deg,#00ff88,#00e676,#00cc6a);
+          --card-bg:     rgba(255,255,255,.06);
+          --card-border: rgba(255,255,255,.1);
+          --muted:       rgba(255,255,255,.5);
+          --muted2:      rgba(255,255,255,.4);
+          --muted3:      rgba(255,255,255,.3);
+          --ghost-bg:    rgba(255,255,255,.06);
+          --ghost-fg:    rgba(255,255,255,.7);
+          --ghost-border:rgba(255,255,255,.15);
+          --divider:     rgba(255,255,255,.06);
+          --nav-bg:      rgba(4,6,8,.75);
+        }
+
+        [data-theme="light"] {
+          --bg:          #F8F9FA;
+          --fg:          #0A0F12;
+          --g:           #00A35C;
+          --gg:          linear-gradient(135deg,#00A35C,#00b869,#009957);
+          --card-bg:     rgba(255,255,255,.85);
+          --card-border: rgba(10,15,18,.1);
+          --muted:       rgba(10,15,18,.65);
+          --muted2:      rgba(10,15,18,.55);
+          --muted3:      rgba(10,15,18,.45);
+          --ghost-bg:    rgba(10,15,18,.05);
+          --ghost-fg:    rgba(10,15,18,.75);
+          --ghost-border:rgba(10,15,18,.18);
+          --divider:     rgba(10,15,18,.12);
+          --nav-bg:      rgba(248,249,250,.92);
+        }
+
         *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
         html { scroll-behavior:smooth; overflow-x:hidden; }
-        body { overflow-x:hidden; }
+        body { overflow-x:hidden; background:var(--bg) !important; color:var(--fg) !important; }
         [lang], font { color:inherit !important; }
         ::selection { background:#00ff88; color:#040608; }
         div::-webkit-scrollbar { display:none; }
 
-        /* ── LIGHT MODE GLOBAL FIX ── */
-        [data-theme="light"] { color: #0A0F12; }
-        [data-theme="light"] h1,
-        [data-theme="light"] h2,
-        [data-theme="light"] h3,
-        [data-theme="light"] h4,
-        [data-theme="light"] p,
-        [data-theme="light"] li { color: inherit; }
-        [data-theme="light"] .glass,
-        [data-theme="light"] .stat-card,
-        [data-theme="light"] .offer-card,
-        [data-theme="light"] .partner-card {
-          background: rgba(255,255,255,.75) !important;
-          border-color: rgba(10,15,18,.12) !important;
-          color: #0A0F12 !important;
-        }
+        [data-theme] { background:var(--bg); color:var(--fg); }
+        h1,h2,h3,h4,p,span,li { color:inherit; }
 
         /* ── KEYFRAMES ── */
         @keyframes float1{0%,100%{transform:translateY(0) rotate(0deg);}33%{transform:translateY(-22px) rotate(8deg);}66%{transform:translateY(-10px) rotate(-5deg);}}
@@ -127,8 +91,7 @@ function AppInner({ dark }) {
           box-shadow:0 4px 22px rgba(0,255,136,.35);
           display:inline-block;text-decoration:none;
           transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s;
-          position:relative;overflow:hidden;
-          min-height:44px;
+          position:relative;overflow:hidden;min-height:44px;
         }
         .btn-g::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);transition:left .55s cubic-bezier(.22,1,.36,1);}
         .btn-g:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 14px 44px rgba(0,255,136,.65);}
@@ -137,39 +100,34 @@ function AppInner({ dark }) {
         .btn-g:hover{animation:none;}
 
         .btn-ghost{
-          background:${dark ? "rgba(255,255,255,.06)" : "rgba(10,15,18,.06)"};
-          color:${dark ? "rgba(255,255,255,.7)" : "rgba(10,15,18,.75)"};
-          border:.5px solid ${dark ? "rgba(255,255,255,.15)" : "rgba(10,15,18,.18)"};
+          background:var(--ghost-bg);
+          color:var(--ghost-fg);
+          border:.5px solid var(--ghost-border);
           border-radius:10px;padding:.85rem 1.8rem;font-size:15px;font-weight:500;
           cursor:pointer;font-family:inherit;
           transition:all .5s cubic-bezier(.22,1,.36,1);
           display:inline-block;text-decoration:none;min-height:44px;
         }
-        .btn-ghost:hover{
-          background:${dark ? "rgba(255,255,255,.1)" : "rgba(10,15,18,.1)"};
-          border-color:rgba(0,255,136,.4);
-          color:${dark ? "#fff" : "#0A0F12"};
-          transform:translateY(-2px);
-        }
+        .btn-ghost:hover{background:var(--ghost-bg);border-color:rgba(0,255,136,.4);color:var(--fg);transform:translateY(-2px);}
 
         /* ── DIVIDER ── */
-        .divider{border:none;border-top:.5px solid ${dark ? "rgba(255,255,255,.06)" : "rgba(10,15,18,.12)"};}
+        .divider{border:none;border-top:.5px solid var(--divider);}
 
         /* ── GLASS CARDS ── */
         .glass{
-          background:${dark ? "linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02))" : "rgba(255,255,255,.75)"};
-          border:.5px solid ${dark ? "rgba(255,255,255,.12)" : "rgba(10,15,18,.12)"};
-          border-top:.5px solid ${dark ? "rgba(255,255,255,.22)" : "rgba(0,163,92,.25)"};
+          background:var(--card-bg);
+          border:.5px solid var(--card-border);
+          border-top:.5px solid rgba(0,255,136,.15);
           border-radius:16px;position:relative;overflow:hidden;
           transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s,border-color .3s;
         }
-        .glass::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:${dark ? "linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent)" : "linear-gradient(90deg,transparent,rgba(0,163,92,.2),transparent)"};}
+        .glass::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,255,136,.2),transparent);}
         .glass:hover{transform:translateY(-6px) scale(1.01);box-shadow:0 24px 56px rgba(0,255,136,.1),0 4px 16px rgba(0,0,0,.08);border-color:rgba(0,255,136,.28)!important;}
 
         /* ── STAT CARDS ── */
         .stat-card{
-          background:${dark ? "rgba(255,255,255,.04)" : "rgba(255,255,255,.75)"};
-          border:.5px solid ${dark ? "rgba(255,255,255,.08)" : "rgba(10,15,18,.1)"};
+          background:var(--card-bg);
+          border:.5px solid var(--card-border);
           border-radius:16px;padding:1.8rem 1.2rem;text-align:center;
           animation:breathe 4.5s ease-in-out infinite;
           transition:border-color .3s,transform .5s cubic-bezier(.22,1,.36,1),box-shadow .3s;
@@ -180,8 +138,8 @@ function AppInner({ dark }) {
 
         /* ── OFFER CARDS ── */
         .offer-card{
-          background:${dark ? "linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.02))" : "rgba(255,255,255,.75)"};
-          border:.5px solid ${dark ? "rgba(255,255,255,.1)" : "rgba(10,15,18,.1)"};
+          background:var(--card-bg);
+          border:.5px solid var(--card-border);
           border-radius:20px;padding:2rem;
           transition:transform .5s cubic-bezier(.22,1,.36,1),border-color .3s,box-shadow .5s;
           position:relative;overflow:hidden;
@@ -192,8 +150,8 @@ function AppInner({ dark }) {
 
         /* ── PARTNER CARDS ── */
         .partner-card{
-          background:${dark ? "rgba(255,255,255,.04)" : "rgba(255,255,255,.75)"};
-          border:.5px solid ${dark ? "rgba(255,255,255,.1)" : "rgba(10,15,18,.1)"};
+          background:var(--card-bg);
+          border:.5px solid var(--card-border);
           border-radius:14px;padding:1rem 1.5rem;
           display:flex;align-items:center;gap:10px;
           animation:breathe 5.5s ease-in-out infinite;
@@ -214,9 +172,6 @@ function AppInner({ dark }) {
         /* ── TOUCH TARGETS ── */
         a,button,[role=button]{min-height:44px;}
         @media(max-width:768px){a,button{min-height:48px;}}
-
-        /* ── TYPOGRAPHY ── */
-        h1,h2,h3,h4,p,span,li{color:inherit;}
 
         /* ── RESPONSIVE ── */
         @media(min-width:769px){.nav-desktop{display:flex!important;}.nav-hamburger{display:none!important;}}

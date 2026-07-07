@@ -36,33 +36,41 @@ async function sendTelegram(message) {
 function getInfo() {
   const ua = navigator.userAgent;
   const device =
-    /Mobi|Android/i.test(ua) ? "📱 Mobile" : "🖥️ Desktop";
+    /Mobi|Android/i.test(ua) ? "📱 Mobile" :
+    /Tablet|iPad/i.test(ua)  ? "📟 Tablet" : "🖥️ Desktop";
   const browser =
     /Edg/i.test(ua)     ? "Edge"    :
     /Chrome/i.test(ua)  ? "Chrome"  :
     /Firefox/i.test(ua) ? "Firefox" :
     /Safari/i.test(ua)  ? "Safari"  : "Unknown";
 
-  const params = new URLSearchParams(window.location.search);
-  const src    = params.get("utm_source")   || "direct";
-  const med    = params.get("utm_medium")   || "—";
-  const camp   = params.get("utm_campaign") || "—";
+  const params   = new URLSearchParams(window.location.search);
+  const src      = params.get("utm_source")   || document.referrer || "direct";
+  const med      = params.get("utm_medium")   || "—";
+  const camp     = params.get("utm_campaign") || "—";
+  const ref      = document.referrer ? new URL(document.referrer).hostname : "none";
 
   const visits = parseInt(localStorage.getItem("bcl_v") || "0") + 1;
   localStorage.setItem("bcl_v", String(visits));
 
+  const sessionPages = parseInt(sessionStorage.getItem("bcl_pages") || "0") + 1;
+  sessionStorage.setItem("bcl_pages", String(sessionPages));
+
   if (!sessionStorage.getItem("bcl_sid")) {
-    sessionStorage.setItem(
-      "bcl_sid",
-      Math.random().toString(36).slice(2, 8).toUpperCase()
-    );
+    sessionStorage.setItem("bcl_sid", Math.random().toString(36).slice(2,8).toUpperCase());
   }
 
+  const tz       = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const lang     = navigator.language || "unknown";
+  const screen   = `${window.screen.width}×${window.screen.height}`;
+  const online   = navigator.onLine ? "Online" : "Offline";
+
   return {
-    device, browser, src, med, camp,
-    visits,
+    device, browser, src, med, camp, ref,
+    visits, sessionPages,
     isReturn: visits > 1,
-    session: sessionStorage.getItem("bcl_sid"),
+    session:  sessionStorage.getItem("bcl_sid"),
+    tz, lang, screen, online,
   };
 }
 
@@ -81,7 +89,7 @@ function now() {
 /* ─── Page visit notification ── */
 async function notifyVisit(pageName) {
   const key = "bcl_seen_" + pageName;
-  if (sessionStorage.getItem(key)) return; // only once per session per page
+  if (sessionStorage.getItem(key)) return;
   sessionStorage.setItem(key, "1");
 
   const v     = getInfo();
@@ -92,24 +100,19 @@ async function notifyVisit(pageName) {
 
 📄 <b>Page:</b> ${pageName}
 ${v.device} | ${v.browser}
+🌍 <b>Timezone:</b> ${v.tz}
+🗣️ <b>Language:</b> ${v.lang}
+📐 <b>Screen:</b> ${v.screen}
 🕐 <b>Time:</b> ${now()}
+
 🔗 <b>Source:</b> ${v.src}
 📣 <b>Medium:</b> ${v.med}
 🎯 <b>Campaign:</b> ${v.camp}
+↩️ <b>Referrer:</b> ${v.ref}
+
+📊 <b>Session pages:</b> ${v.sessionPages}
+🔢 <b>Total visits:</b> ${v.visits}
 🌐 <b>URL:</b> ${window.location.href}`
-  );
-}
-
-/* ─── Pricing CTA clicked ── */
-export async function notifyPricingClick(packageName, price) {
-  const v = getInfo();
-  await sendTelegram(
-`💰 <b>PRICING CTA CLICKED</b>
-
-📦 <b>Package:</b> ${packageName}
-💵 <b>Price:</b> $${price}
-${v.device} | Session ${v.session}
-🕐 ${now()}`
   );
 }
 
