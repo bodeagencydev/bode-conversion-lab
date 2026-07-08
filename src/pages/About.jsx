@@ -15,6 +15,7 @@ export default function About() {
 
   return (
     <PageWrapper>
+      {/* HERO SECTION */}
       <section style={{ position:"relative", minHeight:"60vh", display:"flex", alignItems:"center", justifyContent:"center", padding:"clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 3rem", overflow:"hidden" }}>
         <Particles />
         <div style={{ position:"absolute", width:600, height:600, top:-150, left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle,rgba(0,255,136,.14),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
@@ -35,7 +36,7 @@ export default function About() {
 
       <hr className="divider" />
 
-      {/* STORY */}
+      {/* STORY SECTION */}
       <Section>
         <div style={{ maxWidth:900, margin:"0 auto", display:"grid", gridTemplateColumns:"1fr 1fr", gap:"clamp(2rem,5vw,5rem)", alignItems:"center" }} className="about-grid">
           <div>
@@ -72,7 +73,7 @@ export default function About() {
 
       <hr className="divider" />
 
-      {/* SERVICES */}
+      {/* SERVICES SECTION */}
       <Section>
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:"3rem" }}>
@@ -104,7 +105,7 @@ export default function About() {
                 <p style={{ fontSize:13, color:mutedText2, lineHeight:1.7, marginBottom:activeService===s.id?"1rem":0 }}>{s.desc}</p>
                 {activeService === s.id && (
                   <div>
-                    <ul style={{ listStyle:"none", marginBottom:"1.2rem" }}>
+                    <ul style={{ listStyle:"none", marginBottom:"1.2rem", paddingLeft: 0 }}>
                       {s.bullets.map((b, j) => (
                         <li key={j} style={{ fontSize:13, color:dark?"rgba(255,255,255,.6)":"rgba(26,20,8,.65)", padding:"6px 0", borderBottom:dark?".5px solid rgba(255,255,255,.06)":".5px solid rgba(26,20,8,.1)", display:"flex", gap:8, alignItems:"center" }}>
                           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke={G} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -126,7 +127,7 @@ export default function About() {
 
       <hr className="divider" />
 
-      {/* VALUES */}
+      {/* VALUES SECTION */}
       <Section>
         <div style={{ maxWidth:960, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:"3rem" }}>
@@ -154,7 +155,7 @@ export default function About() {
 
       <hr className="divider" />
 
-      {/* CTA */}
+      {/* CTA SECTION */}
       <Section style={{ paddingBottom:"6rem" }}>
         <div style={{ maxWidth:600, margin:"0 auto", textAlign:"center" }}>
           <SectionLabel>Work with us</SectionLabel>

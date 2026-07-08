@@ -43,7 +43,7 @@ function AppInner({ dark }) {
           --fg:          #0A0F12;
           --g:           #00A35C;
           --gg:          linear-gradient(135deg,#00A35C,#00b869,#009957);
-          --card-bg:     rgba(255,255,255,.85);
+          --card-bg:     rgba(255,255,255,.9);
           --card-border: rgba(10,15,18,.1);
           --muted:       rgba(10,15,18,.65);
           --muted2:      rgba(10,15,18,.55);
@@ -51,7 +51,7 @@ function AppInner({ dark }) {
           --ghost-bg:    rgba(10,15,18,.05);
           --ghost-fg:    rgba(10,15,18,.75);
           --ghost-border:rgba(10,15,18,.18);
-          --divider:     rgba(10,15,18,.12);
+          --divider:     rgba(10,15,18,.1);
           --nav-bg:      rgba(248,249,250,.92);
         }
 

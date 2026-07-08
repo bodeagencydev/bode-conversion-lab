@@ -44,6 +44,7 @@ export default function Pricing() {
       tier: "Entry",
       name: "Store Diagnosis",
       price: 175,
+      nairaPrice: 28000000,  // ₦239,365 in kobo
       cycle: "per engagement",
       tagline: "Find out exactly where your store is bleeding money.",
       desc: "Before spending another dollar on ads, know what's broken. We audit your store, funnel, and ad account — and hand you a clear action roadmap.",
@@ -61,6 +62,7 @@ export default function Pricing() {
       tier: "Growth",
       name: "Conversion Fix",
       price: 497,
+      nairaPrice: 79520000,  // ₦679,797 in kobo
       cycle: "per project",
       tagline: "Audit + we implement the top 3 revenue leaks ourselves.",
       desc: "We don't just tell you what's broken — we fix it. The three highest-impact changes, done for you within 7 days.",
@@ -79,6 +81,7 @@ export default function Pricing() {
       tier: "Most Popular",
       name: "The Lab",
       price: 997,
+      nairaPrice: 159520000,  // ₦1,363,697 in kobo
       cycle: "per cycle",
       tagline: "A full conversion system running in your store every cycle.",
       desc: "We run your ads, optimize your store, and compound results every cycle. One system. One team. One goal — ROAS that grows.",
@@ -98,6 +101,7 @@ export default function Pricing() {
       tier: "Elite",
       name: "Full Stack",
       price: 1997,
+      nairaPrice: 319520000,  // ₦2,731,497 in kobo
       cycle: "per cycle",
       tagline: "Your entire growth engine — built, run, and scaled for you.",
       desc: "Done-for-you everything. Ads, landing pages, email flows, creative production. You focus on the product. We handle the revenue.",
@@ -118,8 +122,8 @@ export default function Pricing() {
   const pkg = activeModal !== null ? tiers[activeModal] : null;
   const amount = pkg
     ? payType === "deposit"
-      ? Math.ceil(pkg.price * 0.5)
-      : pkg.price
+      ? Math.ceil(pkg.nairaPrice * 0.5)
+      : pkg.nairaPrice
     : 0;
 
   function openModal(i) {
@@ -145,13 +149,13 @@ export default function Pricing() {
       ? `${pkg.name} — 50% Deposit`
       : `${pkg.name} — Full Payment`;
 
-    await notifyPayment(label, amount, email);
+    await notifyPayment(label, pkg.price, email);
 
     const handler = window.PaystackPop.setup({
       key: PAYSTACK_KEY,
       email,
-      amount: amount * 100,
-      currency: "USD",
+      amount: amount,
+      currency: "NGN",
       ref: `BCL-${Date.now()}`,
       metadata: {
         custom_fields: [
@@ -271,7 +275,7 @@ export default function Pricing() {
                 {/* Due today summary */}
                 <div style={{ background:"rgba(0,255,136,.05)", border:".5px solid rgba(0,255,136,.18)", borderRadius:10, padding:".9rem 1rem", marginBottom:"1.2rem", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <span style={{ fontSize:13, color:mutedText2 }}>Due today</span>
-                  <span style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.3rem", fontWeight:800, color:G }}>${amount}</span>
+                  <span style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.3rem", fontWeight:800, color:G }}>₦{(amount / 100).toLocaleString()}</span>
                 </div>
 
                 {error && (
@@ -282,7 +286,7 @@ export default function Pricing() {
                   onClick={handlePay}
                   disabled={loading}
                   style={{ width:"100%", background:loading?"rgba(0,255,136,.4)":GG, color:"#040608", border:"none", borderRadius:10, padding:".9rem", fontSize:15, fontWeight:700, cursor:loading?"not-allowed":"pointer", fontFamily:"inherit", boxShadow:loading?"none":"0 4px 22px rgba(0,255,136,.35)", marginBottom:".75rem" }}>
-                  {loading ? "Loading..." : `Pay $${amount} securely →`}
+                  {loading ? "Loading..." : `Pay ₦${(amount / 100).toLocaleString()} securely →`}
                 </button>
 
                 {/* Trust + contact option */}
