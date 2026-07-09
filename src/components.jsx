@@ -1,11 +1,9 @@
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-/* ─── BRAND CONSTANTS ─── */
 const G  = "#00ff88";
 const GG = "linear-gradient(135deg,#00ff88,#00e676,#00cc6a)";
 
-/* ─── DOMAIN MAP ─── */
 const DOMAIN_MAP = {
   shopify:"shopify.com", woocommerce:"woocommerce.com", magento:"magento.com",
   bigcommerce:"bigcommerce.com", wix:"wix.com", squarespace:"squarespace.com",
@@ -34,11 +32,9 @@ function PlatformLogo({ name, slug, color, size = 20 }) {
   );
 }
 
-/* ─── THEME CONTEXT ─── */
 export const ThemeContext = createContext({ dark: true, toggle: () => {} });
 export function useTheme() { return useContext(ThemeContext); }
 
-/* ─── NAV LINKS ─── */
 const NAV_LINKS = [
   { path:"/",             label:"Home" },
   { path:"/about",        label:"About" },
@@ -49,33 +45,28 @@ const NAV_LINKS = [
   { path:"/contact",      label:"Contact" },
 ];
 
-/* ─── LOGO ─── */
 export function Logo({ size = 40, textSize = 14 }) {
   const { dark } = useTheme();
   return (
     <div style={{ display:"flex", alignItems:"center", gap:9 }}>
       <div style={{
         width:size, height:size, borderRadius:"30%",
-        background: dark
-          ? "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,255,136,.02))"
-          : "rgba(255,255,255,.9)",
+        background: dark ? "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,255,136,.02))" : "rgba(255,255,255,.9)",
         border: dark ? ".5px solid rgba(0,255,136,.25)" : ".5px solid rgba(10,15,18,.15)",
         display:"flex", alignItems:"center", justifyContent:"center",
         flexShrink:0, overflow:"hidden",
         boxShadow: dark ? "0 2px 14px rgba(0,255,136,.2)" : "0 2px 8px rgba(0,0,0,.1)",
       }}>
-        <img src="/logo.png" alt="Bode Conversion Lab"
-          style={{ width:"78%", height:"78%", objectFit:"contain", display:"block" }}/>
+        <img src="/logo.png" alt="Bode Conversion Lab" style={{ width:"78%", height:"78%", objectFit:"contain", display:"block" }}/>
       </div>
       <div style={{ lineHeight:1.1 }}>
         <p style={{ fontSize:textSize, fontWeight:800, color:"var(--fg)", margin:0, fontFamily:"'Syne',sans-serif", letterSpacing:"-0.02em" }}>Bode</p>
-        <p style={{ fontSize:textSize*.78, fontWeight:700, color:"var(--g)", margin:0, letterSpacing:".06em", textTransform:"uppercase" }}>Conversion Lab</p>
+        <p style={{ fontSize:textSize*.78, fontWeight:700, color:"var(--g,#00ff88)", margin:0, letterSpacing:".06em", textTransform:"uppercase" }}>Conversion Lab</p>
       </div>
     </div>
   );
 }
 
-/* ─── NAV ─── */
 export function Nav() {
   const { dark } = useTheme();
   const location = useLocation();
@@ -97,7 +88,7 @@ export function Nav() {
 
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
-  const bg = dark
+  const navBg = dark
     ? (scrolled ? "rgba(4,6,8,.96)"       : "rgba(4,6,8,.75)")
     : (scrolled ? "rgba(248,249,250,.97)" : "rgba(248,249,250,.88)");
 
@@ -107,8 +98,8 @@ export function Nav() {
         position:"fixed", top:0, left:0, right:0, zIndex:1000,
         padding:"0 clamp(1rem,4vw,2.5rem)", height:60,
         display:"flex", alignItems:"center", justifyContent:"space-between",
-        background:bg, backdropFilter:"blur(20px)",
-        borderBottom:".5px solid var(--divider)",
+        background:navBg, backdropFilter:"blur(20px)",
+        borderBottom:".5px solid var(--divider,rgba(255,255,255,.06))",
         transition:"transform .35s cubic-bezier(.22,1,.36,1),background .3s",
         transform:visible?"translateY(0)":"translateY(-100%)"
       }}>
@@ -119,9 +110,9 @@ export function Nav() {
             const active = location.pathname === l.path;
             return (
               <Link key={l.path} to={l.path}
-                style={{ fontSize:13.5, fontWeight:active?700:500, color:active?"var(--g)":"var(--muted)", textDecoration:"none", transition:"color .2s", position:"relative", paddingBottom:2 }}
-                onMouseEnter={e => { if (!active) e.currentTarget.style.color="var(--g)"; }}
-                onMouseLeave={e => { if (!active) e.currentTarget.style.color="var(--muted)"; }}>
+                style={{ fontSize:13.5, fontWeight:active?700:500, color:active?"var(--g,#00ff88)":"var(--muted,rgba(255,255,255,.5))", textDecoration:"none", transition:"color .2s", position:"relative", paddingBottom:2 }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.color="var(--g,#00ff88)"; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.color="var(--muted,rgba(255,255,255,.5))"; }}>
                 {l.label}
                 {active && <span style={{ position:"absolute", bottom:-2, left:0, right:0, height:2, background:GG, borderRadius:2 }}/>}
               </Link>
@@ -141,7 +132,7 @@ export function Nav() {
           {[0,1,2].map(i => (
             <span key={i} style={{
               display:"block", width:22, height:2,
-              background:"var(--fg)", borderRadius:2, transition:"all .25s",
+              background:"var(--fg,#f0f0f0)", borderRadius:2, transition:"all .25s",
               transform: menuOpen?(i===0?"rotate(45deg) translate(5px,5px)":i===2?"rotate(-45deg) translate(5px,-5px)":"scaleX(0)"):"none",
               opacity: menuOpen&&i===1?0:1
             }}/>
@@ -153,7 +144,7 @@ export function Nav() {
         position:"fixed", top:60, left:0, right:0, zIndex:999,
         background: dark ? "rgba(4,6,8,.97)" : "rgba(248,249,250,.97)",
         backdropFilter:"blur(20px)",
-        borderBottom:".5px solid var(--divider)",
+        borderBottom:".5px solid var(--divider,rgba(255,255,255,.06))",
         padding:menuOpen?"1.2rem 1.5rem 1.5rem":"0 1.5rem",
         maxHeight:menuOpen?520:0, overflow:"hidden",
         transition:"max-height .35s cubic-bezier(.22,1,.36,1),padding .35s"
@@ -162,12 +153,12 @@ export function Nav() {
           const active = location.pathname === l.path;
           return (
             <Link key={l.path} to={l.path}
-              style={{ display:"block", padding:".7rem 0", fontSize:15, fontWeight:active?700:500, color:active?"var(--g)":"var(--muted)", textDecoration:"none", borderBottom:".5px solid var(--divider)", transition:"color .2s" }}>
+              style={{ display:"block", padding:".7rem 0", fontSize:15, fontWeight:active?700:500, color:active?"var(--g,#00ff88)":"var(--muted,rgba(255,255,255,.5))", textDecoration:"none", borderBottom:".5px solid var(--divider,rgba(255,255,255,.06))", transition:"color .2s" }}>
               {l.label}
             </Link>
           );
         })}
-        <Link to="/contact" style={{ display:"inline-block", marginTop:"1rem", background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none", boxShadow:"0 4px 16px rgba(0,255,136,.4)" }}>
+        <Link to="/contact" style={{ display:"inline-block", marginTop:"1rem", background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none" }}>
           Apply Now →
         </Link>
       </div>
@@ -177,7 +168,6 @@ export function Nav() {
   );
 }
 
-/* ─── THEME TOGGLE ─── */
 export function ThemeToggle() {
   const { dark, toggle } = useTheme();
   return (
@@ -210,14 +200,13 @@ export function ThemeToggle() {
   );
 }
 
-/* ─── PAGE WRAPPER ─── */
 export function PageWrapper({ children, style = {} }) {
   useEffect(() => { window.scrollTo(0, 0); }, []);
   return (
     <div style={{
       minHeight:"100vh",
-      background:"var(--bg)",
-      color:"var(--fg)",
+      background:"var(--bg,#040608)",
+      color:"var(--fg,#f0f0f0)",
       paddingTop:60,
       transition:"background .3s,color .3s",
       ...style
@@ -227,16 +216,14 @@ export function PageWrapper({ children, style = {} }) {
   );
 }
 
-/* ─── GRAD TEXT ─── */
 export function GradText({ children, style = {} }) {
   return (
-    <span style={{ background:"var(--gg,linear-gradient(135deg,#00ff88,#00cc6a))", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", ...style }}>
+    <span style={{ background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", ...style }}>
       {children}
     </span>
   );
 }
 
-/* ─── SECTION ─── */
 export function Section({ id, children, style = {} }) {
   return (
     <section id={id} style={{ padding:"clamp(3rem,6vw,6rem) clamp(1rem,4vw,2rem)", position:"relative", ...style }}>
@@ -245,25 +232,22 @@ export function Section({ id, children, style = {} }) {
   );
 }
 
-/* ─── SECTION LABEL ─── */
 export function SectionLabel({ children }) {
   return (
-    <p style={{ fontSize:11, color:"var(--muted2)", letterSpacing:".12em", textTransform:"uppercase", marginBottom:".75rem", fontWeight:600 }}>
+    <p style={{ fontSize:11, color:"var(--muted2,rgba(255,255,255,.4))", letterSpacing:".12em", textTransform:"uppercase", marginBottom:".75rem", fontWeight:600 }}>
       {children}
     </p>
   );
 }
 
-/* ─── HEADING ─── */
 export function Heading({ children, size = "2.3rem" }) {
   return (
-    <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:`clamp(1.4rem,4vw,${size})`, fontWeight:800, letterSpacing:"-.02em", color:"var(--fg)", lineHeight:1.15, wordBreak:"break-word" }}>
+    <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:`clamp(1.4rem,4vw,${size})`, fontWeight:800, letterSpacing:"-.02em", color:"var(--fg,#f0f0f0)", lineHeight:1.15, wordBreak:"break-word" }}>
       {children}
     </h2>
   );
 }
 
-/* ─── USE IN VIEW ─── */
 export function useInView(threshold = 0.1) {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
@@ -275,7 +259,6 @@ export function useInView(threshold = 0.1) {
   return [ref, inView];
 }
 
-/* ─── ANIM NUM ─── */
 export function AnimNum({ target, suffix = "" }) {
   const [val, setVal] = useState(0);
   const [ref, inView] = useInView();
@@ -288,7 +271,6 @@ export function AnimNum({ target, suffix = "" }) {
   return <span ref={ref}>{val}{suffix}</span>;
 }
 
-/* ─── PARTICLES ─── */
 export function Particles() {
   const ref = useRef(null);
   useEffect(() => {
@@ -324,7 +306,6 @@ export function Particles() {
   return <canvas ref={ref} style={{ position:"absolute", inset:0, width:"100%", height:"100%", pointerEvents:"none" }}/>;
 }
 
-/* ─── TYPEWRITER ─── */
 export function Typewriter({ words }) {
   const [wi, setWi]     = useState(0);
   const [text, setText] = useState("");
@@ -344,26 +325,30 @@ export function Typewriter({ words }) {
   );
 }
 
-/* ─── CONTINUOUS TICKER ─── */
 export function ContinuousTicker({ items = [], speed = 30, reverse = false }) {
-  const { dark } = useTheme();
   const [paused, setPaused] = useState(false);
   const doubled = [...items, ...items];
   return (
     <div style={{ overflow:"hidden", position:"relative", padding:".5rem 0" }}
-      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <div style={{ display:"flex", gap:"1rem", animation:`${reverse?"tickerR":"ticker"} ${speed}s linear infinite`, animationPlayState:paused?"paused":"running", width:"max-content" }}>
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}>
+      <div style={{
+        display:"flex", gap:"1rem",
+        animation:`${reverse?"tickerR":"ticker"} ${speed}s linear infinite`,
+        animationPlayState:paused?"paused":"running",
+        width:"max-content"
+      }}>
         {doubled.map((item, i) => {
           const name  = typeof item==="string" ? item : item.name;
           const slug  = typeof item==="object" ? item.slug  : null;
           const color = typeof item==="object" ? item.color : null;
           return (
             <div key={i}
-              style={{ display:"inline-flex", alignItems:"center", gap:8, padding:".45rem 1.1rem", background:"var(--card-bg)", border:".5px solid var(--card-border)", borderRadius:100, whiteSpace:"nowrap", transition:"all .25s", cursor:"default" }}
+              style={{ display:"inline-flex", alignItems:"center", gap:8, padding:".45rem 1.1rem", background:"var(--card-bg,rgba(255,255,255,.06))", border:".5px solid var(--card-border,rgba(255,255,255,.1))", borderRadius:100, whiteSpace:"nowrap", transition:"all .25s", cursor:"default" }}
               onMouseEnter={e => { e.currentTarget.style.background="rgba(0,255,136,.1)"; e.currentTarget.style.borderColor="rgba(0,255,136,.4)"; e.currentTarget.style.transform="translateY(-2px) scale(1.04)"; }}
-              onMouseLeave={e => { e.currentTarget.style.background="var(--card-bg)"; e.currentTarget.style.borderColor="var(--card-border)"; e.currentTarget.style.transform="none"; }}>
+              onMouseLeave={e => { e.currentTarget.style.background="var(--card-bg,rgba(255,255,255,.06))"; e.currentTarget.style.borderColor="var(--card-border,rgba(255,255,255,.1))"; e.currentTarget.style.transform="none"; }}>
               <PlatformLogo name={name} slug={slug} color={color} size={18}/>
-              <span style={{ fontSize:13, fontWeight:500, color:"var(--muted)" }}>{name}</span>
+              <span style={{ fontSize:13, fontWeight:500, color:"var(--muted,rgba(255,255,255,.5))" }}>{name}</span>
             </div>
           );
         })}
@@ -372,19 +357,24 @@ export function ContinuousTicker({ items = [], speed = 30, reverse = false }) {
   );
 }
 
-/* ─── TESTIMONIAL TICKER ─── */
 export function TestimonialTicker({ items = [] }) {
-  const { dark } = useTheme();
   const [paused, setPaused] = useState(false);
   const doubled = [...items, ...items];
   return (
-    <div style={{ overflow:"hidden" }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <div style={{ display:"flex", gap:"1.5rem", animation:"ticker 40s linear infinite", animationPlayState:paused?"paused":"running", width:"max-content" }}>
+    <div style={{ overflow:"hidden" }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}>
+      <div style={{
+        display:"flex", gap:"1.5rem",
+        animation:"ticker 40s linear infinite",
+        animationPlayState:paused?"paused":"running",
+        width:"max-content"
+      }}>
         {doubled.map((t, i) => (
           <a key={i} href={t.storeUrl||"#"} target={t.storeUrl?"_blank":"_self"} rel="noopener noreferrer"
             style={{
               width:310, flexShrink:0,
-              background:"var(--card-bg)",
+              background:"var(--card-bg,rgba(255,255,255,.06))",
               border:".5px solid rgba(0,255,136,.25)",
               borderTop:".5px solid rgba(0,255,136,.4)",
               borderRadius:16, padding:"1.2rem",
@@ -398,14 +388,14 @@ export function TestimonialTicker({ items = [] }) {
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:".75rem" }}>
               <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                 {t.storeLogo && <img src={t.storeLogo} alt={t.storeName} width="20" height="20" loading="lazy" style={{ borderRadius:4, objectFit:"contain", background:"#fff", padding:"2px", flexShrink:0 }} onError={e => e.target.style.display="none"}/>}
-                <span style={{ fontSize:11, color:"var(--muted2)", fontWeight:500 }}>{t.storeName}</span>
+                <span style={{ fontSize:11, color:"var(--muted2,rgba(255,255,255,.4))", fontWeight:500 }}>{t.storeName}</span>
               </div>
               <span style={{ background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.5)", borderRadius:100, padding:"3px 10px", fontSize:10, color:"#00ff88", fontWeight:800 }}>{t.result}</span>
             </div>
             <div style={{ display:"flex", gap:2, marginBottom:".75rem" }}>
               {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize:13, color:"#FFD700" }}>★</span>)}
             </div>
-            <p style={{ fontSize:13, color:"var(--muted)", lineHeight:1.7, marginBottom:".9rem", fontStyle:"italic" }}>"{t.text}"</p>
+            <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.7, marginBottom:".9rem", fontStyle:"italic" }}>"{t.text}"</p>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                 {t.avatar
@@ -413,8 +403,8 @@ export function TestimonialTicker({ items = [] }) {
                   : <div style={{ width:32, height:32, borderRadius:"50%", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.4)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:G, flexShrink:0 }}>{t.init||t.name?.[0]}</div>
                 }
                 <div>
-                  <p style={{ fontSize:12, fontWeight:700, color:"var(--fg)", margin:0 }}>{t.name}</p>
-                  <p style={{ fontSize:10, color:"var(--muted3)", margin:0 }}>{t.storeCategory||t.role}</p>
+                  <p style={{ fontSize:12, fontWeight:700, color:"var(--fg,#f0f0f0)", margin:0 }}>{t.name}</p>
+                  <p style={{ fontSize:10, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>{t.storeCategory||t.role}</p>
                 </div>
               </div>
               {t.storeUrl && <span style={{ fontSize:10, color:G, fontWeight:700 }}>Visit store →</span>}
@@ -426,9 +416,7 @@ export function TestimonialTicker({ items = [] }) {
   );
 }
 
-/* ─── VIDEO TIPS ─── */
 export function VideoTips({ items = [] }) {
-  const { dark } = useTheme();
   const scrollRef = useRef(null);
   const [playing, setPlaying] = useState(null);
   const scroll = dir => { if (scrollRef.current) scrollRef.current.scrollBy({ left:dir*280, behavior:"smooth" }); };
@@ -439,9 +427,9 @@ export function VideoTips({ items = [] }) {
       <div ref={scrollRef} style={{ display:"flex", gap:"1.5rem", overflowX:"auto", scrollSnapType:"x mandatory", paddingBottom:"1rem", scrollbarWidth:"none" }}>
         {items.map((v, i) => (
           <div key={i}
-            style={{ flexShrink:0, width:240, scrollSnapAlign:"start", background:"var(--card-bg)", border:".5px solid var(--card-border)", borderRadius:16, overflow:"hidden", transition:"transform .3s,border-color .3s" }}
+            style={{ flexShrink:0, width:240, scrollSnapAlign:"start", background:"var(--card-bg,rgba(255,255,255,.06))", border:".5px solid var(--card-border,rgba(255,255,255,.1))", borderRadius:16, overflow:"hidden", transition:"transform .3s,border-color .3s" }}
             onMouseEnter={e => { e.currentTarget.style.transform="translateY(-5px)"; e.currentTarget.style.borderColor="rgba(0,255,136,.4)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor="var(--card-border)"; }}>
+            onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor="var(--card-border,rgba(255,255,255,.1))"; }}>
             <div style={{ width:"100%", aspectRatio:"9/16", position:"relative", background:"#000" }}>
               {playing === i
                 ? <iframe src={`https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0`} title={v.title} allow="autoplay" allowFullScreen style={{ width:"100%", height:"100%", border:"none", position:"absolute", inset:0 }}/>
@@ -457,8 +445,8 @@ export function VideoTips({ items = [] }) {
               }
             </div>
             <div style={{ padding:".9rem" }}>
-              <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:".85rem", fontWeight:700, color:"var(--fg)", marginBottom:".3rem", lineHeight:1.4 }}>{v.title}</h3>
-              <p style={{ fontSize:12, color:"var(--muted2)", lineHeight:1.5, margin:0 }}>{v.desc}</p>
+              <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:".85rem", fontWeight:700, color:"var(--fg,#f0f0f0)", marginBottom:".3rem", lineHeight:1.4 }}>{v.title}</h3>
+              <p style={{ fontSize:12, color:"var(--muted2,rgba(255,255,255,.4))", lineHeight:1.5, margin:0 }}>{v.desc}</p>
             </div>
           </div>
         ))}
@@ -467,23 +455,21 @@ export function VideoTips({ items = [] }) {
   );
 }
 
-/* ─── PARTNER CARD ─── */
 export function PartnerCard({ partner }) {
   return (
     <div className="partner-card"
       onMouseEnter={e => { e.currentTarget.style.background="rgba(0,255,136,.08)"; e.currentTarget.style.transform="translateY(-4px)"; e.currentTarget.style.borderColor="rgba(0,255,136,.4)"; e.currentTarget.style.boxShadow="0 12px 32px rgba(0,255,136,.12)"; e.currentTarget.style.animation="none"; }}
-      onMouseLeave={e => { e.currentTarget.style.background="var(--card-bg)"; e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor="var(--card-border)"; e.currentTarget.style.boxShadow="none"; }}>
+      onMouseLeave={e => { e.currentTarget.style.background="var(--card-bg,rgba(255,255,255,.06))"; e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor="var(--card-border,rgba(255,255,255,.1))"; e.currentTarget.style.boxShadow="none"; }}>
       <PlatformLogo name={partner.name} slug={partner.slug} color={partner.color} size={28}/>
       <div>
-        <p style={{ fontSize:14, fontWeight:600, color:"var(--fg)", margin:0 }}>{partner.name}</p>
-        <p style={{ fontSize:11, color:"var(--muted3)", margin:0 }}>Certified partner</p>
+        <p style={{ fontSize:14, fontWeight:600, color:"var(--fg,#f0f0f0)", margin:0 }}>{partner.name}</p>
+        <p style={{ fontSize:11, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>Certified partner</p>
       </div>
       <div style={{ marginLeft:"auto", width:8, height:8, borderRadius:"50%", background:partner.color||G, animation:"pulse 2s ease-in-out infinite", flexShrink:0 }}/>
     </div>
   );
 }
 
-/* ─── WHATSAPP BUTTON ─── */
 export function WhatsAppButton() {
   const msg = encodeURIComponent("Hi there! I would love to be part of your growth journey 🚀");
   return (
@@ -496,26 +482,25 @@ export function WhatsAppButton() {
   );
 }
 
-/* ─── FOOTER ─── */
 export function Footer() {
   const ColLink = ({ to, children }) => (
     <Link to={to}
-      style={{ display:"block", fontSize:13, color:"var(--muted)", textDecoration:"none", marginBottom:".35rem", lineHeight:1.4, transition:"color .2s,transform .15s", minHeight:28 }}
+      style={{ display:"block", fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", textDecoration:"none", marginBottom:".35rem", lineHeight:1.4, transition:"color .2s,transform .15s", minHeight:28 }}
       onMouseEnter={e => { e.target.style.color=G; e.target.style.transform="translateX(3px)"; }}
-      onMouseLeave={e => { e.target.style.color="var(--muted)"; e.target.style.transform="none"; }}>
+      onMouseLeave={e => { e.target.style.color="var(--muted,rgba(255,255,255,.5))"; e.target.style.transform="none"; }}>
       {children}
     </Link>
   );
 
   const ColHead = ({ children }) => (
-    <p style={{ fontSize:10, color:"var(--muted3)", letterSpacing:".12em", textTransform:"uppercase", fontWeight:700, marginBottom:".6rem", lineHeight:1 }}>{children}</p>
+    <p style={{ fontSize:10, color:"var(--muted3,rgba(255,255,255,.3))", letterSpacing:".12em", textTransform:"uppercase", fontWeight:700, marginBottom:".6rem", lineHeight:1 }}>{children}</p>
   );
 
   return (
-    <footer style={{ padding:"2.5rem 1.2rem 1.5rem", borderTop:".5px solid var(--divider)", background:"var(--bg)" }}>
+    <footer style={{ padding:"2.5rem 1.2rem 1.5rem", borderTop:".5px solid var(--divider,rgba(255,255,255,.06))", background:"var(--bg,#040608)" }}>
       <style>{`
         .footer-inner{max-width:1100px;margin:0 auto;}
-        .footer-brand{display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.6rem;padding-bottom:1.4rem;border-bottom:.5px solid var(--divider);}
+        .footer-brand{display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.6rem;padding-bottom:1.4rem;border-bottom:.5px solid var(--divider,rgba(255,255,255,.06));}
         .footer-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem 1.5rem;margin-bottom:1.4rem;}
         @media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr);gap:.6rem 1rem;}.footer-brand{flex-direction:column;gap:1rem;}}
       `}</style>
@@ -523,7 +508,7 @@ export function Footer() {
         <div className="footer-brand">
           <div style={{ flex:1, minWidth:180, maxWidth:300 }}>
             <Link to="/" style={{ textDecoration:"none", display:"inline-block", marginBottom:".7rem" }}><Logo size={36} textSize={13}/></Link>
-            <p style={{ fontSize:13, color:"var(--muted)", lineHeight:1.6, marginBottom:".8rem" }}>We don't run ads. We engineer ROAS.<br/>One system. Compounding results every month.</p>
+            <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.6, marginBottom:".8rem" }}>We don't run ads. We engineer ROAS.<br/>One system. Compounding results every month.</p>
             <a href={`https://wa.me/19454076473?text=${encodeURIComponent("Hi there! I would love to be part of your growth journey 🚀")}`}
               target="_blank" rel="noopener noreferrer"
               style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:13, color:"#25D366", textDecoration:"none", transition:"transform .2s" }}
@@ -540,7 +525,7 @@ export function Footer() {
               onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 18px rgba(0,255,136,.35)"; }}>
               Apply Now →
             </Link>
-            <p style={{ fontSize:12, color:"var(--muted3)", margin:0 }}>Response within 24 hours.</p>
+            <p style={{ fontSize:12, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>Response within 24 hours.</p>
           </div>
         </div>
         <div className="footer-cols">
@@ -565,9 +550,9 @@ export function Footer() {
             <ColLink to="/contact">Contact</ColLink>
           </div>
         </div>
-        <div style={{ borderTop:".5px solid var(--divider)", paddingTop:"1rem", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:".4rem" }}>
-          <p style={{ fontSize:11.5, color:"var(--muted3)", margin:0 }}>© 2026 Bode Conversion Lab. All rights reserved.</p>
-          <p style={{ fontSize:11.5, color:"var(--muted3)", margin:0 }}>Built to convert. Engineered to scale.</p>
+        <div style={{ borderTop:".5px solid var(--divider,rgba(255,255,255,.06))", paddingTop:"1rem", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:".4rem" }}>
+          <p style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>© 2026 Bode Conversion Lab. All rights reserved.</p>
+          <p style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>Built to convert. Engineered to scale.</p>
         </div>
       </div>
     </footer>
