@@ -119,7 +119,7 @@ export function Nav() {
             );
           })}
           <Link to="/contact"
-            style={{ background:GG, color:"#040608", borderRadius:8, padding:".42rem 1.1rem", fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:"0 2px 14px rgba(0,255,136,.3)", transition:"transform .2s,box-shadow .2s" }}
+            style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", lineHeight:1, background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:"0 2px 14px rgba(0,255,136,.3)", transition:"transform .2s,box-shadow .2s" }}
             onMouseEnter={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 22px rgba(0,255,136,.5)"; }}
             onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 2px 14px rgba(0,255,136,.3)"; }}>
             Apply Now →
