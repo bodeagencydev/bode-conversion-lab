@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { G, GG, CASE_STUDIES, BADGES } from "../data.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
@@ -129,9 +129,48 @@ const GALLERY = [
   },
 ]; 
 
-/* ── GALLERY CARD ── */
+/* ── GALLERY CARD ──
+   No poster PNGs exist for these clips (the /proof folder only has the .mp4s),
+   so the thumbnail is auto-captured client-side: a hidden <video> loads each
+   clip's metadata, seeks to ~1s in, and draws that frame onto a canvas as a
+   data URL. That becomes the thumbnail image — no extra asset files needed.
+   Clicking swaps in the real, visible, controllable <video>.
+──────────────────────────────────────────────────────────────────────────── */
 function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
   const cardBorder = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.15)";
+  const [playing, setPlaying] = useState(false);
+  const [thumb, setThumb]     = useState(null);
+  const [failed, setFailed]   = useState(false);
+  const captureRef = useRef(null);
+
+  useEffect(() => {
+    const vid = captureRef.current;
+    if (!vid || playing || thumb) return;
+
+    const onLoadedMeta = () => {
+      try { vid.currentTime = Math.min(1, (vid.duration || 2) / 4); }
+      catch { setFailed(true); }
+    };
+    const onSeeked = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width  = vid.videoWidth  || 320;
+        canvas.height = vid.videoHeight || 200;
+        canvas.getContext("2d").drawImage(vid, 0, 0, canvas.width, canvas.height);
+        setThumb(canvas.toDataURL("image/jpeg", 0.82));
+      } catch { setFailed(true); }
+    };
+    const onError = () => setFailed(true);
+
+    vid.addEventListener("loadedmetadata", onLoadedMeta);
+    vid.addEventListener("seeked", onSeeked);
+    vid.addEventListener("error", onError);
+    return () => {
+      vid.removeEventListener("loadedmetadata", onLoadedMeta);
+      vid.removeEventListener("seeked", onSeeked);
+      vid.removeEventListener("error", onError);
+    };
+  }, [playing, thumb]);
 
   return (
     <div style={{
@@ -147,34 +186,69 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
       onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; e.currentTarget.style.borderColor=cardBorder; }}>
 
       <div style={{ aspectRatio: "16/10", position: "relative", overflow: "hidden", background: dark ? "rgba(0,0,0,.4)" : "rgba(26,20,8,.06)" }}>
-        <video
-          src={item.videoSrc}
-          poster={item.src}
-          muted
-          playsInline
-          controls
-          preload="metadata"
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", border: "none" }}
-          onError={e => {
-            e.target.style.display = "none";
-            e.target.nextSibling.style.display = "flex";
-          }}
-        />
-        
-        <div style={{ display: "none", position: "absolute", inset: 0, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(0,0,0,0.5)" }}>
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 9h18M9 21h6M12 17v4"/>
-          </svg>
-          <span style={{ fontSize: 12, color: mutedText3, textAlign: "center", padding: "0 1.5rem" }}>{item.label} Video Missing</span>
-        </div>
 
-        <div style={{ position: "absolute", bottom: 8, left: 8, background: "rgba(0,0,0,.75)", backdropFilter: "blur(8px)", borderRadius: 100, padding: "3px 10px", border: `.5px solid ${item.color}55`, zIndex: 2 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: item.color }}>{item.tag}</span>
-        </div>
+        {/* hidden capture video — only mounted while we still need a frame */}
+        {!playing && !thumb && !failed && (
+          <video
+            ref={captureRef}
+            src={item.videoSrc}
+            muted
+            playsInline
+            preload="metadata"
+            style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
+          />
+        )}
 
-        <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,.6)", borderRadius: 6, padding: "2px 8px", zIndex: 2 }}>
-          <span style={{ fontSize: 10, color: "rgba(255,255,255,.8)", fontWeight: 600 }}>▶ Video Clip</span>
-        </div>
+        {playing ? (
+          <video
+            src={item.videoSrc}
+            autoPlay
+            muted
+            playsInline
+            controls
+            preload="auto"
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", border: "none" }}
+            onError={() => setFailed(true)}
+          />
+        ) : failed ? (
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(0,0,0,0.5)" }}>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 9h18M9 21h6M12 17v4"/>
+            </svg>
+            <span style={{ fontSize: 12, color: mutedText3, textAlign: "center", padding: "0 1.5rem" }}>{item.label} video missing</span>
+          </div>
+        ) : thumb ? (
+          <>
+            <img
+              src={thumb}
+              alt={item.label}
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
+            <div
+              onClick={() => setPlaying(true)}
+              style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", background: "rgba(0,0,0,.25)", transition: "background .2s" }}
+              onMouseEnter={e => e.currentTarget.style.background="rgba(0,0,0,.4)"}
+              onMouseLeave={e => e.currentTarget.style.background="rgba(0,0,0,.25)"}>
+              <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(0,0,0,.55)", border: `1.5px solid ${item.color}`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 24px ${item.color}55` }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill={item.color}><path d="M6 4L16 10L6 16Z"/></svg>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div style={{ position: "absolute", inset: 0, background: dark ? "rgba(255,255,255,.04)" : "rgba(26,20,8,.05)", animation: "pulse 1.6s ease-in-out infinite" }}/>
+        )}
+
+        {!playing && (
+          <>
+            <div style={{ position: "absolute", bottom: 8, left: 8, background: "rgba(0,0,0,.75)", backdropFilter: "blur(8px)", borderRadius: 100, padding: "3px 10px", border: `.5px solid ${item.color}55`, zIndex: 2 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: item.color }}>{item.tag}</span>
+            </div>
+
+            <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,.6)", borderRadius: 6, padding: "2px 8px", zIndex: 2 }}>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,.8)", fontWeight: 600 }}>▶ Video Clip</span>
+            </div>
+          </>
+        )}
       </div>
 
       <div style={{ padding: ".9rem 1rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
