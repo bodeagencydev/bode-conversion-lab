@@ -22,7 +22,6 @@ export default function Pricing() {
   const [activeModal, setActiveModal] = useState(null);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [payType, setPayType] = useState("full");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -120,15 +119,11 @@ export default function Pricing() {
   ];
 
   const pkg = activeModal !== null ? tiers[activeModal] : null;
-  const amount = pkg
-    ? payType === "deposit"
-      ? Math.ceil(pkg.nairaPrice * 0.5)
-      : pkg.nairaPrice
-    : 0;
+  const amount = pkg ? pkg.nairaPrice : 0; // still charged in NGN under the hood — see note below
 
   function openModal(i) {
     setActiveModal(i);
-    setEmail(""); setName(""); setPayType("full");
+    setEmail(""); setName("");
     setError(""); setSuccess(false);
   }
 
@@ -145,10 +140,7 @@ export default function Pricing() {
     await loadPaystack();
     setLoading(false);
 
-    const label = payType === "deposit"
-      ? `${pkg.name} — 50% Deposit`
-      : `${pkg.name} — Full Payment`;
-
+    const label = `${pkg.name} — Full Payment`;
     await notifyPayment(label, pkg.price, email);
 
     const handler = window.PaystackPop.setup({
@@ -228,27 +220,6 @@ export default function Pricing() {
                   </div>
                 </div>
 
-                {/* Payment type */}
-                <p style={{ fontSize:11, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:".6rem" }}>Payment type</p>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:"1.2rem" }}>
-                  {[
-                    { key:"full",    label:"Full payment",  sub:`$${pkg?.price}` },
-                    { key:"deposit", label:"50% deposit",   sub:`$${Math.ceil((pkg?.price||0) * 0.5)} now` },
-                  ].map(t => (
-                    <button key={t.key}
-                      onClick={() => setPayType(t.key)}
-                      style={{ background:payType===t.key?"rgba(0,255,136,.12)":"transparent", border:payType===t.key?".5px solid rgba(0,255,136,.4)":`.5px solid ${inputBorder}`, borderRadius:10, padding:".75rem", cursor:"pointer", textAlign:"left", fontFamily:"inherit", transition:"all .2s" }}>
-                      <p style={{ fontSize:13, fontWeight:700, color:headingColor, margin:0 }}>{t.label}</p>
-                      <p style={{ fontSize:11, color:payType===t.key?G:mutedText3, margin:0 }}>{t.sub}</p>
-                    </button>
-                  ))}
-                </div>
-                {payType === "deposit" && (
-                  <p style={{ fontSize:12, color:mutedText3, marginBottom:"1.2rem", lineHeight:1.6, background:"rgba(0,255,136,.04)", border:".5px solid rgba(0,255,136,.15)", borderRadius:8, padding:".75rem" }}>
-                    Pay 50% now to start. Remaining ${Math.ceil((pkg?.price||0) * 0.5)} due on delivery.
-                  </p>
-                )}
-
                 {/* Form fields */}
                 <p style={{ fontSize:11, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:".6rem" }}>Your details</p>
                 <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:"1.2rem" }}>
@@ -275,7 +246,7 @@ export default function Pricing() {
                 {/* Due today summary */}
                 <div style={{ background:"rgba(0,255,136,.05)", border:".5px solid rgba(0,255,136,.18)", borderRadius:10, padding:".9rem 1rem", marginBottom:"1.2rem", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <span style={{ fontSize:13, color:mutedText2 }}>Due today</span>
-                  <span style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.3rem", fontWeight:800, color:G }}>₦{(amount / 100).toLocaleString()}</span>
+                  <span style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.3rem", fontWeight:800, color:G }}>${pkg?.price?.toLocaleString()}</span>
                 </div>
 
                 {error && (
@@ -286,7 +257,7 @@ export default function Pricing() {
                   onClick={handlePay}
                   disabled={loading}
                   style={{ width:"100%", background:loading?"rgba(0,255,136,.4)":GG, color:"#040608", border:"none", borderRadius:10, padding:".9rem", fontSize:15, fontWeight:700, cursor:loading?"not-allowed":"pointer", fontFamily:"inherit", boxShadow:loading?"none":"0 4px 22px rgba(0,255,136,.35)", marginBottom:".75rem" }}>
-                  {loading ? "Loading..." : `Pay ₦${(amount / 100).toLocaleString()} securely →`}
+                  {loading ? "Loading..." : `Pay $${pkg?.price?.toLocaleString()} securely →`}
                 </button>
 
                 {/* Trust + contact option */}
