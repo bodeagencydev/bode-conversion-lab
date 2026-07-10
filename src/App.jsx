@@ -1,16 +1,64 @@
+import { useState, Suspense, lazy } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Nav, Footer, WhatsAppButton, ThemeToggle, ThemeContext } from "./components.jsx";
+import { CursorSystem, MorphOrbs, ClickRipple, ScrollProgress, NoiseOverlay } from "./AnimationSystem.jsx";
+import { usePageTracking } from "./NotificationSystem.js";
+import NotFound from "./NotFound.jsx";
+import PopupSystem from "./PopupSystem.jsx";
+
+const Home            = lazy(() => import("./pages/Home.jsx"));
+const About           = lazy(() => import("./pages/About.jsx"));
+const CaseStudies     = lazy(() => import("./pages/CaseStudies.jsx").then(m => ({ default: m.CaseStudies })));
+const CaseStudyDetail = lazy(() => import("./pages/CaseStudies.jsx").then(m => ({ default: m.CaseStudyDetail })));
+const Pricing         = lazy(() => import("./pages/Pricing.jsx"));
+const Blog            = lazy(() => import("./pages/Blog.jsx").then(m => ({ default: m.Blog })));
+const BlogPost        = lazy(() => import("./pages/Blog.jsx").then(m => ({ default: m.BlogPost })));
+const Contact         = lazy(() => import("./pages/Contact.jsx"));
+const Audit           = lazy(() => import("./pages/Audit.jsx"));
+const Subscribe       = lazy(() => import("./pages/Subscribe.jsx"));
+const Admin           = lazy(() => import("./pages/Admin.jsx"));
+
+function PageSkeleton() {
+  return (
+    <div style={{ minHeight:"60vh", display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:16 }}>
+        <div style={{ width:40, height:40, position:"relative" }}>
+          <div style={{ position:"absolute", inset:0, borderRadius:"50%", border:"2px solid #00ff88", borderTopColor:"transparent", animation:"auditSpin .8s linear infinite" }}/>
+          <div style={{ position:"absolute", inset:6, borderRadius:"50%", border:"1px solid #00ff88", borderBottomColor:"transparent", animation:"auditSpin 1.2s linear infinite reverse" }}/>
+        </div>
+        <p style={{ fontSize:12, color:"#00ff88", fontFamily:"'Syne',sans-serif", fontWeight:600, letterSpacing:".08em", textTransform:"uppercase" }}>Loading...</p>
+      </div>
+      <style>{`@keyframes auditSpin{to{transform:rotate(360deg);}}`}</style>
+    </div>
+  );
+}
+
+export default function App() {
+  const [dark, setDark] = useState(() => {
+    try { const s = localStorage.getItem("bcl-theme"); if (s !== null) return s === "dark"; } catch {}
+    return true;
+  });
+  const toggle = () => setDark(v => {
+    const next = !v;
+    try { localStorage.setItem("bcl-theme", next ? "dark" : "light"); } catch {}
+    return next;
+  });
+  return (
+    <ThemeContext.Provider value={{ dark, toggle }}>
+      <BrowserRouter>
+        <AppInner dark={dark} />
+      </BrowserRouter>
+    </ThemeContext.Provider>
+  );
+}
+
 function AppInner({ dark }) {
   usePageTracking();
 
   return (
     <div
       data-theme={dark ? "dark" : "light"}
-      style={{
-        fontFamily:"'Inter','Helvetica Neue',sans-serif",
-        overflowX:"hidden",
-        minHeight:"100vh",
-        transition:"background .4s,color .4s",
-        position:"relative"
-      }}>
+      style={{ fontFamily:"'Inter','Helvetica Neue',sans-serif", background:"var(--bg)", color:"var(--fg)", overflowX:"hidden", minHeight:"100vh", transition:"background .4s,color .4s", position:"relative" }}>
 
       <CursorSystem />
       <MorphOrbs />
@@ -22,37 +70,35 @@ function AppInner({ dark }) {
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500&display=swap');
 
         :root {
-          --bg:          #040608;
-          --fg:          #f0f0f0;
-          --g:           #00ff88;
-          --gg:          linear-gradient(135deg,#00ff88,#00e676,#00cc6a);
-          --card-bg:     rgba(255,255,255,.06);
-          --card-border: rgba(255,255,255,.1);
-          --muted:       rgba(255,255,255,.5);
-          --muted2:      rgba(255,255,255,.4);
-          --muted3:      rgba(255,255,255,.3);
-          --ghost-bg:    rgba(255,255,255,.06);
-          --ghost-fg:    rgba(255,255,255,.7);
-          --ghost-border:rgba(255,255,255,.15);
-          --divider:     rgba(255,255,255,.06);
-          --nav-bg:      rgba(4,6,8,.75);
+          --bg:           #040608;
+          --fg:           #f0f0f0;
+          --g:            #00ff88;
+          --gg:           linear-gradient(135deg,#00ff88,#00e676,#00cc6a);
+          --card-bg:      rgba(255,255,255,.06);
+          --card-border:  rgba(255,255,255,.1);
+          --muted:        rgba(255,255,255,.5);
+          --muted2:       rgba(255,255,255,.4);
+          --muted3:       rgba(255,255,255,.3);
+          --ghost-bg:     rgba(255,255,255,.06);
+          --ghost-fg:     rgba(255,255,255,.7);
+          --ghost-border: rgba(255,255,255,.15);
+          --divider:      rgba(255,255,255,.06);
         }
 
         [data-theme="light"] {
-          --bg:          #F8F9FA;
-          --fg:          #0A0F12;
-          --g:           #00A35C;
-          --gg:          linear-gradient(135deg,#00A35C,#00b869,#009957);
-          --card-bg:     rgba(255,255,255,.9);
-          --card-border: rgba(10,15,18,.1);
-          --muted:       rgba(10,15,18,.65);
-          --muted2:      rgba(10,15,18,.55);
-          --muted3:      rgba(10,15,18,.45);
-          --ghost-bg:    rgba(10,15,18,.05);
-          --ghost-fg:    rgba(10,15,18,.75);
-          --ghost-border:rgba(10,15,18,.18);
-          --divider:     rgba(10,15,18,.1);
-          --nav-bg:      rgba(248,249,250,.92);
+          --bg:           #F8F9FA;
+          --fg:           #0A0F12;
+          --g:            #00A35C;
+          --gg:           linear-gradient(135deg,#00A35C,#00b869);
+          --card-bg:      rgba(255,255,255,.92);
+          --card-border:  rgba(10,15,18,.1);
+          --muted:        rgba(10,15,18,.65);
+          --muted2:       rgba(10,15,18,.55);
+          --muted3:       rgba(10,15,18,.45);
+          --ghost-bg:     rgba(10,15,18,.05);
+          --ghost-fg:     rgba(10,15,18,.75);
+          --ghost-border: rgba(10,15,18,.18);
+          --divider:      rgba(10,15,18,.1);
         }
 
         *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
@@ -61,11 +107,8 @@ function AppInner({ dark }) {
         [lang], font { color:inherit !important; }
         ::selection { background:#00ff88; color:#040608; }
         div::-webkit-scrollbar { display:none; }
-
-        [data-theme] { background:var(--bg); color:var(--fg); }
         h1,h2,h3,h4,p,span,li { color:inherit; }
 
-        /* ── KEYFRAMES ── */
         @keyframes float1{0%,100%{transform:translateY(0) rotate(0deg);}33%{transform:translateY(-22px) rotate(8deg);}66%{transform:translateY(-10px) rotate(-5deg);}}
         @keyframes float2{0%,100%{transform:translateY(0) translateX(0);}50%{transform:translateY(-16px) translateX(8px);}}
         @keyframes breathe{0%,100%{transform:scale(1);opacity:.88;}50%{transform:scale(1.045);opacity:1;}}
@@ -82,7 +125,6 @@ function AppInner({ dark }) {
         @keyframes staggerIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
         @keyframes criticalPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,59,.4);}50%{box-shadow:0 0 0 12px rgba(255,59,59,0);}}
 
-        /* ── BUTTONS ── */
         .btn-g{
           background:linear-gradient(135deg,#00ff88,#00e676,#00cc6a);
           color:#040608;border:none;border-radius:10px;
@@ -108,12 +150,10 @@ function AppInner({ dark }) {
           transition:all .5s cubic-bezier(.22,1,.36,1);
           display:inline-block;text-decoration:none;min-height:44px;
         }
-        .btn-ghost:hover{background:var(--ghost-bg);border-color:rgba(0,255,136,.4);color:var(--fg);transform:translateY(-2px);}
+        .btn-ghost:hover{border-color:rgba(0,255,136,.4);color:var(--fg);transform:translateY(-2px);}
 
-        /* ── DIVIDER ── */
         .divider{border:none;border-top:.5px solid var(--divider);}
 
-        /* ── GLASS CARDS ── */
         .glass{
           background:var(--card-bg);
           border:.5px solid var(--card-border);
@@ -124,7 +164,6 @@ function AppInner({ dark }) {
         .glass::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,255,136,.2),transparent);}
         .glass:hover{transform:translateY(-6px) scale(1.01);box-shadow:0 24px 56px rgba(0,255,136,.1),0 4px 16px rgba(0,0,0,.08);border-color:rgba(0,255,136,.28)!important;}
 
-        /* ── STAT CARDS ── */
         .stat-card{
           background:var(--card-bg);
           border:.5px solid var(--card-border);
@@ -136,7 +175,6 @@ function AppInner({ dark }) {
         .stat-card:nth-child(3){animation-delay:2s;}
         .stat-card:hover{border-color:rgba(0,255,136,.5);transform:translateY(-8px) scale(1.04);box-shadow:0 20px 50px rgba(0,255,136,.15);animation:none;}
 
-        /* ── OFFER CARDS ── */
         .offer-card{
           background:var(--card-bg);
           border:.5px solid var(--card-border);
@@ -148,7 +186,6 @@ function AppInner({ dark }) {
         .offer-card.feat{border-color:rgba(0,255,136,.45)!important;background:linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))!important;animation:glowPulse 3s ease-in-out infinite;}
         .offer-card.feat:hover{animation:none;}
 
-        /* ── PARTNER CARDS ── */
         .partner-card{
           background:var(--card-bg);
           border:.5px solid var(--card-border);
@@ -162,18 +199,14 @@ function AppInner({ dark }) {
         .partner-card:nth-child(3){animation-delay:2.2s;}
         .partner-card:hover{background:rgba(0,255,136,.07)!important;border-color:rgba(0,255,136,.4)!important;transform:translateY(-5px) scale(1.02);box-shadow:0 14px 36px rgba(0,255,136,.12);animation:none;}
 
-        /* ── CARD 3D ── */
         .card3d{transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s;}
         .card3d:hover{transform:perspective(900px) rotateY(6deg) rotateX(-4deg) scale(1.03);box-shadow:0 24px 64px rgba(0,0,0,.18),0 0 0 1px rgba(0,255,136,.18);}
 
-        /* ── GPU HINTS ── */
         .glass,.card3d,.stat-card,.offer-card,.partner-card,.btn-g,.btn-ghost{will-change:transform;}
 
-        /* ── TOUCH TARGETS ── */
         a,button,[role=button]{min-height:44px;}
         @media(max-width:768px){a,button{min-height:48px;}}
 
-        /* ── RESPONSIVE ── */
         @media(min-width:769px){.nav-desktop{display:flex!important;}.nav-hamburger{display:none!important;}}
         @media(max-width:768px){
           .nav-desktop{display:none!important;}.nav-hamburger{display:flex!important;}
