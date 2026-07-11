@@ -650,9 +650,14 @@ export default function Audit() {
             <h1 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(2rem,6vw,3.5rem)", fontWeight:800, lineHeight:1.08, letterSpacing:"-.03em", color:headingColor, marginBottom:"1rem" }}>
               Find every leak in<br /><GradText>your store — free.</GradText>
             </h1>
-            <p style={{ fontSize:"clamp(0.9rem,2vw,1.05rem)", color:mutedText, lineHeight:1.8, maxWidth:500, margin:"0 auto 2rem" }}>
+            <p style={{ fontSize:"clamp(0.9rem,2vw,1.05rem)", color:mutedText, lineHeight:1.8, maxWidth:500, margin:"0 auto 1rem" }}>
               Enter your store URL. We automatically scan 8 categories and 40+ technical factors. Nothing skipped. Nothing softened.
             </p>
+            <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:dark?"rgba(0,255,136,.06)":"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.25)", borderRadius:100, padding:"6px 14px", marginBottom:"2rem" }}>
+              <span style={{ fontSize:12, color:mutedText2 }}>Then we hand you your</span>
+              <span style={{ fontSize:12, fontWeight:800, color:G }}>CGO — Conversion Growth Optimization</span>
+              <span style={{ fontSize:12, color:mutedText2 }}>plan</span>
+            </div>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"0.5rem", marginBottom:"2rem", textAlign:"left" }}>
               {["📱 Mobile performance & speed","📊 Core Web Vitals (LCP, CLS, TBT)","🔍 SEO — 12 ranking factors","⚙️ Technical health & server","🖼️ Image optimization","🔒 SSL & security","♿ Accessibility signals","✅ Best practices audit"].map((item,i) => (
                 <div key={i} style={{ display:"flex", alignItems:"center", gap:8, background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.4)", border:`.5px solid ${cardBorder}`, borderRadius:8, padding:".5rem .75rem" }}>
@@ -921,4 +926,4 @@ export default function Audit() {
       )}
     </PageWrapper>
   );
-}
+} 
