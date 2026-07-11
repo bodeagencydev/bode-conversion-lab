@@ -488,9 +488,11 @@ function generateHTML(storeUrl, analysis, solutionPlan, type) {
 
   const body = type === "analysis"
     ? analysisSection
-    : planSection(solutionPlan.fixing) + planSection(solutionPlan.growth) + planSection(solutionPlan.marketing);
+    : `<h1 style="color:#00ff88;font-size:26px;margin:0 0 4px">Conversion Growth Optimization</h1>
+       <p style="color:rgba(255,255,255,.45);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:32px">CGO — 90–120 Day Growth System</p>
+       ${planSection(solutionPlan.fixing)}${planSection(solutionPlan.growth)}${planSection(solutionPlan.marketing)}`;
 
-  const title = type === "analysis" ? "Analysis Report" : "Solution Plan";
+  const title = type === "analysis" ? "Analysis Report" : "CGO Roadmap";
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <title>BCL ${title} — ${storeUrl}</title>
@@ -807,6 +809,46 @@ export default function Audit() {
             </div>
           )}
 
+          {/* ── CGO — CONVERSION GROWTH OPTIMIZATION ── */}
+          <div style={{ background:"linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))", border:".5px solid rgba(0,255,136,.22)", borderTop:".5px solid rgba(0,255,136,.4)", borderRadius:24, padding:"clamp(1.8rem,4vw,2.6rem)", marginBottom:"2rem", position:"relative", overflow:"hidden" }}>
+            <div style={{ position:"absolute", top:0, left:"8%", right:"8%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)" }}/>
+
+            <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(0,255,136,.12)", border:".5px solid rgba(0,255,136,.35)", borderRadius:100, padding:"5px 14px", marginBottom:"1rem" }}>
+              <span style={{ width:6, height:6, borderRadius:"50%", background:G }}/>
+              <span style={{ fontSize:11, fontWeight:700, color:G, letterSpacing:".06em" }}>THE SYSTEM BEHIND THE FIX</span>
+            </div>
+
+            <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.5rem,4vw,2.1rem)", fontWeight:800, color:headingColor, marginBottom:".3rem", lineHeight:1.15 }}>
+              Conversion Growth Optimization
+            </h2>
+            <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1rem,2.5vw,1.2rem)", fontWeight:800, color:G, letterSpacing:".04em", marginBottom:"1rem" }}>
+              CGO — our 90–120 day growth framework
+            </p>
+
+            <p style={{ fontSize:14, color:mutedText, lineHeight:1.8, maxWidth:640, marginBottom:"1.6rem" }}>
+              Every issue above gets fixed inside a system, not a to-do list. Most agencies start with ads. We start with the store — because sending paid traffic to a leaky funnel is the fastest way to burn budget and get numbers that make everyone look bad. CGO fixes what's broken first, proves what works with controlled testing, then scales only what's earned it.
+            </p>
+
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:"0.9rem" }}>
+              {[
+                { phase:"Phase 1", days:"Days 1–30", title:"Foundation Fix", desc:"Technical performance, trust signals, and a credible social presence — make the store worth sending traffic to." },
+                { phase:"Phase 2", days:"Days 31–60", title:"Traffic Ignition", desc:"Controlled ad testing across Meta & TikTok, retargeting, and email/SMS flows — find what actually works." },
+                { phase:"Phase 3", days:"Days 61–90", title:"Scale & Compound", desc:"Double down on winners, cut what isn't working, second-round CRO informed by real traffic data." },
+                { phase:"Phase 4", days:"Days 91–120", title:"Systemize", desc:"Document the playbook, test new channels, and turn the system into something that runs without you.", optional:true },
+              ].map((p,i) => (
+                <div key={i} style={{ background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.5)", border:".5px solid rgba(0,255,136,.18)", borderRadius:14, padding:"1.1rem 1.2rem", position:"relative" }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:".4rem" }}>
+                    <span style={{ fontSize:10, fontWeight:700, color:G, textTransform:"uppercase", letterSpacing:".06em" }}>{p.phase}</span>
+                    {p.optional && <span style={{ fontSize:9, color:mutedText3, fontStyle:"italic" }}>optional</span>}
+                  </div>
+                  <p style={{ fontSize:11, color:mutedText3, marginBottom:".5rem" }}>{p.days}</p>
+                  <h4 style={{ fontFamily:"'Syne',sans-serif", fontSize:14, fontWeight:800, color:headingColor, marginBottom:".4rem" }}>{p.title}</h4>
+                  <p style={{ fontSize:12, color:mutedText, lineHeight:1.6 }}>{p.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Downloads */}
           <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.8rem", marginBottom:"2rem" }}>
             <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:".4rem" }}>Download Your Reports</h3>
@@ -816,7 +858,7 @@ export default function Audit() {
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.75rem" }}>
               {[
                 { type:"analysis", label:"📊 Analysis Report",    desc:"Every problem found — with revenue impact and specific fixes", free:true },
-                { type:"solution", label:"🔧📈📣 Solution Plan",   desc:"Fixing Plan + Growth Plan + Marketing Plan — the full roadmap", free:false },
+                { type:"solution", label:"🚀 CGO Roadmap",         desc:"Your full Conversion Growth Optimization plan — Fixing + Growth + Marketing, engineered as one 90–120 day system", free:false },
               ].map((d,i) => {
                 const unlocked = d.free || (accessTier && accessTier !== null);
                 return (
@@ -836,7 +878,7 @@ export default function Audit() {
           {/* Solution teaser — blurred */}
           <div style={{ position:"relative", marginBottom:"2rem" }}>
             <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.8rem", filter:accessTier?"none":"blur(5px)", pointerEvents:accessTier?"auto":"none", userSelect:accessTier?"auto":"none" }}>
-              <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:"1rem" }}>🔧 Fixing Plan — Phase 1 Preview</h3>
+              <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:"1rem" }}>🔧 CGO — Phase 1 Preview</h3>
               {solution?.fixing?.phases?.[0]?.items?.slice(0,2).map((item,i) => (
                 <div key={i} style={{ background:dark?"rgba(255,255,255,.03)":"rgba(255,255,255,.35)", border:`.5px solid ${cardBorder}`, borderRadius:10, padding:"1rem", marginBottom:".75rem" }}>
                   <p style={{ fontSize:13, fontWeight:700, color:headingColor, marginBottom:4 }}>→ {item.title}</p>
@@ -848,7 +890,7 @@ export default function Audit() {
             {!accessTier && (
               <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:12, borderRadius:20 }}>
                 <span style={{ fontSize:32 }}>🔒</span>
-                <p style={{ fontSize:14, fontWeight:700, color:headingColor, textAlign:"center", margin:0 }}>Unlock your Solution Plan</p>
+                <p style={{ fontSize:14, fontWeight:700, color:headingColor, textAlign:"center", margin:0 }}>Unlock your full CGO Roadmap</p>
                 <p style={{ fontSize:12, color:mutedText, textAlign:"center", maxWidth:280, margin:0 }}>Pay for any package to receive your access code.</p>
                 <button onClick={() => setShowModal(true)} className="btn-g" style={{ fontFamily:"inherit", cursor:"pointer" }}>Enter access code →</button>
               </div>

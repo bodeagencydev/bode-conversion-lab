@@ -3,14 +3,19 @@ import { G, GG, FAQS } from "../data.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
 import { notifyPayment } from "../NotificationSystem.js";
 
-const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_KEY || "pk_test_469a79a7423df47Xb9e51cf45da2bbd640187dcd";
+const LS_STORE_SUBDOMAIN = "bodeconversionlab"; // app.lemonsqueezy.com/settings/general -> Store URL
+const LS_STORE_ID         = "428263";           // app.lemonsqueezy.com/settings/general -> Stores tab
 
-function loadPaystack() {
+function loadLemonSqueezy() {
   return new Promise((resolve) => {
-    if (window.PaystackPop) return resolve();
+    if (window.LemonSqueezy) return resolve();
     const script = document.createElement("script");
-    script.src = "https://js.paystack.co/v1/inline.js";
-    script.onload = resolve;
+    script.src = "https://assets.lemonsqueezy.com/lemon.js";
+    script.defer = true;
+    script.onload = () => {
+      window.createLemonSqueezy();
+      resolve();
+    };
     document.head.appendChild(script);
   });
 }
@@ -43,7 +48,7 @@ export default function Pricing() {
       tier: "Entry",
       name: "Store Diagnosis",
       price: 175,
-      nairaPrice: 28000000,  // ₦239,365 in kobo
+      lsVariantId: "1895231",
       cycle: "per engagement",
       tagline: "Find out exactly where your store is bleeding money.",
       desc: "Before spending another dollar on ads, know what's broken. We audit your store, funnel, and ad account — and hand you a clear action roadmap.",
@@ -61,7 +66,7 @@ export default function Pricing() {
       tier: "Growth",
       name: "Conversion Fix",
       price: 497,
-      nairaPrice: 79520000,  // ₦679,797 in kobo
+      lsVariantId: "1895248",
       cycle: "per project",
       tagline: "Audit + we implement the top 3 revenue leaks ourselves.",
       desc: "We don't just tell you what's broken — we fix it. The three highest-impact changes, done for you within 7 days.",
@@ -80,7 +85,7 @@ export default function Pricing() {
       tier: "Most Popular",
       name: "The Lab",
       price: 997,
-      nairaPrice: 159520000,  // ₦1,363,697 in kobo
+      lsVariantId: "1895251",
       cycle: "per cycle",
       tagline: "A full conversion system running in your store every cycle.",
       desc: "We run your ads, optimize your store, and compound results every cycle. One system. One team. One goal — ROAS that grows.",
@@ -100,7 +105,7 @@ export default function Pricing() {
       tier: "Elite",
       name: "Full Stack",
       price: 1997,
-      nairaPrice: 319520000,  // ₦2,731,497 in kobo
+      lsVariantId: "1895257",
       cycle: "per cycle",
       tagline: "Your entire growth engine — built, run, and scaled for you.",
       desc: "Done-for-you everything. Ads, landing pages, email flows, creative production. You focus on the product. We handle the revenue.",
@@ -119,7 +124,6 @@ export default function Pricing() {
   ];
 
   const pkg = activeModal !== null ? tiers[activeModal] : null;
-  const amount = pkg ? pkg.nairaPrice : 0; // still charged in NGN under the hood — see note below
 
   function openModal(i) {
     setActiveModal(i);
@@ -137,33 +141,31 @@ export default function Pricing() {
     if (!name.trim()) return setError("Please enter your full name.");
     setError("");
     setLoading(true);
-    await loadPaystack();
-    setLoading(false);
+    await loadLemonSqueezy();
 
     const label = `${pkg.name} — Full Payment`;
     await notifyPayment(label, pkg.price, email);
 
-    const handler = window.PaystackPop.setup({
-      key: PAYSTACK_KEY,
-      email,
-      amount: amount,
-      currency: "NGN",
-      ref: `BCL-${Date.now()}`,
-      metadata: {
-        custom_fields: [
-          { display_name: "Client Name",  variable_name: "name",    value: name },
-          { display_name: "Package",      variable_name: "package", value: label },
-        ],
-      },
-      callback: () => {
-        setSuccess(true);
-      },
-      onClose: () => {
-        setError("Payment window closed. Try again when ready.");
+    // Listen once for the checkout result. LemonSqueezy.Setup is safe to call
+    // again — it just replaces the handler — so we set it fresh each time
+    // to make sure it's always pointing at the currently open package.
+    window.LemonSqueezy.Setup({
+      eventHandler: (data) => {
+        if (data.event === "Checkout.Success") {
+          setSuccess(true);
+        }
       },
     });
 
-    handler.openIframe();
+    const checkoutUrl =
+      `https://${LS_STORE_SUBDOMAIN}.lemonsqueezy.com/checkout/buy/${pkg.lsVariantId}` +
+      `?embed=1&media=0&desc=0&discount=0` +
+      `&checkout[email]=${encodeURIComponent(email)}` +
+      `&checkout[name]=${encodeURIComponent(name)}` +
+      `&checkout[custom][package]=${encodeURIComponent(label)}`;
+
+    setLoading(false);
+    window.LemonSqueezy.Url.Open(checkoutUrl);
   }
 
   return (
