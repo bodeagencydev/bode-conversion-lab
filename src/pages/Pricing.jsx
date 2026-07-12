@@ -49,6 +49,7 @@ export default function Pricing() {
       name: "Store Diagnosis",
       price: 175,
       lsVariantId: "1895231",
+      kickoffNote: "We'll email your audit findings and prioritized fix roadmap within 24 hours — no call needed unless you want to walk through it together.",
       cycle: "per engagement",
       tagline: "Find out exactly where your store is bleeding money.",
       desc: "Before spending another dollar on ads, know what's broken. We audit your store, funnel, and ad account — and hand you a clear action roadmap.",
@@ -67,6 +68,7 @@ export default function Pricing() {
       name: "Conversion Fix",
       price: 497,
       lsVariantId: "1895248",
+      kickoffNote: "We schedule your 60-minute strategy call and begin implementing your top 3 revenue fixes within 7 days.",
       cycle: "per project",
       tagline: "Audit + we implement the top 3 revenue leaks ourselves.",
       desc: "We don't just tell you what's broken — we fix it. The three highest-impact changes, done for you within 7 days.",
@@ -86,6 +88,7 @@ export default function Pricing() {
       name: "The Lab",
       price: 997,
       lsVariantId: "1895251",
+      kickoffNote: "We set up your direct Slack access and kick off your first optimization cycle right away.",
       cycle: "per cycle",
       tagline: "A full conversion system running in your store every cycle.",
       desc: "We run your ads, optimize your store, and compound results every cycle. One system. One team. One goal — ROAS that grows.",
@@ -106,6 +109,7 @@ export default function Pricing() {
       name: "Full Stack",
       price: 1997,
       lsVariantId: "1895257",
+      kickoffNote: "We schedule your first weekly strategy call and assign your dedicated growth strategist.",
       cycle: "per cycle",
       tagline: "Your entire growth engine — built, run, and scaled for you.",
       desc: "Done-for-you everything. Ads, landing pages, email flows, creative production. You focus on the product. We handle the revenue.",
@@ -188,24 +192,49 @@ export default function Pricing() {
             </button>
 
             {success ? (
-              /* ── SUCCESS STATE ── */
-              <div style={{ textAlign:"center", padding:"1rem 0" }}>
-                <div style={{ width:64, height:64, borderRadius:"50%", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.4)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.5rem" }}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={G} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              /* ── SUCCESS STATE — START YOUR PROJECT ── */
+              <div style={{ padding:"0.5rem 0" }}>
+                <div style={{ textAlign:"center", marginBottom:"1.8rem" }}>
+                  <div style={{ width:64, height:64, borderRadius:"50%", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.4)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.2rem" }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={G} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.4rem", fontWeight:800, color:headingColor, marginBottom:".5rem" }}>Payment confirmed!</h3>
+                  <p style={{ fontSize:13, color:mutedText, lineHeight:1.7 }}>
+                    You're in for <strong>{pkg?.name}</strong>. Here's exactly what happens next.
+                  </p>
                 </div>
-                <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.5rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>Payment confirmed!</h3>
-                <p style={{ fontSize:14, color:mutedText, lineHeight:1.7, marginBottom:"1.5rem" }}>
-                  We've received your payment for <strong>{pkg?.name}</strong>. Expect a message from us within 4 hours to get started.
-                </p>
-                
-                <a
-                  href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi Bode Conversion Lab 👋 I just completed payment for ${pkg?.name}. Ready to get started!`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-g"
-                  style={{ display:"inline-block", textDecoration:"none" }}>
-                  Message us on WhatsApp →
-                </a>
+
+                <div style={{ display:"flex", flexDirection:"column", gap:"1rem", marginBottom:"1.6rem" }}>
+                  {[
+                    { n:"01", t:"Send proof of payment", d:"Screenshot your receipt and send it via WhatsApp or email below — this makes sure nothing gets missed on our end." },
+                    { n:"02", t:"We confirm within 4 hours", d:"You'll get a personal reply confirming everything and answering any quick questions." },
+                    { n:"03", t:"Kickoff begins", d: pkg?.kickoffNote || "We schedule your onboarding call and get started on your project right away." },
+                  ].map((s,i) => (
+                    <div key={i} style={{ display:"flex", gap:"0.9rem", alignItems:"flex-start" }}>
+                      <div style={{ width:28, height:28, borderRadius:"50%", background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, fontWeight:800, color:G, flexShrink:0, fontFamily:"'Syne',sans-serif" }}>{s.n}</div>
+                      <div>
+                        <h4 style={{ fontSize:13, fontWeight:700, color:headingColor, margin:"0 0 3px" }}>{s.t}</h4>
+                        <p style={{ fontSize:12, color:mutedText2, lineHeight:1.6, margin:0 }}>{s.d}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                  <a
+                    href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi Bode Conversion Lab 👋 I just completed payment for ${pkg?.name}. Here's my payment screenshot:`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-g"
+                    style={{ display:"block", textAlign:"center", textDecoration:"none" }}>
+                    Send screenshot on WhatsApp →
+                  </a>
+                  <a
+                    href={"mailto:bodeagencyofficial@gmail.com?subject=" + encodeURIComponent(`Payment confirmation — ${pkg?.name}`) + "&body=" + encodeURIComponent(`Hi, I just completed payment for ${pkg?.name}. Attaching my payment screenshot.`)}
+                    style={{ display:"block", textAlign:"center", textDecoration:"none", background:"transparent", border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".75rem", fontSize:13, fontWeight:600, color:headingColor }}>
+                    Or send it via email instead
+                  </a>
+                </div>
               </div>
             ) : (
               /* ── PAYMENT FORM ── */

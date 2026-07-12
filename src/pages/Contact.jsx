@@ -149,6 +149,29 @@ export default function Contact() {
 
       <hr className="divider" />
 
+      {/* Fast path — direct contact for people who don't want the quiz */}
+      <div style={{ maxWidth:700, margin:"1.5rem auto 0", padding:"0 clamp(1rem,4vw,2rem)" }}>
+        <div style={{ background:"rgba(0,255,136,.05)", border:".5px solid rgba(0,255,136,.18)", borderRadius:16, padding:"1.2rem 1.4rem", display:"flex", flexWrap:"wrap", alignItems:"center", justifyContent:"space-between", gap:"0.8rem" }}>
+          <p style={{ fontSize:13, color:mutedText2, margin:0 }}>
+            <span style={{ color:G, fontWeight:600 }}>Need something faster?</span> Skip the quiz — message us directly.
+          </p>
+          <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+            <a
+              href={"https://wa.me/19454076473?text=" + encodeURIComponent("Hi Bode Conversion Lab 👋 I have a question.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display:"inline-block", textDecoration:"none", background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700 }}>
+              WhatsApp us →
+            </a>
+            <a
+              href="mailto:bodeagencyofficial@gmail.com"
+              style={{ display:"inline-block", textDecoration:"none", background:"transparent", border:".5px solid rgba(0,255,136,.3)", color:G, borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700 }}>
+              Email us
+            </a>
+          </div>
+        </div>
+      </div>
+
       <Section>
         <div style={{ maxWidth:960, margin:"0 auto", display:"grid", gridTemplateColumns:"1fr 1.4fr", gap:"4rem", alignItems:"flex-start" }} className="about-grid">
           <div>
