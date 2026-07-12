@@ -5,6 +5,23 @@ import { notifyPopupCapture } from "./NotificationSystem.js";
 
 const DISCOUNT_CODE = "SCALE7";
 
+const LS_STORE_SUBDOMAIN     = "bodeconversionlab";
+const LS_CHECKLIST_VARIANT_ID = "1899985"; // The Store Leak Finder — free checklist
+
+function loadLemonSqueezy() {
+  return new Promise((resolve) => {
+    if (window.LemonSqueezy) return resolve();
+    const script = document.createElement("script");
+    script.src = "https://assets.lemonsqueezy.com/lemon.js";
+    script.defer = true;
+    script.onload = () => {
+      window.createLemonSqueezy();
+      resolve();
+    };
+    document.head.appendChild(script);
+  });
+}
+
 function Popup({ visible, onClose, children, dark }) {
   const [mounted, setMounted] = useState(false);
   const currentG = dark ? "#00ff88" : "#00A35C";
@@ -59,7 +76,7 @@ function Popup({ visible, onClose, children, dark }) {
   );
 }
 
-function EmailForm({ onSubmit, dark, submitLabel, mutedText, headingColor, inputBg, inputBorder }) {
+function EmailForm({ onSubmit, dark, submitLabel, mutedText, headingColor, inputBg, inputBorder, doneMessage }) {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
   const [err, setErr] = useState("");
@@ -78,7 +95,7 @@ function EmailForm({ onSubmit, dark, submitLabel, mutedText, headingColor, input
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={currentG} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
       </div>
       <p style={{ fontSize:15, fontWeight:700, color:headingColor, marginBottom:".5rem" }}>You're in!</p>
-      <p style={{ fontSize:13, color:mutedText, lineHeight:1.6 }}>Check your inbox. We'll be in touch soon.</p>
+      <p style={{ fontSize:13, color:mutedText, lineHeight:1.6 }}>{doneMessage || "Check your inbox. We'll be in touch soon."}</p>
     </div>
   );
 
@@ -127,7 +144,18 @@ function GeneralPopup({ dark }) {
 
   async function submit(email) {
     sessionStorage.setItem("bcl_popup_general", "1");
-    await notifyPopupCapture(email, "General — 1min popup");
+    await notifyPopupCapture(email, "General — 1min popup — Store Leak Finder");
+
+    // Deliver the actual PDF via a free Lemon Squeezy checkout — $0, no card
+    // required, but it's Lemon Squeezy's own order flow so the download link
+    // lands reliably in their inbox (and shows up in your LS dashboard as a lead).
+    await loadLemonSqueezy();
+    window.LemonSqueezy.Setup({ eventHandler: () => {} });
+    const checkoutUrl =
+      `https://${LS_STORE_SUBDOMAIN}.lemonsqueezy.com/checkout/buy/${LS_CHECKLIST_VARIANT_ID}` +
+      `?embed=1&media=0&desc=0&discount=0` +
+      `&checkout[email]=${encodeURIComponent(email)}`;
+    window.LemonSqueezy.Url.Open(checkoutUrl);
   }
 
   return (
@@ -146,6 +174,7 @@ function GeneralPopup({ dark }) {
         onSubmit={submit}
         dark={dark}
         submitLabel="Send me the checklist →"
+        doneMessage="Complete the free checkout that just opened to get your download — check your email for the link too."
         mutedText={mutedText}
         headingColor={headingColor}
         inputBg={inputBg}
