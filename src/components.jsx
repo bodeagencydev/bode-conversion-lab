@@ -502,6 +502,7 @@ export function Footer() {
         .footer-inner{max-width:1100px;margin:0 auto;}
         .footer-brand{display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.6rem;padding-bottom:1.4rem;border-bottom:.5px solid var(--divider,rgba(255,255,255,.06));}
         .footer-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem 1.5rem;margin-bottom:1.4rem;}
+        .footer-legal{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
         @media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr);gap:.6rem 1rem;}.footer-brand{flex-direction:column;gap:1rem;}}
       `}</style>
       <div className="footer-inner">
@@ -550,9 +551,17 @@ export function Footer() {
             <ColLink to="/contact">Contact</ColLink>
           </div>
         </div>
-        <div style={{ borderTop:".5px solid var(--divider,rgba(255,255,255,.06))", paddingTop:"1rem", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:".4rem" }}>
+        <div style={{ borderTop:".5px solid var(--divider,rgba(255,255,255,.06))", paddingTop:"1rem", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:".6rem" }}>
           <p style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>© 2026 Bode Conversion Lab. All rights reserved.</p>
-          <p style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>Built to convert. Engineered to scale.</p>
+          <div className="footer-legal">
+            <Link to="/privacy"
+              style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", textDecoration:"none", transition:"color .2s" }}
+              onMouseEnter={e => e.currentTarget.style.color=G}
+              onMouseLeave={e => e.currentTarget.style.color="var(--muted3,rgba(255,255,255,.3))"}>
+              Privacy Policy
+            </Link>
+            <p style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>Built to convert. Engineered to scale.</p>
+          </div>
         </div>
       </div>
     </footer>
