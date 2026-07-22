@@ -152,6 +152,7 @@ export default function Pricing() {
       email,
       amount: amount,
       currency: "NGN",
+      channels: ["card"], // card-only — hides Transfer/USSD/Bank/OPay/etc. for a cleaner, less Nigeria-specific checkout
       ref: `BCL-${Date.now()}`,
       metadata: {
         custom_fields: [
