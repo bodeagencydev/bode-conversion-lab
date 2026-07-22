@@ -17,6 +17,7 @@ const Contact         = lazy(() => import("./pages/Contact.jsx"));
 const Audit           = lazy(() => import("./pages/Audit.jsx"));
 const Subscribe       = lazy(() => import("./pages/Subscribe.jsx"));
 const Admin           = lazy(() => import("./pages/Admin.jsx"));
+const Privacy         = lazy(() => import("./pages/Privacy.jsx"));
 
 function PageSkeleton() {
   return (
@@ -232,6 +233,7 @@ function AppInner({ dark }) {
             <Route path="/audit"            element={<Audit />} />
             <Route path="/subscribe"        element={<Subscribe />} />
             <Route path="/admin"            element={<Admin />} />
+            <Route path="/privacy"          element={<Privacy />} />
             <Route path="*"                 element={<NotFound />} />
           </Routes>
         </Suspense>
