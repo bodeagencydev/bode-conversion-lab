@@ -6,7 +6,7 @@
 
    ENVIRONMENT VARIABLES NEEDED (Vercel → Settings → Environment Variables):
    - WHATSAPP_TOKEN            → your access token from Meta
-   - WHATSAPP_PHONE_NUMBER_ID  → 1218499578015284 (test number's ID for now)
+   - WHATSAPP_PHONE_NUMBER_ID  → 121571454962102 (real +234 906 488 5280 number's ID)
    - WHATSAPP_VERIFY_TOKEN     → any secret string you make up, e.g. "bcl_verify_2026"
    - TELEGRAM_TOKEN            → same bot token as NotificationSystem.js
    - TELEGRAM_CHAT_ID          → 7016026848
