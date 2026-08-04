@@ -1,14 +1,12 @@
 import { Document, Page, Text, View, StyleSheet, Font, Svg, Path, Circle } from "@react-pdf/renderer";
 
 /* ─────────────────────────────────────────────────────────
-   BCL AUDIT PDF REPORTS
-   Three separate documents: Problems, Fixes, Growth & Marketing.
-   Design intent: this is a PRINTED REPORT, not the neon dark
-   website. Top audit tools (Ahrefs, SEMrush, Hotjar-style PDFs)
-   use light backgrounds, restrained accent color, real vector
-   type, and generous whitespace — that's what reads as premium
-   on paper/screen-as-paper. A black-and-neon PDF looks like a
-   screenshot, not a report.
+   BCL AUDIT PDF REPORTS — v2
+   Modeled directly on the Ahrefs/SEOptimer report language:
+   big score gauge on the cover, a pass/warn/fail checklist
+   with colored status dots for Core Web Vitals, issues grouped
+   by category with compact status-dot rows (not one big padded
+   card per issue), and an issue-count summary strip up top.
 ───────────────────────────────────────────────────────── */
 
 Font.register({
@@ -21,40 +19,60 @@ Font.register({
 });
 
 const GREEN = "#00A35C";
-const INK = "#141414";
+const RED   = "#D8382A";
+const AMBER = "#C97A12";
+const INK   = "#141414";
 const MUTED = "#5B5B5B";
 const FAINT = "#8C8C8C";
-const LINE = "#E4E4E4";
-const CARD = "#F7F8F7";
-const SEV = { critical: "#D8382A", high: "#C97A12", medium: "#9A8600", low: GREEN };
+const LINE  = "#E4E4E4";
+const CARD  = "#F7F8F7";
+const SEV   = { critical: RED, high: AMBER, medium: "#9A8600", low: GREEN };
+const STATUS = { good: GREEN, warn: AMBER, fail: RED };
 
 const s = StyleSheet.create({
-  page: { fontFamily: "Inter", fontSize: 10.5, color: INK, padding: "48 44 56", backgroundColor: "#FFFFFF" },
-  coverPage: { fontFamily: "Inter", padding: "64 48", backgroundColor: "#FFFFFF", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" },
+  page: { fontFamily: "Inter", fontSize: 9.5, color: INK, padding: "44 42 56", backgroundColor: "#FFFFFF" },
+  coverPage: { fontFamily: "Inter", padding: "60 48", backgroundColor: "#FFFFFF", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" },
   kicker: { fontSize: 9, color: GREEN, fontWeight: 600, letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 10 },
-  h1: { fontSize: 26, fontWeight: 800, color: INK, lineHeight: 1.15, marginBottom: 8 },
-  h2: { fontSize: 15, fontWeight: 800, color: INK, marginBottom: 4 },
-  sub: { fontSize: 10.5, color: MUTED, lineHeight: 1.55 },
-  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderBottom: `1 solid ${LINE}`, paddingBottom: 10, marginBottom: 22 },
-  brand: { fontSize: 10, fontWeight: 800, color: INK },
-  brandTag: { fontSize: 8, color: FAINT },
-  pageNum: { fontSize: 8, color: FAINT },
-  sectionTitle: { fontSize: 13, fontWeight: 800, color: INK, marginTop: 22, marginBottom: 10, borderLeft: `3 solid ${GREEN}`, paddingLeft: 8 },
-  card: { backgroundColor: CARD, borderRadius: 6, padding: 14, marginBottom: 10, border: `1 solid ${LINE}` },
-  badgeRow: { flexDirection: "row", alignItems: "center", marginBottom: 6, gap: 6 },
-  sevBadge: { fontSize: 7.5, fontWeight: 700, color: "#FFFFFF", paddingVertical: 2, paddingHorizontal: 6, borderRadius: 3, textTransform: "uppercase", marginRight: 6 },
-  catLabel: { fontSize: 8, color: FAINT },
-  itemTitle: { fontSize: 11.5, fontWeight: 700, color: INK, marginBottom: 4 },
-  body: { fontSize: 9.7, color: MUTED, lineHeight: 1.6, marginBottom: 5 },
-  impact: { fontSize: 9, color: INK, fontStyle: "italic" },
-  metaGrid: { flexDirection: "row", flexWrap: "wrap", marginTop: 4, marginBottom: 18 },
-  metaCell: { width: "25%", paddingRight: 10, marginBottom: 10 },
-  metaLabel: { fontSize: 7.5, color: FAINT, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 3 },
-  metaVal: { fontSize: 16, fontWeight: 800 },
-  footer: { position: "absolute", bottom: 28, left: 44, right: 44, flexDirection: "row", justifyContent: "space-between", fontSize: 7.5, color: FAINT, borderTop: `0.5 solid ${LINE}`, paddingTop: 8 },
-  phaseTag: { fontSize: 8.5, fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8, marginTop: 16 },
-  lockNote: { fontSize: 9, color: FAINT, fontStyle: "italic", marginTop: 4 },
+  h1: { fontSize: 24, fontWeight: 800, color: INK, lineHeight: 1.15, marginBottom: 8 },
+  sub: { fontSize: 10, color: MUTED, lineHeight: 1.55 },
+  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderBottom: `1 solid ${LINE}`, paddingBottom: 9, marginBottom: 16 },
+  brand: { fontSize: 9.5, fontWeight: 800, color: INK },
+  brandTag: { fontSize: 7.5, color: FAINT },
+  sectionTitle: { fontSize: 12, fontWeight: 800, color: INK, marginTop: 18, marginBottom: 8 },
+  footer: { position: "absolute", bottom: 26, left: 42, right: 42, flexDirection: "row", justifyContent: "space-between", fontSize: 7.5, color: FAINT, borderTop: `0.5 solid ${LINE}`, paddingTop: 8 },
+
+  summaryStrip: { flexDirection: "row", border: `1 solid ${LINE}`, borderRadius: 6, overflow: "hidden", marginBottom: 4 },
+  summaryCell: { flex: 1, padding: "12 10", borderRight: `1 solid ${LINE}` },
+  summaryNum: { fontSize: 20, fontWeight: 800 },
+  summaryLabel: { fontSize: 7.5, color: FAINT, textTransform: "uppercase", letterSpacing: 0.4, marginTop: 2 },
+
+  tableHead: { flexDirection: "row", borderBottom: `1 solid ${INK}`, paddingBottom: 5, marginBottom: 2 },
+  thStatus: { width: 16 },
+  thMain: { flex: 1, fontSize: 7.5, fontWeight: 700, color: FAINT, textTransform: "uppercase", letterSpacing: 0.4 },
+  thSide: { width: 90, fontSize: 7.5, fontWeight: 700, color: FAINT, textTransform: "uppercase", letterSpacing: 0.4, textAlign: "right" },
+  row: { flexDirection: "row", alignItems: "center", paddingVertical: 7, borderBottom: `0.5 solid ${LINE}` },
+  dot: { width: 8, height: 8, borderRadius: 4, marginRight: 0 },
+  rowTitle: { fontSize: 9.5, fontWeight: 700, color: INK, marginBottom: 1.5 },
+  rowDesc: { fontSize: 8.3, color: MUTED, lineHeight: 1.45 },
+  rowSide: { width: 90, fontSize: 8.5, fontWeight: 700, textAlign: "right" },
+
+  catHeader: { flexDirection: "row", alignItems: "center", backgroundColor: CARD, paddingVertical: 6, paddingHorizontal: 8, marginTop: 14, marginBottom: 2, borderRadius: 3 },
+  catTitle: { fontSize: 9, fontWeight: 800, color: INK, textTransform: "uppercase", letterSpacing: 0.4 },
+  catCount: { fontSize: 8, color: FAINT, marginLeft: "auto" },
+
+  phaseTag: { fontSize: 8.5, fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6, marginTop: 14 },
+  taskRow: { flexDirection: "row", paddingVertical: 8, borderBottom: `0.5 solid ${LINE}` },
+  taskNum: { width: 20, fontSize: 9, fontWeight: 800, color: GREEN },
+  taskTitle: { fontSize: 9.7, fontWeight: 700, color: INK, marginBottom: 2 },
+  taskBody: { fontSize: 8.3, color: MUTED, lineHeight: 1.5, marginBottom: 3 },
+  taskMetric: { fontSize: 7.8, color: GREEN, fontWeight: 700 },
+
+  lockCard: { backgroundColor: "#F1FBF6", border: `1 solid ${GREEN}`, borderRadius: 6, padding: 12, marginTop: 12 },
 });
+
+function Dot({ color }) {
+  return <View style={{ ...s.dot, backgroundColor: color }} />;
+}
 
 function Header({ label }) {
   return (
@@ -74,100 +92,150 @@ function Footer({ domain }) {
   );
 }
 
-function ScoreRing({ score, size = 74 }) {
-  const r = size / 2 - 6;
+function ScoreGauge({ score, grade, size = 150 }) {
+  const r = size / 2 - 10;
   const c = 2 * Math.PI * r;
   const dash = (Math.max(0, Math.min(100, score)) / 100) * c;
-  const color = score > 74 ? GREEN : score > 49 ? "#C97A12" : "#D8382A";
+  const color = score > 74 ? GREEN : score > 49 ? AMBER : RED;
   return (
-    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <Circle cx={size / 2} cy={size / 2} r={r} stroke="#E4E4E4" strokeWidth={6} fill="none" />
-      <Circle
-        cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={6} fill="none"
-        strokeDasharray={`${dash} ${c}`} strokeLinecap="round"
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
-      />
-      <Text x={size / 2} y={size / 2 + 5} style={{ fontSize: 16, fontWeight: 800 }} textAnchor="middle">{score}</Text>
-    </Svg>
+    <View style={{ alignItems: "center" }}>
+      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <Circle cx={size / 2} cy={size / 2} r={r} stroke="#EAEAEA" strokeWidth={11} fill="none" />
+        <Circle
+          cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={11} fill="none"
+          strokeDasharray={`${dash} ${c}`} strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+        <Text x={size / 2} y={size / 2 - 2} style={{ fontSize: 34, fontWeight: 800 }} textAnchor="middle">{score}</Text>
+        <Text x={size / 2} y={size / 2 + 18} style={{ fontSize: 9, fill: "#8C8C8C" }} textAnchor="middle">/ 100</Text>
+      </Svg>
+      <View style={{ backgroundColor: color, borderRadius: 4, paddingVertical: 3, paddingHorizontal: 12, marginTop: 6 }}>
+        <Text style={{ fontSize: 10, fontWeight: 800, color: "#FFFFFF" }}>GRADE {grade}</Text>
+      </View>
+    </View>
   );
 }
 
-function Cover({ kicker, title, domain, date, overall, grade, extraNote }) {
+function Cover({ kicker, title, domain, date, overall, grade, verdict }) {
   return (
     <Page size="A4" style={s.coverPage}>
       <View>
-        <Text style={{ fontSize: 11, fontWeight: 800, marginBottom: 40 }}>BODE CONVERSION LAB</Text>
+        <Text style={{ fontSize: 10.5, fontWeight: 800, marginBottom: 46 }}>BODE CONVERSION LAB</Text>
         <Text style={s.kicker}>{kicker}</Text>
         <Text style={s.h1}>{title}</Text>
-        <Text style={s.sub}>{domain}</Text>
-        <Text style={{ ...s.sub, marginTop: 4 }}>Generated {date}</Text>
+        <Text style={s.sub}>{domain}  ·  Generated {date}</Text>
       </View>
 
       {overall != null && (
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 18 }}>
-          <ScoreRing score={overall} size={90} />
-          <View>
-            <Text style={{ fontSize: 9, color: FAINT, textTransform: "uppercase", letterSpacing: 1 }}>Overall Score</Text>
-            <Text style={{ fontSize: 22, fontWeight: 800 }}>{overall}/100 · Grade {grade}</Text>
-            {extraNote && <Text style={{ ...s.sub, marginTop: 4, maxWidth: 340 }}>{extraNote}</Text>}
-          </View>
+        <View style={{ alignItems: "center" }}>
+          <ScoreGauge score={overall} grade={grade} />
+          {verdict && <Text style={{ ...s.sub, marginTop: 14, maxWidth: 320, textAlign: "center" }}>{verdict}</Text>}
         </View>
       )}
 
-      <View>
-        <Text style={{ fontSize: 8, color: FAINT, lineHeight: 1.6 }}>
-          This report is confidential and prepared specifically for the store owner named above. Figures are estimates based on automated technical analysis, not a guarantee of results.
-        </Text>
-      </View>
+      <Text style={{ fontSize: 7.5, color: FAINT, lineHeight: 1.6 }}>
+        Confidential — prepared for the store owner named above. Figures are estimates from automated technical analysis, not a guarantee of results.
+      </Text>
     </Page>
   );
 }
 
-/* ═══════════════ 1. PROBLEMS REPORT (free / diagnosis tier) ═══════════════
-   Deliberately stops at "here's what's wrong and what it's costing you" —
-   no fix instructions. That's the paid report's job. */
+function CountCell({ n, label, color }) {
+  return (
+    <View style={{ ...s.summaryCell }}>
+      <Text style={{ ...s.summaryNum, color }}>{n}</Text>
+      <Text style={s.summaryLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function VitalsTable({ vitals }) {
+  const rows = Object.values(vitals);
+  return (
+    <View>
+      <View style={s.tableHead}>
+        <View style={s.thStatus} />
+        <Text style={s.thMain}>Core Web Vital</Text>
+        <Text style={s.thSide}>Measured</Text>
+      </View>
+      {rows.map((v, i) => (
+        <View key={i} style={s.row}>
+          <View style={s.thStatus}><Dot color={STATUS[v.status]} /></View>
+          <Text style={{ flex: 1, fontSize: 9.5, fontWeight: 700 }}>{v.label}</Text>
+          <Text style={{ ...s.rowSide, color: STATUS[v.status] }}>{v.value}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 export function ProblemsPDF({ storeUrl, analysis, date }) {
   const domain = analysis.domain;
+  const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+  analysis.findings.forEach(f => { counts[f.severity] = (counts[f.severity] || 0) + 1; });
+
+  const byCategory = {};
+  analysis.findings.forEach(f => {
+    (byCategory[f.category] ||= []).push(f);
+  });
+
   return (
     <Document title={`BCL Problem Report — ${domain}`}>
-      <Cover
-        kicker="Store Diagnosis"
-        title="What's Actually Wrong With Your Store"
-        domain={domain}
-        date={date}
-        overall={analysis.overall}
-        grade={analysis.grade}
-        extraNote={analysis.verdict}
-      />
+      <Cover kicker="Store Diagnosis" title="What's Actually Wrong With Your Store" domain={domain} date={date} overall={analysis.overall} grade={analysis.grade} verdict={analysis.verdict} />
 
       <Page size="A4" style={s.page}>
         <Header label="Problem Report" />
-        <Text style={s.sectionTitle}>Where the revenue is leaking</Text>
-        <View style={s.metaGrid}>
+
+        <View style={s.summaryStrip}>
+          <CountCell n={counts.critical} label="Critical" color={RED} />
+          <CountCell n={counts.high} label="High" color={AMBER} />
+          <CountCell n={counts.medium} label="Medium" color="#9A8600" />
+          <View style={{ ...s.summaryCell, borderRight: "none" }}>
+            <Text style={{ ...s.summaryNum, color: INK }}>{analysis.findings.length}</Text>
+            <Text style={s.summaryLabel}>Total Issues</Text>
+          </View>
+        </View>
+
+        <Text style={s.sectionTitle}>Category Scores</Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 6 }}>
           {Object.values(analysis.metrics).map((v, i) => (
-            <View key={i} style={s.metaCell}>
-              <Text style={s.metaLabel}>{v.label}</Text>
-              <Text style={{ ...s.metaVal, color: v.score > 74 ? GREEN : v.score > 49 ? "#C97A12" : "#D8382A" }}>{v.score}</Text>
+            <View key={i} style={{ width: "25%", marginBottom: 10, paddingRight: 8 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 2 }}>
+                <Dot color={v.score > 74 ? GREEN : v.score > 49 ? AMBER : RED} />
+                <Text style={{ fontSize: 13, fontWeight: 800, marginLeft: 5 }}>{v.score}</Text>
+              </View>
+              <Text style={{ fontSize: 7.5, color: FAINT }}>{v.label}</Text>
             </View>
           ))}
         </View>
 
-        <Text style={s.sectionTitle}>{analysis.findings.length} Problems Found</Text>
-        {analysis.findings.map((f, i) => (
-          <View key={i} style={s.card} wrap={false}>
-            <View style={s.badgeRow}>
-              <Text style={{ ...s.sevBadge, backgroundColor: SEV[f.severity] }}>{f.severity}</Text>
-              <Text style={s.catLabel}>{f.category}</Text>
+        <Text style={s.sectionTitle}>Core Web Vitals</Text>
+        <VitalsTable vitals={analysis.vitals} />
+
+        <Text style={s.sectionTitle}>{analysis.findings.length} Problems Found, By Category</Text>
+
+        {Object.entries(byCategory).map(([cat, items], ci) => (
+          <View key={ci}>
+            <View style={s.catHeader}>
+              <Text style={s.catTitle}>{cat}</Text>
+              <Text style={s.catCount}>{items.length} issue{items.length !== 1 ? "s" : ""}</Text>
             </View>
-            <Text style={s.itemTitle}>{f.title}</Text>
-            <Text style={s.body}>{f.finding}</Text>
-            <Text style={s.impact}>Estimated impact: {f.impact}</Text>
+            {items.map((f, i) => (
+              <View key={i} style={s.row} wrap={false}>
+                <View style={s.thStatus}><Dot color={SEV[f.severity]} /></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.rowTitle}>{f.title}</Text>
+                  <Text style={s.rowDesc}>{f.finding}</Text>
+                </View>
+                <Text style={{ ...s.rowSide, color: SEV[f.severity], fontSize: 7.5, textTransform: "uppercase" }}>{f.severity}</Text>
+              </View>
+            ))}
           </View>
         ))}
 
-        <View style={{ ...s.card, backgroundColor: "#F1FBF6", border: `1 solid ${GREEN}`, marginTop: 8 }} wrap={false}>
-          <Text style={{ ...s.itemTitle, color: GREEN }}>This report shows you what's broken — not how to fix it</Text>
-          <Text style={s.body}>
+        <View style={s.lockCard} wrap={false}>
+          <Text style={{ fontSize: 10.5, fontWeight: 800, color: GREEN, marginBottom: 4 }}>This report shows you what's broken — not how to fix it</Text>
+          <Text style={{ fontSize: 8.7, color: MUTED, lineHeight: 1.55 }}>
             The exact fix for each issue above, in priority order with implementation detail, is in the separate Fixes Report.
             The plan to turn this into consistent traffic and revenue is in the Growth & Marketing Report. Both unlock with a paid package.
           </Text>
@@ -178,35 +246,43 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
   );
 }
 
-/* ═══════════════ 2. FIXES REPORT (paid) ═══════════════ */
+function TaskList({ phases }) {
+  let n = 0;
+  return phases.map((phase, pi) => (
+    <View key={pi}>
+      <Text style={s.phaseTag}>{phase.phase}</Text>
+      {phase.items.map((item, i) => {
+        n += 1;
+        return (
+          <View key={i} style={s.taskRow} wrap={false}>
+            <Text style={s.taskNum}>{String(n).padStart(2, "0")}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={s.taskTitle}>{item.title}</Text>
+              <Text style={s.taskBody}>{item.action}</Text>
+              <Text style={s.taskMetric}>{item.metric}</Text>
+            </View>
+          </View>
+        );
+      })}
+    </View>
+  ));
+}
+
 export function FixesPDF({ analysis, solution, date }) {
   const domain = analysis.domain;
-  const { fixing } = solution;
   return (
     <Document title={`BCL Fixes Report — ${domain}`}>
       <Cover kicker="Priority Action Plan" title="The Fixes — In Priority Order" domain={domain} date={date} />
       <Page size="A4" style={s.page}>
         <Header label="Fixes Report" />
         <Text style={s.sub}>Stop the bleeding first. Fix in this order — each phase builds on the last.</Text>
-        {fixing.phases.map((phase, pi) => (
-          <View key={pi}>
-            <Text style={s.phaseTag}>{phase.phase}</Text>
-            {phase.items.map((item, i) => (
-              <View key={i} style={s.card} wrap={false}>
-                <Text style={s.itemTitle}>{item.title}</Text>
-                <Text style={s.body}>{item.action}</Text>
-                <Text style={{ fontSize: 8.5, color: GREEN, fontWeight: 700 }}>{item.metric}</Text>
-              </View>
-            ))}
-          </View>
-        ))}
+        <TaskList phases={solution.fixing.phases} />
         <Footer domain={domain} />
       </Page>
     </Document>
   );
 }
 
-/* ═══════════════ 3. GROWTH & MARKETING REPORT (paid) ═══════════════ */
 export function GrowthMarketingPDF({ analysis, solution, date }) {
   const domain = analysis.domain;
   const { growth, marketing } = solution;
@@ -217,33 +293,11 @@ export function GrowthMarketingPDF({ analysis, solution, date }) {
         <Header label="Growth & Marketing Report" />
         <Text style={s.sectionTitle}>{growth.title}</Text>
         <Text style={s.sub}>{growth.subtitle}</Text>
-        {growth.phases.map((phase, pi) => (
-          <View key={pi}>
-            <Text style={s.phaseTag}>{phase.phase}</Text>
-            {phase.items.map((item, i) => (
-              <View key={i} style={s.card} wrap={false}>
-                <Text style={s.itemTitle}>{item.title}</Text>
-                <Text style={s.body}>{item.action}</Text>
-                <Text style={{ fontSize: 8.5, color: GREEN, fontWeight: 700 }}>{item.metric}</Text>
-              </View>
-            ))}
-          </View>
-        ))}
+        <TaskList phases={growth.phases} />
 
-        <Text style={s.sectionTitle}>{marketing.title}</Text>
+        <Text style={{ ...s.sectionTitle, marginTop: 24 }}>{marketing.title}</Text>
         <Text style={s.sub}>{marketing.subtitle}</Text>
-        {marketing.phases.map((phase, pi) => (
-          <View key={pi}>
-            <Text style={s.phaseTag}>{phase.phase}</Text>
-            {phase.items.map((item, i) => (
-              <View key={i} style={s.card} wrap={false}>
-                <Text style={s.itemTitle}>{item.title}</Text>
-                <Text style={s.body}>{item.action}</Text>
-                <Text style={{ fontSize: 8.5, color: GREEN, fontWeight: 700 }}>{item.metric}</Text>
-              </View>
-            ))}
-          </View>
-        ))}
+        <TaskList phases={marketing.phases} />
         <Footer domain={domain} />
       </Page>
     </Document>
