@@ -146,195 +146,195 @@ function buildAnalysis(desktop, mobile, storeUrl) {
 
   /* Mobile */
   if (mobileScore < 50)
-    add("mob1","critical","📱 Mobile Performance","Mobile experience is critically broken",
+    add("mob1","critical","Mobile Performance","Mobile experience is critically broken",
       `Your mobile performance score is ${mobileScore}/100. Most e-commerce traffic is mobile — a score this low means buyers are bouncing before they even see your product. Every ad you run is sending people to a broken experience.`,
       `Estimated ${Math.round((100-mobileScore)*0.4)}% of mobile visitors leave before converting`,
       `Compress all images to WebP, eliminate render-blocking JavaScript, enable lazy loading for below-fold content, and reduce server response time. This single area of improvement typically recovers 20-40% of mobile conversions.`);
   else if (mobileScore < 75)
-    add("mob2","high","📱 Mobile Performance","Mobile performance below acceptable threshold",
+    add("mob2","high","Mobile Performance","Mobile performance below acceptable threshold",
       `Mobile score: ${mobileScore}/100. Over 60% of your traffic likely arrives on mobile. Sub-75 performance is actively suppressing your conversion rate.`,
       `Estimated 15-25% mobile conversion suppression`,
       `Prioritize image optimization and JavaScript deferral. Run your store through Google PageSpeed and fix the top 3 opportunities listed.`);
 
   /* LCP */
   if (lcpMs > 4000)
-    add("lcp1","critical","📊 Core Web Vitals","Largest Contentful Paint is critically slow",
+    add("lcp1","critical","Core Web Vitals","Largest Contentful Paint is critically slow",
       `LCP: ${ms(lcpMs)}. Google's threshold for "good" is under 2.5s. At ${ms(lcpMs)}, your main content takes so long to appear that buyers assume the page is broken and leave. This directly increases your ad costs by lowering your Google Quality Score.`,
       `High ad costs + high bounce rate + Google ranking penalty`,
       `Optimize your hero image — it's almost certainly your LCP element. Convert to WebP, add explicit dimensions, preload it with <link rel="preload">. Also check for render-blocking resources in the head.`);
   else if (lcpMs > 2500)
-    add("lcp2","high","📊 Core Web Vitals","LCP needs improvement",
+    add("lcp2","high","Core Web Vitals","LCP needs improvement",
       `LCP: ${ms(lcpMs)}. You're in Google's "Needs Improvement" zone. This affects your search ranking and user experience.`,
       `Moderate ranking suppression and conversion loss`,
       `Preload your LCP element, compress the hero image, ensure your hosting responds fast. Target under 2.5s.`);
 
   /* CLS */
   if (clsVal > 0.25)
-    add("cls1","critical","📊 Core Web Vitals","Layout shift is severe — buttons are moving",
+    add("cls1","critical","Core Web Vitals","Layout shift is severe — buttons are moving",
       `CLS: ${clsVal.toFixed(3)}. Your page elements are jumping around as the page loads. When a buyer is about to click "Add to Cart" and the button shifts position, they either mis-click or abandon entirely.`,
       `Direct lost conversions from mis-clicks and user frustration`,
       `Add explicit width and height attributes to all images and videos. Avoid injecting content above existing content. Reserve space for ads and embeds with CSS aspect-ratio boxes.`);
   else if (clsVal > 0.1)
-    add("cls2","high","📊 Core Web Vitals","Significant layout instability detected",
+    add("cls2","high","Core Web Vitals","Significant layout instability detected",
       `CLS: ${clsVal.toFixed(3)}. Above Google's 0.1 "good" threshold. Page elements are shifting during load.`,
       `User frustration and Google ranking impact`,
       `Identify shifting elements using Chrome DevTools → Performance tab. Most common causes: images without dimensions, web fonts loading late, dynamically injected content.`);
 
   /* TBT */
   if (tbtMs > 600)
-    add("tbt1","critical","📊 Core Web Vitals","Page is freezing — Total Blocking Time critical",
+    add("tbt1","critical","Core Web Vitals","Page is freezing — Total Blocking Time critical",
       `TBT: ${Math.round(tbtMs)}ms. Your page blocks the main thread for ${(tbtMs/1000).toFixed(1)} seconds during load. During this time the page appears loaded but is completely unresponsive — clicks do nothing, Add to Cart doesn't fire. Buyers think your site is broken.`,
       `Silent conversions lost — buyers click but nothing happens`,
       `Audit your JavaScript. Remove or defer any third-party scripts (chat widgets, analytics, pixels) that aren't critical to the initial load. Break up long tasks.`);
   else if (tbtMs > 300)
-    add("tbt2","high","📊 Core Web Vitals","JavaScript is blocking page interaction",
+    add("tbt2","high","Core Web Vitals","JavaScript is blocking page interaction",
       `TBT: ${Math.round(tbtMs)}ms. Above the 200ms good threshold. The page is sluggish to respond to user input.`,
       `Sluggish user experience and conversion friction`,
       `Defer non-critical JavaScript, remove unused scripts, audit third-party tag loading order.`);
 
   /* FCP */
   if (fcpMs > 3000)
-    add("fcp1","high","📊 Core Web Vitals","First Contentful Paint is too slow",
+    add("fcp1","high","Core Web Vitals","First Contentful Paint is too slow",
       `FCP: ${ms(fcpMs)}. Users see a blank screen for ${ms(fcpMs)} before anything appears. First impressions determine whether buyers stay.`,
       `High bounce rate — users assume the site is down`,
       `Reduce server response time, eliminate render-blocking resources in the HTML head, inline critical CSS.`);
 
   /* TTI */
   if (ttibMs > 5000)
-    add("tti1","high","⚙️ Technical","Page takes too long to become interactive",
+    add("tti1","high","Technical","Page takes too long to become interactive",
       `Time to Interactive: ${ms(ttibMs)}. The gap between when the page looks ready and when it actually works is dangerously large.`,
       `Silent UX failures during the "dead zone" after visual load`,
       `Split JavaScript bundles, use code splitting if on React/Next.js, defer all non-critical scripts.`);
 
   /* SEO */
   if (!hasMeta)
-    add("seo1","critical","🔍 SEO","Missing meta description — invisible in search",
+    add("seo1","critical","SEO","Missing meta description — invisible in search",
       `No meta description found. When your store appears in Google, searchers see nothing or auto-generated text. A well-crafted meta description is free click-through-rate optimization that costs nothing to fix.`,
       `Lower CTR from every search result you appear in`,
       `Write a compelling meta description (150-160 characters) for every page. For product pages: lead with the key benefit, include the product name, end with a call to action.`);
   if (!hasTitle)
-    add("seo2","critical","🔍 SEO","Missing or broken title tag",
+    add("seo2","critical","SEO","Missing or broken title tag",
       `Title tag issue detected. The title tag is the single most important on-page SEO element — it determines your search ranking for target keywords and your click-through rate.`,
       `Critical ranking loss for all target keywords`,
       `Ensure every page has a unique, keyword-rich title tag (50-60 characters). Format: [Primary Keyword] — [Brand Name].`);
   if (!hasCanon)
-    add("seo3","high","🔍 SEO","No canonical tags — duplicate content risk",
+    add("seo3","high","SEO","No canonical tags — duplicate content risk",
       `Missing canonical tags. Without canonicals, Google may index duplicate versions of your pages, splitting your ranking power across multiple URLs.`,
       `Diluted search ranking from duplicate content signals`,
       `Add canonical tags to all pages pointing to the preferred URL version. On Shopify this is often handled in theme settings.`);
   if (!hasAltText)
-    add("seo4","high","🔍 SEO","Images missing alt text",
+    add("seo4","high","SEO","Images missing alt text",
       `Product images without alt text. Alt text tells Google what your images contain — this is how you rank in Google Image Search and how screen readers describe images to visually impaired users.`,
       `Missing Google Image Search traffic + accessibility barrier`,
       `Add descriptive alt text to every product image. Be specific: "Navy cotton hoodie front view" beats "img-001.jpg".`);
   if (!hasCrawl)
-    add("seo5","critical","🔍 SEO","Search engines may be blocked from your store",
+    add("seo5","critical","SEO","Search engines may be blocked from your store",
       `Crawlability issue detected. Part or all of your store may have a noindex directive preventing Google from indexing your pages. If Google cannot crawl your store, you rank for nothing.`,
       `Pages may not appear in Google search at all`,
       `Check your robots.txt and meta robots tags. Ensure no pages you want indexed have noindex directives. In Shopify check store preferences for password page settings.`);
   if (!hasRobots)
-    add("seo6","medium","🔍 SEO","Robots.txt not properly configured",
+    add("seo6","medium","SEO","Robots.txt not properly configured",
       `Robots.txt issues detected. This file controls what search engines can crawl. Misconfiguration can accidentally block important pages.`,
       `Crawling inefficiency or accidental page blocking`,
       `Allow all content pages, block checkout/cart/account pages. Submit your sitemap URL in robots.txt.`);
   if (!hasStructured)
-    add("seo7","medium","🔍 SEO","No structured data — missing rich search results",
+    add("seo7","medium","SEO","No structured data — missing rich search results",
       `No structured data (schema markup) detected. Without schema, your products can't appear with star ratings, price, and availability directly in search results.`,
       `Missing rich snippets that drive 20-30% higher CTR`,
       `Implement Product schema on all product pages. Most Shopify themes have this built in — check your theme settings.`);
   if (!hasLang)
-    add("seo8","medium","🔍 SEO","Missing HTML lang attribute",
+    add("seo8","medium","SEO","Missing HTML lang attribute",
       `Your HTML tag is missing a lang attribute. Search engines and screen readers use this to understand the language of your content.`,
       `Minor SEO and accessibility impact`,
       `Add lang="en" (or your store's primary language) to your HTML tag.`);
 
   /* Technical */
   if (!hasSSL)
-    add("tech1","critical","⚙️ Technical","HTTPS not properly configured",
+    add("tech1","critical","Technical","HTTPS not properly configured",
       `The site is not fully on HTTPS. Modern browsers display security warnings, payment processors refuse to work, and Google penalizes non-HTTPS sites in rankings.`,
       `Browser warnings actively driving visitors away — payment failures`,
       `Force HTTPS across your entire domain. In Shopify this is one toggle in Settings → Domains.`);
   if (!hasGzip)
-    add("tech2","high","⚙️ Technical","Text compression not enabled",
+    add("tech2","high","Technical","Text compression not enabled",
       `Your server sends uncompressed HTML, CSS, and JavaScript to browsers. Enabling GZIP or Brotli typically reduces transfer sizes by 70-80%.`,
       `Unnecessarily large page sizes slowing every page load`,
       `Enable GZIP compression on your server. On most hosts this is a server-level setting or .htaccess configuration.`);
   if (!hasCaching)
-    add("tech3","high","⚙️ Technical","Browser caching not configured",
+    add("tech3","high","Technical","Browser caching not configured",
       `Static assets are not being cached by browsers. Returning visitors — your warmest leads — download everything fresh on every visit.`,
       `Slower experience for returning visitors`,
       `Set cache-control headers with long TTLs (1 year) for static assets. Use versioned file names to force cache busting on updates.`);
   if (hasUnusedCSS)
-    add("tech4","medium","⚙️ Technical","Significant unused CSS detected",
+    add("tech4","medium","Technical","Significant unused CSS detected",
       `Pages are loading CSS code that is never used. This adds to page weight and parse time with no benefit.`,
       `Unnecessary page weight increasing load time`,
       `Audit your CSS and remove unused styles. Tools like PurgeCSS can automate this.`);
   if (hasUnusedJS)
-    add("tech5","high","⚙️ Technical","Significant unused JavaScript detected",
+    add("tech5","high","Technical","Significant unused JavaScript detected",
       `Pages are loading JavaScript that is never executed. Third-party scripts from analytics, chat, and marketing pixels are common culprits.`,
       `Major contributor to TBT and slow interactivity`,
       `Audit all installed apps and scripts. Remove any you don't actively use. Load analytics and pixels asynchronously after page becomes interactive.`);
   if (!hasFontOpt)
-    add("tech6","medium","⚙️ Technical","Web fonts causing render blocking",
+    add("tech6","medium","Technical","Web fonts causing render blocking",
       `Font loading is blocking page rendering. Users see invisible or unstyled text during load.`,
       `Text invisible during load — poor first impression`,
       `Add font-display: swap to all @font-face declarations. Preload your most critical font file. Consider system fonts for body text.`);
   if (serverRespMs > 600)
-    add("tech7","critical","⚙️ Technical","Server response time is critically slow",
+    add("tech7","critical","Technical","Server response time is critically slow",
       `Server response: ${Math.round(serverRespMs)}ms. Google recommends under 200ms. Your server takes ${(serverRespMs/1000).toFixed(1)}s just to respond before sending any content.`,
       `Every other performance metric is degraded by slow server response`,
       `Upgrade your hosting, enable a CDN (Cloudflare is free), enable server-side caching, optimize database queries on WooCommerce/custom platforms.`);
   else if (serverRespMs > 200)
-    add("tech8","medium","⚙️ Technical","Server response time needs improvement",
+    add("tech8","medium","Technical","Server response time needs improvement",
       `Server response: ${Math.round(serverRespMs)}ms. Above the 200ms recommended threshold.`,
       `Added latency on every page load`,
       `Enable server-level caching, use a CDN for static assets, consider upgrading hosting from shared plans.`);
   if (!hasHTTP2)
-    add("tech9","medium","⚙️ Technical","HTTP/2 not enabled",
+    add("tech9","medium","Technical","HTTP/2 not enabled",
       `Your server uses an older HTTP protocol. HTTP/2 allows parallel resource loading, significantly improving performance for pages with many assets.`,
       `Sequential resource loading slowing page assembly`,
       `Ensure your hosting supports HTTP/2. Most modern hosts support it — check your CDN settings or contact your provider.`);
 
   /* Images */
   if (imgWebpScore === 0)
-    add("img1","high","🖼️ Image Optimization","Images not in modern WebP format",
+    add("img1","high","Image Optimization","Images not in modern WebP format",
       `All or most images are JPEG or PNG instead of WebP. WebP images are 25-35% smaller at equivalent quality — directly improving load speed on every page.`,
       `Every page load is heavier than it needs to be`,
       `Convert all product images to WebP. Shopify automatically serves WebP when supported. On WooCommerce use Imagify or ShortPixel plugin.`);
   if (imgOptScore === 0)
-    add("img2","high","🖼️ Image Optimization","Images are not optimized",
+    add("img2","high","Image Optimization","Images are not optimized",
       `Image optimization issues detected. Oversized images are the most common cause of slow e-commerce stores — and the fastest to fix.`,
       `Page weight bloat reducing speed for all visitors`,
       `Compress all images before uploading. Target: under 100KB for product images, under 200KB for hero images. Use TinyPNG or Squoosh.`);
   if (imgLazy === 0)
-    add("img3","medium","🖼️ Image Optimization","Below-fold images loading immediately",
+    add("img3","medium","Image Optimization","Below-fold images loading immediately",
       `Images not visible on initial load are being downloaded immediately, wasting bandwidth and slowing initial page render.`,
       `Unnecessary bandwidth use slowing first paint`,
       `Add loading="lazy" to all below-fold image tags. This is a one-attribute fix per image.`);
 
   /* Accessibility */
   if (!hasContrast)
-    add("acc1","high","♿ Accessibility","Text contrast too low",
+    add("acc1","high","Accessibility","Text contrast too low",
       `Color contrast failures detected. Text that doesn't meet WCAG AA contrast ratios is harder to read for all users — not just those with visual impairments — especially on mobile in bright light.`,
       `Reduced readability reducing time-on-page and conversion`,
       `Check all text against backgrounds using the WebAIM Contrast Checker. Aim for 4.5:1 ratio for body text, 3:1 for large text.`);
   if (!hasInputLabels)
-    add("acc2","medium","♿ Accessibility","Form inputs missing labels",
+    add("acc2","medium","Accessibility","Form inputs missing labels",
       `Input fields without proper labels confuse screen reader users and voice control users. On checkout forms this can prevent purchases.`,
       `Checkout friction for users with accessibility needs`,
       `Add explicit <label> elements to all form inputs or use aria-label attributes. Never rely on placeholder text alone as a label.`);
   if (!hasButtonNames)
-    add("acc3","medium","♿ Accessibility","Buttons missing accessible names",
+    add("acc3","medium","Accessibility","Buttons missing accessible names",
       `Buttons without accessible names are invisible to screen readers. If your Add to Cart button has this issue, you have a silent purchase blocker.`,
       `Silent barrier for assistive technology users`,
       `Ensure all buttons have visible text or an aria-label attribute. Icon-only buttons must always have an aria-label.`);
   if (!hasViewport)
-    add("acc4","critical","📱 Mobile","Viewport meta tag missing or broken",
+    add("acc4","critical","Mobile","Viewport meta tag missing or broken",
       `Viewport configuration issue. Without proper viewport settings, your page won't scale correctly on mobile — it will appear zoomed out and unreadable.`,
       `Mobile layout broken across many device sizes`,
       `Add or fix: <meta name="viewport" content="width=device-width, initial-scale=1"> in your HTML head.`);
   if (!hasTapTargets)
-    add("acc5","high","📱 Mobile","Tap targets too small for mobile",
+    add("acc5","high","Mobile","Tap targets too small for mobile",
       `Interactive elements (buttons, links) are too small or too close together for reliable tapping on mobile. This causes mis-taps and abandoned purchases.`,
       `Direct mobile conversion friction on every page`,
       `Ensure all clickable elements are at least 48×48px with 8px spacing between them. Critical for your Add to Cart button and checkout flow.`);
@@ -359,14 +359,14 @@ function buildAnalysis(desktop, mobile, storeUrl) {
     isCritical: overall < 50 || mobileScore < 45 || vitScore < 35,
     domain: storeUrl.replace(/https?:\/\//,"").split("/")[0].split("?")[0],
     metrics: {
-      mobile:  { score:mobileScore,  label:"Mobile Performance", icon:"📱" },
-      vitals:  { score:vitScore,     label:"Core Web Vitals",    icon:"📊" },
-      desktop: { score:desktopScore, label:"Desktop Speed",      icon:"🖥️" },
-      seo:     { score:seoScore,     label:"SEO Health",         icon:"🔍" },
-      images:  { score:imageScore,   label:"Image Optimization", icon:"🖼️" },
-      tech:    { score:techScore,    label:"Technical Health",   icon:"⚙️" },
-      access:  { score:accessScore,  label:"Accessibility",      icon:"♿" },
-      best:    { score:bestScore,    label:"Best Practices",     icon:"✅" },
+      mobile:  { score:mobileScore,  label:"Mobile Performance" },
+      vitals:  { score:vitScore,     label:"Core Web Vitals" },
+      desktop: { score:desktopScore, label:"Desktop Speed" },
+      seo:     { score:seoScore,     label:"SEO Health" },
+      images:  { score:imageScore,   label:"Image Optimization" },
+      tech:    { score:techScore,    label:"Technical Health" },
+      access:  { score:accessScore,  label:"Accessibility" },
+      best:    { score:bestScore,    label:"Best Practices" },
     },
     vitals: {
       lcp: { value:ms(lcpMs),              status:lcpMs<2500?"good":lcpMs<4000?"warn":"fail", label:"LCP" },
@@ -390,7 +390,7 @@ function buildSolutionPlan(analysis) {
 
   return {
     fixing: {
-      title:"🔧 Fixing Plan", subtitle:"Stop the bleeding — in priority order",
+      title:"Fixing Plan", subtitle:"Stop the bleeding — in priority order",
       phases: [
         { phase:"Phase 1 — Critical Fixes (Week 1)", items:criticals.map(f => ({ title:f.title, action:f.fix, metric:"Critical revenue recovery — implement immediately" })).slice(0,6) },
         { phase:"Phase 2 — High Impact (Week 2-3)",  items:highs.map(f => ({ title:f.title, action:f.fix, metric:"High conversion lift — do not skip" })).slice(0,6) },
@@ -402,7 +402,7 @@ function buildSolutionPlan(analysis) {
       ],
     },
     growth: {
-      title:"📈 Growth Plan", subtitle:"Build the system that compounds revenue",
+      title:"Growth Plan", subtitle:"Build the system that compounds revenue",
       phases: [
         { phase:"Traffic Architecture", items:[
           { title:"SEO content engine", action:"Publish 2 buyer-intent articles per week targeting long-tail keywords. Each article compounds in ranking over 3-6 months and sends free traffic forever.", metric:"Target: 3,000 organic visitors/month within 6 months" },
@@ -424,7 +424,7 @@ function buildSolutionPlan(analysis) {
       ],
     },
     marketing: {
-      title:"📣 Marketing Plan", subtitle:"Build the brand that doesn't compete on price",
+      title:"Marketing Plan", subtitle:"Build the brand that doesn't compete on price",
       phases: [
         { phase:"Brand Foundation", items:[
           { title:"Define your singular position", action:"One sentence no honest competitor can say. Not 'high quality' — a specific verifiable claim tied to a specific customer outcome. Build every creative around this one sentence.", metric:"Deliverable: Brand positioning statement in 1 sentence" },
@@ -576,7 +576,7 @@ export default function Audit() {
         <div onClick={() => setShowModal(false)} style={{ position:"fixed", inset:0, zIndex:99000, background:"rgba(0,0,0,.75)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"1rem" }}>
           <div onClick={e => e.stopPropagation()} style={{ background:dark?"rgba(4,6,8,.97)":"rgba(255,248,210,.98)", border:dark?".5px solid rgba(255,255,255,.12)":".5px solid rgba(26,20,8,.18)", borderTop:".5px solid rgba(0,255,136,.4)", borderRadius:24, padding:"2rem", maxWidth:420, width:"100%", position:"relative" }}>
             <button onClick={() => setShowModal(false)} style={{ position:"absolute", top:14, right:16, background:"transparent", border:"none", cursor:"pointer", fontSize:20, color:mutedText3 }}>×</button>
-            <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>🔐 Unlock Download</h3>
+            <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.2rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>Unlock Download</h3>
             <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:"1rem" }}>Enter your payment access code from your confirmation email.</p>
             <input type="text" placeholder="e.g. BCL-X7K2P9" value={accessCode}
               onChange={e => setAccessCode(e.target.value.toUpperCase())}
@@ -615,7 +615,7 @@ export default function Audit() {
               <span style={{ fontSize:12, color:mutedText2 }}>plan</span>
             </div>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"0.5rem", marginBottom:"2rem", textAlign:"left" }}>
-              {["📱 Mobile performance & speed","📊 Core Web Vitals (LCP, CLS, TBT)","🔍 SEO — 12 ranking factors","⚙️ Technical health & server","🖼️ Image optimization","🔒 SSL & security","♿ Accessibility signals","✅ Best practices audit"].map((item,i) => (
+              {["Mobile performance & speed","Core Web Vitals (LCP, CLS, TBT)","SEO — 12 ranking factors","Technical health & server","Image optimization","SSL & security","Accessibility signals","Best practices audit"].map((item,i) => (
                 <div key={i} style={{ display:"flex", alignItems:"center", gap:8, background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.4)", border:`.5px solid ${cardBorder}`, borderRadius:8, padding:".5rem .75rem" }}>
                   <span style={{ fontSize:12, color:mutedText2 }}>{item}</span>
                 </div>
@@ -716,7 +716,7 @@ export default function Audit() {
           <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"0.75rem", marginBottom:"1.5rem" }}>
             {Object.values(analysis.metrics).map((v,i) => (
               <div key={i} style={{ background:cardBg, border:`.5px solid ${v.score<50?"rgba(255,59,59,.25)":v.score<75?"rgba(255,153,0,.2)":cardBorder}`, borderRadius:12, padding:"1rem", textAlign:"center" }}>
-                <span style={{ fontSize:20 }}>{v.icon}</span>
+                <span style={{ display:"inline-block", width:10, height:10, borderRadius:"50%", background:v.score>74?G:v.score>49?"#FF9900":"#FF3B3B" }} />
                 <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.4rem", fontWeight:800, color:v.score>74?G:v.score>49?"#FF9900":"#FF3B3B", margin:"4px 0 2px" }}>{v.score}</p>
                 <p style={{ fontSize:10, color:mutedText3, lineHeight:1.3 }}>{v.label}</p>
               </div>
@@ -841,7 +841,7 @@ export default function Audit() {
           {/* Solution teaser — blurred */}
           <div style={{ position:"relative", marginBottom:"2rem" }}>
             <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.8rem", filter:accessTier?"none":"blur(5px)", pointerEvents:accessTier?"auto":"none", userSelect:accessTier?"auto":"none" }}>
-              <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:"1rem" }}>🔧 CGO — Phase 1 Preview</h3>
+              <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:"1rem" }}>CGO — Phase 1 Preview</h3>
               {solution?.fixing?.phases?.[0]?.items?.slice(0,2).map((item,i) => (
                 <div key={i} style={{ background:dark?"rgba(255,255,255,.03)":"rgba(255,255,255,.35)", border:`.5px solid ${cardBorder}`, borderRadius:10, padding:"1rem", marginBottom:".75rem" }}>
                   <p style={{ fontSize:13, fontWeight:700, color:headingColor, marginBottom:4 }}>→ {item.title}</p>
@@ -884,4 +884,4 @@ export default function Audit() {
       )}
     </PageWrapper>
   );
-} 
+}

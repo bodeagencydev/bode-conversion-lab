@@ -12,11 +12,11 @@ export const NAV_LINKS = [
 
 /* ── CREDIBILITY BADGES ── */
 export const BADGES = [
-  { icon: "🛒", title: "Shopify Partner",    sub: "Partner ID: 4385075",         color: "#96BF48" },
-  { icon: "⚡", title: "4 Years Operator",   sub: "Ran pinkiceessentials",        color: "#00ff88" },
-  { icon: "📈", title: "ROAS Engineering",   sub: "Not just ad management",       color: "#00ff88" },
-  { icon: "🔍", title: "Full Funnel Audits", sub: "Store + Ads + Checkout",       color: "#FFD700" },
-  { icon: "🚀", title: "90-Day Results",     sub: "$1k → $70k proven system",     color: "#00ff88" },
+  { icon: "01", title: "Shopify Partner",    sub: "Partner ID: 4385075",         color: "#96BF48" },
+  { icon: "02", title: "4 Years Operator",   sub: "Ran pinkiceessentials",        color: "#00ff88" },
+  { icon: "03", title: "ROAS Engineering",   sub: "Not just ad management",       color: "#00ff88" },
+  { icon: "04", title: "Full Funnel Audits", sub: "Store + Ads + Checkout",       color: "#FFD700" },
+  { icon: "05", title: "90-Day Results",     sub: "$1k → $70k proven system",     color: "#00ff88" },
 ];
 
 export const TESTIMONIALS = [
@@ -59,11 +59,11 @@ export const TESTIMONIALS = [
 ];
 
 export const SERVICES = [
-  { id:"store-audit",   icon:"🔍", title:"Store Audit",      tagline:"Find every leak in 48hrs",      desc:"We dissect your store, ads, and full funnel. Every friction point mapped, every missed dollar identified. Delivered as a 30-page action report.", bullets:["Full store speed analysis","Checkout friction mapping","Ad account audit","30-page action report","1x 90-min strategy call"], color:"#00ff88", price:"$497",          link:"/pricing" },
-  { id:"ad-management", icon:"📈", title:"Ad Management",    tagline:"Ads that compound monthly",     desc:"Precision creatives, copy and targeting built around your customer's real pain points. We don't run ads — we engineer ROAS.",                      bullets:["Meta & TikTok campaigns","Creative strategy & copy","Audience segmentation","Weekly performance reports","Monthly strategy reviews"], color:"#0081FB", price:"From $2,000/mo", link:"/pricing" },
-  { id:"cro",           icon:"⚡", title:"CRO Optimization", tagline:"Convert more existing traffic", desc:"We rebuild your pages with one goal: turning browsers into buyers. Speed, layout, copy, trust signals — everything optimized.",                   bullets:["Product page rebuilds","Checkout optimization","Mobile speed fixes","A/B testing setup","Trust signal implementation"], color:"#FF9900", price:"From $2,000/mo", link:"/pricing" },
-  { id:"landing-pages", icon:"🎯", title:"Landing Pages",    tagline:"Pages built to convert",        desc:"Custom landing pages designed for your paid traffic. Every element engineered to convert cold traffic into customers.",                           bullets:["Custom page design","Mobile-first build","Fast load times","Conversion copywriting","Split testing ready"], color:"#BD081C", price:"From $2,000/mo", link:"/pricing" },
-  { id:"email-flows",   icon:"✉️", title:"Email Flows",      tagline:"Revenue while you sleep",      desc:"Abandoned cart, post-purchase, win-back — we build the sequences that recover revenue 24/7 without spending more on ads.",                        bullets:["Abandoned cart sequence","Post-purchase flow","Win-back campaign","Welcome series","Klaviyo setup & management"], color:"#FFD700", price:"From $2,000/mo", link:"/pricing" },
+  { id:"store-audit",   icon:"01", title:"Store Audit",      tagline:"Find every leak in 48hrs",      desc:"We dissect your store, ads, and full funnel. Every friction point mapped, every missed dollar identified. Delivered as a 30-page action report.", bullets:["Full store speed analysis","Checkout friction mapping","Ad account audit","30-page action report","1x 90-min strategy call"], color:"#00ff88", price:"$497",          link:"/pricing" },
+  { id:"ad-management", icon:"02", title:"Ad Management",    tagline:"Ads that compound monthly",     desc:"Precision creatives, copy and targeting built around your customer's real pain points. We don't run ads — we engineer ROAS.",                      bullets:["Meta & TikTok campaigns","Creative strategy & copy","Audience segmentation","Weekly performance reports","Monthly strategy reviews"], color:"#0081FB", price:"From $2,000/mo", link:"/pricing" },
+  { id:"cro",           icon:"03", title:"CRO Optimization", tagline:"Convert more existing traffic", desc:"We rebuild your pages with one goal: turning browsers into buyers. Speed, layout, copy, trust signals — everything optimized.",                   bullets:["Product page rebuilds","Checkout optimization","Mobile speed fixes","A/B testing setup","Trust signal implementation"], color:"#FF9900", price:"From $2,000/mo", link:"/pricing" },
+  { id:"landing-pages", icon:"04", title:"Landing Pages",    tagline:"Pages built to convert",        desc:"Custom landing pages designed for your paid traffic. Every element engineered to convert cold traffic into customers.",                           bullets:["Custom page design","Mobile-first build","Fast load times","Conversion copywriting","Split testing ready"], color:"#BD081C", price:"From $2,000/mo", link:"/pricing" },
+  { id:"email-flows",   icon:"05", title:"Email Flows",      tagline:"Revenue while you sleep",      desc:"Abandoned cart, post-purchase, win-back — we build the sequences that recover revenue 24/7 without spending more on ads.",                        bullets:["Abandoned cart sequence","Post-purchase flow","Win-back campaign","Welcome series","Klaviyo setup & management"], color:"#FFD700", price:"From $2,000/mo", link:"/pricing" },
 ];
 
 export const CASE_STUDIES = [

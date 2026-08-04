@@ -61,7 +61,7 @@ export default function Home() {
               style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(2rem,5vw,3.7rem)", fontWeight:800, lineHeight:1.07, letterSpacing:"-.03em", color:headingColor, wordBreak:"break-word", justifyContent:"center" }}
             />
             <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(2rem,5vw,3.7rem)", fontWeight:800, lineHeight:1.07, letterSpacing:"-.03em", color:headingColor, animation:"heroFadeUp .8s .5s ease both", animationFillMode:"forwards", opacity:0 }}>
-              <Typewriter words={["revenue machine.", "conversion engine.", "ROAS monster.", "scaling system."]} />
+              <Typewriter words={["revenue machine.", "conversion engine.", "ROAS multiplier.", "scaling system."]} />
             </div>
           </div>
 
