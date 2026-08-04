@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createElement } from "react";
 import { Link } from "react-router-dom";
 import { G, GG } from "../data.js";
 import { PageWrapper, GradText, useTheme } from "../components.jsx";
 import { TiltCard } from "../AnimationSystem.jsx";
+/* @react-pdf/renderer is ~500kB gzipped — loaded on demand (see handleDownload)
+   so it never ships in the initial Audit page bundle. */
 
 /* ─── CONFIG ─── */
 const PSI_KEY     = "AIzaSyCAnT0GIpN-3OVQkP3fPJBwhl6pTU0BN8k";
@@ -445,73 +447,16 @@ function buildSolutionPlan(analysis) {
   };
 }
 
-/* ─── GENERATE DOWNLOADABLE HTML ─── */
-function generateHTML(storeUrl, analysis, solutionPlan, type) {
-  const now = new Date().toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
-  const sc  = s => s==="critical"?"#FF3B3B":s==="high"?"#FF9900":s==="medium"?"#FFD700":"#00ff88";
-
-  const analysisSection = `
-    <h2 style="color:#00ff88;font-size:20px;margin:40px 0 16px">📊 Technical Metrics</h2>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px">
-      ${Object.values(analysis.metrics).map(v=>`
-        <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:14px;text-align:center;border:.5px solid rgba(255,255,255,.08)">
-          <p style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase">${v.label}</p>
-          <p style="font-size:22px;font-weight:800;margin:0;color:${v.score>74?"#00ff88":v.score>49?"#FF9900":"#FF3B3B"}">${v.score}</p>
-        </div>`).join("")}
-    </div>
-    <h2 style="color:#00ff88;font-size:20px;margin:32px 0 16px">🔎 ${analysis.findings.length} Issues Found</h2>
-    ${analysis.findings.map(f=>`
-      <div style="margin-bottom:14px;padding:16px 18px;border-radius:12px;background:rgba(255,255,255,.03);border:.5px solid rgba(255,255,255,.07);border-left:4px solid ${sc(f.severity)}">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <span style="background:${sc(f.severity)}22;color:${sc(f.severity)};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase">${f.severity}</span>
-          <span style="font-size:12px;color:rgba(255,255,255,.35)">${f.category}</span>
-        </div>
-        <p style="font-weight:700;color:#fff;margin:0 0 6px;font-size:14px">${f.title}</p>
-        <p style="color:rgba(255,255,255,.6);font-size:13px;line-height:1.7;margin-bottom:8px">${f.finding}</p>
-        <p style="color:rgba(255,255,255,.45);font-size:12px;font-style:italic;margin-bottom:8px">Revenue impact: ${f.impact}</p>
-        <p style="color:#00ff88;font-size:13px"><strong>→ Fix:</strong> ${f.fix}</p>
-      </div>`).join("")}`;
-
-  const planSection = (plan) => `
-    <h2 style="color:#00ff88;font-size:20px;margin:40px 0 8px">${plan.title}</h2>
-    <p style="color:rgba(255,255,255,.45);margin-bottom:24px;font-size:14px">${plan.subtitle}</p>
-    ${plan.phases.map(phase=>`
-      <div style="margin-bottom:28px">
-        <h3 style="font-size:15px;font-weight:700;color:#fff;padding:8px 16px;background:rgba(0,255,136,.08);border-radius:8px;border-left:3px solid #00ff88;margin-bottom:14px">${phase.phase}</h3>
-        ${phase.items.map(item=>`
-          <div style="margin-bottom:12px;padding:14px;background:rgba(255,255,255,.03);border-radius:10px;border:.5px solid rgba(255,255,255,.07)">
-            <p style="font-weight:700;color:#fff;margin:0 0 6px">→ ${item.title}</p>
-            <p style="color:rgba(255,255,255,.6);font-size:13px;line-height:1.7;margin-bottom:6px">${item.action}</p>
-            <p style="color:#00ff88;font-size:12px;font-weight:600">${item.metric}</p>
-          </div>`).join("")}
-      </div>`).join("")}`;
-
-  const body = type === "analysis"
-    ? analysisSection
-    : `<h1 style="color:#00ff88;font-size:26px;margin:0 0 4px">Conversion Growth Optimization</h1>
-       <p style="color:rgba(255,255,255,.45);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:32px">CGO — 90–120 Day Growth System</p>
-       ${planSection(solutionPlan.fixing)}${planSection(solutionPlan.growth)}${planSection(solutionPlan.marketing)}`;
-
-  const title = type === "analysis" ? "Analysis Report" : "CGO Roadmap";
-
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<title>BCL ${title} — ${storeUrl}</title>
-<style>body{font-family:'Inter',sans-serif;background:#040608;color:#f0f0f0;margin:0;padding:40px;max-width:900px;margin:0 auto;line-height:1.6;}h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,#00ff88,#00cc6a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}</style>
-</head><body>
-<p style="color:rgba(255,255,255,.3);font-size:12px">Generated ${now} · Bode Conversion Lab</p>
-<h1>${title}</h1>
-<p style="color:rgba(255,255,255,.45);margin-bottom:8px">🌐 ${storeUrl}</p>
-<p style="color:rgba(255,255,255,.35);font-size:13px;margin-bottom:32px">Overall Score: ${analysis.overall}/100 · Grade: ${analysis.grade} · Revenue leak: ${analysis.leak}</p>
-${body}
-<div style="margin-top:60px;padding-top:20px;border-top:.5px solid rgba(255,255,255,.06);text-align:center;color:rgba(255,255,255,.15);font-size:11px">Bode Conversion Lab · bodeconversionlab.vercel.app · We don't run ads. We engineer ROAS.</div>
-</body></html>`;
-}
-
-function downloadHTML(content, filename) {
-  const blob = new Blob([content], { type:"text/html" });
-  const a    = document.createElement("a");
-  a.href     = URL.createObjectURL(blob);
-  a.download = filename;
+/* ─── GENERATE & DOWNLOAD PDF ───
+   Three separate PDF documents instead of one HTML file:
+   Problems (diagnosis only, no fixes) · Fixes · Growth & Marketing.
+   See AuditPDFs.jsx for the actual report layout/design. */
+async function downloadPDF(element, filename) {
+  const { pdf }  = await import("@react-pdf/renderer");
+  const blob     = await pdf(element).toBlob();
+  const a        = document.createElement("a");
+  a.href         = URL.createObjectURL(blob);
+  a.download     = filename;
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -544,6 +489,7 @@ export default function Audit() {
   const [accessTier, setAccessTier] = useState(null);
   const [accessErr,  setAccessErr]  = useState("");
   const [showModal,  setShowModal]  = useState(false);
+  const [downloading,setDownloading]= useState(null);
 
   const headingColor = dark?"#fff":"#1A1408";
   const mutedText    = dark?"rgba(255,255,255,.5)":"rgba(26,20,8,.65)";
@@ -598,17 +544,27 @@ export default function Audit() {
     else        setAccessErr("Invalid code. Check your payment confirmation or WhatsApp us.");
   }
 
-  function handleDownload(type) {
+  async function handleDownload(type) {
     if (!accessTier) { setShowModal(true); return; }
-    if (type === "solution" && accessTier === "diagnosis") {
-      alert("Your Store Diagnosis package includes the Analysis Report only. Upgrade to Conversion Fix or higher to unlock the Solution Plan.");
+    if (type !== "problems" && accessTier === "diagnosis") {
+      alert("Your Store Diagnosis package includes the Problem Report only. Upgrade to Conversion Fix or higher to unlock the Fixes and Growth & Marketing reports.");
       return;
     }
     const domain = analysis.domain;
-    if (type === "analysis") {
-      downloadHTML(generateHTML(url, analysis, solution, "analysis"), `BCL-Analysis-${domain}.html`);
-    } else {
-      downloadHTML(generateHTML(url, analysis, solution, "solution"), `BCL-SolutionPlan-${domain}.html`);
+    const date = new Date().toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+
+    setDownloading(type);
+    try {
+      const { ProblemsPDF, FixesPDF, GrowthMarketingPDF } = await import("./AuditPDFs.jsx");
+      if (type === "problems") {
+        await downloadPDF(createElement(ProblemsPDF, { storeUrl:url, analysis, date }), `BCL-Problems-${domain}.pdf`);
+      } else if (type === "fixes") {
+        await downloadPDF(createElement(FixesPDF, { analysis, solution, date }), `BCL-Fixes-${domain}.pdf`);
+      } else {
+        await downloadPDF(createElement(GrowthMarketingPDF, { analysis, solution, date }), `BCL-GrowthMarketing-${domain}.pdf`);
+      }
+    } finally {
+      setDownloading(null);
     }
   }
 
@@ -858,21 +814,23 @@ export default function Audit() {
           <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.8rem", marginBottom:"2rem" }}>
             <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:".4rem" }}>Download Your Reports</h3>
             <p style={{ fontSize:13, color:mutedText2, lineHeight:1.6, marginBottom:"1.2rem" }}>
-              Analysis report shows what's broken. The Solution Plan shows exactly how to fix it, grow traffic, and build your marketing engine.
+              Three PDFs. The Problem Report shows what's broken and what it's costing you. The Fixes and Growth & Marketing reports show exactly how to fix it and build your engine — unlocked with a paid package.
             </p>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.75rem" }}>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))", gap:"0.75rem" }}>
               {[
-                { type:"analysis", label:"📊 Analysis Report",    desc:"Every problem found — with revenue impact and specific fixes", free:true },
-                { type:"solution", label:"🚀 CGO Roadmap",         desc:"Your full Conversion Growth Optimization plan — Fixing + Growth + Marketing, engineered as one 90–120 day system", free:false },
+                { type:"problems",  label:"Problem Report",         desc:"Every problem found, with revenue impact — free with any scan", free:true },
+                { type:"fixes",     label:"Fixes Report",           desc:"The exact fix for each issue, in priority order", free:false },
+                { type:"marketing", label:"Growth & Marketing",     desc:"Your full traffic, retention, and brand-building plan", free:false },
               ].map((d,i) => {
                 const unlocked = d.free || (accessTier && accessTier !== null);
+                const isDownloading = downloading === d.type;
                 return (
-                  <div key={i} style={{ background:unlocked?dark?"rgba(0,255,136,.05)":"rgba(0,255,136,.07)":dark?"rgba(255,255,255,.02)":"rgba(26,20,8,.03)", border:unlocked?".5px solid rgba(0,255,136,.22)":`".5px solid ${cardBorder}"`, borderRadius:12, padding:"1.2rem" }}>
+                  <div key={i} style={{ background:unlocked?dark?"rgba(0,255,136,.05)":"rgba(0,255,136,.07)":dark?"rgba(255,255,255,.02)":"rgba(26,20,8,.03)", border:unlocked?".5px solid rgba(0,255,136,.22)":`.5px solid ${cardBorder}`, borderRadius:12, padding:"1.2rem" }}>
                     <p style={{ fontSize:13, fontWeight:700, color:headingColor, marginBottom:4 }}>{d.label}</p>
                     <p style={{ fontSize:11, color:mutedText3, marginBottom:".9rem", lineHeight:1.5 }}>{d.desc}</p>
-                    <button onClick={() => handleDownload(d.type)}
-                      style={{ width:"100%", background:unlocked?GG:"transparent", color:unlocked?"#040608":mutedText3, border:unlocked?"none":`.5px solid ${cardBorder}`, borderRadius:8, padding:".6rem", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
-                      {unlocked ? "⬇ Download" : "🔒 Enter access code"}
+                    <button onClick={() => handleDownload(d.type)} disabled={isDownloading}
+                      style={{ width:"100%", background:unlocked?GG:"transparent", color:unlocked?"#040608":mutedText3, border:unlocked?"none":`.5px solid ${cardBorder}`, borderRadius:8, padding:".6rem", fontSize:13, fontWeight:700, cursor:isDownloading?"default":"pointer", fontFamily:"inherit", opacity:isDownloading?0.6:1 }}>
+                      {isDownloading ? "Preparing PDF…" : unlocked ? "Download PDF" : "Enter access code"}
                     </button>
                   </div>
                 );
@@ -890,7 +848,7 @@ export default function Audit() {
                   <p style={{ fontSize:12, color:mutedText, lineHeight:1.7 }}>{item.action}</p>
                 </div>
               ))}
-              <p style={{ fontSize:12, color:mutedText3, textAlign:"center", marginTop:"1rem" }}>+ Full Fixing + Growth + Marketing plans in the Solution download</p>
+              <p style={{ fontSize:12, color:mutedText3, textAlign:"center", marginTop:"1rem" }}>+ Full Fixes Report and Growth & Marketing Report as separate downloads</p>
             </div>
             {!accessTier && (
               <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:12, borderRadius:20 }}>
