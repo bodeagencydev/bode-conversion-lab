@@ -24,10 +24,10 @@ function useDark() {
 }
 
 const QUICK_LINKS = [
-  { path:"/audit",        emoji:"🔍", label:"Run a free store audit",   desc:"Find every revenue leak in 2 minutes" },
-  { path:"/case-studies", emoji:"📈", label:"See client results",        desc:"Real stores, real numbers" },
-  { path:"/",             emoji:"🏠", label:"Go to homepage",            desc:"Back to Bode Conversion Lab" },
-  { path:"/contact",      emoji:"💬", label:"Talk to us",                desc:"Response within 24 hours" },
+  { path:"/audit",        label:"Run a free store audit",   desc:"Find every revenue leak in 2 minutes" },
+  { path:"/case-studies", label:"See client results",        desc:"Real stores, real numbers" },
+  { path:"/",             label:"Go to homepage",            desc:"Back to Bode Conversion Lab" },
+  { path:"/contact",      label:"Talk to us",                desc:"Response within 24 hours" },
 ];
 
 export default function NotFound() {
@@ -101,7 +101,6 @@ export default function NotFound() {
               onMouseLeave={e => { e.currentTarget.style.background=linkBg; e.currentTarget.style.borderColor=linkBorder; e.currentTarget.style.transform="none"; }}
             >
               <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                <span style={{ fontSize:18 }}>{l.emoji}</span>
                 <div style={{ textAlign:"left" }}>
                   <p style={{ fontSize:13, fontWeight:600, color:headingColor, margin:0, lineHeight:1.3 }}>{l.label}</p>
                   <p style={{ fontSize:11, color:mutedText2, margin:0 }}>{l.desc}</p>

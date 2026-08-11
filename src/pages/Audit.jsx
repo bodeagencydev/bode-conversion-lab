@@ -16,6 +16,24 @@ const pct       = v => v != null ? clamp(v * 100) : null;
 const ms        = v => v != null ? (v / 1000).toFixed(1) + "s" : "—";
 const sevColor  = s => s==="critical"?"#FF3B3B":s==="high"?"#FF9900":s==="medium"?"#FFD700":"#00ff88";
 
+/* Simple line-style lock icons — replaces emoji glyphs for a cleaner, tool-grade look */
+function LockIcon({ size = 32, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <rect x="4" y="11" width="16" height="10" rx="2" stroke={color} strokeWidth="1.6" />
+      <path d="M7.5 11V7.5a4.5 4.5 0 0 1 9 0V11" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+function UnlockIcon({ size = 16, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <rect x="4" y="11" width="16" height="10" rx="2" stroke={color} strokeWidth="1.6" />
+      <path d="M7.5 11V7.5a4.5 4.5 0 0 1 8.5-2" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /* ─── GET ACCESS CODES FROM ADMIN PANEL ─── */
 function getAccessCodes() {
   try {
@@ -671,7 +689,7 @@ export default function Audit() {
           {/* Critical banner */}
           {analysis.isCritical && (
             <div style={{ background:"linear-gradient(135deg,rgba(255,59,59,.12),rgba(255,59,59,.04))", border:"1px solid rgba(255,59,59,.4)", borderRadius:16, padding:"1rem 1.4rem", marginBottom:"1.5rem", display:"flex", alignItems:"center", gap:12, animation:"criticalPulse 2.5s ease-in-out infinite" }}>
-              <span style={{ fontSize:24, flexShrink:0 }}>🚨</span>
+              <span style={{ width:10, height:10, borderRadius:"50%", background:"#FF3B3B", flexShrink:0, marginTop:6, display:"inline-block" }} />
               <div>
                 <p style={{ fontFamily:"'Syne',sans-serif", fontSize:14, fontWeight:800, color:"#FF3B3B", marginBottom:2 }}>CRITICAL REVENUE LEAK DETECTED</p>
                 <p style={{ fontSize:13, color:"rgba(255,120,120,.8)", margin:0, lineHeight:1.6 }}>Multiple critical failures identified. Every ad you run is sending buyers to a broken experience.</p>
@@ -763,7 +781,7 @@ export default function Audit() {
           {/* Access tier indicator */}
           {accessTier && (
             <div style={{ background:"rgba(0,255,136,.06)", border:".5px solid rgba(0,255,136,.2)", borderRadius:12, padding:".9rem 1.2rem", marginBottom:"1.5rem", display:"flex", alignItems:"center", gap:10 }}>
-              <span>🔓</span>
+              <UnlockIcon size={16} color={G} />
               <span style={{ fontSize:13, color:G, fontWeight:600 }}>
                 {accessTier==="admin" ? "Admin — all downloads unlocked" : `${accessTier} package unlocked`}
               </span>
@@ -852,7 +870,7 @@ export default function Audit() {
             </div>
             {!accessTier && (
               <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:12, borderRadius:20 }}>
-                <span style={{ fontSize:32 }}>🔒</span>
+                <LockIcon size={32} color={headingColor} />
                 <p style={{ fontSize:14, fontWeight:700, color:headingColor, textAlign:"center", margin:0 }}>Unlock your full CGO Roadmap</p>
                 <p style={{ fontSize:12, color:mutedText, textAlign:"center", maxWidth:280, margin:0 }}>Pay for any package to receive your access code.</p>
                 <button onClick={() => setShowModal(true)} className="btn-g" style={{ fontFamily:"inherit", cursor:"pointer" }}>Enter access code →</button>

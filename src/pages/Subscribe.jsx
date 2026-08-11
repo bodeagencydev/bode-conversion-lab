@@ -119,7 +119,7 @@ export default function Subscribe() {
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={G} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </div>
               <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.6rem,5vw,2.2rem)", fontWeight: 800, color: headingColor, marginBottom: "1rem" }}>
-                You're in! Welcome to the lab. 🧪
+                You're in! Welcome to the lab.
               </h2>
               <p style={{ fontSize: 15, color: mutedText, lineHeight: 1.7, marginBottom: "2rem" }}>
                 Check your inbox — your first insight is on its way. While you wait, audit your store for free.

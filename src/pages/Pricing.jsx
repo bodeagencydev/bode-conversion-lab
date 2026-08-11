@@ -293,7 +293,7 @@ export default function Pricing() {
                 {/* Trust + contact option */}
                 <div style={{ textAlign:"center" }}>
                   <div style={{ display:"flex", gap:"1rem", justifyContent:"center", marginBottom:".6rem", flexWrap:"wrap" }}>
-                    {["🔒 SSL encrypted","💳 All major cards","🌍 Global payments"].map((t, i) => (
+                    {["SSL encrypted","All major cards","Global payments"].map((t, i) => (
                       <span key={i} style={{ fontSize:11, color:mutedText3 }}>{t}</span>
                     ))}
                   </div>

@@ -45,6 +45,17 @@ const NAV_LINKS = [
   { path:"/contact",      label:"Contact" },
 ];
 
+function LogoMark({ size, dark }) {
+  const c = dark ? "#00ff88" : "#0A9A57";
+  return (
+    <svg width={size * 0.56} height={size * 0.56} viewBox="0 0 32 32" fill="none">
+      <rect x="4"  y="18" width="6" height="10" rx="1.5" fill={c} opacity="0.55" />
+      <rect x="13" y="11" width="6" height="17" rx="1.5" fill={c} opacity="0.8" />
+      <rect x="22" y="4"  width="6" height="24" rx="1.5" fill={c} />
+    </svg>
+  );
+}
+
 export function Logo({ size = 40, textSize = 14 }) {
   const { dark } = useTheme();
   return (
@@ -57,7 +68,7 @@ export function Logo({ size = 40, textSize = 14 }) {
         flexShrink:0, overflow:"hidden",
         boxShadow: dark ? "0 2px 14px rgba(0,255,136,.2)" : "0 2px 8px rgba(0,0,0,.1)",
       }}>
-        <img src="/logo.png" alt="Bode Conversion Lab" style={{ width:"78%", height:"78%", objectFit:"contain", display:"block" }}/>
+        <LogoMark size={size} dark={dark} />
       </div>
       <div style={{ lineHeight:1.1 }}>
         <p style={{ fontSize:textSize, fontWeight:800, color:"var(--fg)", margin:0, fontFamily:"'Syne',sans-serif", letterSpacing:"-0.02em" }}>Bode</p>
@@ -471,7 +482,7 @@ export function PartnerCard({ partner }) {
 }
 
 export function WhatsAppButton() {
-  const msg = encodeURIComponent("Hi there! I would love to be part of your growth journey 🚀");
+  const msg = encodeURIComponent("Hi! I'd love to work with you.");
   return (
     <a href={`https://wa.me/19454076473?text=${msg}`} target="_blank" rel="noopener noreferrer"
       style={{ position:"fixed", bottom:24, right:24, zIndex:9999, width:56, height:56, borderRadius:"50%", background:"#25D366", boxShadow:"0 4px 20px rgba(37,211,102,.5)", display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", transition:"transform .2s,box-shadow .2s" }}
@@ -510,7 +521,7 @@ export function Footer() {
           <div style={{ flex:1, minWidth:180, maxWidth:300 }}>
             <Link to="/" style={{ textDecoration:"none", display:"inline-block", marginBottom:".7rem" }}><Logo size={36} textSize={13}/></Link>
             <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.6, marginBottom:".8rem" }}>We don't run ads. We engineer ROAS.<br/>One system. Compounding results every month.</p>
-            <a href={`https://wa.me/19454076473?text=${encodeURIComponent("Hi there! I would love to be part of your growth journey 🚀")}`}
+            <a href={`https://wa.me/19454076473?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
               target="_blank" rel="noopener noreferrer"
               style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:13, color:"#25D366", textDecoration:"none", transition:"transform .2s" }}
               onMouseEnter={e => e.currentTarget.style.transform="translateX(3px)"}

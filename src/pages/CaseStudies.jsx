@@ -43,7 +43,7 @@ function ProofPanel({ cs, dark, mutedText, headingColor }) {
               }}
             />
             <div style={{ display: "none", position: "absolute", inset: 0, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "2rem", background: "rgba(0,0,0,0.3)" }}>
-              <span style={{ fontSize: 24 }}>📉</span>
+              <span style={{ width:10, height:10, borderRadius:"50%", background:"#FF3B3B", display:"inline-block" }} />
               <span style={{ fontSize: 12, color: mutedText, textAlign: "center" }}>Before image missing</span>
             </div>
           </div>
@@ -66,13 +66,13 @@ function ProofPanel({ cs, dark, mutedText, headingColor }) {
               }}
             />
             <div style={{ display: "none", position: "absolute", inset: 0, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "2rem", background: "rgba(0,0,0,0.3)" }}>
-              <span style={{ fontSize: 24 }}>📈</span>
+              <span style={{ width:10, height:10, borderRadius:"50%", background:G, display:"inline-block" }} />
               <span style={{ fontSize: 12, color: G, textAlign: "center" }}>After image missing</span>
             </div>
           </div>
         </div>
       </div>
-      <p style={{ fontSize: 12, color: mutedText, marginTop: ".75rem", fontStyle: "italic", textAlign: "center" }}>📊 {caption}</p>
+      <p style={{ fontSize: 12, color: mutedText, marginTop: ".75rem", fontStyle: "italic", textAlign: "center" }}>{caption}</p>
     </div>
   );
 }

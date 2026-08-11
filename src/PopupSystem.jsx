@@ -228,7 +228,7 @@ function PricingPopup({ dark }) {
   return (
     <Popup visible={visible} onClose={close} dark={dark}>
       <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:dark?"rgba(0,255,136,.1)":"rgba(0,163,92,.08)", border:dark?".5px solid rgba(0,255,136,.28)":".5px solid rgba(0,163,92,.25)", borderRadius:100, padding:"4px 12px", marginBottom:"1.2rem" }}>
-        <span style={{ fontSize:14 }}>⚡</span>
+        <span style={{ width:6, height:6, borderRadius:"50%", background:currentG, display:"inline-block" }} />
         <span style={{ fontSize:11, color:currentG, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase" }}>Limited offer — just for you</span>
       </div>
 
@@ -265,7 +265,7 @@ function PricingPopup({ dark }) {
             <p style={{ fontSize:11, color:mutedText, marginBottom:6 }}>Your discount code — click to copy</p>
             <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"2rem", fontWeight:800, color:currentG, letterSpacing:".15em", margin:0 }}>{DISCOUNT_CODE}</p>
             <p style={{ fontSize:12, color:copied?currentG:mutedText, marginTop:6, fontWeight:copied?700:400 }}>
-              {copied ? "✅ Copied to clipboard!" : "Tap to copy"}
+              {copied ? "Copied to clipboard" : "Tap to copy"}
             </p>
           </div>
         </>
