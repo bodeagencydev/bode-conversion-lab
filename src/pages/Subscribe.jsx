@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { G, GG } from "../data.js";
-import { GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
+import { GradText, PageWrapper, useTheme } from "../components.jsx";
 
 export default function Subscribe() {
   const { dark } = useTheme();
@@ -39,7 +39,6 @@ export default function Subscribe() {
   return (
     <PageWrapper>
       <section style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem)", overflow: "hidden" }}>
-        <Particles />
         <div style={{ position: "absolute", width: 600, height: 600, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "radial-gradient(circle,rgba(0,255,136,.12),transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
 
         <div style={{ maxWidth: 560, width: "100%", position: "relative", zIndex: 1 }}>

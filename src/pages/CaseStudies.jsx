@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { G, GG, CASE_STUDIES, BADGES } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme } from "../components.jsx";
 import { ScrollReveal, TiltCard, GlowBorder } from "../AnimationSystem.jsx";
 
 /* ── PROOF PANEL (Dynamically pulls the real images from your dataset) ── */
@@ -274,7 +274,6 @@ export function CaseStudies() {
     <PageWrapper>
       {/* ── HERO ── */}
       <section style={{ position: "relative", padding: "7rem 2rem 5rem", overflow: "hidden" }}>
-        <Particles />
         <div style={{ position: "absolute", width: 600, height: 600, top: -150, left: "50%", transform: "translateX(-50%)", background: "radial-gradient(circle,rgba(0,255,136,.12),transparent 70%)", borderRadius: "50%", pointerEvents: "none" }}/>
         <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.28)", borderRadius: 100, padding: "5px 16px", fontSize: 11, color: G, fontWeight: 600, letterSpacing: ".05em", marginBottom: "1.6rem" }}>

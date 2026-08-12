@@ -45,17 +45,6 @@ const NAV_LINKS = [
   { path:"/contact",      label:"Contact" },
 ];
 
-function LogoMark({ size, dark }) {
-  const c = dark ? "#00ff88" : "#0A9A57";
-  return (
-    <svg width={size * 0.56} height={size * 0.56} viewBox="0 0 32 32" fill="none">
-      <rect x="4"  y="18" width="6" height="10" rx="1.5" fill={c} opacity="0.55" />
-      <rect x="13" y="11" width="6" height="17" rx="1.5" fill={c} opacity="0.8" />
-      <rect x="22" y="4"  width="6" height="24" rx="1.5" fill={c} />
-    </svg>
-  );
-}
-
 export function Logo({ size = 40, textSize = 14 }) {
   const { dark } = useTheme();
   return (
@@ -68,7 +57,7 @@ export function Logo({ size = 40, textSize = 14 }) {
         flexShrink:0, overflow:"hidden",
         boxShadow: dark ? "0 2px 14px rgba(0,255,136,.2)" : "0 2px 8px rgba(0,0,0,.1)",
       }}>
-        <LogoMark size={size} dark={dark} />
+        <img src="/logo-mark.png" alt="Bode Conversion Lab" style={{ width:"64%", height:"64%", objectFit:"contain", display:"block" }}/>
       </div>
       <div style={{ lineHeight:1.1 }}>
         <p style={{ fontSize:textSize, fontWeight:800, color:"var(--fg)", margin:0, fontFamily:"'Syne',sans-serif", letterSpacing:"-0.02em" }}>Bode</p>

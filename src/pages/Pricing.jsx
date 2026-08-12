@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { G, GG, FAQS } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme } from "../components.jsx";
 import { notifyPayment } from "../NotificationSystem.js";
 
 const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_KEY || "pk_test_469a79a7423df47Xb9e51cf45da2bbd640187dcd";
@@ -316,7 +316,6 @@ export default function Pricing() {
 
       {/* ── HERO ── */}
       <section style={{ position:"relative", padding:"6rem 2rem 4rem", overflow:"hidden" }}>
-        <Particles />
         <div style={{ position:"absolute", width:500, height:500, top:-100, left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle,rgba(0,255,136,.12),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
         <div style={{ maxWidth:700, margin:"0 auto", textAlign:"center", position:"relative", zIndex:1 }}>
           <div style={{ marginBottom:"1.5rem" }}>

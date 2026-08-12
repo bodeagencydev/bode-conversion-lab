@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { G, GG, SERVICES } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, Particles, useTheme } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme } from "../components.jsx";
 
 export default function About() {
   const { dark } = useTheme();
@@ -17,7 +17,6 @@ export default function About() {
     <PageWrapper>
       {/* HERO SECTION */}
       <section style={{ position:"relative", minHeight:"60vh", display:"flex", alignItems:"center", justifyContent:"center", padding:"clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 3rem", overflow:"hidden" }}>
-        <Particles />
         <div style={{ position:"absolute", width:600, height:600, top:-150, left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle,rgba(0,255,136,.14),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
         <div style={{ maxWidth:760, textAlign:"center", position:"relative", zIndex:1 }}>
           <div style={{ marginBottom:"1.5rem" }}>
