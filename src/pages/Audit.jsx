@@ -581,6 +581,9 @@ export default function Audit() {
       } else {
         await downloadPDF(createElement(GrowthMarketingPDF, { analysis, solution, date }), `BCL-GrowthMarketing-${domain}.pdf`);
       }
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      alert(`Couldn't generate the PDF: ${err?.message || "unknown error"}\n\nThis usually means the report's font couldn't load — check your internet connection and try again. If it keeps happening, screenshot this message.`);
     } finally {
       setDownloading(null);
     }

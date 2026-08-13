@@ -551,8 +551,12 @@ export function Footer() {
             <ColLink to="/contact">Contact</ColLink>
           </div>
         </div>
-        <div style={{ borderTop:".5px solid var(--divider,rgba(255,255,255,.06))", paddingTop:"1rem", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:".6rem" }}>
-          <p style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>© 2026 Bode Conversion Lab. All rights reserved.</p>
+        <div style={{ borderTop:".5px solid var(--divider,rgba(255,255,255,.06))", paddingTop:"1rem", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:".8rem" }}>
+          <div style={{ display:"flex", flexWrap:"wrap", alignItems:"center", gap:".5rem" }}>
+            <p style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>© 2026 Bode Conversion Lab. All rights reserved.</p>
+            <span style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))" }}>·</span>
+            <p style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>Built to convert. Engineered to scale.</p>
+          </div>
           <div className="footer-legal">
             <Link to="/privacy"
               style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", textDecoration:"none", transition:"color .2s" }}
@@ -560,7 +564,13 @@ export function Footer() {
               onMouseLeave={e => e.currentTarget.style.color="var(--muted3,rgba(255,255,255,.3))"}>
               Privacy Policy
             </Link>
-            <p style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>Built to convert. Engineered to scale.</p>
+            <span style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))" }}>·</span>
+            <Link to="/terms"
+              style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", textDecoration:"none", transition:"color .2s" }}
+              onMouseEnter={e => e.currentTarget.style.color=G}
+              onMouseLeave={e => e.currentTarget.style.color="var(--muted3,rgba(255,255,255,.3))"}>
+              Terms of Service
+            </Link>
           </div>
         </div>
       </div>

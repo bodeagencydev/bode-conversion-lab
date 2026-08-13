@@ -15,12 +15,12 @@ export const EASE = [0.22, 1, 0.36, 1]; // Power4.out — "Precision Easing"
 export function CursorSystem() {
   const dotRef   = useRef(null);
   const ringRef  = useRef(null);
+  const labelRef = useRef(null);
   const pos      = useRef({ x: -200, y: -200 });
   const ringPos  = useRef({ x: -200, y: -200 });
+  const bigRef   = useRef(false);
   const raf      = useRef(null);
   const [ready, setReady]   = useState(false);
-  const [big, setBig]       = useState(false);
-  const [label, setLabel]   = useState("");
   const [trail, setTrail]   = useState([]);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function CursorSystem() {
     const onMove = e => {
       const prev = { ...pos.current };
       pos.current = { x: e.clientX, y: e.clientY };
-      if (!ready) setReady(true);
+      if (!pos.current.__ready) { pos.current.__ready = true; setReady(true); }
 
       // Particle trail on fast movement
       const speed = Math.hypot(e.clientX - prev.x, e.clientY - prev.y);
@@ -40,22 +40,36 @@ export function CursorSystem() {
       }
     };
 
-    const grow  = e => { setBig(true);  setLabel(e.target.closest("[data-cursor]")?.dataset.cursor || ""); };
-    const shrink = () => { setBig(false); setLabel(""); };
+    // Event delegation: ONE listener on the document instead of binding to
+    // every matching element + a MutationObserver rescanning the whole DOM
+    // on every render. That combo was the actual source of the lag — any
+    // page with lots of interactive elements (like Case Studies) triggered
+    // constant full-document rescans and effect teardown/rebuild.
+    const applyState = (big, label) => {
+      bigRef.current = big;
+      if (ringRef.current) {
+        const s = big ? 54 : 30;
+        ringRef.current.style.width  = `${s}px`;
+        ringRef.current.style.height = `${s}px`;
+        ringRef.current.style.borderColor = big ? "#00ff88" : "rgba(0,255,136,.45)";
+        ringRef.current.style.opacity = big ? "0.7" : "0.3";
+        ringRef.current.style.background = big ? "rgba(0,255,136,.07)" : "transparent";
+      }
+      if (labelRef.current) labelRef.current.textContent = label || "";
+    };
 
-    const bindAll = () => {
-      document.querySelectorAll("a,button,[data-cursor]").forEach(el => {
-        el.removeEventListener("mouseenter", grow);
-        el.removeEventListener("mouseleave", shrink);
-        el.addEventListener("mouseenter", grow);
-        el.addEventListener("mouseleave", shrink);
-      });
+    const onOver = e => {
+      const el = e.target.closest("a,button,[data-cursor]");
+      if (el) applyState(true, el.dataset.cursor || "");
+    };
+    const onOut = e => {
+      const el = e.target.closest("a,button,[data-cursor]");
+      if (el && !el.contains(e.relatedTarget)) applyState(false, "");
     };
 
     window.addEventListener("mousemove", onMove, { passive: true });
-    bindAll();
-    const obs = new MutationObserver(bindAll);
-    obs.observe(document.body, { childList: true, subtree: true });
+    document.addEventListener("mouseover", onOver, { passive: true });
+    document.addEventListener("mouseout", onOut, { passive: true });
 
     const animate = () => {
       // Ring springs toward cursor (lag = 0.1)
@@ -66,13 +80,8 @@ export function CursorSystem() {
         dotRef.current.style.transform = `translate(${pos.current.x - 4}px,${pos.current.y - 4}px)`;
       }
       if (ringRef.current) {
-        const s = big ? 54 : 30;
-        ringRef.current.style.width  = `${s}px`;
-        ringRef.current.style.height = `${s}px`;
+        const s = bigRef.current ? 54 : 30;
         ringRef.current.style.transform = `translate(${ringPos.current.x - s/2}px,${ringPos.current.y - s/2}px)`;
-        ringRef.current.style.borderColor = big ? "#00ff88" : "rgba(0,255,136,.45)";
-        ringRef.current.style.opacity = big ? "0.7" : "0.3";
-        ringRef.current.style.background = big ? "rgba(0,255,136,.07)" : "transparent";
       }
       raf.current = requestAnimationFrame(animate);
     };
@@ -80,10 +89,11 @@ export function CursorSystem() {
 
     return () => {
       window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseover", onOver);
+      document.removeEventListener("mouseout", onOut);
       cancelAnimationFrame(raf.current);
-      obs.disconnect();
     };
-  }, [ready, big]);
+  }, []);
 
   if (!ready) return null;
 
@@ -101,7 +111,7 @@ export function CursorSystem() {
       <div ref={dotRef} style={{ position:"fixed", top:0, left:0, width:8, height:8, borderRadius:"50%", background:"#00ff88", pointerEvents:"none", zIndex:99999, willChange:"transform", boxShadow:"0 0 12px rgba(0,255,136,.9),0 0 28px rgba(0,255,136,.4)" }}/>
       {/* Ring — lagging */}
       <div ref={ringRef} style={{ position:"fixed", top:0, left:0, width:30, height:30, borderRadius:"50%", border:"1.5px solid rgba(0,255,136,.45)", pointerEvents:"none", zIndex:99998, willChange:"transform", transition:"width .3s cubic-bezier(.22,1,.36,1),height .3s cubic-bezier(.22,1,.36,1),opacity .3s,border-color .3s,background .3s", display:"flex", alignItems:"center", justifyContent:"center" }}>
-        {label && <span style={{ fontSize:7, fontWeight:700, color:"#00ff88", letterSpacing:".06em", textTransform:"uppercase", opacity:1, whiteSpace:"nowrap" }}>{label}</span>}
+        <span ref={labelRef} style={{ fontSize:7, fontWeight:700, color:"#00ff88", letterSpacing:".06em", textTransform:"uppercase", opacity:1, whiteSpace:"nowrap" }}/>
       </div>
     </>
   );
