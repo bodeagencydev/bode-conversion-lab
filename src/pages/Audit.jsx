@@ -72,7 +72,7 @@ async function fetchPSI(url, strategy) {
 }
 
 /* ─── BUILD ANALYSIS ─── */
-function buildAnalysis(desktop, mobile, storeUrl) {
+function buildAnalysis(desktop, mobile, storeUrl, scan) {
   const lh   = mobile?.lighthouseResult;
   const lhD  = desktop?.lighthouseResult;
   const aud  = lh?.audits  || {};
@@ -144,6 +144,13 @@ function buildAnalysis(desktop, mobile, storeUrl) {
   const hasViewport   = aud["viewport"]?.score         === 1;
   const hasTapTargets = aud["tap-targets"]?.score      === 1;
   const hasLang       = aud["html-has-lang"]?.score    === 1;
+
+  /* Extra signals already returned by PageSpeed Insights but not
+     previously used — none of these need a new fetch. */
+  const hasConsoleErrors = (aud["errors-in-console"]?.details?.items?.length || 0) > 0;
+  const hasVulnLibs      = (aud["no-vulnerable-libraries"]?.details?.items?.length || 0) > 0;
+  const redirectWasteMs  = parseFloat(aud["redirects"]?.numericValue || 0);
+  const thirdPartyMs     = parseFloat(aud["bootup-time"]?.details?.summary?.wastedMs || 0);
 
   const weights = [
     { score:mobileScore,  w:0.22 },
@@ -357,6 +364,65 @@ function buildAnalysis(desktop, mobile, storeUrl) {
       `Direct mobile conversion friction on every page`,
       `Ensure all clickable elements are at least 48×48px with 8px spacing between them. Critical for your Add to Cart button and checkout flow.`);
 
+  /* JS errors, vulnerable libraries, redirects, third-party bloat —
+     already inside the PSI response, just unused until now */
+  if (hasConsoleErrors)
+    add("tech-err","critical","Technical",`JavaScript errors detected on page load`,
+      `Your site is throwing errors in the browser console. This is often invisible to a human just scrolling the page, but errors like this frequently break interactive elements — including cart, checkout, and payment scripts — silently, with no visible warning to the shopper.`,
+      `Potentially breaks checkout, cart, or apps for a share of visitors`,
+      `Open your browser's DevTools console on the live site and reproduce the error. Common culprits: a third-party app script conflicting with your theme, or an outdated Shopify app.`);
+  if (hasVulnLibs)
+    add("tech-vuln","medium","Technical",`Outdated JavaScript library with known vulnerabilities`,
+      `Your site is loading a JavaScript library version with publicly known security vulnerabilities. This is a trust and security issue, not just a performance one.`,
+      `Security risk; can also affect trust signals in some browsers`,
+      `Identify and update the flagged library to its latest version, or remove it if it's from an unused app.`);
+  if (redirectWasteMs > 200)
+    add("tech-redir","medium","Technical",`Redirect chain slowing every page load`,
+      `Your store's URL passes through ${redirectWasteMs > 600 ? "multiple redirects" : "a redirect"} before the page actually loads, adding ${Math.round(redirectWasteMs)}ms of pure waiting before anything appears.`,
+      `Every visitor waits longer than necessary, on every single page`,
+      `Point your domain/DNS directly at the final URL instead of routing through an intermediate redirect.`);
+  if (thirdPartyMs > 600)
+    add("tech-3p","high","Technical",`Third-party scripts blocking the page`,
+      `Apps and trackers installed on your store (reviews, chat, analytics, upsells, etc.) are consuming ${Math.round(thirdPartyMs)}ms of main-thread time before the page becomes responsive. The more apps installed, the slower — and often the more fragile — checkout becomes.`,
+      `Slower interactivity; more moving parts that can silently break`,
+      `Audit every installed app — remove any that aren't actively earning their keep, and load the rest asynchronously where the app allows it.`);
+
+  /* Trust & conversion signals — from a direct server-side scan of the
+     store's HTML, since these are things PageSpeed Insights structurally
+     cannot see (it only scores load performance/SEO/accessibility). */
+  if (scan?.ok) {
+    if (scan.passwordProtected)
+      add("trust-locked","critical","Store Access",`Your store is password-protected — visitors can't get in at all`,
+        `The page is showing a password / "opening soon" screen instead of your actual storefront. Every single visitor — from ads, search, or a direct link — is hitting a locked door instead of your products. This alone can explain a total absence of sales regardless of anything else on this report.`,
+        `100% of traffic blocked from purchasing`,
+        `Go to Shopify Admin → Online Store → Preferences, and disable password protection once your store is ready for real visitors.`);
+
+    const missingPolicies = Object.entries(scan.policies || {}).filter(([,present]) => !present).map(([k]) => k);
+    if (missingPolicies.length)
+      add("trust-policy","high","Trust Signals",`Missing ${missingPolicies.length} of 4 standard store policy pages`,
+        `No visible link to a ${missingPolicies.map(p => ({privacy:"Privacy Policy",terms:"Terms of Service",refund:"Refund Policy",shipping:"Shipping Policy"}[p])).join(", ")} was found on the page. Shoppers actively look for these before entering card details — their absence is one of the most common reasons a stranger abandons checkout on a store they've never bought from before.`,
+        `Directly suppresses first-time-buyer conversion`,
+        `Add all four policy pages (Shopify generates templates for these automatically under Settings → Policies) and link them in your footer.`);
+
+    if (!scan.hasReviews)
+      add("trust-reviews","medium","Trust Signals",`No product reviews or social proof detected`,
+        `No review app (Judge.me, Loox, Yotpo, Stamped, or similar) was detected on the page. Shoppers overwhelmingly check reviews before buying from a store they don't recognize — without any visible social proof, you're asking for trust with nothing to back it up.`,
+        `Lower conversion specifically among first-time visitors`,
+        `Install a reviews app and get at least a handful of reviews live before running paid traffic — even a small number of genuine reviews outperforms having none.`);
+
+    if (!scan.hasLiveChat)
+      add("trust-contact","low","Trust Signals",`No live chat or direct contact method visible`,
+        `No chat widget or WhatsApp/contact link was detected. A shopper with a last-minute question (sizing, shipping time, etc.) who can't get a quick answer often just leaves instead of buying.`,
+        `Loses hesitant buyers at the final decision point`,
+        `Add a WhatsApp button or a chat widget (Tidio, Crisp, Gorgias) so hesitant buyers have somewhere to ask before abandoning.`);
+
+    if (!scan.hasOG)
+      add("trust-og","low","Trust Signals",`Missing social share preview tags`,
+        `No Open Graph tags were found. When your store link is shared or pasted into WhatsApp, Instagram, or Facebook, it shows a blank or broken preview instead of your product image and name — quietly hurting click-through from every share.`,
+        `Reduced click-through from social/word-of-mouth shares`,
+        `Add og:title, og:description, and og:image meta tags to your theme's <head> — most Shopify themes support this natively via a few lines in theme.liquid.`);
+  }
+
   /* Sort */
   const sevOrder = { critical:0, high:1, medium:2, low:3 };
   findings.sort((a, b) => sevOrder[a.severity] - sevOrder[b.severity]);
@@ -374,7 +440,7 @@ function buildAnalysis(desktop, mobile, storeUrl) {
   return {
     overall, grade, leak,
     verdict: verdictMap[grade],
-    isCritical: overall < 50 || mobileScore < 45 || vitScore < 35,
+    isCritical: overall < 50 || mobileScore < 45 || vitScore < 35 || scan?.passwordProtected,
     domain: storeUrl.replace(/https?:\/\//,"").split("/")[0].split("?")[0],
     metrics: {
       mobile:  { score:mobileScore,  label:"Mobile Performance" },
@@ -443,6 +509,10 @@ function buildSolutionPlan(analysis) {
     },
     marketing: {
       title:"Marketing Plan", subtitle:"Build the brand that doesn't compete on price",
+      commitment: {
+        title:"Our Commitment To You",
+        body:"We're not going to hand you a fake number and call it a guarantee — no agency can honestly promise a specific sales outcome, because your results depend on things outside our control too: your product, your market, your pricing, and how closely you follow the plan. What we will commit to is this: if you implement every step in this plan, in order, and don't see measurable movement in your numbers within 90 days, we keep working with you at no additional cost until you do. We stay accountable to the same finish line you are — that's the actual guarantee.",
+      },
       phases: [
         { phase:"Brand Foundation", items:[
           { title:"Define your singular position", action:"One sentence no honest competitor can say. Not 'high quality' — a specific verifiable claim tied to a specific customer outcome. Build every creative around this one sentence.", metric:"Deliverable: Brand positioning statement in 1 sentence" },
@@ -535,13 +605,14 @@ export default function Audit() {
 
     try {
       const storeUrl = url.trim().startsWith("http") ? url.trim() : `https://${url.trim()}`;
-      const [desktop, mobile] = await Promise.all([
+      const [desktop, mobile, scan] = await Promise.all([
         fetchPSI(storeUrl,"desktop").catch(() => null),
         fetchPSI(storeUrl,"mobile").catch(() => null),
+        fetch(`/api/store-scan?url=${encodeURIComponent(storeUrl)}`).then(r => r.json()).catch(() => null),
       ]);
       clearInterval(interval);
       if (!desktop && !mobile) throw new Error("Could not reach store");
-      const result = buildAnalysis(desktop, mobile, storeUrl);
+      const result = buildAnalysis(desktop, mobile, storeUrl, scan);
       const plan   = buildSolutionPlan(result);
       setAnalysis(result); setSolution(plan); setLoading(false);
       setTimeout(() => setRevealed(true), 100);
@@ -890,6 +961,9 @@ export default function Audit() {
             </h3>
             <p style={{ fontSize:14, color:mutedText, maxWidth:460, margin:"0 auto 1.5rem", lineHeight:1.75 }}>
               Apply for our paid service — we fix your top revenue leaks, rebuild your conversion system, and scale what works.
+            </p>
+            <p style={{ fontSize:12.5, color:G, maxWidth:480, margin:"0 auto 1.5rem", lineHeight:1.7, fontWeight:600 }}>
+              Follow the full plan and don't see measurable movement in 90 days? We keep working with you free until you do.
             </p>
             <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
               <a href={"https://wa.me/19454076473?text="+encodeURIComponent(`Hi Bode Conversion Lab 👋 I just ran the free audit for ${url}. My store scored ${analysis?.overall}/100 and I want to fix these issues. Can we talk?`)} target="_blank" rel="noopener noreferrer" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>

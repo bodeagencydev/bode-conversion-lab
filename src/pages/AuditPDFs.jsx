@@ -298,6 +298,13 @@ export function GrowthMarketingPDF({ analysis, solution, date }) {
         <Text style={{ ...s.sectionTitle, marginTop: 24 }}>{marketing.title}</Text>
         <Text style={s.sub}>{marketing.subtitle}</Text>
         <TaskList phases={marketing.phases} />
+
+        {marketing.commitment && (
+          <View style={s.lockCard} wrap={false}>
+            <Text style={{ fontSize: 11.5, fontWeight: 800, color: GREEN, marginBottom: 5 }}>{marketing.commitment.title}</Text>
+            <Text style={{ fontSize: 9, color: MUTED, lineHeight: 1.6 }}>{marketing.commitment.body}</Text>
+          </View>
+        )}
         <Footer domain={domain} />
       </Page>
     </Document>
