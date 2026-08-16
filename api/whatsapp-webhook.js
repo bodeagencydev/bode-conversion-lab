@@ -140,12 +140,15 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     try {
       const body    = req.body;
+      console.log("WEBHOOK RAW BODY:", JSON.stringify(body));
+
       const entry   = body?.entry?.[0];
       const change  = entry?.changes?.[0];
       const value   = change?.value;
       const message = value?.messages?.[0];
 
       if (!message) {
+        console.log("NO MESSAGE FOUND — field was:", change?.field, "| value keys:", value ? Object.keys(value) : "no value");
         return res.status(200).send("OK — no message to process");
       }
 
