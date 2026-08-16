@@ -174,6 +174,48 @@ export default function Home() {
 
       <hr className="divider" />
 
+      {/* ── CGO STRATEGY (compact) ── */}
+      <Section id="cgo">
+        <div style={{ maxWidth:980, margin:"0 auto" }}>
+          <ScrollReveal delay={0}>
+            <div style={{ textAlign:"center", marginBottom:"2rem" }}>
+              <SectionLabel>The Methodology</SectionLabel>
+              <Heading size="2rem">What is <GradText>CGO?</GradText></Heading>
+              <p style={{ fontSize:14.5, color:mutedText, maxWidth:640, margin:"1rem auto 0", lineHeight:1.8 }}>
+                <strong style={{ color:headingColor }}>CGO — Conversion Growth Optimization</strong> is the system behind everything we do. Most agencies run ads first. We fix the store first — because sending traffic to a leaky funnel just burns your budget faster. CGO fixes what's broken, proves what works, then scales only what's earned it.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="how-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"1rem" }}>
+            {[
+              { phase:"01", t:"Foundation Fix",   d:"Fix leaks & trust signals first." },
+              { phase:"02", t:"Traffic Ignition", d:"Controlled ad tests find winners." },
+              { phase:"03", t:"Scale & Compound", d:"Double down on what's proven." },
+              { phase:"04", t:"Systemize",        d:"Document it so it runs itself." },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.08}>
+                <TiltCard className="glass" style={{ padding:"1.4rem 1.2rem", height:"100%" }}>
+                  <p style={{ fontSize:10, fontWeight:700, color:G, letterSpacing:".06em", marginBottom:".4rem" }}>PHASE {item.phase}</p>
+                  <h4 style={{ fontFamily:"'Syne',sans-serif", fontSize:14, fontWeight:700, marginBottom:".35rem", color:headingColor }}>{item.t}</h4>
+                  <p style={{ fontSize:12, color:mutedText, lineHeight:1.6 }}>{item.d}</p>
+                </TiltCard>
+              </ScrollReveal>
+            ))}
+          </div>
+
+          <ScrollReveal delay={0.1}>
+            <div style={{ textAlign:"center", marginTop:"1.6rem" }}>
+              <Magnetic>
+                <Link to="/audit" className="btn-ghost" style={{ textDecoration:"none", display:"inline-block" }}>See the full CGO breakdown →</Link>
+              </Magnetic>
+            </div>
+          </ScrollReveal>
+        </div>
+      </Section>
+
+      <hr className="divider" />
+
       {/* ── TESTIMONIALS ── */}
       <Section id="testimonials">
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
