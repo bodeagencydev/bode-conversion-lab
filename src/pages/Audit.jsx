@@ -878,14 +878,8 @@ export default function Audit() {
               CGO — our 90–120 day growth framework
             </p>
 
-            <p style={{ fontSize:12.5, color:mutedText3, fontStyle:"italic", marginBottom:".8rem" }}>
-              If a colleague ever mentioned "CGO" in a founder group chat — this is what they meant.
-            </p>
             <p style={{ fontSize:14, color:mutedText, lineHeight:1.8, maxWidth:640, marginBottom:"1.6rem" }}>
               Every issue above gets fixed inside a system, not a to-do list. Most agencies start with ads. We start with the store — because sending paid traffic to a leaky funnel is the fastest way to burn budget and get numbers that make everyone look bad. CGO fixes what's broken first, proves what works with controlled testing, then scales only what's earned it.
-            </p>
-            <p style={{ fontSize:12.5, marginBottom:"1.6rem" }}>
-              <a href="/#cgo" style={{ color:G, fontWeight:600, textDecoration:"none" }}>See the full CGO methodology breakdown →</a>
             </p>
 
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:"0.9rem" }}>
