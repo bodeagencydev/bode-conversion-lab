@@ -681,7 +681,7 @@ export default function Audit() {
             <button onClick={verifyAccess} className="btn-g" style={{ width:"100%", fontFamily:"inherit", cursor:"pointer", marginBottom:"1rem" }}>Unlock →</button>
             <p style={{ fontSize:12, color:mutedText3, textAlign:"center" }}>
               No code?{" "}
-              <a href={"https://wa.me/19454076473?text="+encodeURIComponent("Hi, I need my audit access code.")} target="_blank" rel="noopener noreferrer" style={{ color:G, textDecoration:"none", fontWeight:600 }}>WhatsApp us</a>
+              <a href={"https://wa.me/2349064885280?text="+encodeURIComponent("Hi, I need my audit access code.")} target="_blank" rel="noopener noreferrer" style={{ color:G, textDecoration:"none", fontWeight:600 }}>WhatsApp us</a>
             </p>
           </div>
         </div>
@@ -878,8 +878,14 @@ export default function Audit() {
               CGO — our 90–120 day growth framework
             </p>
 
+            <p style={{ fontSize:12.5, color:mutedText3, fontStyle:"italic", marginBottom:".8rem" }}>
+              If a colleague ever mentioned "CGO" in a founder group chat — this is what they meant.
+            </p>
             <p style={{ fontSize:14, color:mutedText, lineHeight:1.8, maxWidth:640, marginBottom:"1.6rem" }}>
               Every issue above gets fixed inside a system, not a to-do list. Most agencies start with ads. We start with the store — because sending paid traffic to a leaky funnel is the fastest way to burn budget and get numbers that make everyone look bad. CGO fixes what's broken first, proves what works with controlled testing, then scales only what's earned it.
+            </p>
+            <p style={{ fontSize:12.5, marginBottom:"1.6rem" }}>
+              <a href="/#cgo" style={{ color:G, fontWeight:600, textDecoration:"none" }}>See the full CGO methodology breakdown →</a>
             </p>
 
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:"0.9rem" }}>
@@ -966,7 +972,7 @@ export default function Audit() {
               Follow the full plan and don't see measurable movement in 90 days? We keep working with you free until you do.
             </p>
             <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
-              <a href={"https://wa.me/19454076473?text="+encodeURIComponent(`Hi Bode Conversion Lab 👋 I just ran the free audit for ${url}. My store scored ${analysis?.overall}/100 and I want to fix these issues. Can we talk?`)} target="_blank" rel="noopener noreferrer" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>
+              <a href={"https://wa.me/2349064885280?text="+encodeURIComponent(`Hi Bode Conversion Lab 👋 I just ran the free audit for ${url}. My store scored ${analysis?.overall}/100 and I want to fix these issues. Can we talk?`)} target="_blank" rel="noopener noreferrer" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>
                 Apply for professional audit →
               </a>
               <button onClick={() => { setAnalysis(null); setSolution(null); setUrl(""); setEmail(""); setRevealed(false); setAccessTier(null); }} className="btn-ghost" style={{ fontFamily:"inherit", cursor:"pointer" }}>

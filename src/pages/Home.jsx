@@ -174,6 +174,63 @@ export default function Home() {
 
       <hr className="divider" />
 
+      {/* ── CGO STRATEGY ── */}
+      <Section id="cgo">
+        <div style={{ maxWidth:1100, margin:"0 auto" }}>
+          <ScrollReveal delay={0}>
+            <div style={{ textAlign:"center", marginBottom:"2.5rem" }}>
+              <SectionLabel>The Methodology</SectionLabel>
+              <Heading size="2.4rem">Maybe a colleague already<br /><GradText>mentioned it.</GradText></Heading>
+              <p style={{ fontSize:15, color:mutedText, maxWidth:640, margin:"1rem auto 0", lineHeight:1.8 }}>
+                It's been going around DTC founder group chats for a while now — store owners quietly comparing notes about a framework that got their ad account profitable when nothing else did. It has a name: <strong style={{ color:headingColor }}>CGO — Conversion Growth Optimization.</strong>
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal delay={0.05}>
+            <div className="glass" style={{ borderRadius:20, padding:"clamp(1.8rem,4vw,2.6rem)", marginBottom:"1.5rem" }}>
+              <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.3rem", fontWeight:800, color:headingColor, marginBottom:".8rem" }}>What CGO actually is</h3>
+              <p style={{ fontSize:14.5, color:mutedText, lineHeight:1.85, marginBottom:"1rem" }}>
+                CGO is a sequencing discipline, not a checklist. Most agencies sell you ads first, because ads are what's easy to sell. But sending paid traffic to a store that leaks conversions is like pouring water into a bucket full of holes — the more you spend, the more you lose, and the numbers just make the leak look bigger. CGO refuses to run a single ad until the bucket is fixed.
+              </p>
+              <p style={{ fontSize:14.5, color:mutedText, lineHeight:1.85 }}>
+                Instead, it treats growth as four compounding stages — fix, test, scale, systemize — each one only unlocking once the last one has proof behind it. No stage is optional and no stage is skipped, because skipping is exactly what makes 90% of ad spend disappear with nothing to show for it.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="how-grid" style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"1.5rem", marginBottom:"1.5rem" }}>
+            {[
+              { phase:"Phase 1 · Days 1–30",  t:"Foundation Fix",     d:"Every technical leak, broken trust signal, and confusing checkout step gets fixed before a single dollar goes to ads. This is the phase most agencies skip entirely — and it's the single biggest reason their campaigns underperform." },
+              { phase:"Phase 2 · Days 31–60", t:"Traffic Ignition",   d:"Now that the store can actually convert, we run controlled tests across Meta, TikTok, retargeting, and email/SMS — small, deliberate bets designed to find your real winners fast, without burning your budget finding out the hard way." },
+              { phase:"Phase 3 · Days 61–90", t:"Scale & Compound",   d:"Winners get more budget. Losers get cut. A second round of conversion optimization runs on real traffic data, not guesses — so every extra dollar spent scales a system that's already proven, not a hunch." },
+              { phase:"Phase 4 · Days 91–120", t:"Systemize",         d:"The playbook gets documented, new channels get tested, and the whole engine is built to keep compounding on its own — so your growth doesn't quietly stop the moment you stop paying an agency." },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.1}>
+                <TiltCard className="glass" style={{ padding:"2rem", height:"100%" }}>
+                  <p style={{ fontSize:11, fontWeight:700, color:G, letterSpacing:".06em", textTransform:"uppercase", marginBottom:".5rem" }}>{item.phase}</p>
+                  <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.1rem", fontWeight:700, marginBottom:".6rem", color:headingColor }}>{item.t}</h3>
+                  <p style={{ fontSize:13.5, color:mutedText, lineHeight:1.75 }}>{item.d}</p>
+                </TiltCard>
+              </ScrollReveal>
+            ))}
+          </div>
+
+          <ScrollReveal delay={0.1}>
+            <div style={{ textAlign:"center" }}>
+              <p style={{ fontSize:13.5, color:G, fontWeight:600, maxWidth:520, margin:"0 auto 1.2rem", lineHeight:1.7 }}>
+                Follow the full CGO plan and don't see measurable movement in 90 days? We keep working with you free until you do.
+              </p>
+              <Magnetic>
+                <Link to="/audit" className="btn-g" style={{ textDecoration:"none", display:"inline-block" }}>Get your free CGO audit →</Link>
+              </Magnetic>
+            </div>
+          </ScrollReveal>
+        </div>
+      </Section>
+
+      <hr className="divider" />
+
       {/* ── TESTIMONIALS ── */}
       <Section id="testimonials">
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
