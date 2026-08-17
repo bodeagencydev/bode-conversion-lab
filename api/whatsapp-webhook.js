@@ -44,7 +44,7 @@ async function notifyTelegram(message) {
 /* ─── Low-level senders ─── */
 async function sendWhatsAppRequest(payload) {
   try {
-    await fetch(`https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`, {
+    const res = await fetch(`https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${WHATSAPP_TOKEN}`,
@@ -52,7 +52,15 @@ async function sendWhatsAppRequest(payload) {
       },
       body: JSON.stringify(payload),
     });
+    const resBody = await res.text();
+    if (!res.ok) {
+      console.error("WHATSAPP SEND FAILED:", res.status, resBody);
+      await notifyTelegram(`⚠️ <b>WhatsApp send failed</b>\nStatus: ${res.status}\n${resBody}`);
+    } else {
+      console.log("WHATSAPP SEND OK:", resBody);
+    }
   } catch (err) {
+    console.error("WHATSAPP SEND NETWORK ERROR:", err.message);
     await notifyTelegram(`⚠️ <b>WhatsApp send failed</b>\n${err.message}`);
   }
 }
@@ -165,13 +173,17 @@ export default async function handler(req, res) {
       // Someone sent a plain text message — show the menu
       if (message.type === "text") {
         const text = message.text?.body || "";
+        console.log("TEXT MESSAGE — about to notify + send menu");
         await notifyTelegram(`💬 <b>New WhatsApp message</b>\n👤 ${contactName} (${from})\n📝 ${text}`);
+        console.log("TELEGRAM NOTIFY DONE — about to call sendButtonMenu");
         await sendButtonMenu(from);
+        console.log("sendButtonMenu FINISHED");
         return res.status(200).send("OK");
       }
 
       return res.status(200).send("OK — unhandled message type");
     } catch (err) {
+      console.error("WEBHOOK HANDLER ERROR:", err.message, err.stack);
       await notifyTelegram(`⚠️ <b>WhatsApp webhook error</b>\n${err.message}`);
       return res.status(200).send("OK"); // always 200 so Meta doesn't retry-storm you
     }
