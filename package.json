@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "redis": "^4.7.0",
     "@formspree/react": "^2.5.1",
     "@react-pdf/renderer": "^4.1.6",
     "react": "^18.3.1",

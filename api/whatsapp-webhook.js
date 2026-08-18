@@ -1,47 +1,87 @@
 /* ────────────────────────────────────────────────────────────────
    WhatsApp Cloud API Webhook — Bode Conversion Lab
-   Button-menu version (free, no AI cost)
+   Lean-intake version (free, no AI cost — uses Redis to remember
+   where each person is in the flow across separate webhook calls)
 
    Place this file at:  /api/whatsapp-webhook.js  (project root)
 
    ENVIRONMENT VARIABLES NEEDED (Vercel → Settings → Environment Variables):
    - WHATSAPP_TOKEN            → your access token from Meta
-   - WHATSAPP_PHONE_NUMBER_ID  → 121571454962102 (real +234 906 488 5280 number's ID)
+   - WHATSAPP_PHONE_NUMBER_ID  → 1215714554962102 (real +234 906 488 5280 number's ID)
    - WHATSAPP_VERIFY_TOKEN     → any secret string you make up, e.g. "bcl_verify_2026"
-   - TELEGRAM_TOKEN            → same bot token as NotificationSystem.js
+   - TELEGRAM_TOKEN            → your Telegram bot token
    - TELEGRAM_CHAT_ID          → 7016026848
+   - REDIS_URL                 → auto-added when you connect your Redis store
 
-   HOW IT WORKS:
-   - Someone sends any plain text message  → they get a button menu (Pricing / Free Audit / Talk to Fiyin)
-   - They tap a button                     → they get a specific follow-up reply for that topic
-   - Every interaction pings your Telegram, so nothing goes unseen
-   - "Talk to Fiyin" pings Telegram as an URGENT lead, separate from the others
+   HOW IT WORKS (the flow):
+   1. Someone messages for the first time  → greeted, asked their name
+   2. They reply with their name           → shown a short list of things people usually need help with
+   3. They pick one from the list          → asked for their store link
+   4. They send their store link           → wrapped up, and YOU get a full summary on Telegram —
+                                              from that point on it's a normal conversation, you take it from here
+   5. Any message after that                → forwarded straight to your Telegram, no more questions
 
-   TO ADD MORE OPTIONS LATER: just add another "case" in the handleButtonReply
-   function below, and another button object in the sendButtonMenu function.
+   Each person's progress is stored in Redis under key `wa_session:<phone>`,
+   so the bot "remembers" them across separate webhook calls (which are
+   otherwise stateless). Sessions auto-expire after 14 days of inactivity.
 ──────────────────────────────────────────────────────────────────── */
+
+import { createClient } from "redis";
 
 const WHATSAPP_TOKEN   = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID  = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const VERIFY_TOKEN     = process.env.WHATSAPP_VERIFY_TOKEN;
 const TELEGRAM_TOKEN   = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "7016026848";
+const REDIS_URL        = process.env.REDIS_URL;
 
-/* ─── Telegram notification (same pattern as NotificationSystem.js) ─── */
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 14; // sessions auto-expire after 14 days
+
+const HELP_OPTIONS = [
+  { id: "audit",   title: "Free Store Audit",  description: "See what's costing you sales" },
+  { id: "pricing", title: "Pricing & Packages", description: "See what a project would cost" },
+  { id: "cgo",     title: "Full CGO Setup",     description: "Fix, test, and scale — the whole system" },
+  { id: "ads",     title: "Ad Management Only", description: "Just need help running ads" },
+  { id: "other",   title: "Something Else",     description: "Talk to Fiyin directly" },
+];
+const HELP_LABELS = Object.fromEntries(HELP_OPTIONS.map(o => [o.id, o.title]));
+
+/* ─── Redis client (reused across invocations when the function stays warm) ─── */
+let redisClient;
+async function getRedis() {
+  if (redisClient && redisClient.isOpen) return redisClient;
+  redisClient = createClient({ url: REDIS_URL });
+  redisClient.on("error", (err) => console.error("REDIS CLIENT ERROR:", err.message));
+  await redisClient.connect();
+  return redisClient;
+}
+
+async function getSession(phone) {
+  const r = await getRedis();
+  const raw = await r.get(`wa_session:${phone}`);
+  return raw ? JSON.parse(raw) : null;
+}
+async function saveSession(phone, session) {
+  const r = await getRedis();
+  await r.set(`wa_session:${phone}`, JSON.stringify(session), { EX: SESSION_TTL_SECONDS });
+}
+
+/* ─── Telegram notification ─── */
 async function notifyTelegram(message) {
   if (!TELEGRAM_TOKEN) return;
   try {
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" }),
     });
-  } catch {
-    // never let a notification failure break message handling
+    if (!res.ok) console.error("TELEGRAM NOTIFY FAILED:", res.status, await res.text());
+  } catch (err) {
+    console.error("TELEGRAM NOTIFY ERROR:", err.message);
   }
 }
 
-/* ─── Low-level senders ─── */
+/* ─── Low-level WhatsApp senders ─── */
 async function sendWhatsAppRequest(payload) {
   try {
     const res = await fetch(`https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`, {
@@ -74,60 +114,96 @@ function sendText(to, body) {
   });
 }
 
-function sendButtonMenu(to) {
+function sendHelpList(to, bodyText) {
   return sendWhatsAppRequest({
     messaging_product: "whatsapp",
     to,
     type: "interactive",
     interactive: {
-      type: "button",
-      body: { text: "Hey! 👋 Thanks for reaching out to Bode Conversion Lab. What can I help with?" },
+      type: "list",
+      body: { text: bodyText },
       action: {
-        buttons: [
-          { type: "reply", reply: { id: "pricing", title: "Pricing" } },
-          { type: "reply", reply: { id: "audit",   title: "Free Audit" } },
-          { type: "reply", reply: { id: "human",   title: "Talk to Fiyin" } },
-        ],
+        button: "See options",
+        sections: [{ title: "How can we help?", rows: HELP_OPTIONS }],
       },
     },
   });
 }
 
-/* ─── What happens when someone taps a button ─── */
-async function handleButtonReply(buttonId, from, contactName) {
-  switch (buttonId) {
-    case "pricing":
-      await sendText(
-        from,
-        `Here's our full pricing breakdown 👇\nhttps://bodeconversionlab.vercel.app/pricing\n\n` +
-        `Got a specific package in mind, or want a recommendation? Just tell me a bit about your store.`
-      );
-      await notifyTelegram(`💰 <b>Pricing interest</b>\n👤 ${contactName} (${from})`);
-      break;
+/* ─── The conversation flow (3 questions, then straight to Fiyin) ─── */
+async function handleIncomingMessage({ from, contactName, message }) {
+  let session = await getSession(from);
 
-    case "audit":
-      await sendText(
-        from,
-        `Here's our free 12-point store audit — takes about 30-60 seconds 👇\n` +
-        `https://bodeconversionlab.vercel.app/audit\n\n` +
-        `It'll show you exactly what's costing you sales, no strings attached.`
-      );
-      await notifyTelegram(`🔍 <b>Audit interest</b>\n👤 ${contactName} (${from})`);
-      break;
+  const typedText  = message.type === "text" ? (message.text?.body || "").trim() : null;
+  const listReplyId = message.type === "interactive" && message.interactive?.type === "list_reply"
+    ? message.interactive.list_reply.id : null;
 
-    case "human":
-      await sendText(
-        from,
-        `Got it — I'll personally reply as soon as I can! Usually within a few hours. 🙌`
-      );
-      await notifyTelegram(
-        `🚨 <b>URGENT — wants to talk to a human</b>\n👤 ${contactName} (${from})\n\nReply directly on WhatsApp now.`
-      );
-      break;
-
-    default:
-      await sendButtonMenu(from);
+  /* ── New conversation ── */
+  if (!session) {
+    session = { step: "awaiting_name", createdAt: Date.now() };
+    await saveSession(from, session);
+    await sendText(
+      from,
+      `Hi there 👋 Thanks for reaching out to Bode Conversion Lab.\n\nBefore we get started, may I know your name?`
+    );
+    return;
   }
+
+  /* ── Step: waiting for their name ── */
+  if (session.step === "awaiting_name") {
+    const name = typedText || "there";
+    session.name = name;
+    session.step = "awaiting_choice";
+    await saveSession(from, session);
+    await sendHelpList(from, `Thanks, ${name}! To point you in the right direction — what are you looking for help with today?`);
+    return;
+  }
+
+  /* ── Step: waiting for them to pick a help option ── */
+  if (session.step === "awaiting_choice") {
+    if (!listReplyId || !HELP_LABELS[listReplyId]) {
+      await sendHelpList(from, `Just tap one of the options below 👇`);
+      return;
+    }
+    session.choiceId    = listReplyId;
+    session.choiceLabel = HELP_LABELS[listReplyId];
+    session.step        = "awaiting_store_link";
+    await saveSession(from, session);
+    await sendText(from, `Got it. Could you share your store link? We'll use it to take a proper look. 🔗`);
+    return;
+  }
+
+  /* ── Step: waiting for their store link ── */
+  if (session.step === "awaiting_store_link") {
+    session.storeLink = typedText || "(not provided)";
+    session.step = "done";
+    await saveSession(from, session);
+    await wrapUp(from, session);
+    return;
+  }
+
+  /* ── Done — forward anything further straight to Telegram, Fiyin takes it from here ── */
+  if (session.step === "done") {
+    await notifyTelegram(
+      `💬 <b>Follow-up message from ${session.name || contactName}</b>\n` +
+      `📱 ${from}\n📝 ${typedText || "(non-text message)"}`
+    );
+    return;
+  }
+}
+
+async function wrapUp(from, session) {
+  await sendText(
+    from,
+    `Thank you, ${session.name} — I've got everything I need. I'll personally review this and follow up with you shortly. 🙌`
+  );
+  await notifyTelegram(
+    `🚨 <b>New WhatsApp lead</b>\n` +
+    `👤 Name: ${session.name}\n` +
+    `📱 Phone: ${from}\n` +
+    `🙋 Needs help with: ${session.choiceLabel}\n` +
+    `🔗 Store: ${session.storeLink}`
+  );
 }
 
 /* ─── Main handler ─── */
@@ -144,44 +220,24 @@ export default async function handler(req, res) {
     return res.status(403).send("Verification failed");
   }
 
-  // ── POST: an incoming message or button-tap event ──
+  // ── POST: an incoming message or list-tap event ──
   if (req.method === "POST") {
     try {
       const body    = req.body;
-      console.log("WEBHOOK RAW BODY:", JSON.stringify(body));
-
       const entry   = body?.entry?.[0];
       const change  = entry?.changes?.[0];
       const value   = change?.value;
       const message = value?.messages?.[0];
 
       if (!message) {
-        console.log("NO MESSAGE FOUND — field was:", change?.field, "| value keys:", value ? Object.keys(value) : "no value");
         return res.status(200).send("OK — no message to process");
       }
 
       const from        = message.from;
       const contactName = value?.contacts?.[0]?.profile?.name || "Unknown";
 
-      // Someone tapped a button
-      if (message.type === "interactive" && message.interactive?.type === "button_reply") {
-        const buttonId = message.interactive.button_reply.id;
-        await handleButtonReply(buttonId, from, contactName);
-        return res.status(200).send("OK");
-      }
-
-      // Someone sent a plain text message — show the menu
-      if (message.type === "text") {
-        const text = message.text?.body || "";
-        console.log("TEXT MESSAGE — about to notify + send menu");
-        await notifyTelegram(`💬 <b>New WhatsApp message</b>\n👤 ${contactName} (${from})\n📝 ${text}`);
-        console.log("TELEGRAM NOTIFY DONE — about to call sendButtonMenu");
-        await sendButtonMenu(from);
-        console.log("sendButtonMenu FINISHED");
-        return res.status(200).send("OK");
-      }
-
-      return res.status(200).send("OK — unhandled message type");
+      await handleIncomingMessage({ from, contactName, message });
+      return res.status(200).send("OK");
     } catch (err) {
       console.error("WEBHOOK HANDLER ERROR:", err.message, err.stack);
       await notifyTelegram(`⚠️ <b>WhatsApp webhook error</b>\n${err.message}`);
