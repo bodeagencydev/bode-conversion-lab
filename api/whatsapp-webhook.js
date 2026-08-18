@@ -1,29 +1,33 @@
 /* ────────────────────────────────────────────────────────────────
    WhatsApp Cloud API Webhook — Bode Conversion Lab
-   Lean-intake version (free, no AI cost — uses Redis to remember
+   Two-flow version (free, no AI cost — uses Redis to remember
    where each person is in the flow across separate webhook calls)
 
    Place this file at:  /api/whatsapp-webhook.js  (project root)
 
-   ENVIRONMENT VARIABLES NEEDED (Vercel → Settings → Environment Variables):
+   ENVIRONMENT VARIABLES NEEDED:
    - WHATSAPP_TOKEN            → your access token from Meta
-   - WHATSAPP_PHONE_NUMBER_ID  → 1215714554962102 (real +234 906 488 5280 number's ID)
-   - WHATSAPP_VERIFY_TOKEN     → any secret string you make up, e.g. "bcl_verify_2026"
+   - WHATSAPP_PHONE_NUMBER_ID  → 1215714554962102
+   - WHATSAPP_VERIFY_TOKEN     → any secret string you make up
    - TELEGRAM_TOKEN            → your Telegram bot token
    - TELEGRAM_CHAT_ID          → 7016026848
-   - REDIS_URL                 → auto-added when you connect your Redis store
+   - REDIS_URL                 → auto-added by your Redis store
 
-   HOW IT WORKS (the flow):
-   1. Someone messages for the first time  → greeted, asked their name
-   2. They reply with their name           → shown a short list of things people usually need help with
-   3. They pick one from the list          → asked for their store link
-   4. They send their store link           → wrapped up, and YOU get a full summary on Telegram —
-                                              from that point on it's a normal conversation, you take it from here
-   5. Any message after that                → forwarded straight to your Telegram, no more questions
+   TWO FLOWS:
+   - "short" flow (Pricing page links only — payment confirmation /
+     pre-purchase question): name → what they need → store link → done.
+     These people already picked a package, no need to interrogate them.
+   - "deep" flow (every other WhatsApp link on the site — footer,
+     floating button, Contact page, Audit page): name → what they need
+     → store link → store age → target market → sales goal →
+     current marketing → budget → done. Full discovery before handoff.
 
-   Each person's progress is stored in Redis under key `wa_session:<phone>`,
-   so the bot "remembers" them across separate webhook calls (which are
-   otherwise stateless). Sessions auto-expire after 14 days of inactivity.
+   Which flow starts is decided by the FIRST message text, matched
+   against the exact pre-filled texts used on the Pricing page links.
+   Everything else defaults to the deep flow.
+
+   Every wrap-up message reassures the person they'll get a real,
+   personalized response from Fiyin — not a bot — as requested.
 ──────────────────────────────────────────────────────────────────── */
 
 import { createClient } from "redis";
@@ -37,14 +41,46 @@ const REDIS_URL        = process.env.REDIS_URL;
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 14; // sessions auto-expire after 14 days
 
-const HELP_OPTIONS = [
+/* ─── Matches the Pricing page's two pre-filled WhatsApp texts exactly ─── */
+const SHORT_FLOW_TRIGGER = /I just completed payment for|I have a question about the .+ package before paying/i;
+
+/* ─── Help-list options for each flow ─── */
+const SHORT_HELP_OPTIONS = [
   { id: "audit",   title: "Free Store Audit",  description: "See what's costing you sales" },
   { id: "pricing", title: "Pricing & Packages", description: "See what a project would cost" },
   { id: "cgo",     title: "Full CGO Setup",     description: "Fix, test, and scale — the whole system" },
   { id: "ads",     title: "Ad Management Only", description: "Just need help running ads" },
   { id: "other",   title: "Something Else",     description: "Talk to Fiyin directly" },
 ];
-const HELP_LABELS = Object.fromEntries(HELP_OPTIONS.map(o => [o.id, o.title]));
+
+const DEEP_HELP_OPTIONS = [
+  { id: "audit",   title: "Free Store Audit",          description: "See exactly what's costing you sales" },
+  { id: "fixes",   title: "Store & Checkout Fixes",     description: "Conversion leaks, slow pages, payment gateway issues" },
+  { id: "ads",     title: "Ad Management & Scaling",    description: "Running, fixing, or scaling paid ads" },
+  { id: "cgo",     title: "Full CGO Setup",             description: "The complete fix + ads + scale system" },
+  { id: "unsure",  title: "Not Sure Yet",               description: "Just exploring, want an expert take" },
+  { id: "fiyin",   title: "Talk to Fiyin Directly",     description: "Skip the questions, connect me now" },
+];
+
+function optionsFor(flow) {
+  return flow === "short" ? SHORT_HELP_OPTIONS : DEEP_HELP_OPTIONS;
+}
+function labelsFor(flow) {
+  return Object.fromEntries(optionsFor(flow).map(o => [o.id, o.title]));
+}
+
+/* ─── Pull a plain name out of things like "My name is Micheal" or "Hi, I'm Micheal" ─── */
+function extractName(text) {
+  if (!text) return "there";
+  let t = text.trim();
+  t = t.replace(/^(?:hi|hello|hey)[,!\s]*/i, "");
+  t = t.replace(/^(?:my name is|i am|i'm|im|this is|it's|its)\s+/i, "");
+  t = t.trim();
+  const words = t.split(/\s+/).filter(Boolean).slice(0, 3);
+  let name = words.join(" ").replace(/[.,!?]+$/, "");
+  if (!name) return "there";
+  return name.replace(/\b\w/g, c => c.toUpperCase());
+}
 
 /* ─── Redis client (reused across invocations when the function stays warm) ─── */
 let redisClient;
@@ -55,7 +91,6 @@ async function getRedis() {
   await redisClient.connect();
   return redisClient;
 }
-
 async function getSession(phone) {
   const r = await getRedis();
   const raw = await r.get(`wa_session:${phone}`);
@@ -106,41 +141,45 @@ async function sendWhatsAppRequest(payload) {
 }
 
 function sendText(to, body) {
-  return sendWhatsAppRequest({
-    messaging_product: "whatsapp",
-    to,
-    type: "text",
-    text: { body },
-  });
+  return sendWhatsAppRequest({ messaging_product: "whatsapp", to, type: "text", text: { body } });
 }
 
-function sendHelpList(to, bodyText) {
+function sendButtons(to, bodyText, buttons) {
   return sendWhatsAppRequest({
-    messaging_product: "whatsapp",
-    to,
-    type: "interactive",
+    messaging_product: "whatsapp", to, type: "interactive",
     interactive: {
-      type: "list",
+      type: "button",
       body: { text: bodyText },
-      action: {
-        button: "See options",
-        sections: [{ title: "How can we help?", rows: HELP_OPTIONS }],
-      },
+      action: { buttons: buttons.map(b => ({ type: "reply", reply: { id: b.id, title: b.title } })) },
     },
   });
 }
 
-/* ─── The conversation flow (3 questions, then straight to Fiyin) ─── */
+function sendHelpList(to, bodyText, options) {
+  return sendWhatsAppRequest({
+    messaging_product: "whatsapp", to, type: "interactive",
+    interactive: {
+      type: "list",
+      body: { text: bodyText },
+      action: { button: "See options", sections: [{ title: "How can we help?", rows: options }] },
+    },
+  });
+}
+
+/* ─── The conversation flow ─── */
 async function handleIncomingMessage({ from, contactName, message }) {
   let session = await getSession(from);
 
   const typedText  = message.type === "text" ? (message.text?.body || "").trim() : null;
   const listReplyId = message.type === "interactive" && message.interactive?.type === "list_reply"
     ? message.interactive.list_reply.id : null;
+  const buttonReplyId = message.type === "interactive" && message.interactive?.type === "button_reply"
+    ? message.interactive.button_reply.id : null;
 
-  /* ── New conversation ── */
+  /* ── New conversation — decide which flow based on the pre-filled text ── */
   if (!session) {
-    session = { step: "awaiting_name", createdAt: Date.now() };
+    const flow = typedText && SHORT_FLOW_TRIGGER.test(typedText) ? "short" : "deep";
+    session = { flow, step: "awaiting_name", createdAt: Date.now() };
     await saveSession(from, session);
     await sendText(
       from,
@@ -151,23 +190,37 @@ async function handleIncomingMessage({ from, contactName, message }) {
 
   /* ── Step: waiting for their name ── */
   if (session.step === "awaiting_name") {
-    const name = typedText || "there";
-    session.name = name;
+    session.name = extractName(typedText);
     session.step = "awaiting_choice";
     await saveSession(from, session);
-    await sendHelpList(from, `Thanks, ${name}! To point you in the right direction — what are you looking for help with today?`);
+    await sendHelpList(
+      from,
+      `Thanks, ${session.name}! To point you in the right direction — what are you looking for help with today?`,
+      optionsFor(session.flow)
+    );
     return;
   }
 
   /* ── Step: waiting for them to pick a help option ── */
   if (session.step === "awaiting_choice") {
-    if (!listReplyId || !HELP_LABELS[listReplyId]) {
-      await sendHelpList(from, `Just tap one of the options below 👇`);
+    const labels = labelsFor(session.flow);
+    if (!listReplyId || !labels[listReplyId]) {
+      await sendHelpList(from, `Just tap one of the options below 👇`, optionsFor(session.flow));
       return;
     }
     session.choiceId    = listReplyId;
-    session.choiceLabel = HELP_LABELS[listReplyId];
-    session.step        = "awaiting_store_link";
+    session.choiceLabel = labels[listReplyId];
+
+    // Deep flow only: "Talk to Fiyin Directly" skips everything else
+    if (session.flow === "deep" && listReplyId === "fiyin") {
+      session.step = "done";
+      await saveSession(from, session);
+      await sendText(from, `Got it, ${session.name} — I'll connect you with Fiyin directly, they'll be with you shortly. You'll get a real, personalized response, not a bot. 🙌`);
+      await notifyTelegram(`🚨 <b>New WhatsApp lead — wants Fiyin directly</b>\n👤 ${session.name}\n📱 ${from}`);
+      return;
+    }
+
+    session.step = "awaiting_store_link";
     await saveSession(from, session);
     await sendText(from, `Got it. Could you share your store link? We'll use it to take a proper look. 🔗`);
     return;
@@ -176,18 +229,92 @@ async function handleIncomingMessage({ from, contactName, message }) {
   /* ── Step: waiting for their store link ── */
   if (session.step === "awaiting_store_link") {
     session.storeLink = typedText || "(not provided)";
+
+    if (session.flow === "short") {
+      session.step = "done";
+      await saveSession(from, session);
+      await wrapUp(from, session);
+      return;
+    }
+
+    session.step = "awaiting_store_age";
+    await saveSession(from, session);
+    await sendText(from, `How long has your store/domain been up and running?`);
+    return;
+  }
+
+  /* ── Deep flow only, from here on ── */
+  if (session.step === "awaiting_store_age") {
+    session.storeAge = typedText || "(not provided)";
+    session.step = "awaiting_target_market";
+    await saveSession(from, session);
+    await sendText(from, `Which country or region is your target market?`);
+    return;
+  }
+
+  if (session.step === "awaiting_target_market") {
+    session.targetMarket = typedText || "(not provided)";
+    session.step = "awaiting_sales_goal";
+    await saveSession(from, session);
+    await sendText(from, `What's your monthly sales goal you're aiming for?`);
+    return;
+  }
+
+  if (session.step === "awaiting_sales_goal") {
+    session.salesGoal = typedText || "(not provided)";
+    session.step = "awaiting_marketing";
+    await saveSession(from, session);
+    await sendText(from, `How are you currently driving traffic — paid ads, organic/social, influencers, or nothing yet?`);
+    return;
+  }
+
+  if (session.step === "awaiting_marketing") {
+    session.marketing = typedText || "(not provided)";
+    session.step = "awaiting_budget";
+    await saveSession(from, session);
+    await sendText(from, `Last one — what's a realistic monthly budget you can commit to reach that goal?`);
+    return;
+  }
+
+  if (session.step === "awaiting_budget") {
+    session.budget = typedText || "(not provided)";
     session.step = "done";
     await saveSession(from, session);
     await wrapUp(from, session);
     return;
   }
 
-  /* ── Done — forward anything further straight to Telegram, Fiyin takes it from here ── */
+  /* ── Done — reply with a follow-up prompt instead of going silent ── */
   if (session.step === "done") {
+    if (buttonReplyId === "talk_fiyin") {
+      session.handedOff = true;
+      await saveSession(from, session);
+      await sendText(from, `Perfect — I've let Fiyin know! They'll jump into this chat directly, shortly. 🙌`);
+      await notifyTelegram(`🚨 <b>${session.name} wants to talk directly</b>\n📱 ${from}\n\nReply on WhatsApp now.`);
+      return;
+    }
+    if (buttonReplyId === "new_request") {
+      session.step = "awaiting_choice";
+      await saveSession(from, session);
+      await sendHelpList(from, `Sure thing, ${session.name} — what else can I help with?`, optionsFor(session.flow));
+      return;
+    }
+
     await notifyTelegram(
       `💬 <b>Follow-up message from ${session.name || contactName}</b>\n` +
       `📱 ${from}\n📝 ${typedText || "(non-text message)"}`
     );
+
+    if (!session.handedOff) {
+      await sendButtons(
+        from,
+        `Hi ${session.name}! 👋 What else can I do for you? Or would you like to speak with Fiyin directly?`,
+        [
+          { id: "talk_fiyin",  title: "Talk to Fiyin" },
+          { id: "new_request", title: "New Request" },
+        ]
+      );
+    }
     return;
   }
 }
@@ -195,32 +322,40 @@ async function handleIncomingMessage({ from, contactName, message }) {
 async function wrapUp(from, session) {
   await sendText(
     from,
-    `Thank you, ${session.name} — I've got everything I need. I'll personally review this and follow up with you shortly. 🙌`
+    `Thank you, ${session.name} — I've got everything I need. You'll get a personalized response directly from Fiyin, not a bot, shortly. 🙌`
   );
-  await notifyTelegram(
-    `🚨 <b>New WhatsApp lead</b>\n` +
+
+  let summary =
+    `🚨 <b>New WhatsApp lead (${session.flow} flow)</b>\n` +
     `👤 Name: ${session.name}\n` +
     `📱 Phone: ${from}\n` +
     `🙋 Needs help with: ${session.choiceLabel}\n` +
-    `🔗 Store: ${session.storeLink}`
-  );
+    `🔗 Store: ${session.storeLink}`;
+
+  if (session.flow === "deep") {
+    summary +=
+      `\n📅 Store age: ${session.storeAge}` +
+      `\n🌍 Target market: ${session.targetMarket}` +
+      `\n🎯 Sales goal: ${session.salesGoal}` +
+      `\n📣 Current marketing: ${session.marketing}` +
+      `\n💰 Budget: ${session.budget}`;
+  }
+
+  await notifyTelegram(summary);
 }
 
 /* ─── Main handler ─── */
 export default async function handler(req, res) {
-  // ── GET: Meta's webhook verification handshake ──
   if (req.method === "GET") {
     const mode      = req.query["hub.mode"];
     const token     = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
-
     if (mode === "subscribe" && token === VERIFY_TOKEN) {
       return res.status(200).send(challenge);
     }
     return res.status(403).send("Verification failed");
   }
 
-  // ── POST: an incoming message or list-tap event ──
   if (req.method === "POST") {
     try {
       const body    = req.body;
@@ -241,7 +376,7 @@ export default async function handler(req, res) {
     } catch (err) {
       console.error("WEBHOOK HANDLER ERROR:", err.message, err.stack);
       await notifyTelegram(`⚠️ <b>WhatsApp webhook error</b>\n${err.message}`);
-      return res.status(200).send("OK"); // always 200 so Meta doesn't retry-storm you
+      return res.status(200).send("OK");
     }
   }
 
