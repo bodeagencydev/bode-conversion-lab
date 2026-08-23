@@ -38,7 +38,7 @@ export function useTheme() { return useContext(ThemeContext); }
 /* ── Per-page SEO: sets title, meta description, canonical link, and
       OG/Twitter tags on mount. No new dependency — plain DOM updates. ── */
 const SITE_URL = "https://bodeconversionlab.vercel.app";
-export function SEO({ title, description, path = "" }) {
+export function SEO({ title, description, path = "", article = null }) {
   useEffect(() => {
     const fullTitle = title ? `${title} | Bode Conversion Lab` : "Bode Conversion Lab — Store Optimization & Ads Engineering";
     document.title = fullTitle;
@@ -72,7 +72,27 @@ export function SEO({ title, description, path = "" }) {
       document.head.appendChild(canonical);
     }
     canonical.setAttribute("href", url);
-  }, [title, description, path]);
+
+    // Optional Article/BlogPosting JSON-LD for blog posts and case studies
+    const existingLd = document.getElementById("seo-article-jsonld");
+    if (existingLd) existingLd.remove();
+    if (article) {
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.id = "seo-article-jsonld";
+      script.text = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: title,
+        description: description,
+        url,
+        datePublished: article.datePublished || undefined,
+        author: { "@type": "Organization", name: "Bode Conversion Lab" },
+        publisher: { "@type": "Organization", name: "Bode Conversion Lab" },
+      });
+      document.head.appendChild(script);
+    }
+  }, [title, description, path, article]);
 
   return null;
 }

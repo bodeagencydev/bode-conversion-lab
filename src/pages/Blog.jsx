@@ -241,6 +241,7 @@ export function BlogPost() {
         title={post.title}
         description={post.excerpt}
         path={`/blog/${post.id}`}
+        article={{ datePublished: post.date ? new Date(post.date).toISOString().slice(0, 10) : undefined }}
       />
       <div style={{ position:"fixed", top:0, left:0, right:0, height:3, zIndex:9999, background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.08)" }}>
         <div style={{ height:"100%", width:`${progress}%`, background:GG, transition:"width .1s linear" }}/>
