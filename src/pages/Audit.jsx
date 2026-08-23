@@ -1,7 +1,7 @@
 import { useState, useEffect, createElement } from "react";
 import { Link } from "react-router-dom";
 import { G, GG } from "../data.js";
-import { PageWrapper, GradText, useTheme } from "../components.jsx";
+import { PageWrapper, GradText, useTheme, SEO } from "../components.jsx";
 import { TiltCard } from "../AnimationSystem.jsx";
 /* @react-pdf/renderer is ~500kB gzipped — loaded on demand (see handleDownload)
    so it never ships in the initial Audit page bundle. */
@@ -565,6 +565,13 @@ const SCAN_STAGES = [
 ═══════════════════════════════ */
 export default function Audit() {
   const { dark } = useTheme();
+  const seoTag = (
+    <SEO
+      title="Free Shopify Store Audit - Find the Leaks Costing You Sales"
+      description="Run a free 12-point audit of your e-commerce store and ads in under a minute. Find the exact leaks costing you sales before you spend another dollar on traffic."
+      path="/audit"
+    />
+  );
   const [url,        setUrl]        = useState("");
   const [email,      setEmail]      = useState("");
   const [loading,    setLoading]    = useState(false);
@@ -662,6 +669,7 @@ export default function Audit() {
 
   return (
     <PageWrapper>
+      {seoTag}
 
       {/* ── ACCESS MODAL ── */}
       {showModal && (

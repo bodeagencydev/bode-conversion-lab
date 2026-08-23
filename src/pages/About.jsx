@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { G, GG, SERVICES } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
 
 export default function About() {
   const { dark } = useTheme();
@@ -15,6 +15,11 @@ export default function About() {
 
   return (
     <PageWrapper>
+      <SEO
+        title="About Us — Meet Bode Conversion Lab"
+        description="4-year e-commerce operator turned agency. Shopify Partner. Learn the CGO methodology behind Bode Conversion Lab's store optimization and ad engineering process."
+        path="/about"
+      />
       {/* HERO SECTION */}
       <section style={{ position:"relative", minHeight:"60vh", display:"flex", alignItems:"center", justifyContent:"center", padding:"clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 3rem", overflow:"hidden" }}>
         <div style={{ position:"absolute", width:600, height:600, top:-150, left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle,rgba(0,255,136,.14),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>

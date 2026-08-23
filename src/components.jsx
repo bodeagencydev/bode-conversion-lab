@@ -35,6 +35,48 @@ function PlatformLogo({ name, slug, color, size = 20 }) {
 export const ThemeContext = createContext({ dark: true, toggle: () => {} });
 export function useTheme() { return useContext(ThemeContext); }
 
+/* ── Per-page SEO: sets title, meta description, canonical link, and
+      OG/Twitter tags on mount. No new dependency — plain DOM updates. ── */
+const SITE_URL = "https://bodeconversionlab.vercel.app";
+export function SEO({ title, description, path = "" }) {
+  useEffect(() => {
+    const fullTitle = title ? `${title} | Bode Conversion Lab` : "Bode Conversion Lab — Store Optimization & Ads Engineering";
+    document.title = fullTitle;
+
+    const setMeta = (selector, attr, value) => {
+      let el = document.querySelector(selector);
+      if (!el) {
+        el = document.createElement("meta");
+        const [, attrName, attrVal] = selector.match(/\[(\w+)="([^"]+)"\]/) || [];
+        if (attrName) el.setAttribute(attrName, attrVal);
+        document.head.appendChild(el);
+      }
+      el.setAttribute(attr, value);
+    };
+
+    if (description) {
+      setMeta('meta[name="description"]', "content", description);
+      setMeta('meta[property="og:description"]', "content", description);
+      setMeta('meta[name="twitter:description"]', "content", description);
+    }
+    setMeta('meta[property="og:title"]', "content", fullTitle);
+    setMeta('meta[name="twitter:title"]', "content", fullTitle);
+
+    const url = `${SITE_URL}${path}`;
+    setMeta('meta[property="og:url"]', "content", url);
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", url);
+  }, [title, description, path]);
+
+  return null;
+}
+
 const NAV_LINKS = [
   { path:"/",             label:"Home" },
   { path:"/about",        label:"About" },
@@ -473,7 +515,7 @@ export function PartnerCard({ partner }) {
 export function WhatsAppButton() {
   const msg = encodeURIComponent("Hi! I'd love to work with you.");
   return (
-    <a href={`https://wa.me/19454076473?text=${msg}`} target="_blank" rel="noopener noreferrer"
+    <a href={`https://wa.me/2349064885280?text=${msg}`} target="_blank" rel="noopener noreferrer"
       style={{ position:"fixed", bottom:24, right:24, zIndex:9999, width:56, height:56, borderRadius:"50%", background:"#25D366", boxShadow:"0 4px 20px rgba(37,211,102,.5)", display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", transition:"transform .2s,box-shadow .2s" }}
       onMouseEnter={e => { e.currentTarget.style.transform="scale(1.12)"; e.currentTarget.style.boxShadow="0 8px 32px rgba(37,211,102,.65)"; }}
       onMouseLeave={e => { e.currentTarget.style.transform="scale(1)"; e.currentTarget.style.boxShadow="0 4px 20px rgba(37,211,102,.5)"; }}>
@@ -510,7 +552,7 @@ export function Footer() {
           <div style={{ flex:1, minWidth:180, maxWidth:300 }}>
             <Link to="/" style={{ textDecoration:"none", display:"inline-block", marginBottom:".7rem" }}><Logo size={36} textSize={13}/></Link>
             <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.6, marginBottom:".8rem" }}>We don't run ads. We engineer ROAS.<br/>One system. Compounding results every month.</p>
-            <a href={`https://wa.me/19454076473?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
+            <a href={`https://wa.me/2349064885280?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
               target="_blank" rel="noopener noreferrer"
               style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:13, color:"#25D366", textDecoration:"none", transition:"transform .2s" }}
               onMouseEnter={e => e.currentTarget.style.transform="translateX(3px)"}

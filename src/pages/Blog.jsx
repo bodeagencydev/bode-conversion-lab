@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { G, GG, BLOG_POSTS } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
 
 export function Blog() {
   const { dark } = useTheme();
@@ -21,6 +21,11 @@ export function Blog() {
 
   return (
     <PageWrapper>
+      <SEO
+        title="Blog — E-commerce Conversion & Ads Tips"
+        description="Operator-tested tactics on ROAS, checkout optimization, ad strategy, and email flows — no fluff, no recycled advice. From the team behind the CGO methodology."
+        path="/blog"
+      />
 
       {/* ── HERO ── */}
       <section style={{ position:"relative", padding:"7rem 2rem 5rem", overflow:"hidden" }}>
@@ -232,6 +237,11 @@ export function BlogPost() {
 
   return (
     <PageWrapper>
+      <SEO
+        title={post.title}
+        description={post.excerpt}
+        path={`/blog/${post.id}`}
+      />
       <div style={{ position:"fixed", top:0, left:0, right:0, height:3, zIndex:9999, background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.08)" }}>
         <div style={{ height:"100%", width:`${progress}%`, background:GG, transition:"width .1s linear" }}/>
       </div>

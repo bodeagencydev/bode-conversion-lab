@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, AD_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
-import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, useInView, useTheme, PageWrapper } from "../components.jsx";
+import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, useInView, useTheme, PageWrapper, SEO } from "../components.jsx";
 import { ScrollReveal, TiltCard, Magnetic, GlowBorder, SpringCounter, MaskedHeading, ParallaxGrid } from "../AnimationSystem.jsx";
 
 export default function Home() {
@@ -16,6 +16,11 @@ export default function Home() {
 
   return (
     <PageWrapper>
+      <SEO
+        title="Shopify Conversion Rate Optimization & Ad Management Agency"
+        description="Bode Conversion Lab fixes store leaks, engineers ROAS-positive ad campaigns, and scales e-commerce brands using the CGO (Conversion Growth Optimization) methodology. Free store audit available."
+        path="/"
+      />
 
       {/* ── HERO ── */}
       <section style={{ position:"relative", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"clamp(5rem,10vw,8rem) clamp(1rem,4vw,2rem) 4rem", overflow:"hidden" }}>

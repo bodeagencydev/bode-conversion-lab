@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { G, GG, FAQS } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
 import { notifyPayment } from "../NotificationSystem.js";
 
 const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_KEY || "pk_test_469a79a7423df47Xb9e51cf45da2bbd640187dcd";
@@ -172,6 +172,11 @@ export default function Pricing() {
 
   return (
     <PageWrapper>
+      <SEO
+        title="Pricing - Shopify CRO & Ad Management Packages"
+        description="Transparent pricing for e-commerce conversion optimization and ad management. From a $497 store audit to full-stack growth packages built on the CGO methodology."
+        path="/pricing"
+      />
 
       {/* ── PAYMENT MODAL ── */}
       {activeModal !== null && (
@@ -220,7 +225,7 @@ export default function Pricing() {
 
                 <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                   <a
-                    href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi Bode Conversion Lab 👋 I just completed payment for ${pkg?.name}. Here's my payment screenshot:`)}
+                    href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi Bode Conversion Lab 👋 I just completed payment for ${pkg?.name}. Here's my payment screenshot:`)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-g"
@@ -308,7 +313,7 @@ export default function Pricing() {
                   <p style={{ fontSize:12, color:mutedText3 }}>
                     Have a question first?{" "}
                     <a
-                      href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi, I have a question about the ${pkg?.name} package before paying.`)}
+                      href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi, I have a question about the ${pkg?.name} package before paying.`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color:G, textDecoration:"none", fontWeight:600 }}>

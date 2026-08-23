@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { G, GG, CASE_STUDIES, BADGES } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
 import { ScrollReveal, TiltCard, GlowBorder } from "../AnimationSystem.jsx";
 
 /* ── PROOF PANEL (Dynamically pulls the real images from your dataset) ── */
@@ -263,6 +263,13 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
 
 export function CaseStudies() {
   const { dark } = useTheme();
+  const seoTag = (
+    <SEO
+      title="Case Studies - Real Shopify Store Growth Results"
+      description="See how Bode Conversion Lab took underperforming e-commerce stores from stalled sales to consistent, profitable growth using the CGO methodology."
+      path="/case-studies"
+    />
+  );
 
   const headingColor = dark ? "#fff"                 : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.65)";
@@ -272,6 +279,7 @@ export function CaseStudies() {
 
   return (
     <PageWrapper>
+      {seoTag}
       {/* ── HERO ── */}
       <section style={{ position: "relative", padding: "7rem 2rem 5rem", overflow: "hidden" }}>
         <div style={{ position: "absolute", width: 600, height: 600, top: -150, left: "50%", transform: "translateX(-50%)", background: "radial-gradient(circle,rgba(0,255,136,.12),transparent 70%)", borderRadius: "50%", pointerEvents: "none" }}/>
@@ -433,6 +441,11 @@ export function CaseStudyDetail() {
 
   return (
     <PageWrapper>
+      <SEO
+        title={`${cs.headline} — ${cs.category} Case Study`}
+        description={`How Bode Conversion Lab helped a ${cs.category} store: ${cs.headline}. Real numbers, real strategy, using the CGO methodology.`}
+        path={`/case-studies/${cs.id}`}
+      />
       <section style={{ padding: "7rem 2rem 4rem", textAlign: "center" }}>
         <Link to="/case-studies" style={{ color: G, textDecoration: "none" }}>← All case studies</Link>
         <h1 style={{ fontFamily: "'Syne',sans-serif", color: headingColor, marginTop: "1rem" }}>{cs.headline}</h1>

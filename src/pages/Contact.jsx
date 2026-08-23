@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm, ValidationError } from "@formspree/react";
 import { G, GG, QUIZ } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
 
 function ApplyForm() {
   const { dark } = useTheme();
@@ -129,6 +129,11 @@ export default function Contact() {
 
   return (
     <PageWrapper>
+      <SEO
+        title="Contact Bode Conversion Lab"
+        description="Get in touch for a free store audit, pricing questions, or to start your Shopify conversion optimization and ad management project."
+        path="/contact"
+      />
       <section style={{ position:"relative", padding:"clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 3rem", overflow:"hidden" }}>
         <div style={{ position:"absolute", width:500, height:500, top:-100, left:"50%", transform:"translateX(-50%)", background:"radial-gradient(circle,rgba(0,255,136,.14),transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
         <div style={{ maxWidth:700, margin:"0 auto", textAlign:"center", position:"relative", zIndex:1 }}>
@@ -156,7 +161,7 @@ export default function Contact() {
           </p>
           <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
             <a
-              href={"https://wa.me/19454076473?text=" + encodeURIComponent("Hi Bode Conversion Lab 👋 I have a question.")}
+              href={"https://wa.me/2349064885280?text=" + encodeURIComponent("Hi Bode Conversion Lab 👋 I have a question.")}
               target="_blank"
               rel="noopener noreferrer"
               style={{ display:"inline-block", textDecoration:"none", background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700 }}>
