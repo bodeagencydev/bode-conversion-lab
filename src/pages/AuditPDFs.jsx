@@ -18,6 +18,15 @@ Font.register({
   ],
 });
 
+Font.register({
+  family: "Syne",
+  fonts: [
+    { src: "/fonts/Syne-SemiBold.ttf", fontWeight: 600 },
+    { src: "/fonts/Syne-Bold.ttf", fontWeight: 700 },
+    { src: "/fonts/Syne-ExtraBold.ttf", fontWeight: 800 },
+  ],
+});
+
 const GREEN = "#00A35C";
 const RED   = "#D8382A";
 const AMBER = "#C97A12";
@@ -33,13 +42,23 @@ const s = StyleSheet.create({
   page: { fontFamily: "Inter", fontSize: 9.5, color: INK, padding: "44 42 56", backgroundColor: "#FFFFFF" },
   coverPage: { fontFamily: "Inter", padding: "60 48", backgroundColor: "#FFFFFF", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" },
   kicker: { fontSize: 9, color: GREEN, fontWeight: 600, letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 10 },
-  h1: { fontSize: 24, fontWeight: 800, color: INK, lineHeight: 1.15, marginBottom: 8 },
+  h1: { fontFamily: "Syne", fontSize: 30, fontWeight: 800, color: INK, lineHeight: 1.12, marginBottom: 10 },
   sub: { fontSize: 10, color: MUTED, lineHeight: 1.55 },
   headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderBottom: `1 solid ${LINE}`, paddingBottom: 9, marginBottom: 16 },
   brand: { fontSize: 9.5, fontWeight: 800, color: INK },
   brandTag: { fontSize: 7.5, color: FAINT },
-  sectionTitle: { fontSize: 12, fontWeight: 800, color: INK, marginTop: 18, marginBottom: 8 },
+  sectionTitle: { fontFamily: "Syne", fontSize: 15, fontWeight: 800, color: INK, marginTop: 18, marginBottom: 8 },
   footer: { position: "absolute", bottom: 26, left: 42, right: 42, flexDirection: "row", justifyContent: "space-between", fontSize: 7.5, color: FAINT, borderTop: `0.5 solid ${LINE}`, paddingTop: 8 },
+
+  // Cover: filled stat row (replaces blank space when there's no score gauge)
+  coverStatRow: { flexDirection: "row", border: `1 solid ${LINE}`, borderRadius: 10, overflow: "hidden" },
+  coverStatCell: { flex: 1, padding: "20 14", borderRight: `1 solid ${LINE}` },
+  coverStatNum: { fontFamily: "Syne", fontSize: 30, fontWeight: 800, color: GREEN },
+  coverStatLabel: { fontSize: 8, color: FAINT, textTransform: "uppercase", letterSpacing: 0.5, marginTop: 4 },
+  coverIntro: { fontSize: 10.5, color: MUTED, lineHeight: 1.75, maxWidth: 420, marginTop: 22 },
+  coverPhaseChip: { flexDirection: "row", alignItems: "center", marginTop: 10 },
+  coverPhaseDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: GREEN, marginRight: 8 },
+  coverPhaseText: { fontSize: 9.5, color: INK, fontWeight: 600 },
 
   summaryStrip: { flexDirection: "row", border: `1 solid ${LINE}`, borderRadius: 6, overflow: "hidden", marginBottom: 4 },
   summaryCell: { flex: 1, padding: "12 10", borderRight: `1 solid ${LINE}` },
@@ -132,6 +151,61 @@ function Cover({ kicker, title, domain, date, overall, grade, verdict }) {
           {verdict && <Text style={{ ...s.sub, marginTop: 14, maxWidth: 320, textAlign: "center" }}>{verdict}</Text>}
         </View>
       )}
+
+      <Text style={{ fontSize: 7.5, color: FAINT, lineHeight: 1.6 }}>
+        Confidential — prepared for the store owner named above. Figures are estimates from automated technical analysis, not a guarantee of results.
+      </Text>
+    </Page>
+  );
+}
+
+function GrowthCover({ kicker, title, domain, date, growth, marketing }) {
+  const totalPhases = (growth?.phases?.length || 0) + (marketing?.phases?.length || 0);
+  const totalItems = [...(growth?.phases || []), ...(marketing?.phases || [])]
+    .reduce((sum, p) => sum + (p.items?.length || 0), 0);
+
+  return (
+    <Page size="A4" style={s.coverPage}>
+      <View>
+        <Text style={{ fontSize: 10.5, fontWeight: 800, marginBottom: 46 }}>BODE CONVERSION LAB</Text>
+        <Text style={s.kicker}>{kicker}</Text>
+        <Text style={s.h1}>{title}</Text>
+        <Text style={s.sub}>{domain}  ·  Generated {date}</Text>
+
+        <Text style={s.coverIntro}>
+          A complete, sequenced plan to fix what's costing {domain} sales today, then build the traffic and marketing system to grow consistently — no guesswork, no generic advice.
+        </Text>
+
+        <View style={{ ...s.coverStatRow, marginTop: 28 }}>
+          <View style={s.coverStatCell}>
+            <Text style={s.coverStatNum}>{totalPhases}</Text>
+            <Text style={s.coverStatLabel}>Phases</Text>
+          </View>
+          <View style={s.coverStatCell}>
+            <Text style={s.coverStatNum}>{totalItems}</Text>
+            <Text style={s.coverStatLabel}>Action Items</Text>
+          </View>
+          <View style={{ ...s.coverStatCell, borderRight: "none" }}>
+            <Text style={s.coverStatNum}>120</Text>
+            <Text style={s.coverStatLabel}>Days to Execute</Text>
+          </View>
+        </View>
+
+        <View style={{ marginTop: 26 }}>
+          {growth?.title && (
+            <View style={s.coverPhaseChip}>
+              <View style={s.coverPhaseDot} />
+              <Text style={s.coverPhaseText}>{growth.title}</Text>
+            </View>
+          )}
+          {marketing?.title && (
+            <View style={s.coverPhaseChip}>
+              <View style={s.coverPhaseDot} />
+              <Text style={s.coverPhaseText}>{marketing.title}</Text>
+            </View>
+          )}
+        </View>
+      </View>
 
       <Text style={{ fontSize: 7.5, color: FAINT, lineHeight: 1.6 }}>
         Confidential — prepared for the store owner named above. Figures are estimates from automated technical analysis, not a guarantee of results.
@@ -288,7 +362,7 @@ export function GrowthMarketingPDF({ analysis, solution, date }) {
   const { growth, marketing } = solution;
   return (
     <Document title={`BCL Growth & Marketing Plan — ${domain}`}>
-      <Cover kicker="90–120 Day System" title="Growth & Marketing Plan" domain={domain} date={date} />
+      <GrowthCover kicker="90–120 Day System" title="Growth & Marketing Plan" domain={domain} date={date} growth={growth} marketing={marketing} />
       <Page size="A4" style={s.page}>
         <Header label="Growth & Marketing Report" />
         <Text style={s.sectionTitle}>{growth.title}</Text>
