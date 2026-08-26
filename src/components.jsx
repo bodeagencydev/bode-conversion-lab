@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useForm, ValidationError } from "@formspree/react";
 
 const G  = "#00ff88";
 const GG = "linear-gradient(135deg,#00ff88,#00e676,#00cc6a)";
@@ -262,6 +263,97 @@ export function ThemeToggle() {
   );
 }
 
+/* ── Sitewide exit-intent popup: fires once per session when the mouse
+      leaves toward the top of the viewport (classic "about to close tab"
+      signal). Offers the free audit in exchange for an email, so visitors
+      who leave without messaging aren't lost entirely. ── */
+function ExitIntentPopup() {
+  const [show, setShow] = useState(false);
+  const [state, handleSubmit] = useForm("xaqadyal");
+
+  useEffect(() => {
+    if (sessionStorage.getItem("bcl_exit_popup_shown")) return;
+    let armed = false;
+    const armTimer = setTimeout(() => { armed = true; }, 6000); // don't trigger in first 6s
+
+    function onMouseOut(e) {
+      if (!armed) return;
+      if (e.clientY <= 0 && !sessionStorage.getItem("bcl_exit_popup_shown")) {
+        setShow(true);
+        sessionStorage.setItem("bcl_exit_popup_shown", "1");
+      }
+    }
+    document.addEventListener("mouseout", onMouseOut);
+    return () => {
+      clearTimeout(armTimer);
+      document.removeEventListener("mouseout", onMouseOut);
+    };
+  }, []);
+
+  if (!show) return null;
+
+  return (
+    <div style={{
+      position:"fixed", inset:0, zIndex:99999, background:"rgba(0,0,0,.7)",
+      display:"flex", alignItems:"center", justifyContent:"center", padding:"1.5rem",
+    }} onClick={() => setShow(false)}>
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background:"#0A0A0A", border:"1px solid rgba(0,255,136,.3)", borderRadius:20,
+          padding:"2.2rem", maxWidth:440, width:"100%", position:"relative",
+          boxShadow:"0 30px 80px rgba(0,0,0,.6)",
+        }}
+      >
+        <button
+          onClick={() => setShow(false)}
+          style={{ position:"absolute", top:16, right:16, background:"none", border:"none", color:"rgba(255,255,255,.5)", fontSize:22, cursor:"pointer" }}
+          aria-label="Close"
+        >×</button>
+
+        {state.succeeded ? (
+          <div style={{ textAlign:"center", padding:"1.5rem 0" }}>
+            <p style={{ fontSize:"1.1rem", fontWeight:700, color:"#00FF88", marginBottom:".5rem" }}>You're in! 🎉</p>
+            <p style={{ fontSize:14, color:"rgba(255,255,255,.7)" }}>Check your inbox — the free audit checklist is on its way.</p>
+          </div>
+        ) : (
+          <>
+            <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.4rem", fontWeight:800, color:"#fff", marginBottom:".6rem", lineHeight:1.25 }}>
+              Before you go — is your store leaking money?
+            </p>
+            <p style={{ fontSize:14, color:"rgba(255,255,255,.6)", marginBottom:"1.4rem", lineHeight:1.6 }}>
+              Get our free Store Leak Finder checklist — the exact 12-point framework we use on every audit. Takes 10 minutes, finds thousands in lost revenue.
+            </p>
+            <form onSubmit={handleSubmit} style={{ display:"flex", flexDirection:"column", gap:".7rem" }}>
+              <input
+                type="email" name="email" required placeholder="Your email address"
+                style={{
+                  padding:"12px 16px", borderRadius:10, border:"1px solid rgba(255,255,255,.15)",
+                  background:"rgba(255,255,255,.04)", color:"#fff", fontSize:14, outline:"none",
+                }}
+              />
+              <input type="hidden" name="source" value="exit_intent_popup" />
+              <ValidationError prefix="Email" field="email" errors={state.errors} />
+              <button
+                type="submit" disabled={state.submitting}
+                style={{
+                  padding:"12px 16px", borderRadius:10, border:"none", background:"#00FF88",
+                  color:"#0A0A0A", fontWeight:700, fontSize:14, cursor:"pointer",
+                }}
+              >
+                Send me the checklist →
+              </button>
+            </form>
+            <p style={{ fontSize:11, color:"rgba(255,255,255,.35)", marginTop:".8rem", textAlign:"center" }}>
+              No spam. Unsubscribe anytime.
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function PageWrapper({ children, style = {} }) {
   useEffect(() => { window.scrollTo(0, 0); }, []);
   return (
@@ -273,6 +365,7 @@ export function PageWrapper({ children, style = {} }) {
       transition:"background .3s,color .3s",
       ...style
     }}>
+      <ExitIntentPopup />
       {children}
     </div>
   );
@@ -535,7 +628,7 @@ export function PartnerCard({ partner }) {
 export function WhatsAppButton() {
   const msg = encodeURIComponent("Hi! I'd love to work with you.");
   return (
-    <a href={`https://wa.me/2349064885280?text=${msg}`} target="_blank" rel="noopener noreferrer"
+    <a href={`https://wa.me/19454076473?text=${msg}`} target="_blank" rel="noopener noreferrer"
       style={{ position:"fixed", bottom:24, right:24, zIndex:9999, width:56, height:56, borderRadius:"50%", background:"#25D366", boxShadow:"0 4px 20px rgba(37,211,102,.5)", display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", transition:"transform .2s,box-shadow .2s" }}
       onMouseEnter={e => { e.currentTarget.style.transform="scale(1.12)"; e.currentTarget.style.boxShadow="0 8px 32px rgba(37,211,102,.65)"; }}
       onMouseLeave={e => { e.currentTarget.style.transform="scale(1)"; e.currentTarget.style.boxShadow="0 4px 20px rgba(37,211,102,.5)"; }}>
@@ -572,7 +665,7 @@ export function Footer() {
           <div style={{ flex:1, minWidth:180, maxWidth:300 }}>
             <Link to="/" style={{ textDecoration:"none", display:"inline-block", marginBottom:".7rem" }}><Logo size={36} textSize={13}/></Link>
             <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.6, marginBottom:".8rem" }}>We don't run ads. We engineer ROAS.<br/>One system. Compounding results every month.</p>
-            <a href={`https://wa.me/2349064885280?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
+            <a href={`https://wa.me/19454076473?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
               target="_blank" rel="noopener noreferrer"
               style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:13, color:"#25D366", textDecoration:"none", transition:"transform .2s" }}
               onMouseEnter={e => e.currentTarget.style.transform="translateX(3px)"}

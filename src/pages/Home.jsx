@@ -1,7 +1,169 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, AD_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
 import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, useInView, useTheme, PageWrapper, SEO } from "../components.jsx";
 import { ScrollReveal, TiltCard, Magnetic, GlowBorder, SpringCounter, MaskedHeading, ParallaxGrid } from "../AnimationSystem.jsx";
+import { useForm, ValidationError } from "@formspree/react";
+
+const REDESIGN_DEADLINE_KEY = "bcl_redesign_deadline";
+const REDESIGN_STATUS_KEY = "bcl_redesign_status"; // 'active' | 'unlocked' | 'expired' | 'gone'
+const OFFER_WINDOW_MS = 48 * 60 * 60 * 1000; // 48 hours — one shot per visitor, never resets
+
+function FreeRedesignOffer() {
+  const { dark } = useTheme();
+  const [status, setStatus] = useState(null); // null while loading from localStorage
+  const [timeLeft, setTimeLeft] = useState("48:00:00");
+  const [state, handleSubmit] = useForm("xaqadyal");
+
+  // Initialize once per visitor — deadline is set ONLY the first time, never touched again
+  useEffect(() => {
+    let deadline = Number(localStorage.getItem(REDESIGN_DEADLINE_KEY));
+    let savedStatus = localStorage.getItem(REDESIGN_STATUS_KEY);
+
+    if (!deadline) {
+      deadline = Date.now() + OFFER_WINDOW_MS;
+      localStorage.setItem(REDESIGN_DEADLINE_KEY, String(deadline));
+      savedStatus = "active";
+      localStorage.setItem(REDESIGN_STATUS_KEY, "active");
+    }
+    if (!savedStatus) savedStatus = "active";
+
+    setStatus(savedStatus);
+
+    if (savedStatus === "active") {
+      const tick = () => {
+        const remaining = deadline - Date.now();
+        if (remaining <= 0) {
+          localStorage.setItem(REDESIGN_STATUS_KEY, "expired");
+          setStatus("expired");
+        } else {
+          const totalSec = Math.floor(remaining / 1000);
+          const h = String(Math.floor(totalSec / 3600)).padStart(2, "0");
+          const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, "0");
+          const sec = String(totalSec % 60).padStart(2, "0");
+          setTimeLeft(`${h}:${m}:${sec}`);
+        }
+      };
+      tick();
+      const id = setInterval(tick, 1000);
+      return () => clearInterval(id);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (state.succeeded) {
+      localStorage.setItem(REDESIGN_STATUS_KEY, "unlocked");
+      setStatus("unlocked");
+    }
+  }, [state.succeeded]);
+
+  function handleCancel() {
+    localStorage.setItem(REDESIGN_STATUS_KEY, "gone");
+    setStatus("gone");
+  }
+
+  function handleDismissExpired() {
+    localStorage.setItem(REDESIGN_STATUS_KEY, "gone");
+    setStatus("gone");
+  }
+
+  if (status === null || status === "gone") return null;
+
+  const borderCol = dark ? "rgba(0,255,136,.35)" : "rgba(0,150,80,.35)";
+  const bgCard = dark ? "rgba(0,255,136,.05)" : "rgba(0,150,80,.05)";
+  const headingColor = dark ? "#fff" : "#1A1408";
+  const mutedText = dark ? "rgba(255,255,255,.6)" : "rgba(26,20,8,.65)";
+
+  return (
+    <div style={{
+      maxWidth: 720, margin: "2rem auto 3rem", borderRadius: 20,
+      border: `1.5px solid ${status === "expired" ? "rgba(255,90,90,.35)" : borderCol}`,
+      background: status === "expired" ? (dark ? "rgba(255,90,90,.05)" : "rgba(255,90,90,.04)") : bgCard,
+      padding: "clamp(1.6rem,4vw,2.4rem)", textAlign: "center", position: "relative",
+    }}>
+      {status === "active" && (
+        <button
+          onClick={handleCancel}
+          aria-label="Cancel offer"
+          style={{ position: "absolute", top: 14, right: 14, background: "none", border: "none", color: mutedText, fontSize: 20, cursor: "pointer", lineHeight: 1 }}
+        >×</button>
+      )}
+
+      {status === "expired" ? (
+        <>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#FF5A5A", letterSpacing: ".08em", textTransform: "uppercase", marginBottom: ".6rem" }}>
+            Offer expired
+          </p>
+          <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.3rem", fontWeight: 800, color: headingColor, marginBottom: ".6rem" }}>
+            You missed this one
+          </h3>
+          <p style={{ fontSize: 14, color: mutedText, lineHeight: 1.7, marginBottom: "1.4rem", maxWidth: 420, margin: "0 auto 1.4rem" }}>
+            Your free website redesign consultation window has closed. This offer won't be available to you again — but our packages below are still open anytime.
+          </p>
+          <button
+            onClick={handleDismissExpired}
+            style={{ padding: "10px 22px", borderRadius: 10, border: `1px solid ${mutedText}`, background: "transparent", color: mutedText, fontWeight: 600, fontSize: 13, cursor: "pointer" }}
+          >
+            Got it
+          </button>
+        </>
+      ) : status === "unlocked" ? (
+        <>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#00D97E", letterSpacing: ".08em", textTransform: "uppercase", marginBottom: ".6rem" }}>
+            Unlocked
+          </p>
+          <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.4rem", fontWeight: 800, color: headingColor, marginBottom: ".8rem" }}>
+            Free Website Redesign Consultation
+          </h3>
+          <p style={{ fontSize: 14, color: mutedText, lineHeight: 1.7, marginBottom: "1.2rem", maxWidth: 460, margin: "0 auto 1.2rem" }}>
+            🎉 Message us on WhatsApp before your timer runs out to claim it.
+          </p>
+          <a
+            href={"https://wa.me/19454076473?text=" + encodeURIComponent("Hi! I just unlocked the free redesign consultation offer on your site.")}
+            target="_blank" rel="noopener noreferrer"
+            style={{ display: "inline-block", padding: "12px 26px", borderRadius: 10, background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 14, textDecoration: "none" }}
+          >
+            Claim on WhatsApp →
+          </a>
+        </>
+      ) : (
+        <>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#00D97E", letterSpacing: ".08em", textTransform: "uppercase", marginBottom: ".6rem" }}>
+            One-time offer
+          </p>
+          <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.5rem", fontWeight: 800, color: headingColor, marginBottom: ".5rem" }}>
+            Free Website Redesign Consultation
+          </h3>
+          <div style={{ display: "inline-flex", gap: 6, alignItems: "center", background: dark ? "rgba(0,0,0,.4)" : "rgba(0,0,0,.06)", borderRadius: 10, padding: "8px 16px", marginBottom: "1.2rem" }}>
+            <span style={{ fontSize: 12, color: mutedText }}>This offer disappears in</span>
+            <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 15, fontWeight: 800, color: "#00D97E", letterSpacing: ".03em" }}>{timeLeft}</span>
+          </div>
+          <p style={{ fontSize: 14, color: mutedText, lineHeight: 1.7, marginBottom: "1.4rem", maxWidth: 460, margin: "0 auto 1.4rem" }}>
+            Enter your email to unlock a free redesign consultation for your store. This is a one-time window — once it closes, it's gone for good.
+          </p>
+          <form onSubmit={handleSubmit} style={{ display: "flex", gap: ".6rem", maxWidth: 420, margin: "0 auto", flexWrap: "wrap", justifyContent: "center" }}>
+            <input
+              type="email" name="email" required placeholder="Your email address"
+              style={{
+                flex: "1 1 220px", padding: "12px 16px", borderRadius: 10,
+                border: `1px solid ${dark ? "rgba(255,255,255,.15)" : "rgba(0,0,0,.15)"}`,
+                background: dark ? "rgba(255,255,255,.04)" : "#fff", color: headingColor, fontSize: 14, outline: "none",
+              }}
+            />
+            <input type="hidden" name="source" value="home_free_redesign_offer" />
+            <button
+              type="submit" disabled={state.submitting}
+              style={{ padding: "12px 22px", borderRadius: 10, border: "none", background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 14, cursor: "pointer", whiteSpace: "nowrap" }}
+            >
+              Unlock offer →
+            </button>
+          </form>
+          <ValidationError prefix="Email" field="email" errors={state.errors} />
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function Home() {
   const { dark } = useTheme();
@@ -106,6 +268,8 @@ export default function Home() {
           </ScrollReveal>
         </div>
       </section>
+
+      <FreeRedesignOffer />
 
       {/* ── TICKERS ── */}
       <div style={{ borderTop:`.5px solid ${borderCol}`, borderBottom:`.5px solid ${borderCol}`, background:tickerBg, padding:"1rem 0" }}>

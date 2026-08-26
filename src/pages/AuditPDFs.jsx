@@ -342,11 +342,55 @@ function TaskList({ phases }) {
   ));
 }
 
+function FixesCover({ kicker, title, domain, date, fixing }) {
+  const totalItems = (fixing?.phases || []).reduce((sum, p) => sum + (p.items?.length || 0), 0);
+  const totalPhases = fixing?.phases?.length || 0;
+
+  return (
+    <Page size="A4" style={s.coverPage}>
+      <View>
+        <Text style={{ fontSize: 10.5, fontWeight: 800, marginBottom: 46 }}>BODE CONVERSION LAB</Text>
+        <Text style={s.kicker}>{kicker}</Text>
+        <Text style={s.h1}>{title}</Text>
+        <Text style={s.sub}>{domain}  ·  Generated {date}</Text>
+
+        <Text style={s.coverIntro}>
+          The exact fixes costing {domain} sales right now, ranked by impact and sequenced so each one builds on the last — start at the top, work down.
+        </Text>
+
+        <View style={{ ...s.coverStatRow, marginTop: 28 }}>
+          <View style={s.coverStatCell}>
+            <Text style={s.coverStatNum}>{totalPhases}</Text>
+            <Text style={s.coverStatLabel}>Priority Tiers</Text>
+          </View>
+          <View style={{ ...s.coverStatCell, borderRight: "none" }}>
+            <Text style={s.coverStatNum}>{totalItems}</Text>
+            <Text style={s.coverStatLabel}>Fixes Identified</Text>
+          </View>
+        </View>
+
+        <View style={{ marginTop: 26 }}>
+          {fixing?.phases?.map((p, i) => (
+            <View key={i} style={s.coverPhaseChip}>
+              <View style={s.coverPhaseDot} />
+              <Text style={s.coverPhaseText}>{p.phase}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <Text style={{ fontSize: 7.5, color: FAINT, lineHeight: 1.6 }}>
+        Confidential — prepared for the store owner named above. Figures are estimates from automated technical analysis, not a guarantee of results.
+      </Text>
+    </Page>
+  );
+}
+
 export function FixesPDF({ analysis, solution, date }) {
   const domain = analysis.domain;
   return (
     <Document title={`BCL Fixes Report — ${domain}`}>
-      <Cover kicker="Priority Action Plan" title="The Fixes — In Priority Order" domain={domain} date={date} />
+      <FixesCover kicker="Priority Action Plan" title="The Fixes — In Priority Order" domain={domain} date={date} fixing={solution.fixing} />
       <Page size="A4" style={s.page}>
         <Header label="Fixes Report" />
         <Text style={s.sub}>Stop the bleeding first. Fix in this order — each phase builds on the last.</Text>

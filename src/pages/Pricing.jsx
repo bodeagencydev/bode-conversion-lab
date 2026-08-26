@@ -3,123 +3,78 @@ import { G, GG, FAQS } from "../data.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
 import { useForm, ValidationError } from "@formspree/react";
 
-const REDESIGN_DEADLINE_KEY = "bcl_redesign_deadline";
-const REDESIGN_UNLOCKED_KEY = "bcl_redesign_unlocked";
-const OFFER_WINDOW_MS = 48 * 60 * 60 * 1000; // 48 hours
+const PRICING_GATE_KEY = "bcl_pricing_unlocked";
 
-function useCountdown() {
-  const [msLeft, setMsLeft] = useState(0);
-
-  useEffect(() => {
-    let deadline = Number(localStorage.getItem(REDESIGN_DEADLINE_KEY));
-    if (!deadline || deadline < Date.now()) {
-      deadline = Date.now() + OFFER_WINDOW_MS;
-      localStorage.setItem(REDESIGN_DEADLINE_KEY, String(deadline));
-      localStorage.removeItem(REDESIGN_UNLOCKED_KEY); // fresh window, fresh chance
-    }
-    const tick = () => {
-      const remaining = deadline - Date.now();
-      if (remaining <= 0) {
-        const newDeadline = Date.now() + OFFER_WINDOW_MS;
-        localStorage.setItem(REDESIGN_DEADLINE_KEY, String(newDeadline));
-        localStorage.removeItem(REDESIGN_UNLOCKED_KEY);
-        setMsLeft(OFFER_WINDOW_MS);
-      } else {
-        setMsLeft(remaining);
-      }
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const totalSec = Math.max(0, Math.floor(msLeft / 1000));
-  const h = String(Math.floor(totalSec / 3600)).padStart(2, "0");
-  const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, "0");
-  const sec = String(totalSec % 60).padStart(2, "0");
-  return `${h}:${m}:${sec}`;
-}
-
-function FreeRedesignOffer() {
+function PricingEmailGate({ children }) {
   const { dark } = useTheme();
   const [unlocked, setUnlocked] = useState(false);
   const [state, handleSubmit] = useForm("xaqadyal");
-  const timeLeft = useCountdown();
 
   useEffect(() => {
-    if (localStorage.getItem(REDESIGN_UNLOCKED_KEY) === "1") setUnlocked(true);
+    if (localStorage.getItem(PRICING_GATE_KEY) === "1") setUnlocked(true);
   }, []);
 
   useEffect(() => {
     if (state.succeeded) {
-      localStorage.setItem(REDESIGN_UNLOCKED_KEY, "1");
+      localStorage.setItem(PRICING_GATE_KEY, "1");
       setUnlocked(true);
     }
   }, [state.succeeded]);
 
-  const borderCol = dark ? "rgba(0,255,136,.35)" : "rgba(0,150,80,.35)";
-  const bgCard = dark ? "rgba(0,255,136,.05)" : "rgba(0,150,80,.05)";
   const headingColor = dark ? "#fff" : "#1A1408";
   const mutedText = dark ? "rgba(255,255,255,.6)" : "rgba(26,20,8,.65)";
 
-  return (
-    <div style={{
-      maxWidth: 720, margin: "0 auto 3rem", borderRadius: 20,
-      border: `1.5px solid ${borderCol}`, background: bgCard,
-      padding: "clamp(1.6rem,4vw,2.4rem)", textAlign: "center",
-    }}>
-      <p style={{ fontSize: 11, fontWeight: 700, color: "#00D97E", letterSpacing: ".08em", textTransform: "uppercase", marginBottom: ".6rem" }}>
-        Limited-time offer
-      </p>
-      <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.5rem", fontWeight: 800, color: headingColor, marginBottom: ".5rem" }}>
-        Free Website Redesign Consultation
-      </h3>
-      <div style={{ display: "inline-flex", gap: 6, alignItems: "center", background: dark ? "rgba(0,0,0,.4)" : "rgba(0,0,0,.06)", borderRadius: 10, padding: "8px 16px", marginBottom: "1.2rem" }}>
-        <span style={{ fontSize: 12, color: mutedText }}>Offer ends in</span>
-        <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 15, fontWeight: 800, color: "#00D97E", letterSpacing: ".03em" }}>{timeLeft}</span>
-      </div>
+  if (unlocked) return children;
 
-      {!unlocked ? (
-        <>
-          <p style={{ fontSize: 14, color: mutedText, lineHeight: 1.7, marginBottom: "1.4rem", maxWidth: 460, margin: "0 auto 1.4rem" }}>
-            Enter your email to unlock a free redesign consultation for your store — normally part of a paid package.
+  return (
+    <div style={{ position: "relative" }}>
+      <div style={{ filter: "blur(14px)", pointerEvents: "none", userSelect: "none", opacity: .5 }}>
+        {children}
+      </div>
+      <div style={{
+        position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "1.5rem",
+      }}>
+        <div style={{
+          background: dark ? "rgba(10,10,10,.95)" : "rgba(255,255,255,.97)",
+          border: `1px solid ${dark ? "rgba(0,255,136,.3)" : "rgba(0,150,80,.3)"}`,
+          borderRadius: 18, padding: "2rem", maxWidth: 400, width: "100%", textAlign: "center",
+          boxShadow: "0 20px 60px rgba(0,0,0,.4)",
+        }}>
+          <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.25rem", fontWeight: 800, color: headingColor, marginBottom: ".5rem" }}>
+            See our pricing
+          </h3>
+          <p style={{ fontSize: 13.5, color: mutedText, lineHeight: 1.6, marginBottom: "1.2rem" }}>
+            Enter your email to view our packages and pricing.
           </p>
-          <form onSubmit={handleSubmit} style={{ display: "flex", gap: ".6rem", maxWidth: 420, margin: "0 auto", flexWrap: "wrap", justifyContent: "center" }}>
-            <input
-              type="email" name="email" required placeholder="Your email address"
-              style={{
-                flex: "1 1 220px", padding: "12px 16px", borderRadius: 10,
-                border: `1px solid ${dark ? "rgba(255,255,255,.15)" : "rgba(0,0,0,.15)"}`,
-                background: dark ? "rgba(255,255,255,.04)" : "#fff", color: headingColor, fontSize: 14, outline: "none",
-              }}
-            />
-            <input type="hidden" name="source" value="pricing_free_redesign_offer" />
-            <button
-              type="submit" disabled={state.submitting}
-              style={{ padding: "12px 22px", borderRadius: 10, border: "none", background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 14, cursor: "pointer", whiteSpace: "nowrap" }}
-            >
-              Unlock offer →
-            </button>
-          </form>
-          <ValidationError prefix="Email" field="email" errors={state.errors} />
-        </>
-      ) : (
-        <>
-          <p style={{ fontSize: 14, color: mutedText, lineHeight: 1.7, marginBottom: "1.2rem", maxWidth: 460, margin: "0 auto 1.2rem" }}>
-            🎉 Unlocked! Message us on WhatsApp before the timer runs out to claim your free redesign consultation.
-          </p>
-          <a
-            href={"https://wa.me/2349064885280?text=" + encodeURIComponent("Hi! I just unlocked the free redesign consultation offer on your pricing page.")}
-            target="_blank" rel="noopener noreferrer"
-            style={{ display: "inline-block", padding: "12px 26px", borderRadius: 10, background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 14, textDecoration: "none" }}
-          >
-            Claim on WhatsApp →
-          </a>
-        </>
-      )}
+          {state.succeeded ? (
+            <p style={{ fontSize: 13, color: "#00D97E", fontWeight: 600 }}>Unlocking...</p>
+          ) : (
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: ".7rem" }}>
+              <input
+                type="email" name="email" required placeholder="Your email address"
+                style={{
+                  padding: "12px 16px", borderRadius: 10,
+                  border: `1px solid ${dark ? "rgba(255,255,255,.15)" : "rgba(0,0,0,.15)"}`,
+                  background: dark ? "rgba(255,255,255,.04)" : "#fff", color: headingColor, fontSize: 14, outline: "none",
+                }}
+              />
+              <input type="hidden" name="source" value="pricing_view_gate" />
+              <ValidationError prefix="Email" field="email" errors={state.errors} />
+              <button
+                type="submit" disabled={state.submitting}
+                style={{ padding: "12px 16px", borderRadius: 10, border: "none", background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+              >
+                Unlock pricing →
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
+
 import { notifyPayment } from "../NotificationSystem.js";
 
 const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_KEY || "pk_test_469a79a7423df47Xb9e51cf45da2bbd640187dcd";
@@ -344,7 +299,7 @@ export default function Pricing() {
 
                 <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                   <a
-                    href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi Bode Conversion Lab 👋 I just completed payment for ${pkg?.name}. Here's my payment screenshot:`)}
+                    href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi Bode Conversion Lab 👋 I just completed payment for ${pkg?.name}. Here's my payment screenshot:`)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-g"
@@ -432,7 +387,7 @@ export default function Pricing() {
                   <p style={{ fontSize:12, color:mutedText3 }}>
                     Have a question first?{" "}
                     <a
-                      href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi, I have a question about the ${pkg?.name} package before paying.`)}
+                      href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi, I have a question about the ${pkg?.name} package before paying.`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color:G, textDecoration:"none", fontWeight:600 }}>
@@ -516,8 +471,7 @@ export default function Pricing() {
                 <p style={{ fontSize:14, color:mutedText3, marginTop:".75rem" }}>Start anywhere. Every tier is designed to compound into the next.</p>
               </div>
 
-              <FreeRedesignOffer />
-
+              <PricingEmailGate>
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"1rem" }} className="offer-grid">
                 {tiers.map((o, i) => (
                   <div key={i} className={`offer-card ${o.feat ? "feat" : ""}`} style={{ display:"flex", flexDirection:"column" }}>
@@ -555,6 +509,7 @@ export default function Pricing() {
                   </div>
                 ))}
               </div>
+              </PricingEmailGate>
 
               <div style={{ textAlign:"center", marginTop:"2.5rem" }}>
                 <p style={{ fontSize:13, color:mutedText3, lineHeight:1.8 }}>

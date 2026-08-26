@@ -161,7 +161,7 @@ export default function Contact() {
           </p>
           <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
             <a
-              href={"https://wa.me/2349064885280?text=" + encodeURIComponent("Hi Bode Conversion Lab 👋 I have a question.")}
+              href={"https://wa.me/19454076473?text=" + encodeURIComponent("Hi Bode Conversion Lab 👋 I have a question.")}
               target="_blank"
               rel="noopener noreferrer"
               style={{ display:"inline-block", textDecoration:"none", background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700 }}>
