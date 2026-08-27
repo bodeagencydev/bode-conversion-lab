@@ -266,7 +266,7 @@ export function CaseStudies() {
   const seoTag = (
     <SEO
       title="Case Studies - Real Shopify Store Growth Results"
-      description="See how Bode Conversion Lab took underperforming e-commerce stores from stalled sales to consistent, profitable growth using the CGO methodology."
+      description="See how Bode Conversion Lab took underperforming e-commerce stores from stalled sales to consistent, profitable growth using the SRS methodology."
       path="/case-studies"
     />
   );
@@ -443,7 +443,7 @@ export function CaseStudyDetail() {
     <PageWrapper>
       <SEO
         title={`${cs.headline} — ${cs.category} Case Study`}
-        description={`How Bode Conversion Lab helped a ${cs.category} store: ${cs.headline}. Real numbers, real strategy, using the CGO methodology.`}
+        description={`How Bode Conversion Lab helped a ${cs.category} store: ${cs.headline}. Real numbers, real strategy, using the SRS methodology.`}
         path={`/case-studies/${cs.id}`}
       />
       <section style={{ padding: "7rem 2rem 4rem", textAlign: "center" }}>

@@ -27,9 +27,9 @@ Font.register({
   ],
 });
 
-const GREEN = "#00A35C";
-const RED   = "#D8382A";
-const AMBER = "#C97A12";
+const GREEN = "#00C853";
+const RED   = "#FF3B30";
+const AMBER = "#FF9500";
 const INK   = "#141414";
 const MUTED = "#5B5B5B";
 const FAINT = "#8C8C8C";

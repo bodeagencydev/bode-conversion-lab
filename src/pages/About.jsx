@@ -17,7 +17,7 @@ export default function About() {
     <PageWrapper>
       <SEO
         title="About Us — Meet Bode Conversion Lab"
-        description="4-year e-commerce operator turned agency. Shopify Partner. Learn the CGO methodology behind Bode Conversion Lab's store optimization and ad engineering process."
+        description="4-year e-commerce operator turned agency. Shopify Partner. Learn the SRS methodology behind Bode Conversion Lab's store optimization and ad engineering process."
         path="/about"
       />
       {/* HERO SECTION */}

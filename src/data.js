@@ -22,7 +22,7 @@ export const BADGES = [
 export const TESTIMONIALS = [
   {
     init:"MT", name:"Marcus T.", role:"Shopify Store Owner", result:"$1.2k → $38k/mo", rating:5,
-    text:"A colleague kept telling me about their CGO strategy, so I finally gave it a shot. I'd been running ads for 2 years with nothing to show for it. Three months into CGO, my ROAS went from 0.8x to 6.2x. The store rebuild alone doubled my conversion rate.",
+    text:"A colleague kept telling me about their SRS strategy, so I finally gave it a shot. I'd been running ads for 2 years with nothing to show for it. Three months into the Sales Recovery System, my ROAS went from 0.8x to 6.2x. The store rebuild alone doubled my conversion rate.",
     avatar:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=faces&auto=format",
     storeName:"MyProtein", storeUrl:"https://www.myprotein.com", storeLogo:"https://www.google.com/s2/favicons?domain=myprotein.com&sz=64", storeCategory:"Fitness & Supplements",
   },

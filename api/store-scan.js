@@ -56,6 +56,49 @@ export default async function handler(req, res) {
 
     const hasSchema = hasLink('application/ld+json');
 
+    /* ── Payment methods detected ── */
+    const paymentSignatures = {
+      "Shopify Payments / Stripe": ["stripe.com", "shopify_pay", "shop-pay"],
+      "PayPal": ["paypal.com", "paypalobjects"],
+      "Klarna": ["klarna"],
+      "Afterpay / Clearpay": ["afterpay", "clearpay"],
+      "Google Pay": ["googlepay", "google-pay"],
+      "Apple Pay": ["apple-pay", "applepay"],
+      "Paystack": ["paystack"],
+      "Flutterwave": ["flutterwave"],
+    };
+    const paymentMethods = Object.entries(paymentSignatures)
+      .filter(([, needles]) => hasLink(...needles))
+      .map(([name]) => name);
+
+    /* ── Checkout friction signals (heuristic, not a live crawl —
+         checkout pages usually require an active cart/session) ── */
+    const hasGuestCheckout = hasLink("guest checkout", "checkout as guest", "continue as guest");
+    const forcesAccountCreation = hasLink("create an account to checkout", "you must be logged in to checkout", "sign in to checkout");
+
+    /* ── Broken internal links (checks first 15 found on the homepage) ── */
+    const origin = new URL(target).origin;
+    const hrefMatches = [...html.matchAll(/href=["']([^"'#][^"']*)["']/gi)]
+      .map(m => m[1])
+      .filter(href => href.startsWith("/") || href.startsWith(origin))
+      .map(href => href.startsWith("/") ? origin + href : href);
+    const uniqueLinks = [...new Set(hrefMatches)].slice(0, 15);
+
+    const brokenLinks = [];
+    await Promise.all(uniqueLinks.map(async (link) => {
+      try {
+        const linkRes = await fetch(link, {
+          method: "HEAD", redirect: "follow",
+          signal: AbortSignal.timeout(6000),
+          headers: { "User-Agent": "Mozilla/5.0 (compatible; BCLStoreScan/1.0)" },
+        });
+        if (linkRes.status >= 400) brokenLinks.push({ url: link, status: linkRes.status });
+      } catch {
+        // Timeouts/network errors on individual links are skipped, not
+        // reported as broken — too unreliable to flag with confidence.
+      }
+    }));
+
     res.status(200).json({
       ok: true,
       passwordProtected,
@@ -64,6 +107,10 @@ export default async function handler(req, res) {
       hasLiveChat,
       hasOG,
       hasSchema,
+      paymentMethods,
+      checkout: { hasGuestCheckout, forcesAccountCreation },
+      brokenLinks,
+      linksChecked: uniqueLinks.length,
     });
   } catch (err) {
     // Fail soft — a failed scan here should never block the rest of the

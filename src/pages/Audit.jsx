@@ -421,6 +421,24 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
         `No Open Graph tags were found. When your store link is shared or pasted into WhatsApp, Instagram, or Facebook, it shows a blank or broken preview instead of your product image and name — quietly hurting click-through from every share.`,
         `Reduced click-through from social/word-of-mouth shares`,
         `Add og:title, og:description, and og:image meta tags to your theme's <head> — most Shopify themes support this natively via a few lines in theme.liquid.`);
+
+    if (!scan.paymentMethods || scan.paymentMethods.length === 0)
+      add("trust-payment","medium","Checkout & Payment",`No recognizable payment method logos or scripts detected`,
+        `No signature for PayPal, Klarna, Afterpay, Apple/Google Pay, Paystack, or Flutterwave was found on the page. Shoppers scan for familiar payment logos as a trust signal before entering card details — an unfamiliar or unclear checkout makes hesitant buyers assume the worst.`,
+        `Increases checkout abandonment among first-time buyers`,
+        `Make sure your available payment methods are visibly displayed (most themes show these automatically in the footer or cart) and consider adding at least one buy-now-pay-later option (Klarna/Afterpay) if you don't already.`);
+
+    if (scan.checkout?.forcesAccountCreation && !scan.checkout?.hasGuestCheckout)
+      add("trust-checkout","high","Checkout & Payment",`Checkout may force account creation — no guest option detected`,
+        `Language requiring an account before checkout was found, with no visible guest checkout option. Forcing account creation is one of the most well-documented causes of cart abandonment — many buyers will leave rather than sign up for an account with a store they're buying from for the first time.`,
+        `Directly increases cart abandonment rate`,
+        `Enable guest checkout (Shopify: Settings → Checkout → Customer accounts → set to 'Optional') so buyers aren't blocked from purchasing without registering.`);
+
+    if (scan.brokenLinks && scan.brokenLinks.length > 0)
+      add("trust-brokenlinks","high","Technical Health",`${scan.brokenLinks.length} broken link${scan.brokenLinks.length > 1 ? "s" : ""} found on your homepage`,
+        `Out of ${scan.linksChecked} links checked on your homepage, ${scan.brokenLinks.length} returned an error (${scan.brokenLinks.map(b => `${b.status}`).join(", ")}). A broken link a visitor clicks on — especially in navigation or a product link — is an immediate dead end that erodes trust and can send them straight to a competitor.`,
+        `Direct traffic loss on every broken link clicked`,
+        `Check and fix each broken link: ${scan.brokenLinks.map(b => b.url).slice(0,5).join(", ")}${scan.brokenLinks.length > 5 ? ", and others" : ""}.`);
   }
 
   /* Sort */
@@ -711,7 +729,7 @@ export default function Audit() {
             </p>
             <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:dark?"rgba(0,255,136,.06)":"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.25)", borderRadius:100, padding:"6px 14px", marginBottom:"2rem" }}>
               <span style={{ fontSize:12, color:mutedText2 }}>Then we hand you your</span>
-              <span style={{ fontSize:12, fontWeight:800, color:G }}>CGO — Conversion Growth Optimization</span>
+              <span style={{ fontSize:12, fontWeight:800, color:G }}>SRS — Sales Recovery System</span>
               <span style={{ fontSize:12, color:mutedText2 }}>plan</span>
             </div>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"0.5rem", marginBottom:"2rem", textAlign:"left" }}>
@@ -870,7 +888,7 @@ export default function Audit() {
             </div>
           )}
 
-          {/* ── CGO — CONVERSION GROWTH OPTIMIZATION ── */}
+          {/* ── SRS — SALES RECOVERY SYSTEM ── */}
           <div style={{ background:"linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))", border:".5px solid rgba(0,255,136,.22)", borderTop:".5px solid rgba(0,255,136,.4)", borderRadius:24, padding:"clamp(1.8rem,4vw,2.6rem)", marginBottom:"2rem", position:"relative", overflow:"hidden" }}>
             <div style={{ position:"absolute", top:0, left:"8%", right:"8%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)" }}/>
 
@@ -880,22 +898,22 @@ export default function Audit() {
             </div>
 
             <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1.5rem,4vw,2.1rem)", fontWeight:800, color:headingColor, marginBottom:".3rem", lineHeight:1.15 }}>
-              Conversion Growth Optimization
+              Sales Recovery System
             </h2>
             <p style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(1rem,2.5vw,1.2rem)", fontWeight:800, color:G, letterSpacing:".04em", marginBottom:"1rem" }}>
-              CGO — our 90–120 day growth framework
+              SRS — our 90–120 day growth framework
             </p>
 
             <p style={{ fontSize:14, color:mutedText, lineHeight:1.8, maxWidth:640, marginBottom:"1.6rem" }}>
-              Every issue above gets fixed inside a system, not a to-do list. Most agencies start with ads. We start with the store — because sending paid traffic to a leaky funnel is the fastest way to burn budget and get numbers that make everyone look bad. CGO fixes what's broken first, proves what works with controlled testing, then scales only what's earned it.
+              Every issue above gets fixed inside a system, not a to-do list. Most agencies start with ads. We start with the store — because sending paid traffic to a leaky funnel is the fastest way to burn budget and get numbers that make everyone look bad. SRS fixes what's broken first, proves what works with controlled testing, then scales only what's earned it.
             </p>
 
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:"0.9rem" }}>
               {[
-                { phase:"Phase 1", days:"Days 1–30", title:"Foundation Fix", desc:"Technical performance, trust signals, and a credible social presence — make the store worth sending traffic to." },
-                { phase:"Phase 2", days:"Days 31–60", title:"Traffic Ignition", desc:"Controlled ad testing across Meta & TikTok, retargeting, and email/SMS flows — find what actually works." },
-                { phase:"Phase 3", days:"Days 61–90", title:"Scale & Compound", desc:"Double down on winners, cut what isn't working, second-round CRO informed by real traffic data." },
-                { phase:"Phase 4", days:"Days 91–120", title:"Systemize", desc:"Document the playbook, test new channels, and turn the system into something that runs without you.", optional:true },
+                { phase:"Phase 1", days:"Days 1–30", title:"Diagnose the Loss", desc:"Technical performance, trust signals, and a credible social presence — find exactly where sales are slipping away." },
+                { phase:"Phase 2", days:"Days 31–60", title:"Recover the Sale", desc:"Controlled ad testing across Meta & TikTok, retargeting, and email/SMS flows — win back the revenue you were already losing." },
+                { phase:"Phase 3", days:"Days 61–90", title:"Multiply the Win", desc:"Double down on winners, cut what isn't working, second-round CRO informed by real traffic data." },
+                { phase:"Phase 4", days:"Days 91–120", title:"Lock It In", desc:"Document the playbook, test new channels, and turn the system into something that runs without you.", optional:true },
               ].map((p,i) => (
                 <div key={i} style={{ background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.5)", border:".5px solid rgba(0,255,136,.18)", borderRadius:14, padding:"1.1rem 1.2rem", position:"relative" }}>
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:".4rem" }}>
@@ -941,7 +959,7 @@ export default function Audit() {
           {/* Solution teaser — blurred */}
           <div style={{ position:"relative", marginBottom:"2rem" }}>
             <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.8rem", filter:accessTier?"none":"blur(5px)", pointerEvents:accessTier?"auto":"none", userSelect:accessTier?"auto":"none" }}>
-              <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:"1rem" }}>CGO — Phase 1 Preview</h3>
+              <h3 style={{ fontFamily:"'Syne',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:"1rem" }}>SRS — Phase 1 Preview</h3>
               {solution?.fixing?.phases?.[0]?.items?.slice(0,2).map((item,i) => (
                 <div key={i} style={{ background:dark?"rgba(255,255,255,.03)":"rgba(255,255,255,.35)", border:`.5px solid ${cardBorder}`, borderRadius:10, padding:"1rem", marginBottom:".75rem" }}>
                   <p style={{ fontSize:13, fontWeight:700, color:headingColor, marginBottom:4 }}>→ {item.title}</p>
@@ -953,7 +971,7 @@ export default function Audit() {
             {!accessTier && (
               <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:12, borderRadius:20 }}>
                 <LockIcon size={32} color={headingColor} />
-                <p style={{ fontSize:14, fontWeight:700, color:headingColor, textAlign:"center", margin:0 }}>Unlock your full CGO Roadmap</p>
+                <p style={{ fontSize:14, fontWeight:700, color:headingColor, textAlign:"center", margin:0 }}>Unlock your full SRS Roadmap</p>
                 <p style={{ fontSize:12, color:mutedText, textAlign:"center", maxWidth:280, margin:0 }}>Pay for any package to receive your access code.</p>
                 <button onClick={() => setShowModal(true)} className="btn-g" style={{ fontFamily:"inherit", cursor:"pointer" }}>Enter access code →</button>
               </div>

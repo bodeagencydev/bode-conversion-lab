@@ -248,7 +248,7 @@ export default function Pricing() {
     <PageWrapper>
       <SEO
         title="Pricing - Shopify CRO & Ad Management Packages"
-        description="Transparent pricing for e-commerce conversion optimization and ad management. From a $497 store audit to full-stack growth packages built on the CGO methodology."
+        description="Transparent pricing for e-commerce conversion optimization and ad management. From a $497 store audit to full-stack growth packages built on the SRS methodology."
         path="/pricing"
       />
 

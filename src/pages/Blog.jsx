@@ -23,7 +23,7 @@ export function Blog() {
     <PageWrapper>
       <SEO
         title="Blog — E-commerce Conversion & Ads Tips"
-        description="Operator-tested tactics on ROAS, checkout optimization, ad strategy, and email flows — no fluff, no recycled advice. From the team behind the CGO methodology."
+        description="Operator-tested tactics on ROAS, checkout optimization, ad strategy, and email flows — no fluff, no recycled advice. From the team behind the SRS methodology."
         path="/blog"
       />
 

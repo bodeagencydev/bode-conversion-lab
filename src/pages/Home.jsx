@@ -3,31 +3,42 @@ import { Link } from "react-router-dom";
 import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, AD_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
 import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, useInView, useTheme, PageWrapper, SEO } from "../components.jsx";
 import { ScrollReveal, TiltCard, Magnetic, GlowBorder, SpringCounter, MaskedHeading, ParallaxGrid } from "../AnimationSystem.jsx";
-import { useForm, ValidationError } from "@formspree/react";
 
 const REDESIGN_DEADLINE_KEY = "bcl_redesign_deadline";
-const REDESIGN_STATUS_KEY = "bcl_redesign_status"; // 'active' | 'unlocked' | 'expired' | 'gone'
+const REDESIGN_STATUS_KEY = "bcl_redesign_status"; // 'active' | 'expired' | 'gone'
+const REDESIGN_CODE_KEY = "bcl_redesign_code";
 const OFFER_WINDOW_MS = 48 * 60 * 60 * 1000; // 48 hours — one shot per visitor, never resets
 
+function generateCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no ambiguous chars
+  let out = "SRS-";
+  for (let i = 0; i < 6; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
+
 function FreeRedesignOffer() {
-  const { dark } = useTheme();
   const [status, setStatus] = useState(null); // null while loading from localStorage
   const [timeLeft, setTimeLeft] = useState("48:00:00");
-  const [state, handleSubmit] = useForm("xaqadyal");
+  const [code, setCode] = useState("");
+  const [copied, setCopied] = useState(false);
 
-  // Initialize once per visitor — deadline is set ONLY the first time, never touched again
   useEffect(() => {
     let deadline = Number(localStorage.getItem(REDESIGN_DEADLINE_KEY));
     let savedStatus = localStorage.getItem(REDESIGN_STATUS_KEY);
+    let savedCode = localStorage.getItem(REDESIGN_CODE_KEY);
 
     if (!deadline) {
       deadline = Date.now() + OFFER_WINDOW_MS;
+      savedCode = generateCode();
       localStorage.setItem(REDESIGN_DEADLINE_KEY, String(deadline));
+      localStorage.setItem(REDESIGN_CODE_KEY, savedCode);
       savedStatus = "active";
       localStorage.setItem(REDESIGN_STATUS_KEY, "active");
     }
     if (!savedStatus) savedStatus = "active";
+    if (!savedCode) { savedCode = generateCode(); localStorage.setItem(REDESIGN_CODE_KEY, savedCode); }
 
+    setCode(savedCode);
     setStatus(savedStatus);
 
     if (savedStatus === "active") {
@@ -50,13 +61,6 @@ function FreeRedesignOffer() {
     }
   }, []);
 
-  useEffect(() => {
-    if (state.succeeded) {
-      localStorage.setItem(REDESIGN_STATUS_KEY, "unlocked");
-      setStatus("unlocked");
-    }
-  }, [state.succeeded]);
-
   function handleCancel() {
     localStorage.setItem(REDESIGN_STATUS_KEY, "gone");
     setStatus("gone");
@@ -67,103 +71,88 @@ function FreeRedesignOffer() {
     setStatus("gone");
   }
 
+  function copyCode() {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   if (status === null || status === "gone") return null;
 
-  const borderCol = dark ? "rgba(0,255,136,.35)" : "rgba(0,150,80,.35)";
-  const bgCard = dark ? "rgba(0,255,136,.05)" : "rgba(0,150,80,.05)";
-  const headingColor = dark ? "#fff" : "#1A1408";
-  const mutedText = dark ? "rgba(255,255,255,.6)" : "rgba(26,20,8,.65)";
+  const mutedText = "rgba(255,255,255,.65)";
+
+  if (status === "expired") {
+    return (
+      <div style={{
+        position: "sticky", top: 60, zIndex: 900, width: "100%",
+        background: "linear-gradient(90deg, rgba(255,90,90,.15), rgba(255,90,90,.08))",
+        borderBottom: "1px solid rgba(255,90,90,.3)", padding: "12px clamp(1rem,4vw,2rem)",
+        display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", flexWrap: "wrap", textAlign: "center",
+      }}>
+        <span style={{ fontSize: 13, color: "#fff" }}>
+          <strong style={{ color: "#FF5A5A" }}>Offer expired</strong> — you missed your free redesign consultation window. It won't return for this browser.
+        </span>
+        <button
+          onClick={handleDismissExpired}
+          style={{ padding: "6px 16px", borderRadius: 8, border: "1px solid rgba(255,255,255,.3)", background: "transparent", color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}
+        >
+          Dismiss
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={{
-      maxWidth: 720, margin: "2rem auto 3rem", borderRadius: 20,
-      border: `1.5px solid ${status === "expired" ? "rgba(255,90,90,.35)" : borderCol}`,
-      background: status === "expired" ? (dark ? "rgba(255,90,90,.05)" : "rgba(255,90,90,.04)") : bgCard,
-      padding: "clamp(1.6rem,4vw,2.4rem)", textAlign: "center", position: "relative",
+      position: "sticky", top: 60, zIndex: 900, width: "100%",
+      background: "linear-gradient(90deg, rgba(0,255,136,.16), rgba(0,255,136,.08))",
+      borderBottom: "1px solid rgba(0,255,136,.35)", padding: "10px clamp(1rem,4vw,2rem)",
+      display: "flex", alignItems: "center", justifyContent: "center", gap: "1.2rem", flexWrap: "wrap",
     }}>
-      {status === "active" && (
-        <button
-          onClick={handleCancel}
-          aria-label="Cancel offer"
-          style={{ position: "absolute", top: 14, right: 14, background: "none", border: "none", color: mutedText, fontSize: 20, cursor: "pointer", lineHeight: 1 }}
-        >×</button>
-      )}
+      <span style={{ fontSize: 13, fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>
+        🎁 Free Website Redesign Consultation
+      </span>
 
-      {status === "expired" ? (
-        <>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "#FF5A5A", letterSpacing: ".08em", textTransform: "uppercase", marginBottom: ".6rem" }}>
-            Offer expired
-          </p>
-          <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.3rem", fontWeight: 800, color: headingColor, marginBottom: ".6rem" }}>
-            You missed this one
-          </h3>
-          <p style={{ fontSize: 14, color: mutedText, lineHeight: 1.7, marginBottom: "1.4rem", maxWidth: 420, margin: "0 auto 1.4rem" }}>
-            Your free website redesign consultation window has closed. This offer won't be available to you again — but our packages below are still open anytime.
-          </p>
-          <button
-            onClick={handleDismissExpired}
-            style={{ padding: "10px 22px", borderRadius: 10, border: `1px solid ${mutedText}`, background: "transparent", color: mutedText, fontWeight: 600, fontSize: 13, cursor: "pointer" }}
-          >
-            Got it
-          </button>
-        </>
-      ) : status === "unlocked" ? (
-        <>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "#00D97E", letterSpacing: ".08em", textTransform: "uppercase", marginBottom: ".6rem" }}>
-            Unlocked
-          </p>
-          <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.4rem", fontWeight: 800, color: headingColor, marginBottom: ".8rem" }}>
-            Free Website Redesign Consultation
-          </h3>
-          <p style={{ fontSize: 14, color: mutedText, lineHeight: 1.7, marginBottom: "1.2rem", maxWidth: 460, margin: "0 auto 1.2rem" }}>
-            🎉 Message us on WhatsApp before your timer runs out to claim it.
-          </p>
-          <a
-            href={"https://wa.me/19454076473?text=" + encodeURIComponent("Hi! I just unlocked the free redesign consultation offer on your site.")}
-            target="_blank" rel="noopener noreferrer"
-            style={{ display: "inline-block", padding: "12px 26px", borderRadius: 10, background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 14, textDecoration: "none" }}
-          >
-            Claim on WhatsApp →
-          </a>
-        </>
-      ) : (
-        <>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "#00D97E", letterSpacing: ".08em", textTransform: "uppercase", marginBottom: ".6rem" }}>
-            One-time offer
-          </p>
-          <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.5rem", fontWeight: 800, color: headingColor, marginBottom: ".5rem" }}>
-            Free Website Redesign Consultation
-          </h3>
-          <div style={{ display: "inline-flex", gap: 6, alignItems: "center", background: dark ? "rgba(0,0,0,.4)" : "rgba(0,0,0,.06)", borderRadius: 10, padding: "8px 16px", marginBottom: "1.2rem" }}>
-            <span style={{ fontSize: 12, color: mutedText }}>This offer disappears in</span>
-            <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 15, fontWeight: 800, color: "#00D97E", letterSpacing: ".03em" }}>{timeLeft}</span>
-          </div>
-          <p style={{ fontSize: 14, color: mutedText, lineHeight: 1.7, marginBottom: "1.4rem", maxWidth: 460, margin: "0 auto 1.4rem" }}>
-            Enter your email to unlock a free redesign consultation for your store. This is a one-time window — once it closes, it's gone for good.
-          </p>
-          <form onSubmit={handleSubmit} style={{ display: "flex", gap: ".6rem", maxWidth: 420, margin: "0 auto", flexWrap: "wrap", justifyContent: "center" }}>
-            <input
-              type="email" name="email" required placeholder="Your email address"
-              style={{
-                flex: "1 1 220px", padding: "12px 16px", borderRadius: 10,
-                border: `1px solid ${dark ? "rgba(255,255,255,.15)" : "rgba(0,0,0,.15)"}`,
-                background: dark ? "rgba(255,255,255,.04)" : "#fff", color: headingColor, fontSize: 14, outline: "none",
-              }}
-            />
-            <input type="hidden" name="source" value="home_free_redesign_offer" />
-            <button
-              type="submit" disabled={state.submitting}
-              style={{ padding: "12px 22px", borderRadius: 10, border: "none", background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 14, cursor: "pointer", whiteSpace: "nowrap" }}
-            >
-              Unlock offer →
-            </button>
-          </form>
-          <ValidationError prefix="Email" field="email" errors={state.errors} />
-        </>
-      )}
+      <span style={{ display: "inline-flex", gap: 6, alignItems: "center", background: "rgba(0,0,0,.35)", borderRadius: 8, padding: "5px 12px" }}>
+        <span style={{ fontSize: 11, color: mutedText }}>Ends in</span>
+        <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 14, fontWeight: 800, color: "#00D97E" }}>{timeLeft}</span>
+      </span>
+
+      <span style={{ display: "inline-flex", gap: 6, alignItems: "center", background: "rgba(0,0,0,.35)", borderRadius: 8, padding: "5px 8px 5px 12px" }}>
+        <span style={{ fontSize: 11, color: mutedText }}>Your code:</span>
+        <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 14, fontWeight: 800, color: "#fff", letterSpacing: ".03em" }}>{code}</span>
+        <button
+          onClick={copyCode}
+          style={{ padding: "3px 10px", borderRadius: 6, border: "none", background: copied ? "#00D97E" : "rgba(255,255,255,.12)", color: copied ? "#0A0A0A" : "#fff", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+        >
+          {copied ? "Copied!" : "Copy"}
+        </button>
+      </span>
+
+      <a
+        href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi! I'd like to claim my free redesign consultation. My code: ${code}`)}
+        target="_blank" rel="noopener noreferrer"
+        style={{ padding: "6px 16px", borderRadius: 8, background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 12, textDecoration: "none", whiteSpace: "nowrap" }}
+      >
+        Claim on WhatsApp →
+      </a>
+
+      <a
+        href={`mailto:bodeagencyofficial@gmail.com?subject=${encodeURIComponent("Claim my free redesign consultation")}&body=${encodeURIComponent(`My code: ${code}`)}`}
+        style={{ fontSize: 12, color: mutedText, textDecoration: "underline", whiteSpace: "nowrap" }}
+      >
+        or email us
+      </a>
+
+      <button
+        onClick={handleCancel}
+        aria-label="Cancel offer"
+        style={{ background: "none", border: "none", color: mutedText, fontSize: 18, cursor: "pointer", lineHeight: 1, padding: 0 }}
+      >×</button>
     </div>
   );
 }
+
 
 export default function Home() {
   const { dark } = useTheme();
@@ -178,9 +167,10 @@ export default function Home() {
 
   return (
     <PageWrapper>
+      <FreeRedesignOffer />
       <SEO
         title="Shopify Conversion Rate Optimization & Ad Management Agency"
-        description="Bode Conversion Lab fixes store leaks, engineers ROAS-positive ad campaigns, and scales e-commerce brands using the CGO (Conversion Growth Optimization) methodology. Free store audit available."
+        description="Bode Conversion Lab fixes store leaks, engineers ROAS-positive ad campaigns, and scales e-commerce brands using the SRS (Sales Recovery System) methodology. Free store audit available."
         path="/"
       />
 
@@ -269,7 +259,6 @@ export default function Home() {
         </div>
       </section>
 
-      <FreeRedesignOffer />
 
       {/* ── TICKERS ── */}
       <div style={{ borderTop:`.5px solid ${borderCol}`, borderBottom:`.5px solid ${borderCol}`, background:tickerBg, padding:"1rem 0" }}>
@@ -343,15 +332,15 @@ export default function Home() {
 
       <hr className="divider" />
 
-      {/* ── CGO STRATEGY (compact) ── */}
+      {/* ── SRS STRATEGY (compact) ── */}
       <Section id="cgo">
         <div style={{ maxWidth:980, margin:"0 auto" }}>
           <ScrollReveal delay={0}>
             <div style={{ textAlign:"center", marginBottom:"2rem" }}>
               <SectionLabel>The Methodology</SectionLabel>
-              <Heading size="2rem">What is <GradText>CGO?</GradText></Heading>
+              <Heading size="2rem">What is <GradText>SRS?</GradText></Heading>
               <p style={{ fontSize:14.5, color:mutedText, maxWidth:640, margin:"1rem auto 0", lineHeight:1.8 }}>
-                <strong style={{ color:headingColor }}>CGO — Conversion Growth Optimization</strong> is the system behind everything we do. Most agencies run ads first. We fix the store first — because sending traffic to a leaky funnel just burns your budget faster. CGO fixes what's broken, proves what works, then scales only what's earned it.
+                <strong style={{ color:headingColor }}>SRS — Sales Recovery System</strong> is the system behind everything we do. Most agencies run ads first. We fix the store first — because sending traffic to a leaky funnel just burns your budget faster. SRS fixes what's broken, proves what works, then scales only what's earned it.
               </p>
             </div>
           </ScrollReveal>
@@ -376,7 +365,7 @@ export default function Home() {
           <ScrollReveal delay={0.1}>
             <div style={{ textAlign:"center", marginTop:"1.6rem" }}>
               <Magnetic>
-                <Link to="/audit" className="btn-ghost" style={{ textDecoration:"none", display:"inline-block" }}>See the full CGO breakdown →</Link>
+                <Link to="/audit" className="btn-ghost" style={{ textDecoration:"none", display:"inline-block" }}>See the full SRS breakdown →</Link>
               </Magnetic>
             </div>
           </ScrollReveal>
