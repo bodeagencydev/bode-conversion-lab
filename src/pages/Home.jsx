@@ -107,48 +107,57 @@ function FreeRedesignOffer() {
       position: "sticky", top: 60, zIndex: 900, width: "100%",
       background: "linear-gradient(90deg, rgba(0,255,136,.16), rgba(0,255,136,.08))",
       borderBottom: "1px solid rgba(0,255,136,.35)", padding: "10px clamp(1rem,4vw,2rem)",
-      display: "flex", alignItems: "center", justifyContent: "center", gap: "1.2rem", flexWrap: "wrap",
     }}>
-      <span style={{ fontSize: 13, fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>
-        🎁 Free Website Redesign Consultation
-      </span>
-
-      <span style={{ display: "inline-flex", gap: 6, alignItems: "center", background: "rgba(0,0,0,.35)", borderRadius: 8, padding: "5px 12px" }}>
-        <span style={{ fontSize: 11, color: mutedText }}>Ends in</span>
-        <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 14, fontWeight: 800, color: "#00D97E" }}>{timeLeft}</span>
-      </span>
-
-      <span style={{ display: "inline-flex", gap: 6, alignItems: "center", background: "rgba(0,0,0,.35)", borderRadius: 8, padding: "5px 8px 5px 12px" }}>
-        <span style={{ fontSize: 11, color: mutedText }}>Your code:</span>
-        <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 14, fontWeight: 800, color: "#fff", letterSpacing: ".03em" }}>{code}</span>
-        <button
-          onClick={copyCode}
-          style={{ padding: "3px 10px", borderRadius: 6, border: "none", background: copied ? "#00D97E" : "rgba(255,255,255,.12)", color: copied ? "#0A0A0A" : "#fff", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
-        >
-          {copied ? "Copied!" : "Copy"}
-        </button>
-      </span>
-
-      <a
-        href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi! I'd like to claim my free redesign consultation. My code: ${code}`)}
-        target="_blank" rel="noopener noreferrer"
-        style={{ padding: "6px 16px", borderRadius: 8, background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 12, textDecoration: "none", whiteSpace: "nowrap" }}
-      >
-        Claim on WhatsApp →
-      </a>
-
-      <a
-        href={`mailto:bodeagencyofficial@gmail.com?subject=${encodeURIComponent("Claim my free redesign consultation")}&body=${encodeURIComponent(`My code: ${code}`)}`}
-        style={{ fontSize: 12, color: mutedText, textDecoration: "underline", whiteSpace: "nowrap" }}
-      >
-        or email us
-      </a>
-
       <button
         onClick={handleCancel}
         aria-label="Cancel offer"
-        style={{ background: "none", border: "none", color: mutedText, fontSize: 18, cursor: "pointer", lineHeight: 1, padding: 0 }}
+        style={{ position: "absolute", top: 8, right: 12, background: "none", border: "none", color: mutedText, fontSize: 18, cursor: "pointer", lineHeight: 1, padding: 4 }}
       >×</button>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", flexWrap: "wrap", paddingRight: 24 }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>
+          🎁 Free Website Redesign Consultation
+        </span>
+
+        <span style={{ display: "inline-flex", gap: 6, alignItems: "center", background: "rgba(0,0,0,.35)", borderRadius: 8, padding: "5px 12px" }}>
+          <span style={{ fontSize: 11, color: mutedText }}>Ends in</span>
+          <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 14, fontWeight: 800, color: "#00D97E" }}>{timeLeft}</span>
+        </span>
+
+        <span style={{ display: "inline-flex", gap: 6, alignItems: "center", background: "rgba(0,0,0,.35)", borderRadius: 8, padding: "5px 8px 5px 12px" }}>
+          <span style={{ fontSize: 11, color: mutedText }}>Your code:</span>
+          <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 14, fontWeight: 800, color: "#fff", letterSpacing: ".03em" }}>{code}</span>
+          <button
+            onClick={copyCode}
+            style={{ padding: "3px 10px", borderRadius: 6, border: "none", background: copied ? "#00D97E" : "rgba(255,255,255,.12)", color: copied ? "#0A0A0A" : "#fff", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+          >
+            {copied ? "Copied!" : "Copy"}
+          </button>
+        </span>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: ".7rem", flexWrap: "wrap", marginTop: 8 }}>
+        <span style={{ fontSize: 12, color: mutedText }}>
+          Send this code to us to claim it —
+        </span>
+
+        <a
+          href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi! I'd like to claim my free redesign consultation. My code: ${code}`)}
+          target="_blank" rel="noopener noreferrer"
+          style={{ padding: "6px 16px", borderRadius: 8, background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 12, textDecoration: "none", whiteSpace: "nowrap" }}
+        >
+          Claim on WhatsApp →
+        </a>
+
+        <span style={{ fontSize: 12, color: mutedText }}>or</span>
+
+        <a
+          href={`mailto:bodeagencyofficial@gmail.com?subject=${encodeURIComponent("Claim my free redesign consultation")}&body=${encodeURIComponent(`My code: ${code}`)}`}
+          style={{ fontSize: 12, color: "#fff", textDecoration: "underline", whiteSpace: "nowrap" }}
+        >
+          email us
+        </a>
+      </div>
     </div>
   );
 }

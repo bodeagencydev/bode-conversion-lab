@@ -362,7 +362,7 @@ export default function Pricing() {
                 <div style={{ display:"flex", gap:".5rem", alignItems:"flex-start", marginBottom:"1.2rem", padding:".7rem .8rem", background:dark?"rgba(255,255,255,.03)":"rgba(26,20,8,.03)", border:`.5px solid ${inputBorder}`, borderRadius:8 }}>
                   <span style={{ flexShrink:0, width:14, height:14, borderRadius:"50%", border:`1px solid ${mutedText3}`, color:mutedText3, fontSize:9, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center", marginTop:2 }}>i</span>
                   <p style={{ fontSize:11.5, color:mutedText3, lineHeight:1.55, margin:0 }}>
-                    Your card will be charged in <strong style={{ color:mutedText2 }}>NGN</strong> — the equivalent of ${pkg?.price?.toLocaleString()} at the current exchange rate. This is normal and handled automatically by your card network; your bank may show a small foreign transaction fee.
+                    Any amount paid is converted to its equivalent value and applied directly as <strong style={{ color:mutedText2 }}>credit toward your project</strong> — nothing is lost in the process, your full ${pkg?.price?.toLocaleString()} goes to work for your store. Your bank may show this as a standard international transaction.
                   </p>
                 </div>
 
