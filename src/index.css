@@ -1,0 +1,52 @@
+:root {
+    --bg-color: #040608;
+    --text-color: #f0f0f0;
+  }
+  
+  html, body { 
+    margin: 0;
+    padding: 0; 
+    width: 100%; 
+    background: var(--bg-color); 
+    color: var(--text-color);
+    transition: background 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+  }
+  
+  /* Maintain smooth animations and ticker directions globally */
+  @keyframes ticker {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+  }
+  
+  @keyframes tickerR {
+    0% { transform: translate3d(-50%, 0, 0); }
+    100% { transform: translate3d(0, 0, 0); }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+  
+  @keyframes scan {
+    0% { top: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  
+  @keyframes float1 {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(3deg); }
+  }
+  
+  @keyframes float2 {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(10px) rotate(-4deg); }
+  }
+  
+  @keyframes heroFadeUp {
+    0% { opacity: 0; transform: translateY(15px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
