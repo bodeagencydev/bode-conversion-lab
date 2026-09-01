@@ -55,7 +55,7 @@ export default function Terms() {
     },
     {
       title: "Governing Law",
-      body: "These terms are governed by the laws of the jurisdiction in which Bode Conversion Lab operates, without regard to conflict-of-law principles."
+      body: "These terms are governed by the laws of the State of New York, United States, without regard to conflict-of-law principles."
     },
     {
       title: "Contact Us",

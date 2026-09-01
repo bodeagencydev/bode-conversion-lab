@@ -426,6 +426,92 @@ function ExitIntentPopup() {
   );
 }
 
+const COOKIE_CONSENT_KEY = "bcl_cookie_consent";
+const COOKIE_REOPEN_EVENT = "bcl-open-cookie-prefs";
+
+/* ── Read the visitor's stored cookie choice. Used to gate any
+      non-essential localStorage write (currently: theme preference)
+      so it's only persisted after an actual "Accept". ── */
+export function hasCookieConsent() {
+  try { return localStorage.getItem(COOKIE_CONSENT_KEY) === "accepted"; } catch { return false; }
+}
+
+/* ── Cookie consent banner — bottom bar with equal-weight Accept /
+      Decline buttons (no dark patterns), shown once until the visitor
+      chooses, remembered in localStorage. Reopenable anytime via the
+      "Cookie Preferences" link in the footer, which fires
+      COOKIE_REOPEN_EVENT. Session-only popup dedupe (sessionStorage,
+      cleared when the tab closes) is treated as strictly necessary and
+      isn't gated here — only the theme-preference cookie is. ── */
+export function CookieConsent() {
+  const { dark } = useTheme();
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    try { if (!localStorage.getItem(COOKIE_CONSENT_KEY)) setShow(true); } catch { setShow(true); }
+    function reopen() { setShow(true); }
+    window.addEventListener(COOKIE_REOPEN_EVENT, reopen);
+    return () => window.removeEventListener(COOKIE_REOPEN_EVENT, reopen);
+  }, []);
+
+  function choose(value) {
+    try { localStorage.setItem(COOKIE_CONSENT_KEY, value); } catch {}
+    if (value === "declined") {
+      // withdraw immediately — don't leave a stale preference cookie behind
+      try { localStorage.removeItem("bcl-theme"); } catch {}
+    }
+    setShow(false);
+  }
+
+  if (!show) return null;
+
+  const bg = dark ? "#0A0A0A" : "#FFFDF7";
+  const border = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.15)";
+  const text = dark ? "rgba(255,255,255,.72)" : "rgba(26,20,8,.72)";
+  const declineBorder = dark ? "rgba(255,255,255,.22)" : "rgba(26,20,8,.28)";
+
+  return (
+    <div style={{
+      position:"fixed", left:0, right:0, bottom:0, zIndex:9500,
+      display:"flex", justifyContent:"center", padding:"14px",
+      pointerEvents:"none",
+    }}>
+      <div style={{
+        pointerEvents:"auto",
+        display:"flex", flexWrap:"wrap", gap:"1rem", alignItems:"center",
+        justifyContent:"space-between", width:"100%", maxWidth:920,
+        background:bg, border:`.5px solid ${border}`, borderRadius:14,
+        padding:"14px 18px", boxShadow:"0 12px 40px rgba(0,0,0,.25)",
+      }}>
+        <p style={{ fontSize:12.5, color:text, lineHeight:1.55, margin:0, flex:"1 1 320px" }}>
+          We use one preference cookie to remember your theme (dark/light) — nothing tracked, nothing sold. See our{" "}
+          <a href="/privacy" style={{ color:G, fontWeight:600, textDecoration:"none" }}>Privacy Policy</a>.
+        </p>
+        <div style={{ display:"flex", gap:".6rem", flexShrink:0 }}>
+          <button
+            onClick={() => choose("declined")}
+            style={{
+              background:"transparent", color:text, border:`.5px solid ${declineBorder}`,
+              borderRadius:8, padding:"9px 18px", fontSize:13, fontWeight:700,
+              cursor:"pointer", fontFamily:"inherit",
+            }}>
+            Decline
+          </button>
+          <button
+            onClick={() => choose("accepted")}
+            style={{
+              background:GG, color:"#040608", border:"none",
+              borderRadius:8, padding:"9px 18px", fontSize:13, fontWeight:700,
+              cursor:"pointer", fontFamily:"inherit",
+            }}>
+            Accept
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function PageWrapper({ children, style = {} }) {
   useEffect(() => { window.scrollTo(0, 0); }, []);
   return (
@@ -799,6 +885,14 @@ export function Footer() {
               onMouseLeave={e => e.currentTarget.style.color="var(--muted3,rgba(255,255,255,.3))"}>
               Terms of Service
             </Link>
+            <span style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))" }}>·</span>
+            <button
+              onClick={() => window.dispatchEvent(new Event("bcl-open-cookie-prefs"))}
+              style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", textDecoration:"none", transition:"color .2s", background:"none", border:"none", padding:0, cursor:"pointer", fontFamily:"inherit" }}
+              onMouseEnter={e => e.currentTarget.style.color=G}
+              onMouseLeave={e => e.currentTarget.style.color="var(--muted3,rgba(255,255,255,.3))"}>
+              Cookie Preferences
+            </button>
           </div>
         </div>
       </div>

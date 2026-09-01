@@ -10,6 +10,10 @@ export default function Privacy() {
 
   const sections = [
     {
+      title: "Who We Are",
+      body: "This site is operated by Bode Conversion Lab, New York, United States. For any question about how your data is handled, or to exercise any of the rights below, contact us at bodeagencyofficial@gmail.com."
+    },
+    {
       title: "Information We Collect",
       body: "When you use Bode Conversion Lab's website, we may collect: your name and email address (via our contact form or free resource popups); your store URL (when you request an audit or submit an application); your phone number (optional, if provided for WhatsApp contact); and payment details (processed directly by our payment provider — we never see or store your card information)."
     },
@@ -39,11 +43,23 @@ export default function Privacy() {
     },
     {
       title: "Your Rights",
-      body: "You can request access to, correction of, or deletion of any personal information we hold about you at any time by contacting us directly. We will respond to any such request within a reasonable timeframe."
+      body: "You can request access to, correction of, or deletion of any personal information we hold about you at any time by contacting us directly. We will respond to any such request within a reasonable timeframe. Depending on where you live, this may include rights under the EU/UK GDPR, Nigeria's Data Protection Act, or applicable US state privacy laws — we honor these requests the same way regardless of which region they come from."
+    },
+    {
+      title: "Data Retention",
+      body: "We keep the information you provide for as long as needed to respond to your inquiry, deliver a purchased service, or meet our own legal and accounting obligations — after that, it's deleted or anonymized. Payment records are retained only as long as required by Paystack and applicable financial regulations."
+    },
+    {
+      title: "International Data Transfers",
+      body: "Because we work with providers like Vercel, Google, Formspree, Paystack, and Meta, your information may be processed on servers located outside your own country, including in the United States. Each provider maintains its own safeguards for handling data across borders."
+    },
+    {
+      title: "Children's Privacy",
+      body: "Our services are directed at business owners and are not intended for anyone under 18. We do not knowingly collect personal information from children. If you believe a minor has provided us information, contact us and we'll remove it."
     },
     {
       title: "Cookies",
-      body: "Our site may use basic cookies or local storage to remember your theme preference (dark/light mode) and to avoid showing you the same popup repeatedly in one session. We do not use third-party advertising or tracking cookies."
+      body: "We use one preference cookie to remember your theme (dark/light mode), which is only set after you accept it in the cookie banner. We also use a short-lived, session-only marker to avoid showing you the same popup repeatedly during one visit — this clears itself when you close the tab and is treated as strictly necessary for the site to work as expected. We do not use third-party advertising or tracking cookies. You can change your choice anytime via \"Cookie Preferences\" in the footer."
     },
     {
       title: "Changes to This Policy",

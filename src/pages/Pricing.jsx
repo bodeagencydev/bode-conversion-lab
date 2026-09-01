@@ -25,6 +25,7 @@ export default function Pricing() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   const [unlocked, setUnlocked] = useState(() =>
     typeof window !== "undefined" && localStorage.getItem("bcl_pricing_unlocked") === "1"
@@ -153,6 +154,7 @@ export default function Pricing() {
     setActiveModal(i);
     setEmail(""); setName("");
     setError(""); setSuccess(false);
+    setAgreed(false);
   }
 
   function closeModal() {
@@ -163,6 +165,7 @@ export default function Pricing() {
   async function handlePay() {
     if (!email || !email.includes("@")) return setError("Please enter a valid email address.");
     if (!name.trim()) return setError("Please enter your full name.");
+    if (!agreed) return setError("Please agree to the Terms of Service and Privacy Policy to continue.");
     setError("");
     setLoading(true);
     await loadPaystack();
@@ -302,6 +305,22 @@ export default function Pricing() {
                   />
                 </div>
 
+                {/* Terms / Privacy agreement — required before Paystack opens */}
+                <label style={{ display:"flex", gap:".6rem", alignItems:"flex-start", marginBottom:"1rem", cursor:"pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={agreed}
+                    onChange={e => setAgreed(e.target.checked)}
+                    style={{ marginTop:3, width:16, height:16, flexShrink:0, accentColor:G, cursor:"pointer" }}
+                  />
+                  <span style={{ fontSize:12, color:mutedText2, lineHeight:1.6 }}>
+                    I agree to the{" "}
+                    <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color:G, fontWeight:600, textDecoration:"none" }}>Terms of Service</a>
+                    {" "}and{" "}
+                    <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color:G, fontWeight:600, textDecoration:"none" }}>Privacy Policy</a>.
+                  </span>
+                </label>
+
                 {/* Due today summary */}
                 <div style={{ background:"rgba(0,255,136,.05)", border:".5px solid rgba(0,255,136,.18)", borderRadius:10, padding:".9rem 1rem", marginBottom:".6rem", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <span style={{ fontSize:13, color:mutedText2 }}>Due today</span>
@@ -323,8 +342,8 @@ export default function Pricing() {
 
                 <button
                   onClick={handlePay}
-                  disabled={loading}
-                  style={{ width:"100%", background:loading?"rgba(0,255,136,.4)":GG, color:"#040608", border:"none", borderRadius:10, padding:".9rem", fontSize:15, fontWeight:700, cursor:loading?"not-allowed":"pointer", fontFamily:"inherit", boxShadow:loading?"none":"0 4px 22px rgba(0,255,136,.35)", marginBottom:".75rem" }}>
+                  disabled={loading || !agreed}
+                  style={{ width:"100%", background:(loading || !agreed)?"rgba(0,255,136,.4)":GG, color:"#040608", border:"none", borderRadius:10, padding:".9rem", fontSize:15, fontWeight:700, cursor:(loading || !agreed)?"not-allowed":"pointer", fontFamily:"inherit", boxShadow:(loading || !agreed)?"none":"0 4px 22px rgba(0,255,136,.35)", marginBottom:".75rem" }}>
                   {loading ? "Loading..." : `Pay $${pkg?.price?.toLocaleString()} securely →`}
                 </button>
 
