@@ -433,7 +433,7 @@ export function CaseStudies() {
               Apply for a free store audit. We'll find your biggest leaks and hand you the roadmap to fix them.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap:"wrap" }}>
-              <Link to="/contact" className="btn-g">Apply for your free audit →</Link>
+              <Link to="/audit" className="btn-g">Apply for your free audit →</Link>
             </div>
           </div>
         </div>

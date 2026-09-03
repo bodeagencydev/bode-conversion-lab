@@ -129,7 +129,7 @@ export default function About() {
                       <Link to="/pricing" onClick={e => e.stopPropagation()} style={{ fontSize:14, fontWeight:700, color:G, textDecoration:"underline" }}>See pricing →</Link>
                       <div style={{ display:"flex", gap:8, alignItems:"center" }}>
                         <Link to={`/services/${s.id}`} onClick={e => e.stopPropagation()} style={{ color:mutedText2, fontSize:13, fontWeight:600, textDecoration:"underline" }}>Learn more</Link>
-                        <Link to="/contact" onClick={e => e.stopPropagation()} style={{ background:GG, color:"#040608", borderRadius:8, padding:".5rem 1.2rem", fontSize:13, fontWeight:700, textDecoration:"none" }}>Apply →</Link>
+                        <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ background:GG, color:"#040608", borderRadius:8, padding:".5rem 1.2rem", fontSize:13, fontWeight:700, textDecoration:"none" }}>Apply →</a>
                       </div>
                     </div>
                   </div>
@@ -178,7 +178,7 @@ export default function About() {
           <p style={{ fontSize:15, color:mutedText2, lineHeight:1.7, margin:"1.5rem 0" }}>
             Apply for a free store audit and find out exactly where your funnel is leaking money.
           </p>
-          <Link to="/contact" className="btn-g" style={{ display:"inline-block" }}>
+          <Link to="/audit" className="btn-g" style={{ display:"inline-block" }}>
             Apply for your free audit →
           </Link>
           <p style={{ fontSize:12, color:mutedText4, marginTop:"1rem" }}>

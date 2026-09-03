@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { G, GG } from "../data.js";
 import { PageWrapper, useTheme } from "../components.jsx";
 
@@ -23,6 +23,69 @@ const TIERS = [
   { id:"fullstack", label:"Full Stack",       price:"$1,997",color:"#FF9900", includes:["Analysis Report","Solution Plan"] },
 ];
 
+/* ─── PRICING SNAPSHOT — condensed rate-card data for the shareable
+   image. Kept as a lightweight duplicate of Pricing.jsx's tier data
+   rather than importing it, since that array lives inside Pricing's
+   component function, not exported. Update both if prices change. */
+const SNAPSHOT_TIERS = [
+  { badge:null, name:"Store Diagnosis", price:"$175", cycle:"per engagement", tagline:"Find out exactly where your store is bleeding money.",
+    items:["Full technical + trust-signal audit","Checkout & conversion friction mapping","Ad account health check","Prioritized fix roadmap"] },
+  { badge:null, name:"Conversion Fix", price:"$497", cycle:"per project", tagline:"Audit + we implement the top 3 revenue leaks ourselves.",
+    items:["Everything in Store Diagnosis","Critical + high-impact fixes implemented","Trust-signal fixes done for you","1x 60-min strategy call"] },
+  { badge:"MOST POPULAR", name:"The Lab", price:"$997", cycle:"per cycle", tagline:"A full conversion system running in your store every cycle.",
+    items:["Everything in Conversion Fix","Meta & TikTok ad management","Conversion compounding — cart recovery, upsells","Weekly performance reports"] },
+  { badge:null, name:"Full Stack", price:"$1,997", cycle:"per cycle", tagline:"Your entire growth engine — built, run, and scaled for you.",
+    items:["Everything in The Lab","Done-for-you landing pages","Full email flow build (Klaviyo)","Dedicated growth strategist"] },
+];
+
+/* Fixed-size off-screen card that html2canvas captures to PNG.
+   Rendered at a set pixel width regardless of viewport so the exported
+   image always looks the same, not responsive/cropped. */
+function PricingSnapshotCard({ innerRef }) {
+  return (
+    <div ref={innerRef} style={{ width:820, background:"#0A0F0C", fontFamily:"'IBM Plex Sans',sans-serif", padding:"48px 44px", boxSizing:"border-box" }}>
+      <div style={{ marginBottom:34 }}>
+        <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:22, fontWeight:800, color:"#fff", margin:0 }}>
+          bode<span style={{ color:"#00FF88" }}>conversion</span>lab
+        </p>
+        <p style={{ fontSize:12.5, color:"#8C8C8C", marginTop:4 }}>We don't run ads. We engineer ROAS.</p>
+      </div>
+
+      {SNAPSHOT_TIERS.map((t, i) => (
+        <div key={i} style={{
+          background: t.badge ? "linear-gradient(135deg,rgba(0,255,136,.1),rgba(0,204,106,.03))" : "rgba(255,255,255,.03)",
+          border: t.badge ? "1.5px solid rgba(0,255,136,.5)" : "1px solid rgba(255,255,255,.1)",
+          borderRadius: 16, padding: "22px 26px", marginBottom: 16,
+        }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
+            <div>
+              {t.badge && <p style={{ fontSize:10, fontWeight:800, color:"#00FF88", letterSpacing:1, marginBottom:4 }}>{t.badge}</p>}
+              <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:19, fontWeight:800, color:"#fff", margin:0 }}>{t.name}</p>
+            </div>
+            <div style={{ textAlign:"right" }}>
+              <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:24, fontWeight:800, color:"#00FF88", margin:0 }}>{t.price}</p>
+              <p style={{ fontSize:10.5, color:"#8C8C8C", margin:0 }}>{t.cycle}</p>
+            </div>
+          </div>
+          <p style={{ fontSize:12.5, color:"#B8B8B8", lineHeight:1.6, marginBottom:12 }}>{t.tagline}</p>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"4px 16px" }}>
+            {t.items.map((it,j) => (
+              <p key={j} style={{ fontSize:11.5, color:"#DDDDDD", margin:0, lineHeight:1.7 }}>
+                <span style={{ color:"#00FF88" }}>✓</span> {it}
+              </p>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:30, paddingTop:22, borderTop:"1px solid rgba(255,255,255,.1)" }}>
+        <p style={{ fontSize:11.5, color:"#8C8C8C", margin:0 }}>bodeconversionlab.vercel.app</p>
+        <p style={{ fontSize:11.5, color:"#8C8C8C", margin:0 }}>All prices in USD · Custom packages available on request</p>
+      </div>
+    </div>
+  );
+}
+
 /* ─── GENERATE CODE ─── */
 function generateCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -46,10 +109,29 @@ export default function Admin() {
   const [loginPass,  setLoginPass]  = useState("");
   const [loginErr,   setLoginErr]   = useState("");
   const [codes,      setCodes]      = useState([]);
-  const [form,       setForm]       = useState({ clientName:"", clientEmail:"", tier:"fix", notes:"" });
+  const [form,       setForm]       = useState({ clientName:"", clientEmail:"", tier:"fix", notes:"", customCode:"" });
   const [copied,     setCopied]     = useState(null);
   const [filter,     setFilter]     = useState("all");
   const [search,     setSearch]     = useState("");
+  const [snapDownloading, setSnapDownloading] = useState(false);
+  const snapshotRef = useRef(null);
+
+  async function handleSnapshotDownload() {
+    setSnapDownloading(true);
+    try {
+      const { default: html2canvas } = await import("html2canvas");
+      const canvas = await html2canvas(snapshotRef.current, { backgroundColor: "#0A0F0C", scale: 2 });
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png");
+      a.download = "BCL-Pricing-Snapshot.png";
+      a.click();
+    } catch (err) {
+      console.error("Snapshot image failed:", err);
+      alert(`Couldn't generate the image: ${err?.message || "unknown error"}`);
+    } finally {
+      setSnapDownloading(false);
+    }
+  }
 
   const headingColor = dark ? "#fff"                  : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.5)"   : "rgba(26,20,8,.65)";
@@ -85,7 +167,11 @@ export default function Admin() {
     if (!form.clientName.trim()) return alert("Client name required.");
     if (!form.clientEmail.trim() || !form.clientEmail.includes("@")) return alert("Valid client email required.");
 
-    const code = generateCode();
+    const custom = form.customCode.trim();
+    if (custom && codes.some(c => c.code.toLowerCase() === custom.toLowerCase())) {
+      return alert(`"${custom}" is already in use by another entry. Pick a different code.`);
+    }
+    const code = custom || generateCode();
     const newEntry = {
       code,
       clientName:  form.clientName.trim(),
@@ -100,7 +186,7 @@ export default function Admin() {
     const updated = [newEntry, ...codes];
     setCodes(updated);
     saveCodes(updated);
-    setForm({ clientName:"", clientEmail:"", tier:"fix", notes:"" });
+    setForm({ clientName:"", clientEmail:"", tier:"fix", notes:"", customCode:"" });
   }
 
   /* Copy code */
@@ -211,6 +297,22 @@ export default function Admin() {
           </button>
         </div>
 
+        {/* Pricing snapshot — professional PNG rate card for sending to
+            clients directly in a chat, replaces manual screenshots */}
+        <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.5rem 1.8rem", marginBottom:"2rem", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"1rem" }}>
+          <div>
+            <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:800, color:headingColor, marginBottom:".3rem" }}>Pricing Snapshot</h3>
+            <p style={{ fontSize:12.5, color:mutedText2, lineHeight:1.6 }}>Branded PNG of all 4 packages — send this instead of a screenshot.</p>
+          </div>
+          <button onClick={handleSnapshotDownload} disabled={snapDownloading} className="btn-g"
+            style={{ fontFamily:"inherit", cursor:snapDownloading?"default":"pointer", opacity:snapDownloading?0.6:1, whiteSpace:"nowrap" }}>
+            {snapDownloading ? "Generating…" : "Download as image →"}
+          </button>
+        </div>
+        <div style={{ position:"fixed", top:0, left:-99999, pointerEvents:"none" }}>
+          <PricingSnapshotCard innerRef={snapshotRef} />
+        </div>
+
         {/* Stats row */}
         <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"0.75rem", marginBottom:"2rem" }}>
           {[
@@ -264,6 +366,13 @@ export default function Admin() {
               <p key={i} style={{ fontSize:12, color:mutedText, margin:0 }}>✓ {item}</p>
             ))}
           </div>
+
+          <input type="text" placeholder='Custom code (optional — e.g. "Apollopro10"), leave blank to auto-generate' value={form.customCode}
+            onChange={e => setForm(p => ({ ...p, customCode:e.target.value }))}
+            style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".8rem 1rem", color:headingColor, fontSize:14, fontFamily:"inherit", outline:"none", boxSizing:"border-box", marginBottom:".75rem" }}
+            onFocus={e => e.target.style.borderColor="rgba(0,255,136,.5)"}
+            onBlur={e => e.target.style.borderColor=inputBorder}
+          />
 
           <input type="text" placeholder="Notes (optional — payment ref, project details...)" value={form.notes}
             onChange={e => setForm(p => ({ ...p, notes:e.target.value }))}

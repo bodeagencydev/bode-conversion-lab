@@ -192,7 +192,7 @@ export function Blog() {
             </p>
             {/* ── CENTERED CTA ── */}
             <div style={{ display:"flex", justifyContent:"center" }}>
-              <Link to="/contact" className="btn-g" style={{ display:"inline-block" }}>
+              <Link to="/audit" className="btn-g" style={{ display:"inline-block" }}>
                 Apply for your free audit →
               </Link>
             </div>
@@ -354,7 +354,7 @@ export function BlogPost() {
             <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.4rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>Want us to implement this for you?</h3>
             <p style={{ fontSize:14, color:mutedText2, marginBottom:"1.5rem", lineHeight:1.7, maxWidth:400, margin:"0 auto 1.5rem" }}>Apply for a free store audit. We'll identify your biggest opportunities and build the system to capture them.</p>
             <div style={{ display:"flex", justifyContent:"center" }}>
-              <Link to="/contact" className="btn-g" style={{ display:"inline-block" }}>Apply for your free audit →</Link>
+              <Link to="/audit" className="btn-g" style={{ display:"inline-block" }}>Apply for your free audit →</Link>
             </div>
           </div>
         </div>

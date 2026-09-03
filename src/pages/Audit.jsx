@@ -460,6 +460,20 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
     verdict: verdictMap[grade],
     isCritical: overall < 50 || mobileScore < 45 || vitScore < 35 || scan?.passwordProtected,
     domain: storeUrl.replace(/https?:\/\//,"").split("/")[0].split("?")[0],
+    /* Structured (non-prose) leak data for the Client Snapshot graphic —
+       everything below is already computed above, just re-packaged as
+       plain numbers instead of finding sentences. */
+    leakSignals: {
+      lcpSeconds: (lcpMs / 1000).toFixed(1),
+      mobileScore,
+      clsBad: clsVal > 0.1,
+      tbtMs: Math.round(tbtMs),
+      brokenLinksCount: scan?.brokenLinks?.length || 0,
+      linksChecked: scan?.linksChecked || 0,
+      missingPolicyCount: Object.values(scan?.policies || {}).filter(p => !p).length,
+      hasReviews: !!scan?.hasReviews,
+      hasLiveChat: !!scan?.hasLiveChat,
+    },
     metrics: {
       mobile:  { score:mobileScore,  label:"Mobile Performance" },
       vitals:  { score:vitScore,     label:"Core Web Vitals" },
@@ -603,6 +617,9 @@ export default function Audit() {
   const [accessErr,  setAccessErr]  = useState("");
   const [showModal,  setShowModal]  = useState(false);
   const [downloading,setDownloading]= useState(null);
+  const [snapVisitors, setSnapVisitors] = useState(5000);
+  const [snapAOV,      setSnapAOV]      = useState(50);
+  const [snapLoading,  setSnapLoading]  = useState(false);
 
   const headingColor = dark?"#fff":"#1A1408";
   const mutedText    = dark?"rgba(255,255,255,.5)":"rgba(26,20,8,.65)";
@@ -656,6 +673,62 @@ export default function Audit() {
     const entry = codes[code];
     if (entry) { setAccessTier(entry.tier); setShowModal(false); setAccessErr(""); }
     else        setAccessErr("Invalid code. Check your payment confirmation or WhatsApp us.");
+  }
+
+  /* ─── CLIENT SNAPSHOT — no access code required, this is Fiyin's own
+     outreach tool, not a client-facing gated deliverable. Turns the
+     already-computed leak signals into a revenue-loss estimate and a
+     branded one-page graphic to send during a prospect conversation. */
+  async function handleSnapshotDownload() {
+    const domain = analysis.domain;
+    const date = new Date().toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+    const sig = analysis.leakSignals;
+    const visitors = Math.max(100, Number(snapVisitors) || 5000);
+    const aov = Math.max(1, Number(snapAOV) || 50);
+
+    const currentCR = Math.max(0.3, +(2.5 - (100 - analysis.overall) * 0.022).toFixed(1));
+    const potentialCRLow = 2.0, potentialCRHigh = 2.5;
+    const lossLow  = Math.max(0, visitors * ((potentialCRLow  - currentCR) / 100) * aov);
+    const lossHigh = Math.max(0, visitors * ((potentialCRHigh - currentCR) / 100) * aov);
+
+    // Weight each leak category by how bad that specific signal actually
+    // is for this store, then normalize so the pieces add up to the total.
+    const rawWeights = {
+      speed:        sig.lcpSeconds > 4 ? 0.34 : sig.lcpSeconds > 2.5 ? 0.20 : 0.06,
+      mobile:       sig.mobileScore < 50 ? 0.26 : sig.mobileScore < 75 ? 0.15 : 0.05,
+      unresponsive: (sig.clsBad || sig.tbtMs > 300) ? 0.22 : 0.08,
+      brokenLinks:  sig.brokenLinksCount > 0 ? Math.min(0.05 * sig.brokenLinksCount, 0.20) : 0.02,
+      trust:        Math.min(0.05 * (sig.missingPolicyCount + (!sig.hasReviews?1:0) + (!sig.hasLiveChat?1:0)), 0.25) || 0.04,
+    };
+    const total = Object.values(rawWeights).reduce((a,b) => a+b, 0);
+    const w = Object.fromEntries(Object.entries(rawWeights).map(([k,v]) => [k, v/total]));
+
+    const leaks = [
+      { title:"Slow Loading Speed", desc:`${sig.lcpSeconds}s to appear (good is <2.5s). Visitors leave before seeing your products.`, lossLow: lossLow*w.speed, lossHigh: lossHigh*w.speed },
+      { title:"Poor Mobile Experience", desc:`Mobile score is only ${sig.mobileScore}/100. Hard to use, buttons too small or too close.`, lossLow: lossLow*w.mobile, lossHigh: lossHigh*w.mobile },
+      { title:"Unresponsive & Shifting Elements", desc:`${sig.tbtMs}ms unresponsive${sig.clsBad?" + elements move while loading":""}. Leads to misclicks and abandonment.`, lossLow: lossLow*w.unresponsive, lossHigh: lossHigh*w.unresponsive },
+      { title:"Broken Links", desc: sig.brokenLinksCount>0 ? `${sig.brokenLinksCount} of ${sig.linksChecked} links checked are broken. Visitors hit dead ends and leave.` : "No broken links detected on the homepage — this one's clean.", lossLow: lossLow*w.brokenLinks, lossHigh: lossHigh*w.brokenLinks },
+      { title:"Trust Signals Missing", desc: `${sig.missingPolicyCount} of 4 policy pages missing${!sig.hasReviews?", no reviews":""}${!sig.hasLiveChat?", no direct chat":""}. Trust = sales.`, lossLow: lossLow*w.trust, lossHigh: lossHigh*w.trust },
+    ];
+
+    setSnapLoading(true);
+    try {
+      const { ClientSnapshotPDF } = await import("./AuditPDFs.jsx");
+      await downloadPDF(createElement(ClientSnapshotPDF, {
+        domain, date, visitors, aov, currentCR, potentialCRLow, potentialCRHigh,
+        lossLow, lossHigh, leaks,
+        overall: analysis.overall, grade: analysis.grade,
+        problemCount: analysis.findings.length,
+        criticalCount: analysis.findings.filter(f => f.severity==="critical").length,
+        topIssues: analysis.topIssues,
+        calendlyUrl: "calendly.com/bodeagencyofficial/30min",
+      }), `BCL-Snapshot-${domain}.pdf`);
+    } catch (err) {
+      console.error("Snapshot generation failed:", err);
+      alert(`Couldn't generate the snapshot: ${err?.message || "unknown error"}`);
+    } finally {
+      setSnapLoading(false);
+    }
   }
 
   async function handleDownload(type) {
@@ -925,6 +998,33 @@ export default function Audit() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Client Snapshot — Fiyin's outreach tool, not access-code
+              gated. Two quick assumption inputs (visitors + AOV are
+              store-specific and not scrapable) then a one-page branded
+              graphic to send in a client conversation. */}
+          <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.8rem", marginBottom:"1.5rem" }}>
+            <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:".4rem" }}>Generate Client Snapshot</h3>
+            <p style={{ fontSize:13, color:mutedText2, lineHeight:1.6, marginBottom:"1.2rem" }}>
+              A one-page branded "how much you're losing" graphic for outreach or a live conversation — not gated, no access code needed. Estimate their traffic and average order value below (edit if you know them better).
+            </p>
+            <div style={{ display:"flex", gap:"0.75rem", flexWrap:"wrap", marginBottom:"1rem" }}>
+              <label style={{ flex:"1 1 160px" }}>
+                <span style={{ display:"block", fontSize:11, color:mutedText3, marginBottom:4 }}>Estimated monthly visitors</span>
+                <input type="number" value={snapVisitors} onChange={e => setSnapVisitors(e.target.value)}
+                  style={{ width:"100%", background:dark?"rgba(255,255,255,.05)":"#fff", border:`.5px solid ${cardBorder}`, borderRadius:8, padding:".6rem .8rem", color:headingColor, fontSize:14, fontFamily:"inherit", boxSizing:"border-box" }} />
+              </label>
+              <label style={{ flex:"1 1 160px" }}>
+                <span style={{ display:"block", fontSize:11, color:mutedText3, marginBottom:4 }}>Average order value ($)</span>
+                <input type="number" value={snapAOV} onChange={e => setSnapAOV(e.target.value)}
+                  style={{ width:"100%", background:dark?"rgba(255,255,255,.05)":"#fff", border:`.5px solid ${cardBorder}`, borderRadius:8, padding:".6rem .8rem", color:headingColor, fontSize:14, fontFamily:"inherit", boxSizing:"border-box" }} />
+              </label>
+            </div>
+            <button onClick={handleSnapshotDownload} disabled={snapLoading}
+              style={{ width:"100%", background:GG, color:"#040608", border:"none", borderRadius:8, padding:".75rem", fontSize:14, fontWeight:700, cursor:snapLoading?"default":"pointer", fontFamily:"inherit", opacity:snapLoading?0.6:1 }}>
+              {snapLoading ? "Generating…" : "Download Client Snapshot →"}
+            </button>
           </div>
 
           {/* Downloads */}

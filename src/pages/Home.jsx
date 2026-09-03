@@ -144,16 +144,16 @@ function FreeRedesignOffer() {
         <a
           href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi! I'd like to claim my free redesign consultation. My code: ${code}`)}
           target="_blank" rel="noopener noreferrer"
-          style={{ padding: "6px 16px", borderRadius: 8, background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 12, textDecoration: "none", whiteSpace: "nowrap" }}
+          style={{ display:"inline-flex", alignItems:"center", lineHeight:1, padding: "8px 16px", borderRadius: 8, background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 12, textDecoration: "none", whiteSpace: "nowrap" }}
         >
           Claim on WhatsApp →
         </a>
 
-        <span style={{ fontSize: 12, color: mutedText }}>or</span>
+        <span style={{ fontSize: 12, color: mutedText, lineHeight:1 }}>or</span>
 
         <a
           href={`mailto:bodeagencyofficial@gmail.com?subject=${encodeURIComponent("Claim my free redesign consultation")}&body=${encodeURIComponent(`My code: ${code}`)}`}
-          style={{ fontSize: 12, color: "#fff", textDecoration: "underline", whiteSpace: "nowrap" }}
+          style={{ display:"inline-flex", alignItems:"center", lineHeight:1, fontSize: 12, color: "#fff", textDecoration: "underline", whiteSpace: "nowrap" }}
         >
           email us
         </a>
@@ -225,9 +225,9 @@ export default function Home() {
             <ScrollReveal delay={0.4}>
               <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-start", gap:14, marginBottom:"2.8rem" }}>
                 <Magnetic>
-                  <Link to="/contact" className="btn-g" data-cursor="Apply">
+                  <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer" className="btn-g" data-cursor="Apply">
                     Apply for a free strategy call →
-                  </Link>
+                  </a>
                 </Magnetic>
                 <Link
                   to="/case-studies"
@@ -487,7 +487,7 @@ export default function Home() {
                 Join stores that went from struggling to scaling. Get your free store audit today — no commitment needed.
               </p>
               <Magnetic>
-                <Link to="/contact" className="btn-g" style={{ display:"inline-block" }} data-cursor="Apply">
+                <Link to="/audit" className="btn-g" style={{ display:"inline-block" }} data-cursor="Apply">
                   Apply for your free audit →
                 </Link>
               </Magnetic>

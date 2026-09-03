@@ -427,3 +427,138 @@ export function GrowthMarketingPDF({ analysis, solution, date }) {
     </Document>
   );
 }
+
+/* ─────────────────────────────────────────────────────────
+   CLIENT SNAPSHOT — one-page branded "how much you're losing"
+   graphic, built for Fiyin to generate on a call or in a DM with
+   a prospect, not for the visitor-facing free download flow.
+   Visuals are simplified (colored dots instead of icon art —
+   react-pdf can't render arbitrary icon fonts) but the layout
+   mirrors the reference: dark hero, bottom-line loss figure,
+   calculation table, 5-way leak breakdown, health gauge, CTA footer.
+───────────────────────────────────────────────────────── */
+const snap = StyleSheet.create({
+  page: { fontFamily:"IBM Plex Sans", fontSize: 9.5, color: INK, backgroundColor: "#FFFFFF" },
+  hero: { backgroundColor: "#0A0F0C", padding: "30 36", },
+  heroBrand: { fontSize: 12, fontWeight: 800, color: "#FFFFFF", marginBottom: 3 },
+  heroKicker: { fontSize: 8, color: "#8C8C8C", letterSpacing: 1, textTransform: "uppercase", marginBottom: 16 },
+  heroTitle1: { fontFamily:"Space Grotesk", fontSize: 15, fontWeight: 700, color: "#FFFFFF" },
+  heroTitle2: { fontFamily:"Space Grotesk", fontSize: 26, fontWeight: 700, color: "#FFFFFF" },
+  heroTitle2Red: { color: RED },
+  heroSub: { fontSize: 9, color: "#B8B8B8", lineHeight: 1.6, maxWidth: 380, marginTop: 8 },
+  body: { padding: "22 36" },
+  card: { border: `1 solid ${LINE}`, borderRadius: 10, padding: 16, marginBottom: 14 },
+  cardLabel: { fontSize: 8.5, fontWeight: 800, color: RED, textTransform: "uppercase", letterSpacing: 0.6, marginBottom: 8 },
+  bottomLineFigure: { fontFamily:"Space Grotesk", fontSize: 34, fontWeight: 700, color: RED, marginTop: 4 },
+  bottomLineSuffix: { fontSize: 12, fontWeight: 700, color: INK, marginTop: 2 },
+  bottomLineNote: { fontSize: 8, color: MUTED, marginTop: 8, lineHeight: 1.5 },
+  calcRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 5, borderBottom: `0.5 solid ${LINE}` },
+  calcLabel: { fontSize: 8.5, color: MUTED },
+  calcValue: { fontSize: 8.5, fontWeight: 700, color: INK },
+  leakGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  leakCard: { width: "31.5%", border: `1 solid ${LINE}`, borderRadius: 8, padding: 10, marginBottom: 8 },
+  leakDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: RED, marginBottom: 6 },
+  leakTitle: { fontSize: 8.3, fontWeight: 800, color: INK, marginBottom: 4, lineHeight: 1.3 },
+  leakDesc: { fontSize: 7, color: MUTED, lineHeight: 1.4, marginBottom: 6 },
+  leakLoss: { fontSize: 7.8, fontWeight: 800, color: RED },
+  healthRow: { flexDirection: "row", gap: 18, alignItems: "center" },
+  bullet: { flexDirection: "row", alignItems: "flex-start", marginBottom: 6 },
+  bulletDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: RED, marginTop: 3.5, marginRight: 6 },
+  footer: { backgroundColor: "#0A0F0C", padding: "16 36", flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  footerBrand: { fontSize: 9.5, fontWeight: 800, color: "#FFFFFF" },
+  footerTag: { fontSize: 7.5, color: "#8C8C8C", marginTop: 2 },
+  ctaBox: { backgroundColor: GREEN, borderRadius: 8, padding: "9 14" },
+  ctaText: { fontSize: 8.5, fontWeight: 800, color: "#0A0F0C" },
+});
+
+export function ClientSnapshotPDF({ domain, date, visitors, aov, currentCR, potentialCRLow, potentialCRHigh, lossLow, lossHigh, leaks, overall, grade, problemCount, criticalCount, topIssues, calendlyUrl }) {
+  const fmt = n => "$" + Math.round(n).toLocaleString();
+  return (
+    <Document title={`BCL Client Snapshot — ${domain}`}>
+      <Page size="A4" style={snap.page}>
+        <View style={snap.hero}>
+          <Text style={snap.heroBrand}>bodeconversionlab.vercel.app</Text>
+          <Text style={snap.heroKicker}>E-Commerce Conversion Audit</Text>
+          <Text style={snap.heroTitle1}>How Much <Text style={{ color: RED }}>{domain}</Text></Text>
+          <Text style={snap.heroTitle2}>IS LOSING <Text style={snap.heroTitle2Red}>PER MONTH</Text></Text>
+          <Text style={snap.heroSub}>Poor speed, user experience, and missing trust signals are costing your store real money every month.</Text>
+        </View>
+
+        <View style={snap.body}>
+          <View style={{ flexDirection: "row", gap: 14 }}>
+            <View style={{ ...snap.card, flex: 1 }}>
+              <Text style={snap.cardLabel}>The Bottom Line</Text>
+              <Text style={{ fontSize: 8.5, color: MUTED, lineHeight: 1.5 }}>Based on current traffic and conversion leaks, you're losing an estimated:</Text>
+              <Text style={snap.bottomLineFigure}>{fmt(lossLow)} – {fmt(lossHigh)}</Text>
+              <Text style={snap.bottomLineSuffix}>PER MONTH</Text>
+              <Text style={snap.bottomLineNote}>That's {fmt(lossLow*12)} – {fmt(lossHigh*12)} per year in potential revenue walking away.</Text>
+            </View>
+
+            <View style={{ ...snap.card, flex: 1 }}>
+              <Text style={{ ...snap.cardLabel, color: INK }}>How We Calculated This</Text>
+              <View style={snap.calcRow}><Text style={snap.calcLabel}>Estimated Monthly Visitors</Text><Text style={snap.calcValue}>{visitors.toLocaleString()}</Text></View>
+              <View style={snap.calcRow}><Text style={snap.calcLabel}>Current Conversion Rate (est.)</Text><Text style={snap.calcValue}>{currentCR}%</Text></View>
+              <View style={snap.calcRow}><Text style={snap.calcLabel}>Potential Conversion Rate (fixed)</Text><Text style={snap.calcValue}>{potentialCRLow}% – {potentialCRHigh}%</Text></View>
+              <View style={snap.calcRow}><Text style={snap.calcLabel}>Average Order Value</Text><Text style={snap.calcValue}>${aov}</Text></View>
+              <View style={{ ...snap.calcRow, borderBottom: "none" }}><Text style={{ ...snap.calcLabel, fontWeight: 800, color: RED }}>Revenue Lost Per Month</Text><Text style={{ ...snap.calcValue, color: RED }}>{fmt(lossLow)} – {fmt(lossHigh)}</Text></View>
+            </View>
+          </View>
+
+          <Text style={{ fontSize: 11, fontWeight: 800, color: INK, marginBottom: 8 }}>Where The Money Is Leaking</Text>
+          <View style={snap.leakGrid}>
+            {leaks.map((l, i) => (
+              <View key={i} style={snap.leakCard}>
+                <View style={snap.leakDot} />
+                <Text style={snap.leakTitle}>{l.title}</Text>
+                <Text style={snap.leakDesc}>{l.desc}</Text>
+                <Text style={snap.leakLoss}>{fmt(l.lossLow)} – {fmt(l.lossHigh)}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={{ flexDirection: "row", gap: 14, marginTop: 6 }}>
+            <View style={{ ...snap.card, flex: 1, backgroundColor: "#0A0F0C", borderColor: "#0A0F0C" }}>
+              <Text style={{ fontSize: 8.5, fontWeight: 800, color: "#FFFFFF", marginBottom: 10 }}>Current Store Health</Text>
+              <View style={snap.healthRow}>
+                <ScoreGauge score={overall} grade={grade} size={90} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 8, color: "#B8B8B8", marginBottom: 3 }}>{problemCount} problems identified</Text>
+                  {criticalCount > 0 && (
+                    <View style={{ backgroundColor: RED, borderRadius: 4, paddingVertical: 2, paddingHorizontal: 8, alignSelf: "flex-start", marginBottom: 6 }}>
+                      <Text style={{ fontSize: 7, fontWeight: 800, color: "#FFFFFF" }}>{criticalCount} CRITICAL ISSUES</Text>
+                    </View>
+                  )}
+                  {topIssues.slice(0,4).map((t,i) => (
+                    <View key={i} style={snap.bullet}><View style={{ ...snap.bulletDot, backgroundColor: "#FFFFFF" }} /><Text style={{ fontSize: 7.3, color: "#DDDDDD", lineHeight: 1.4 }}>{t}</Text></View>
+                  ))}
+                </View>
+              </View>
+            </View>
+
+            <View style={{ ...snap.card, flex: 1 }}>
+              <Text style={{ fontSize: 8.5, fontWeight: 800, color: INK, marginBottom: 10 }}>What This Means For Your Business</Text>
+              {[
+                "You're paying for traffic, but the website isn't converting it.",
+                "Potential customers are losing patience, losing trust, or getting stuck.",
+                "Every day these issues remain, real revenue is being left on the table.",
+                "Fix the leaks first, then scale the traffic for maximum growth.",
+              ].map((t,i) => (
+                <View key={i} style={snap.bullet}><View style={snap.bulletDot} /><Text style={{ fontSize: 7.5, color: MUTED, lineHeight: 1.45 }}>{t}</Text></View>
+              ))}
+            </View>
+          </View>
+        </View>
+
+        <View style={snap.footer}>
+          <View>
+            <Text style={snap.footerBrand}>bodeconversionlab.vercel.app</Text>
+            <Text style={snap.footerTag}>We fix the leaks. You keep the profit.</Text>
+          </View>
+          <View style={snap.ctaBox}>
+            <Text style={snap.ctaText}>Book a free strategy call: {calendlyUrl}</Text>
+          </View>
+        </View>
+      </Page>
+    </Document>
+  );
+}
