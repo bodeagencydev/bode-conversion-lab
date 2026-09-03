@@ -4,7 +4,13 @@ import { PageWrapper, useTheme } from "../components.jsx";
 
 /* ─── CONFIG ─── */
 const ADMIN_EMAIL    = "bodeagencyofficial@gmail.com";
-const ADMIN_PASSWORD = "bode2026admin"; // change this to something only you know
+/* Password lives in Vercel Environment Variables ONLY — same pattern as
+   VITE_TELEGRAM_TOKEN. Never paste your real password here; GitHub will
+   flag it. In Vercel: Settings → Environment Variables → add
+   VITE_ADMIN_PASSWORD → your own password → redeploy. Falls back to the
+   placeholder below only if that variable isn't set, so set it before
+   relying on this. */
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "bode2026admin";
 
 /* ─── ACCESS CODE STORAGE KEY ─── */
 const STORAGE_KEY = "bcl_access_codes";

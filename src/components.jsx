@@ -181,12 +181,12 @@ export function Nav() {
               </Link>
             );
           })}
-          <Link to="/contact"
+          <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer"
             style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", lineHeight:1, background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:"0 2px 14px rgba(0,255,136,.3)", transition:"transform .2s,box-shadow .2s" }}
             onMouseEnter={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 22px rgba(0,255,136,.5)"; }}
             onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 2px 14px rgba(0,255,136,.3)"; }}>
             Apply Now →
-          </Link>
+          </a>
         </div>
 
         <button onClick={() => setMenuOpen(o => !o)} className="nav-hamburger"
@@ -221,9 +221,9 @@ export function Nav() {
             </Link>
           );
         })}
-        <Link to="/contact" style={{ display:"inline-block", marginTop:"1rem", background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none" }}>
+        <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer" style={{ display:"inline-block", marginTop:"1rem", background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none" }}>
           Apply Now →
-        </Link>
+        </a>
       </div>
 
       <style>{`@media(max-width:768px){.nav-desktop{display:none!important;}.nav-hamburger{display:flex!important;}}`}</style>
@@ -286,7 +286,7 @@ function HelpMenuPopup() {
   const options = [
     { label: "See what a free audit finds", to: "/audit" },
     { label: "Check pricing & packages", to: "/pricing" },
-    { label: "Talk to a human on WhatsApp", href: "https://wa.me/2349064885280?text=" + encodeURIComponent("Hi, I have a question before getting started.") },
+    { label: "Talk to a human on WhatsApp", href: "https://wa.me/19454076473?text=" + encodeURIComponent("Hi, I have a question before getting started.") },
     { label: "Just browsing for now", dismiss: true },
   ];
 
@@ -483,9 +483,10 @@ export function CookieConsent() {
         background:bg, border:`.5px solid ${border}`, borderRadius:14,
         padding:"14px 18px", boxShadow:"0 12px 40px rgba(0,0,0,.25)",
       }}>
-        <p style={{ fontSize:12.5, color:text, lineHeight:1.55, margin:0, flex:"1 1 320px" }}>
-          We use one preference cookie to remember your theme (dark/light) — nothing tracked, nothing sold. See our{" "}
-          <a href="/privacy" style={{ color:G, fontWeight:600, textDecoration:"none" }}>Privacy Policy</a>.
+        <p style={{ fontSize:12.5, color:text, lineHeight:1.55, margin:0, flex:"1 1 320px", display:"flex", gap:8, alignItems:"flex-start" }}>
+          <span style={{ fontSize:16, flexShrink:0 }}>🍪</span>
+          <span>We use cookies to enhance your browsing experience and remember your preferences. By clicking "Accept", you consent to our use of cookies. Read our{" "}
+          <a href="/privacy" style={{ color:G, fontWeight:600, textDecoration:"none" }}>Privacy Policy</a> to learn more.</span>
         </p>
         <div style={{ display:"flex", gap:".6rem", flexShrink:0 }}>
           <button
@@ -504,7 +505,7 @@ export function CookieConsent() {
               borderRadius:8, padding:"9px 18px", fontSize:13, fontWeight:700,
               cursor:"pointer", fontFamily:"inherit",
             }}>
-            Accept
+            Accept All
           </button>
         </div>
       </div>
@@ -834,12 +835,12 @@ export function Footer() {
             </a>
           </div>
           <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-start", gap:".5rem" }}>
-            <Link to="/contact"
+            <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer"
               style={{ display:"inline-block", background:GG, color:"#040608", borderRadius:10, padding:".65rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none", boxShadow:"0 4px 18px rgba(0,255,136,.35)", transition:"transform .2s,box-shadow .2s", whiteSpace:"nowrap" }}
               onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 8px 28px rgba(0,255,136,.5)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 18px rgba(0,255,136,.35)"; }}>
               Apply Now →
-            </Link>
+            </a>
             <p style={{ fontSize:12, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>Response within 24 hours.</p>
           </div>
         </div>

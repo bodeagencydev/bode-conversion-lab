@@ -2,9 +2,18 @@ import { useState, useEffect } from "react";
 import { G, GG, FAQS } from "../data.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
 
-import { notifyPayment, notifyPopupCapture } from "../NotificationSystem.js";
+import { notifyPayment, notifyAccessCode } from "../NotificationSystem.js";
 
 const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_KEY || "pk_test_469a79a7423df47Xb9e51cf45da2bbd640187dcd";
+
+/* Same format/char-set as Admin.jsx's generator, kept local here so
+   checkout doesn't depend on the admin page loading first. */
+function generateAccessCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "BCL-";
+  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
 
 function loadPaystack() {
   return new Promise((resolve) => {
@@ -26,31 +35,8 @@ export default function Pricing() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [agreed, setAgreed] = useState(false);
-
-  const [unlocked, setUnlocked] = useState(() =>
-    typeof window !== "undefined" && localStorage.getItem("bcl_pricing_unlocked") === "1"
-  );
-  const [gateEmail, setGateEmail] = useState("");
-  const [gateSubmitting, setGateSubmitting] = useState(false);
-  const [gateError, setGateError] = useState("");
-
-  const handleUnlock = async (e) => {
-    e.preventDefault();
-    if (!gateEmail.includes("@")) { setGateError("Enter a valid email"); return; }
-    setGateSubmitting(true);
-    setGateError("");
-    try {
-      await fetch("https://formspree.io/f/xaqadyal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: gateEmail, _subject: "Pricing page unlocked" }),
-      });
-    } catch {}
-    notifyPopupCapture(gateEmail, "pricing_gate");
-    localStorage.setItem("bcl_pricing_unlocked", "1");
-    setUnlocked(true);
-    setGateSubmitting(false);
-  };
+  const [issuedCode, setIssuedCode] = useState("");
+  const [codeCopied, setCodeCopied] = useState(false);
 
   const headingColor = dark ? "#fff"                 : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.62)";
@@ -189,6 +175,32 @@ export default function Pricing() {
       },
       callback: () => {
         setSuccess(true);
+
+        // Auto-issue an access code the moment payment clears — no more
+        // manually opening /admin to generate one. Saved into the same
+        // localStorage key Admin.jsx and Audit.jsx already read, shown to
+        // the client immediately, and pushed to your email (Formspree) +
+        // Telegram so you have a record even without opening the site.
+        const code = generateAccessCode();
+        setIssuedCode(code);
+        try {
+          const existing = JSON.parse(localStorage.getItem("bcl_access_codes") || "[]");
+          const entry = {
+            code, clientName: name, clientEmail: email, tier: pkg.name,
+            notes: "Auto-generated at checkout", createdAt: new Date().toISOString(),
+            used: false, active: true,
+          };
+          localStorage.setItem("bcl_access_codes", JSON.stringify([entry, ...existing]));
+        } catch {}
+        fetch("https://formspree.io/f/xaqadyal", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            _subject: `New Access Code — ${pkg.name}`,
+            clientName: name, clientEmail: email, package: pkg.name, code,
+          }),
+        }).catch(() => {});
+        notifyAccessCode(code, name, email, pkg.name);
       },
       onClose: () => {
         setError("Payment window closed. Try again when ready.");
@@ -234,6 +246,18 @@ export default function Pricing() {
                     You're in for <strong>{pkg?.name}</strong>. Here's exactly what happens next.
                   </p>
                 </div>
+
+                {issuedCode && (
+                  <div
+                    onClick={() => { navigator.clipboard.writeText(issuedCode); setCodeCopied(true); setTimeout(() => setCodeCopied(false), 2000); }}
+                    style={{ background:"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.3)", borderRadius:14, padding:"1.1rem", textAlign:"center", marginBottom:"1.6rem", cursor:"pointer" }}>
+                    <p style={{ fontSize:11, color:mutedText, marginBottom:6 }}>Your report access code — tap to copy</p>
+                    <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.5rem", fontWeight:800, color:G, letterSpacing:".1em", margin:0 }}>{issuedCode}</p>
+                    <p style={{ fontSize:11, color:codeCopied?G:mutedText, marginTop:6, fontWeight:codeCopied?700:400 }}>
+                      {codeCopied ? "Copied!" : "Use this on the Audit page to unlock your downloads"}
+                    </p>
+                  </div>
+                )}
 
                 <div style={{ display:"flex", flexDirection:"column", gap:"1rem", marginBottom:"1.6rem" }}>
                   {[
@@ -333,6 +357,16 @@ export default function Pricing() {
                   <span style={{ flexShrink:0, width:14, height:14, borderRadius:"50%", border:`1px solid ${mutedText3}`, color:mutedText3, fontSize:9, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center", marginTop:2 }}>i</span>
                   <p style={{ fontSize:11.5, color:mutedText3, lineHeight:1.55, margin:0 }}>
                     Any amount paid is converted to its equivalent value and applied directly as <strong style={{ color:mutedText2 }}>credit toward your project</strong> — nothing is lost in the process, your full ${pkg?.price?.toLocaleString()} goes to work for your store. Your bank may show this as a standard international transaction.
+                  </p>
+                </div>
+
+                {/* Processing fee notice — small card fee is passed to the
+                    customer at checkout rather than absorbed and quietly
+                    priced into the package, so the sticker price stays real */}
+                <div style={{ display:"flex", gap:".5rem", alignItems:"flex-start", marginBottom:"1.2rem", padding:".7rem .8rem", background:dark?"rgba(255,255,255,.03)":"rgba(26,20,8,.03)", border:`.5px solid ${inputBorder}`, borderRadius:8 }}>
+                  <span style={{ flexShrink:0, width:14, height:14, borderRadius:"50%", border:`1px solid ${mutedText3}`, color:mutedText3, fontSize:9, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center", marginTop:2 }}>i</span>
+                  <p style={{ fontSize:11.5, color:mutedText3, lineHeight:1.55, margin:0 }}>
+                    A small card processing fee, charged by our payment processor, may be added at the final checkout step. We keep this separate on purpose — it means <strong style={{ color:mutedText2 }}>the price you see above is never quietly padded</strong> to absorb transaction costs, it stays exactly what it says.
                   </p>
                 </div>
 
@@ -447,10 +481,6 @@ export default function Pricing() {
               <div style={{ position:"relative" }}>
                 <div style={{
                   display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"1rem",
-                  filter: unlocked ? "none" : "blur(14px)",
-                  pointerEvents: unlocked ? "auto" : "none",
-                  userSelect: unlocked ? "auto" : "none",
-                  transition: "filter .3s"
                 }} className="offer-grid">
                 {tiers.map((o, i) => (
                   <div key={i} className={`offer-card ${o.feat ? "feat" : ""}`} style={{ display:"flex", flexDirection:"column" }}>
@@ -488,37 +518,6 @@ export default function Pricing() {
                   </div>
                 ))}
                 </div>
-
-                {!unlocked && (
-                  <div style={{
-                    position:"absolute", inset:0, zIndex:10, display:"flex",
-                    alignItems:"center", justifyContent:"center", padding:"1rem"
-                  }}>
-                    <form onSubmit={handleUnlock} style={{
-                      background: modalBg, border:`.5px solid ${inputBorder}`, borderRadius:20,
-                      padding:"2rem clamp(1.5rem,4vw,2.5rem)", maxWidth:420, width:"100%",
-                      textAlign:"center", boxShadow:"0 20px 60px rgba(0,0,0,.4)"
-                    }}>
-                      <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:800, color:headingColor, marginBottom:".5rem" }}>
-                        Unlock pricing
-                      </h3>
-                      <p style={{ fontSize:13, color:mutedText3, marginBottom:"1.2rem", lineHeight:1.6 }}>
-                        We don't work with everyone. Drop your email and we'll show you exactly where you fit — plus send our full breakdown for later.
-                      </p>
-                      <input
-                        type="email" required placeholder="you@yourstore.com" value={gateEmail}
-                        onChange={e => setGateEmail(e.target.value)}
-                        style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".8rem 1rem", color:headingColor, fontSize:14, fontFamily:"inherit", outline:"none", boxSizing:"border-box", marginBottom:".75rem" }}
-                      />
-                      {gateError && <p style={{ color:"#ff6b6b", fontSize:12, marginBottom:".75rem" }}>{gateError}</p>}
-                      <button type="submit" disabled={gateSubmitting}
-                        style={{ width:"100%", background:GG, color:"#040608", border:"none", borderRadius:10, padding:".85rem", fontSize:14, fontWeight:700, cursor:gateSubmitting?"not-allowed":"pointer", fontFamily:"inherit", opacity:gateSubmitting?0.7:1 }}>
-                        {gateSubmitting ? "Unlocking..." : "Unlock pricing →"}
-                      </button>
-                      <p style={{ fontSize:11, color:mutedText4, marginTop:"1rem" }}>No spam. Just the numbers.</p>
-                    </form>
-                  </div>
-                )}
               </div>
 
               <div style={{ textAlign:"center", marginTop:"2.5rem" }}>

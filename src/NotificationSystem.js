@@ -142,6 +142,19 @@ export async function notifyPayment(packageName, amount, email) {
   );
 }
 
+/* ─── Access code auto-generated at checkout ── */
+export async function notifyAccessCode(code, clientName, clientEmail, tier) {
+  await sendTelegram(
+`🔑 <b>ACCESS CODE ISSUED</b>
+
+👤 <b>Client:</b> ${clientName}
+📧 <b>Email:</b> ${clientEmail}
+📦 <b>Package:</b> ${tier}
+🔐 <b>Code:</b> ${code}
+🕐 ${now()}`
+  );
+}
+
 /* ─── Popup email captured ── */
 export async function notifyPopupCapture(email, type) {
   await sendTelegram(
