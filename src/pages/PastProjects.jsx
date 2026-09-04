@@ -26,11 +26,28 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
   const [playing, setPlaying] = useState(false);
   const [thumb, setThumb]     = useState(null);
   const [failed, setFailed]   = useState(false);
+  const [inView, setInView]   = useState(false);
   const captureRef = useRef(null);
+  const wrapperRef = useRef(null);
+
+  // Only start loading/decoding this card's video once it's actually
+  // about to scroll into view — previously all 6 videos started loading
+  // and seeking simultaneously on page mount, which is what caused the
+  // page-load jank/lag specific to this page.
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } },
+      { rootMargin: "300px" } // start a little before it's actually on screen
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const vid = captureRef.current;
-    if (!vid || playing || thumb) return;
+    if (!vid || !inView || playing || thumb) return;
 
     const onLoadedMeta = () => {
       try { vid.currentTime = Math.min(1, (vid.duration || 2) / 4); }
@@ -55,10 +72,10 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
       vid.removeEventListener("seeked", onSeeked);
       vid.removeEventListener("error", onError);
     };
-  }, [playing, thumb]);
+  }, [inView, playing, thumb]);
 
   return (
-    <div style={{
+    <div ref={wrapperRef} style={{
       background: dark
         ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))"
         : "linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,.25))",
@@ -71,7 +88,7 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
       onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; e.currentTarget.style.borderColor=cardBorder; }}>
 
       <div style={{ aspectRatio: "16/10", position: "relative", overflow: "hidden", background: dark ? "rgba(0,0,0,.4)" : "rgba(26,20,8,.06)" }}>
-        {!playing && !thumb && !failed && (
+        {inView && !playing && !thumb && !failed && (
           <video ref={captureRef} src={item.videoSrc} muted playsInline preload="metadata"
             style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }} />
         )}
