@@ -571,20 +571,26 @@ function buildSolutionPlan(analysis) {
    html2canvas (not react-pdf) so Fiyin gets a real image file he can
    drop straight into a WhatsApp chat. Fixed pixel width so the export
    always looks the same regardless of the visitor's screen. */
-function ClientSnapshotCard({ innerRef, domain, visitors, aov, currentCR, potentialCRLow, potentialCRHigh, lossLow, lossHigh, leaks, overall, grade, problemCount, criticalCount, topIssues }) {
+function ClientSnapshotCard({ innerRef, domain, visitors, aov, currentCR, potentialCRLow, potentialCRHigh, lossLow, lossHigh, leaks, recommended, overall, grade, problemCount, criticalCount, topIssues }) {
   const fmt = n => "$" + Math.round(n).toLocaleString();
   return (
     <div ref={innerRef} style={{ width:860, background:"#fff", fontFamily:"'IBM Plex Sans',sans-serif", color:"#1A1408" }}>
+      {/* Top brand accent bar — a real, visible strip of brand color the
+          eye hits before anything else, not just a small corner logo */}
+      <div style={{ height:6, background:"linear-gradient(90deg,#00FF88,#00CC6A)" }} />
       {/* Hero */}
       <div style={{ background:"#0A0F0C", padding:"36px 40px", position:"relative" }}>
-        <div style={{ position:"absolute", top:36, right:40, width:40, height:40, borderRadius:10, background:"rgba(0,255,136,.1)", border:"1px solid rgba(0,255,136,.3)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <div style={{ position:"absolute", top:36, right:40, width:48, height:48, borderRadius:12, background:"rgba(0,255,136,.1)", border:"1.5px solid rgba(0,255,136,.4)", display:"flex", alignItems:"center", justifyContent:"center" }}>
           <img src="/logo-mark.png" alt="" style={{ width:"64%", height:"64%", objectFit:"contain" }} />
         </div>
-        <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:15, fontWeight:800, color:"#fff", margin:0 }}>bodeconversionlab.vercel.app</p>
+        <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:16, fontWeight:800, color:"#fff", margin:0 }}>bode<span style={{color:"#00FF88"}}>conversion</span>lab</p>
         <p style={{ fontSize:10, color:"#8C8C8C", letterSpacing:1.2, textTransform:"uppercase", margin:"3px 0 18px" }}>E-Commerce Conversion Audit</p>
         <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:19, fontWeight:700, color:"#fff", margin:0 }}>How Much <span style={{ color:"#FF3B3B" }}>{domain}</span></p>
         <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:34, fontWeight:700, color:"#fff", margin:"2px 0 0" }}>IS LOSING <span style={{ color:"#FF3B3B" }}>PER MONTH</span></p>
         <p style={{ fontSize:12.5, color:"#B8B8B8", lineHeight:1.6, maxWidth:460, marginTop:12 }}>Poor speed, user experience, and missing trust signals are costing your store real money every month.</p>
+        <p style={{ fontSize:9.5, color:"#00FF88", fontWeight:700, letterSpacing:.5, marginTop:14, display:"flex", alignItems:"center", gap:6 }}>
+          <span>●</span> LIVE DATA — Google PageSpeed Insights + trust-signal scan, not estimated
+        </p>
       </div>
 
       <div style={{ padding:"28px 40px" }}>
@@ -662,6 +668,19 @@ function ClientSnapshotCard({ innerRef, domain, visitors, aov, currentCR, potent
             ))}
           </div>
         </div>
+
+        {recommended && (
+          <div style={{ marginTop:20, background:"linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.02))", border:"1.5px solid rgba(0,204,106,.4)", borderRadius:14, padding:22, display:"flex", justifyContent:"space-between", alignItems:"center", gap:20 }}>
+            <div>
+              <p style={{ fontSize:10, fontWeight:800, color:"#00A868", textTransform:"uppercase", letterSpacing:.8, marginBottom:6 }}>Recommended For This Store</p>
+              <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:20, fontWeight:800, color:"#1A1408", margin:0 }}>{recommended.name} — {recommended.price}</p>
+              <p style={{ fontSize:11, color:"#6B6249", lineHeight:1.55, marginTop:6, maxWidth:480 }}>{recommended.reason}</p>
+            </div>
+            <div style={{ background:"#00FF88", borderRadius:8, padding:"10px 18px", flexShrink:0 }}>
+              <p style={{ fontSize:11, fontWeight:800, color:"#0A0F0C", margin:0, whiteSpace:"nowrap" }}>Get started →</p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div style={{ background:"#0A0F0C", padding:"16px 40px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
@@ -822,14 +841,30 @@ export default function Audit() {
       { title:"Trust Signals Missing", desc: `${sig.missingPolicyCount} of 4 policy pages missing${!sig.hasReviews?", no reviews":""}${!sig.hasLiveChat?", no direct chat":""}. Trust = sales.`, lossLow: lossLow*w.trust, lossHigh: lossHigh*w.trust },
     ];
 
+    // Recommended package — tied to actual severity of what was found,
+    // not a dice roll. Worst stores → Full Stack, healthiest → Diagnosis
+    // only, everything in the broad struggling-store middle (the most
+    // common case in practice) → The Lab, decent-but-flawed → Conversion Fix.
+    const criticalCount = analysis.findings.filter(f => f.severity==="critical").length;
+    let recommended;
+    if (analysis.overall < 35 || criticalCount >= 6) {
+      recommended = { name:"Full Stack", price:"$1,997", reason:`With ${criticalCount} critical issues found, this needs more than a fix, it needs the full system: audit, implementation, ads, and ongoing growth.` };
+    } else if (analysis.overall >= 78 && criticalCount === 0) {
+      recommended = { name:"Store Diagnosis", price:"$175", reason:"No critical issues found — this store mainly needs a clear roadmap of what to prioritize next, not a full rebuild." };
+    } else if (analysis.overall >= 60) {
+      recommended = { name:"Conversion Fix", price:"$497", reason:"The foundation is decent — this covers the audit plus implementing the highest-impact fixes directly." };
+    } else {
+      recommended = { name:"The Lab", price:"$997", reason:"Enough issues here to need ongoing work, not a one-time fix — this covers the fixes plus the ad management and compounding systems to keep it improving." };
+    }
+
     setSnapLoading(true);
     try {
       const props = {
         domain, visitors, aov, currentCR, potentialCRLow, potentialCRHigh,
-        lossLow, lossHigh, leaks,
+        lossLow, lossHigh, leaks, recommended,
         overall: analysis.overall, grade: analysis.grade,
         problemCount: analysis.findings.length,
-        criticalCount: analysis.findings.filter(f => f.severity==="critical").length,
+        criticalCount,
         topIssues: analysis.topIssues,
       };
       setSnapReady(props);
