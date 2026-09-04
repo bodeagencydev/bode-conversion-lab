@@ -213,22 +213,34 @@ export function Magnetic({ children, strength = 0.32, style = {} }) {
 export function TiltCard({ children, style = {}, className = "", intensity = 11 }) {
   const ref     = useRef(null);
   const spotRef = useRef(null);
+  const rafRef  = useRef(null);
+  const pending = useRef(null);
 
+  // Reading getBoundingClientRect() on every raw mousemove event forces a
+  // synchronous layout recalculation per pixel of movement — this is what
+  // causes visible cursor lag when hovering these cards. Batching the
+  // actual DOM writes into one requestAnimationFrame per tick fixes that.
   const onMove = e => {
-    const el = ref.current;
-    if (!el) return;
-    const { left, top, width, height } = el.getBoundingClientRect();
-    const x = (e.clientX - left) / width  - 0.5;
-    const y = (e.clientY - top)  / height - 0.5;
-    el.style.transform = `perspective(900px) rotateY(${x*intensity}deg) rotateX(${-y*intensity}deg) scale(1.02)`;
-    el.style.boxShadow = `${-x*22}px ${-y*22}px 55px rgba(0,255,136,.1),0 8px 32px rgba(0,0,0,.18)`;
-    if (spotRef.current) {
-      spotRef.current.style.left    = `${(x+.5)*100}%`;
-      spotRef.current.style.top     = `${(y+.5)*100}%`;
-      spotRef.current.style.opacity = "1";
-    }
+    pending.current = { x: e.clientX, y: e.clientY };
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      const el = ref.current;
+      if (!el || !pending.current) return;
+      const { left, top, width, height } = el.getBoundingClientRect();
+      const x = (pending.current.x - left) / width  - 0.5;
+      const y = (pending.current.y - top)  / height - 0.5;
+      el.style.transform = `perspective(900px) rotateY(${x*intensity}deg) rotateX(${-y*intensity}deg) scale(1.02)`;
+      el.style.boxShadow = `${-x*22}px ${-y*22}px 55px rgba(0,255,136,.1),0 8px 32px rgba(0,0,0,.18)`;
+      if (spotRef.current) {
+        spotRef.current.style.left    = `${(x+.5)*100}%`;
+        spotRef.current.style.top     = `${(y+.5)*100}%`;
+        spotRef.current.style.opacity = "1";
+      }
+    });
   };
   const onLeave = () => {
+    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
     const el = ref.current;
     if (!el) return;
     el.style.transform = "perspective(900px) rotateY(0) rotateX(0) scale(1)";
