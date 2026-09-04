@@ -2,6 +2,16 @@ import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { G, GG, BLOG_POSTS } from "../data.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
+import { TiltCard, ScrollReveal } from "../AnimationSystem.jsx";
+
+// Category → accent color, gives each card a distinct visual identity
+// instead of every card reading identically at a glance.
+const CATEGORY_COLORS = {
+  "Ad Strategy":    "#00FF88",
+  "CRO":            "#00D4FF",
+  "Email Marketing":"#FFD166",
+};
+function categoryColor(cat) { return CATEGORY_COLORS[cat] || G; }
 
 export function Blog() {
   const { dark } = useTheme();
@@ -56,19 +66,16 @@ export function Blog() {
       <Section>
         <div style={{ maxWidth:960, margin:"0 auto" }}>
           <p style={{ fontSize:11, color:mutedText4, letterSpacing:".12em", textTransform:"uppercase", fontWeight:700, marginBottom:"1.2rem" }}>Featured</p>
+          <ScrollReveal>
           <Link to={`/blog/${BLOG_POSTS[0].id}`} style={{ textDecoration:"none", display:"block" }}>
-            <div style={{
+            <TiltCard intensity={5} style={{
               background: dark
                 ? "linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))"
                 : "linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,.25))",
               border:`.5px solid ${dark?"rgba(0,255,136,.22)":"rgba(26,20,8,.18)"}`,
               borderTop:`.5px solid ${dark?"rgba(0,255,136,.4)":"rgba(255,255,255,.7)"}`,
               borderRadius:24, padding:"clamp(2rem,5vw,3.5rem)",
-              position:"relative", overflow:"hidden",
-              transition:"transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.transform="translateY(-6px)"; e.currentTarget.style.boxShadow=dark?"0 32px 64px rgba(0,255,136,.1)":"0 32px 64px rgba(26,20,8,.12)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
+            }}>
 
               {/* Top shimmer */}
               <div style={{ position:"absolute", top:0, left:"8%", right:"8%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)", pointerEvents:"none" }}/>
@@ -106,8 +113,9 @@ export function Blog() {
                   ))}
                 </div>
               </div>
-            </div>
+            </TiltCard>
           </Link>
+          </ScrollReveal>
         </div>
       </Section>
 
@@ -136,34 +144,49 @@ export function Blog() {
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1.2rem" }} className="how-grid">
             {filteredPosts.length === 0 ? (
               <p style={{ fontSize:14, color:mutedText3, gridColumn:"1/-1", textAlign:"center", padding:"2rem 0" }}>No articles in this category yet.</p>
-            ) : filteredPosts.map((post) => (
-              <Link key={post.id} to={`/blog/${post.id}`} style={{ textDecoration:"none" }}>
-                <div style={{
-                  background: dark
-                    ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))"
-                    : "linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.2))",
-                  border:`.5px solid ${cardBorder}`,
-                  borderTop:dark?".5px solid rgba(255,255,255,.18)":".5px solid rgba(255,255,255,.7)",
-                  borderRadius:18, padding:"1.8rem", height:"100%", cursor:"pointer",
-                  display:"flex", flexDirection:"column", position:"relative", overflow:"hidden",
-                  transition:"transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s, border-color .3s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.transform="translateY(-6px) scale(1.01)"; e.currentTarget.style.boxShadow=dark?"0 24px 48px rgba(0,255,136,.08)":"0 24px 48px rgba(26,20,8,.1)"; e.currentTarget.style.borderColor="rgba(0,255,136,.35)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; e.currentTarget.style.borderColor=cardBorder; }}>
+            ) : filteredPosts.map((post, i) => {
+              const accent = categoryColor(post.category);
+              return (
+              <ScrollReveal key={post.id} delay={i * 0.05}>
+                <Link to={`/blog/${post.id}`} style={{ textDecoration:"none" }}>
+                  <TiltCard style={{
+                    background: dark
+                      ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))"
+                      : "linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.2))",
+                    border:`.5px solid ${cardBorder}`,
+                    borderTop:dark?".5px solid rgba(255,255,255,.18)":".5px solid rgba(255,255,255,.7)",
+                    borderRadius:18, height:"100%", cursor:"pointer",
+                    display:"flex", flexDirection:"column",
+                  }}>
+                    {/* Visual header — no cover photography yet, so a
+                        category-tinted gradient band with a large initial
+                        gives each card a distinct visual identity instead
+                        of an all-text list that reads as one flat block. */}
+                    <div style={{
+                      height:70, borderRadius:"18px 18px 0 0",
+                      background:`linear-gradient(135deg, ${accent}26, ${accent}08)`,
+                      borderBottom:`1px solid ${accent}33`,
+                      display:"flex", alignItems:"center", justifyContent:"center", position:"relative", overflow:"hidden",
+                    }}>
+                      <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:30, fontWeight:800, color:accent, opacity:.5 }}>
+                        {post.category.slice(0,2).toUpperCase()}
+                      </span>
+                    </div>
 
-                  {/* Shimmer */}
-                  <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.35),transparent)", pointerEvents:"none" }}/>
-
-                  <span style={{ display:"inline-block", background:"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.2)", borderRadius:100, padding:"3px 10px", fontSize:10, color:G, fontWeight:700, letterSpacing:".04em", marginBottom:"1.2rem", alignSelf:"flex-start" }}>{post.category}</span>
-                  <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.05rem", fontWeight:800, color:headingColor, marginBottom:".75rem", lineHeight:1.3, flex:1 }}>{post.title}</h3>
-                  <p style={{ fontSize:13, color:mutedText3, lineHeight:1.65, marginBottom:"1.5rem" }}>{post.excerpt.slice(0,110)}...</p>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"auto" }}>
-                    <span style={{ fontSize:11, color:mutedText5 }}>{post.readTime}</span>
-                    <span style={{ color:G, fontSize:12, fontWeight:700, display:"flex", alignItems:"center", gap:4 }}>Read → </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                    <div style={{ padding:"1.8rem", display:"flex", flexDirection:"column", flex:1 }}>
+                      <span style={{ display:"inline-block", background:`${accent}18`, border:`.5px solid ${accent}55`, borderRadius:100, padding:"3px 10px", fontSize:10, color:accent, fontWeight:700, letterSpacing:".04em", marginBottom:"1.2rem", alignSelf:"flex-start" }}>{post.category}</span>
+                      <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.05rem", fontWeight:800, color:headingColor, marginBottom:".75rem", lineHeight:1.3, flex:1 }}>{post.title}</h3>
+                      <p style={{ fontSize:13, color:mutedText3, lineHeight:1.65, marginBottom:"1.5rem" }}>{post.excerpt.slice(0,110)}...</p>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"auto" }}>
+                        <span style={{ fontSize:11, color:mutedText5 }}>{post.readTime}</span>
+                        <span style={{ color:accent, fontSize:12, fontWeight:700, display:"flex", alignItems:"center", gap:4 }}>Read → </span>
+                      </div>
+                    </div>
+                  </TiltCard>
+                </Link>
+              </ScrollReveal>
+              );
+            })}
           </div>
         </div>
       </Section>
