@@ -959,7 +959,7 @@ export default function Audit() {
               <span style={{ fontSize:12, fontWeight:800, color:G }}>SRS — Sales Recovery System</span>
               <span style={{ fontSize:12, color:mutedText2 }}>plan</span>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"0.5rem", marginBottom:"2rem", textAlign:"left" }}>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"0.5rem", marginBottom:"2rem", textAlign:"left" }} className="how-grid">
               {["Mobile performance & speed","Core Web Vitals (LCP, CLS, TBT)","SEO — 12 ranking factors","Technical health & server","Image optimization","SSL & security","Accessibility signals","Best practices audit"].map((item,i) => (
                 <div key={i} style={{ display:"flex", alignItems:"center", gap:8, background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.4)", border:`.5px solid ${cardBorder}`, borderRadius:8, padding:".5rem .75rem" }}>
                   <span style={{ fontSize:12, color:mutedText2 }}>{item}</span>
@@ -1058,7 +1058,7 @@ export default function Audit() {
           </div>
 
           {/* Metric scores */}
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"0.75rem", marginBottom:"1.5rem" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"0.75rem", marginBottom:"1.5rem" }} className="stat-grid">
             {Object.values(analysis.metrics).map((v,i) => (
               <div key={i} style={{ background:cardBg, border:`.5px solid ${v.score<50?"rgba(255,59,59,.25)":v.score<75?"rgba(255,153,0,.2)":cardBorder}`, borderRadius:12, padding:"1rem", textAlign:"center" }}>
                 <span style={{ display:"inline-block", width:10, height:10, borderRadius:"50%", background:v.score>74?G:v.score>49?"#FF9900":"#FF3B3B" }} />
