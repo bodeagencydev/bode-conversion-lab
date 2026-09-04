@@ -159,18 +159,20 @@ export function PastProjects() {
             What I've actually built and run — no invented numbers, no placeholder clients. Just the work, the tools, and how it went.
           </p>
 
-          <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", gap:10 }}>
-            {realProjects.map((p, i) => (
-              <span key={p.id} style={{
-                fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:mutedText3,
-                border:`1px solid ${cardBorder}`, borderRadius:6, padding:"6px 12px",
-                display:"inline-flex", alignItems:"center", gap:8
-              }}>
-                <span style={{ color:G }}>PROJECT_{String(i+1).padStart(2,"0")}</span>
-                <span>{p.category}</span>
-              </span>
-            ))}
-          </div>
+          {realProjects.length > 0 && (
+            <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", gap:10 }}>
+              {realProjects.map((p, i) => (
+                <span key={p.id} style={{
+                  fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:mutedText3,
+                  border:`1px solid ${cardBorder}`, borderRadius:6, padding:"6px 12px",
+                  display:"inline-flex", alignItems:"center", gap:8
+                }}>
+                  <span style={{ color:G }}>PROJECT_{String(i+1).padStart(2,"0")}</span>
+                  <span>{p.category}</span>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -198,15 +200,17 @@ export function PastProjects() {
 
       <hr className="divider" />
 
-      {/* ── PAST PROJECTS MAIN ── */}
-      <Section>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column", gap: "3rem" }}>
-          {realProjects.map((p, index) => (
-            <ScrollReveal key={p.id} delay={index * 0.05}>
-              <TiltCard style={{ background: dark ? "rgba(255,255,255,.02)" : "rgba(255,255,255,.5)", border: `.5px solid ${cardBorder}`, borderRadius: 20, padding: "clamp(1.5rem,4vw,2.4rem)" }}>
-                <p style={{ fontSize: 11, color: G, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: ".6rem" }}>{p.category}</p>
-                <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize: "clamp(1.3rem,3vw,1.7rem)", fontWeight: 800, color: headingColor, lineHeight: 1.25, marginBottom: ".8rem" }}>{p.headline}</h2>
-                <p style={{ fontSize: 14.5, color: mutedText, lineHeight: 1.8, marginBottom: "1.4rem" }}>{p.summary}</p>
+      {realProjects.length > 0 && (
+        <>
+          {/* ── PAST PROJECTS MAIN ── */}
+          <Section>
+            <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column", gap: "3rem" }}>
+              {realProjects.map((p, index) => (
+                <ScrollReveal key={p.id} delay={index * 0.05}>
+                  <TiltCard style={{ background: dark ? "rgba(255,255,255,.02)" : "rgba(255,255,255,.5)", border: `.5px solid ${cardBorder}`, borderRadius: 20, padding: "clamp(1.5rem,4vw,2.4rem)" }}>
+                    <p style={{ fontSize: 11, color: G, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: ".6rem" }}>{p.category}</p>
+                    <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize: "clamp(1.3rem,3vw,1.7rem)", fontWeight: 800, color: headingColor, lineHeight: 1.25, marginBottom: ".8rem" }}>{p.headline}</h2>
+                    <p style={{ fontSize: 14.5, color: mutedText, lineHeight: 1.8, marginBottom: "1.4rem" }}>{p.summary}</p>
 
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: "1.4rem" }}>
                   {p.tags && p.tags.map((t, i) => (
@@ -240,10 +244,12 @@ export function PastProjects() {
               </TiltCard>
             </ScrollReveal>
           ))}
-        </div>
-      </Section>
+            </div>
+          </Section>
 
-      <hr className="divider" />
+          <hr className="divider" />
+        </>
+      )}
 
       {/* ── PROOF GALLERY ── */}
       <Section>
