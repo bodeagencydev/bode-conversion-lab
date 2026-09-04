@@ -14,6 +14,30 @@ const GALLERY = [
   { type: "video", src: "/proof/proof-6.png", videoSrc: "/proof/Videoproof6.mp4", label: "Vista Market Online Store", tag: "$41k sales", color: "#ffffff" },
 ];
 
+/* ── SHARED VIDEO-LOAD QUEUE ──
+   Module-level, not per-component, so it actually caps how many videos
+   decode at once across the whole gallery regardless of how many cards
+   are simultaneously scrolled into view. The IntersectionObserver alone
+   wasn't enough — a compact 3-column grid means most/all 6 cards can
+   enter the viewport within milliseconds of each other on scroll, so
+   they'd all still fire together without a real concurrency limit. ── */
+const MAX_CONCURRENT_LOADS = 2;
+let activeLoads = 0;
+const loadQueue = [];
+function requestLoadSlot(onGranted) {
+  if (activeLoads < MAX_CONCURRENT_LOADS) {
+    activeLoads++;
+    onGranted();
+  } else {
+    loadQueue.push(onGranted);
+  }
+}
+function releaseLoadSlot() {
+  activeLoads = Math.max(0, activeLoads - 1);
+  const next = loadQueue.shift();
+  if (next) { activeLoads++; next(); }
+}
+
 /* ── GALLERY CARD ──
    No poster PNGs exist for these clips (the /proof folder only has the .mp4s),
    so the thumbnail is auto-captured client-side: a hidden <video> loads each
@@ -26,32 +50,44 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
   const [playing, setPlaying] = useState(false);
   const [thumb, setThumb]     = useState(null);
   const [failed, setFailed]   = useState(false);
-  const [inView, setInView]   = useState(false);
+  const [hasSlot, setHasSlot] = useState(false); // true once actually granted permission to load
   const captureRef = useRef(null);
   const wrapperRef = useRef(null);
+  const releasedRef = useRef(false);
 
-  // Only start loading/decoding this card's video once it's actually
-  // about to scroll into view — previously all 6 videos started loading
-  // and seeking simultaneously on page mount, which is what caused the
-  // page-load jank/lag specific to this page.
+  // Step 1: only WANT to load once scrolled near view (cheap, no network cost).
+  // Step 2: even then, only actually start decoding once a slot opens up in
+  // the shared queue above — this is what stops a burst of simultaneous
+  // decodes when several cards enter view together in a compact grid.
   useEffect(() => {
     const el = wrapperRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } },
-      { rootMargin: "300px" } // start a little before it's actually on screen
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          observer.disconnect();
+          requestLoadSlot(() => setHasSlot(true));
+        }
+      },
+      { rootMargin: "150px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
+  // Release this card's slot exactly once, whether it finishes, fails, or
+  // the user clicks play before it finished (no point holding a slot then).
+  const releaseOnce = () => {
+    if (!releasedRef.current) { releasedRef.current = true; releaseLoadSlot(); }
+  };
+
   useEffect(() => {
     const vid = captureRef.current;
-    if (!vid || !inView || playing || thumb) return;
+    if (!vid || !hasSlot || playing || thumb) return;
 
     const onLoadedMeta = () => {
       try { vid.currentTime = Math.min(1, (vid.duration || 2) / 4); }
-      catch { setFailed(true); }
+      catch { setFailed(true); releaseOnce(); }
     };
     const onSeeked = () => {
       try {
@@ -61,8 +97,9 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
         canvas.getContext("2d").drawImage(vid, 0, 0, canvas.width, canvas.height);
         setThumb(canvas.toDataURL("image/jpeg", 0.82));
       } catch { setFailed(true); }
+      releaseOnce();
     };
-    const onError = () => setFailed(true);
+    const onError = () => { setFailed(true); releaseOnce(); };
 
     vid.addEventListener("loadedmetadata", onLoadedMeta);
     vid.addEventListener("seeked", onSeeked);
@@ -72,7 +109,13 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
       vid.removeEventListener("seeked", onSeeked);
       vid.removeEventListener("error", onError);
     };
-  }, [inView, playing, thumb]);
+  }, [hasSlot, playing, thumb]);
+
+  // If the user clicks play before the background capture finished, give
+  // the slot back immediately rather than holding it for a thumbnail
+  // that's no longer needed.
+  useEffect(() => { if (playing) releaseOnce(); }, [playing]);
+  useEffect(() => () => releaseOnce(), []); // safety: release on unmount no matter what
 
   return (
     <div ref={wrapperRef} style={{
@@ -88,7 +131,7 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
       onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; e.currentTarget.style.borderColor=cardBorder; }}>
 
       <div style={{ aspectRatio: "16/10", position: "relative", overflow: "hidden", background: dark ? "rgba(0,0,0,.4)" : "rgba(26,20,8,.06)" }}>
-        {inView && !playing && !thumb && !failed && (
+        {hasSlot && !playing && !thumb && !failed && (
           <video ref={captureRef} src={item.videoSrc} muted playsInline preload="metadata"
             style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }} />
         )}
@@ -273,7 +316,7 @@ export function PastProjects() {
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
             <SectionLabel>Client campaign clips</SectionLabel>
-            <Heading size="2rem">Video work from <GradText>real accounts</GradText></Heading>
+            <Heading size="2rem">Video work, <GradText>real results</GradText></Heading>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.2rem" }} className="how-grid">
