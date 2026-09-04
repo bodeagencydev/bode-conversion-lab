@@ -94,6 +94,7 @@ export const SERVICES = [
 export const PAST_PROJECTS = [
   {
     id:"toothy",
+    placeholder: true, // hidden from public page per request — content kept, just not shown
     client:"Toothy",
     category:"Content Creation — Travel Oral Care",
     headline:"Video ad content for a travel oral care brand",
@@ -110,6 +111,7 @@ export const PAST_PROJECTS = [
   },
   {
     id:"pinkiceessentials",
+    placeholder: true, // hidden from public page per request — content kept, just not shown
     client:"pinkiceessentials",
     category:"E-commerce — Owner/Operator",
     headline:"Ran my own store for 4 years before starting this agency",
