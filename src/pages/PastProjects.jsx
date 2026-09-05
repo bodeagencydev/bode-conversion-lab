@@ -6,6 +6,19 @@ import { ScrollReveal, TiltCard, GlowBorder } from "../AnimationSystem.jsx";
 
 /* ── GALLERY ARRAY ── */
 const GALLERY = [
+  // Newest addition goes first.
+  { type: "video", src: "", videoSrc: "/proof/Videoproof12.mp4", label: "SassyL", tag: "Customer Winback Flow Built", color: "#B48CFF" },
+
+  // Newest 5 additions — watched each clip to write accurate labels/tags,
+  // no invented numbers. The two Velora Fitness clips show flows freshly
+  // published (0 stats, too new to have real numbers yet), so they're
+  // tagged by what was actually delivered, not a fabricated result.
+  { type: "video", src: "", videoSrc: "/proof/Videoproof7.mp4",  label: "Velora Fitness",  tag: "Recently launched: Abandoned Checkout Flow", color: "#B48CFF" },
+  { type: "video", src: "", videoSrc: "/proof/Videoproof8.mp4",  label: "HomeHaven Goods", tag: "$19.5k sales / 30 days",         color: "#00D4FF" },
+  { type: "video", src: "", videoSrc: "/proof/Videoproof9.mp4",  label: "Paws & Shelfs",   tag: "Store Built & Launched",         color: "#FF9500" },
+  { type: "video", src: "", videoSrc: "/proof/Videoproof10.mp4", label: "Glitch & Grin",   tag: "100% SEO Score",                 color: "#34D399" },
+  { type: "video", src: "", videoSrc: "/proof/Videoproof11.mp4", label: "Velora Fitness",  tag: "Recently launched: Welcome Series Flow", color: "#B48CFF" },
+
   { type: "video", src: "/proof/proof-1.png", videoSrc: "/proof/Videoproof1.mp4", label: "Stream Ride Store", tag: "$36k sales", color: "#00ff88" },
   { type: "video", src: "/proof/proof-2.png", videoSrc: "/proof/Videoproof2.mp4", label: "Novi Good store", tag: "4.3x ROAS-$57k sales", color: "#0081FB" },
   { type: "video", src: "/proof/proof-3.png", videoSrc: "/proof/Videoproof3.mp4", label: "Bomia Brand", tag: "$0-$4k sales", color: "#4285F4" },
