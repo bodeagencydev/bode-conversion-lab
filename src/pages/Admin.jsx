@@ -29,13 +29,13 @@ const TIERS = [
    component function, not exported. Update both if prices change. */
 const SNAPSHOT_TIERS = [
   { badge:null, name:"Store Diagnosis", price:"$175", cycle:"per engagement", tagline:"Find out exactly where your store is bleeding money.",
-    items:["Full technical + trust-signal audit","Checkout & conversion friction mapping","Ad account health check","Prioritized fix roadmap"] },
-  { badge:null, name:"Conversion Fix", price:"$497", cycle:"per project", tagline:"Audit + we implement the top 3 revenue leaks ourselves.",
-    items:["Everything in Store Diagnosis","Critical + high-impact fixes implemented","Trust-signal fixes done for you","1x 60-min strategy call"] },
-  { badge:"MOST POPULAR", name:"The Lab", price:"$997", cycle:"per cycle", tagline:"A full conversion system running in your store every cycle.",
-    items:["Everything in Conversion Fix","Meta & TikTok ad management","Conversion compounding — cart recovery, upsells","Weekly performance reports"] },
-  { badge:null, name:"Full Stack", price:"$1,997", cycle:"per cycle", tagline:"Your entire growth engine — built, run, and scaled for you.",
-    items:["Everything in The Lab","Done-for-you landing pages","Full email flow build (Klaviyo)","Dedicated growth strategist"] },
+    items:["A full walk-through of your site, checkout, and trust signals so you know what's actually broken","Where people are getting stuck or bouncing before they buy","Whether your ad account is even set up to convert","A roadmap telling you what to fix first, and why"] },
+  { badge:null, name:"Conversion Fix", price:"$497", cycle:"per project", tagline:"We find the leaks, then go in and fix the biggest ones ourselves.",
+    items:["Everything from the Store Diagnosis","Your 3 highest-impact fixes, actually implemented on your site","Trust-signal problems fixed for you (missing reviews, broken policies, and the like)","A 60-minute call to walk through what changed and why"] },
+  { badge:"MOST POPULAR", name:"The Lab", price:"$997", cycle:"per cycle", tagline:"A full system running in your store, month over month.",
+    items:["Everything from Conversion Fix","Your Meta and TikTok ads managed for you","Cart recovery and upsell flows built to keep compounding results","A performance report every week, so you always know what's working"] },
+  { badge:null, name:"Full Stack", price:"$1,997", cycle:"per cycle", tagline:"Your whole growth engine, built and run for you.",
+    items:["Everything from The Lab","Landing pages built and shipped for you","A full email flow set up in Klaviyo","A dedicated strategist who actually knows your store"] },
 ];
 
 /* Fixed-size off-screen card that html2canvas captures to PNG.
@@ -68,9 +68,9 @@ function PricingSnapshotCard({ innerRef }) {
             </div>
           </div>
           <p style={{ fontSize:12.5, color:"#B8B8B8", lineHeight:1.6, marginBottom:12 }}>{t.tagline}</p>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"4px 16px" }}>
+          <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
             {t.items.map((it,j) => (
-              <p key={j} style={{ fontSize:11.5, color:"#DDDDDD", margin:0, lineHeight:1.7 }}>
+              <p key={j} style={{ fontSize:11.5, color:"#DDDDDD", margin:0, lineHeight:1.6 }}>
                 <span style={{ color:"#00FF88" }}>✓</span> {it}
               </p>
             ))}
