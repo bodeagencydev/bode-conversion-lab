@@ -506,14 +506,14 @@ function buildSolutionPlan(analysis) {
 
   return {
     fixing: {
-      title:"Fixing Plan", subtitle:"Stop the bleeding — in priority order",
+      title:"Fixing Plan", subtitle:"Stop the bleeding, in priority order",
       phases: [
-        { phase:"Phase 1 — Critical Fixes (Week 1)", items:criticals.map(f => ({ title:f.title, action:f.fix, metric:"Critical revenue recovery — implement immediately" })).slice(0,6) },
-        { phase:"Phase 2 — High Impact (Week 2-3)",  items:highs.map(f => ({ title:f.title, action:f.fix, metric:"High conversion lift — do not skip" })).slice(0,6) },
-        { phase:"Phase 3 — Optimization (Month 2)",  items:[
+        { phase:"Phase 1: Critical Fixes (Week 1)", items:criticals.map(f => ({ title:f.title, action:f.fix, metric:"Critical revenue recovery, implement immediately" })).slice(0,6) },
+        { phase:"Phase 2: High Impact (Week 2-3)",  items:highs.map(f => ({ title:f.title, action:f.fix, metric:"High conversion lift, do not skip" })).slice(0,6) },
+        { phase:"Phase 3: Optimization (Month 2)",  items:[
           ...mediums.map(f => ({ title:f.title, action:f.fix, metric:"Incremental improvement" })).slice(0,3),
-          { title:"A/B test product page layout", action:"Test two variants: current layout vs. simplified layout with CTA above the fold. Run for minimum 500 visitors per variant.", metric:"Target: 15-30% CVR lift" },
-          { title:"Implement performance monitoring", action:"Set up Google Search Console and PageSpeed monitoring alerts. Know when performance degrades before your customers do.", metric:"Long-term protection" },
+          { title:"A/B test product page layout", action:"Test two versions of your product page: the current layout against a simplified one with the call-to-action moved above the fold. Run each for at least 500 visitors before calling a winner.", metric:"Target: 15-30% CVR lift" },
+          { title:"Implement performance monitoring", action:"Set up Google Search Console and PageSpeed alerts so you find out about a performance drop before your customers do.", metric:"Long-term protection" },
         ].slice(0,6) },
       ],
     },
@@ -521,21 +521,21 @@ function buildSolutionPlan(analysis) {
       title:"Growth Plan", subtitle:"Build the system that compounds revenue",
       phases: [
         { phase:"Traffic Architecture", items:[
-          { title:"SEO content engine", action:"Publish 2 buyer-intent articles per week targeting long-tail keywords. Each article compounds in ranking over 3-6 months and sends free traffic forever.", metric:"Target: 3,000 organic visitors/month within 6 months" },
-          { title:"Fix ads foundation first", action:"Do not scale paid ads until technical fixes from Phase 1 are complete. A fast converting store turns $1 into $4+. A slow broken store turns $1 into $0.60.", metric:"Prerequisite: Mobile score above 70 before scaling" },
-          { title:"Organic social strategy", action:"Post 3x/week on TikTok and Instagram Reels. Raw authentic content beats produced content on both platforms. Behind-the-scenes and before/after content performs best.", metric:"Target: 1 post with 10k+ views per month" },
-          { title:"Email list building engine", action:"Add exit-intent popup (10% for email), inline capture on blog posts, post-purchase opt-in. Your email list is the only channel immune to algorithm changes.", metric:"Target: 500 new subscribers/month" },
+          { title:"SEO content engine", action:"Publish two buyer-intent articles a week, written around the exact long-tail searches your customers are already typing. Each one keeps climbing in rank for months and sends you free traffic long after you've stopped thinking about it.", metric:"Target: 3,000 organic visitors/month within 6 months" },
+          { title:"Fix ads foundation first", action:"Don't scale paid ads until the Phase 1 technical fixes are done. A fast, converting store turns a dollar into four or more. A slow, broken one turns that same dollar into sixty cents.", metric:"Prerequisite: Mobile score above 70 before scaling" },
+          { title:"Organic social strategy", action:"Post three times a week on TikTok and Instagram Reels. Raw, real footage consistently beats polished production on both platforms, behind-the-scenes clips and before/after content perform best.", metric:"Target: 1 post with 10k+ views per month" },
+          { title:"Email list building engine", action:"Add an exit-intent popup offering 10% off for an email, an inline capture on your blog posts, and a post-purchase opt-in. Your list is the one channel no algorithm change can take away from you.", metric:"Target: 500 new subscribers/month" },
         ]},
         { phase:"Conversion Compounding", items:[
-          { title:"Abandoned cart recovery", action:"70% of shoppers who add to cart don't buy on first visit. A 3-email sequence (1hr reminder → 24hr objection handler → 72hr urgency) recovers 15-20% of these.", metric:"Target: 15-20% cart recovery rate" },
-          { title:"Post-purchase maximization", action:"One-click post-purchase upsell immediately after payment converts at 15-25%. Build: confirmation → shipping → delivery check → review request (day 7) → related product (day 14).", metric:"Target: 15% upsell take rate" },
-          { title:"Bundle and AOV strategy", action:"Create 3 strategic bundles at 10% discount vs individual pricing. Bundles reduce decision fatigue, increase AOV, and make price comparison harder.", metric:"Target: 25% of orders include a bundle" },
-          { title:"Social proof architecture", action:"Reviews above fold on product pages, real customer photos in UGC gallery, trust badges near checkout. Every unanswered buyer objection is a lost sale.", metric:"Target: 4.5+ stars displayed, 10+ reviews per product" },
+          { title:"Abandoned cart recovery", action:"Around 70% of people who add something to cart don't buy on that first visit. A 3-email sequence, a reminder after an hour, an objection-handler after a day, and a bit of urgency after three days, recovers 15 to 20% of them.", metric:"Target: 15-20% cart recovery rate" },
+          { title:"Post-purchase maximization", action:"A one-click upsell shown right after payment converts at 15 to 25%. Build the sequence out fully: order confirmation, shipping update, delivery check-in, a review request around day 7, then a related product suggestion around day 14.", metric:"Target: 15% upsell take rate" },
+          { title:"Bundle and AOV strategy", action:"Put together three bundles priced about 10% below buying the items separately. Bundles cut down on decision fatigue, lift your average order value, and make it harder for someone to price-shop you item by item.", metric:"Target: 25% of orders include a bundle" },
+          { title:"Social proof architecture", action:"Reviews above the fold on product pages, real customer photos in a UGC gallery, and trust badges near checkout. Every buyer objection you don't answer is a sale you're quietly losing.", metric:"Target: 4.5+ stars displayed, 10+ reviews per product" },
         ]},
         { phase:"Scale Infrastructure", items:[
-          { title:"Attribution and profit tracking", action:"Track MER (total revenue / total ad spend) across all channels, true CAC, and LTV. A customer worth $200 LTV can sustain a $40 CAC — but only if you know their LTV.", metric:"Target: Clear view of CAC, LTV, MER by channel" },
-          { title:"Subscription revenue layer", action:"If your product is consumable, introduce a subscription option. Even 10% of customers on subscription transforms revenue predictability and increases average customer value by 2-3x.", metric:"Target: 10% subscription penetration within 90 days" },
-          { title:"Referral programme", action:"Existing customers are your cheapest acquisition channel. Give 10%, get 10%. Build this after post-purchase flows are working.", metric:"Target: 15% of new customers via referral within 6 months" },
+          { title:"Attribution and profit tracking", action:"Track your MER (total revenue divided by total ad spend) across every channel, along with your real customer acquisition cost and lifetime value. A customer worth $200 over their lifetime can easily support a $40 acquisition cost, but only if you actually know that number instead of guessing.", metric:"Target: Clear view of CAC, LTV, MER by channel" },
+          { title:"Subscription revenue layer", action:"If what you sell gets used up and repurchased, add a subscription option. Even getting 10% of customers onto it changes how predictable your revenue is and can push average customer value up 2 to 3 times over.", metric:"Target: 10% subscription penetration within 90 days" },
+          { title:"Referral programme", action:"Your existing customers are the cheapest new customers you'll ever get. Give 10%, get 10% is a simple structure that works. Build this once your post-purchase flows are already running well.", metric:"Target: 15% of new customers via referral within 6 months" },
         ]},
       ],
     },
@@ -543,24 +543,24 @@ function buildSolutionPlan(analysis) {
       title:"Marketing Plan", subtitle:"Build the brand that doesn't compete on price",
       commitment: {
         title:"Our Commitment To You",
-        body:"We're not going to hand you a fake number and call it a guarantee — no agency can honestly promise a specific sales outcome, because your results depend on things outside our control too: your product, your market, your pricing, and how closely you follow the plan. What we will commit to is this: if you implement every step in this plan, in order, and don't see measurable movement in your numbers within 90 days, we keep working with you at no additional cost until you do. We stay accountable to the same finish line you are — that's the actual guarantee.",
+        body:"We're not going to hand you a fake number and call it a guarantee, no agency can honestly promise a specific sales outcome, because your results depend on things outside our control too: your product, your market, your pricing, and how closely you follow the plan. What we will commit to is this: if you implement every step in this plan, in order, and don't see measurable movement in your numbers within 90 days, we keep working with you at no additional cost until you do. We stay accountable to the same finish line you are. That's the actual guarantee.",
       },
       phases: [
         { phase:"Brand Foundation", items:[
-          { title:"Define your singular position", action:"One sentence no honest competitor can say. Not 'high quality' — a specific verifiable claim tied to a specific customer outcome. Build every creative around this one sentence.", metric:"Deliverable: Brand positioning statement in 1 sentence" },
-          { title:"Customer intelligence audit", action:"Interview 5 existing customers. Ask: Why did you almost not buy? What would have made you buy faster? Their exact language is your ad copy — not yours.", metric:"Deliverable: Customer voice document with 20+ direct quotes" },
-          { title:"Content pillars", action:"Define 4 content themes reflecting your brand values. Every post, email, and ad fits one pillar. Consistency is what builds brand memory. Without it you're starting from zero every week.", metric:"Deliverable: 4 pillars × 10 content ideas = 40-post content bank" },
+          { title:"Define your singular position", action:"One sentence no honest competitor could say about themselves. Not \"high quality\", something specific and provable, tied to an actual customer outcome. Every piece of creative you make should trace back to this one sentence.", metric:"Deliverable: Brand positioning statement in 1 sentence" },
+          { title:"Customer intelligence audit", action:"Talk to 5 existing customers directly. Ask them why they almost didn't buy, and what would have made them buy faster. Their exact words, not yours, are what your ad copy should sound like.", metric:"Deliverable: Customer voice document with 20+ direct quotes" },
+          { title:"Content pillars", action:"Pick 4 themes that reflect what your brand actually stands for. Every post, email, and ad should fit one of them. That consistency is what makes a brand memorable, without it, you're starting from zero every single week.", metric:"Deliverable: 4 pillars × 10 content ideas = 40-post content bank" },
         ]},
         { phase:"Paid Media Architecture", items:[
-          { title:"Full-funnel Meta structure", action:"TOF (awareness): broad/interest, problem-awareness video. MOF (consideration): page visitors + video viewers, social proof creative. BOF (conversion): cart/checkout abandoners, urgency + offer creative.", metric:"Target: 4x+ blended ROAS within 60 days" },
-          { title:"Platform-specific creative strategy", action:"Meta: Problem → Agitate → Solve, 15-30s video or carousel. TikTok: native, trend-aware, never repurpose Meta ads. Google Shopping: feed optimization, clean titles. Each platform needs its own creative language.", metric:"Target: Platform CTR benchmarks hit within 30 days" },
-          { title:"Creative testing system", action:"20% of ad budget weekly to new creative tests. Isolate one variable per test. Document winners and the insight behind each win. After 90 days you'll have a playbook competitors cannot replicate.", metric:"Target: 1 new proven creative insight per week" },
-          { title:"Seasonal revenue calendar", action:"Map your top 8 revenue events for the year. Brief creatives and offers 6 weeks before each. The brands that win Black Friday planned in September.", metric:"Deliverable: 12-month promotional calendar" },
+          { title:"Full-funnel Meta structure", action:"Build three layers into your ad account. At the top, broad and interest-based targeting with problem-awareness video for people who don't know you yet. In the middle, retarget page visitors and video viewers with social-proof creative. At the bottom, go after cart and checkout abandoners with urgency and a clear offer.", metric:"Target: 4x+ blended ROAS within 60 days" },
+          { title:"Platform-specific creative strategy", action:"On Meta, structure ads around problem, agitate, solve, in a 15 to 30 second video or carousel. On TikTok, keep it native and trend-aware, never just reuse your Meta ads there. On Google Shopping, it comes down to feed optimization and clean product titles. Each platform genuinely needs its own version, not one ad copied everywhere.", metric:"Target: Platform CTR benchmarks hit within 30 days" },
+          { title:"Creative testing system", action:"Put 20% of your weekly ad budget toward testing new creative, one variable at a time so you actually know what moved the needle. Write down every winner and why it worked. After 90 days of this, you'll have a playbook nobody can just copy from you.", metric:"Target: 1 new proven creative insight per week" },
+          { title:"Seasonal revenue calendar", action:"Map out your 8 biggest revenue moments for the year, then brief the creative and offers for each one 6 weeks ahead of time. The brands that win Black Friday were planning it back in September.", metric:"Deliverable: 12-month promotional calendar" },
         ]},
         { phase:"Email and Retention", items:[
-          { title:"Core flow hierarchy", action:"Build in this order: 1. Abandoned Cart (highest ROI) 2. Post-Purchase (highest trust moment) 3. Welcome Series 4. Win-Back. Each is an automated revenue engine that runs 24/7.", metric:"Target: Email contributes 30%+ of total revenue" },
-          { title:"Segmentation strategy", action:"Segment by: purchase frequency, AOV tier, product category, acquisition source. One-size-fits-all email kills deliverability. Your best customers deserve different messaging than first-time buyers.", metric:"Target: 25%+ open rate, 3%+ click rate" },
-          { title:"SMS as conversion layer", action:"SMS open rates are 98% vs 20% for email. Use for time-sensitive messages only: abandoned cart (30min), flash sale launch, back-in-stock. Never use SMS for newsletters — it destroys opt-out rates.", metric:"Target: SMS adds 5-8% incremental revenue" },
+          { title:"Core flow hierarchy", action:"Build these in order: abandoned cart first since it has the highest return, then post-purchase since that's your highest-trust moment with a customer, then a welcome series, then a win-back flow. Once built, each one runs on its own and keeps generating revenue around the clock.", metric:"Target: Email contributes 30%+ of total revenue" },
+          { title:"Segmentation strategy", action:"Split your list by purchase frequency, order value, product category, and how they found you. Sending the same email to everyone kills your deliverability over time, and your best customers deserve different messaging than someone who just bought once.", metric:"Target: 25%+ open rate, 3%+ click rate" },
+          { title:"SMS as conversion layer", action:"SMS gets opened around 98% of the time, versus roughly 20% for email. Save it for genuinely time-sensitive moments: an abandoned cart 30 minutes later, a flash sale going live, a back-in-stock alert. Using it for regular newsletters will tank your opt-out rate fast.", metric:"Target: SMS adds 5-8% incremental revenue" },
         ]},
       ],
     },
