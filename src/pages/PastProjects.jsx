@@ -91,11 +91,20 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
     };
     const onSeeked = () => {
       try {
+        // Draw at a capped width instead of the video's native resolution
+        // — these thumbnails render at maybe 300-400px wide on screen, so
+        // capturing at full 1080p+ source resolution was pure waste, and
+        // expensive waste at that (canvas draw + JPEG encode both scale
+        // with pixel count).
+        const nativeW = vid.videoWidth  || 320;
+        const nativeH = vid.videoHeight || 200;
+        const maxW = 480;
+        const scale = Math.min(1, maxW / nativeW);
         const canvas = document.createElement("canvas");
-        canvas.width  = vid.videoWidth  || 320;
-        canvas.height = vid.videoHeight || 200;
+        canvas.width  = Math.round(nativeW * scale);
+        canvas.height = Math.round(nativeH * scale);
         canvas.getContext("2d").drawImage(vid, 0, 0, canvas.width, canvas.height);
-        setThumb(canvas.toDataURL("image/jpeg", 0.82));
+        setThumb(canvas.toDataURL("image/jpeg", 0.78));
       } catch { setFailed(true); }
       releaseOnce();
     };
