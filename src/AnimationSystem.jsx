@@ -26,14 +26,24 @@ export function CursorSystem() {
   useEffect(() => {
     if (window.matchMedia("(pointer:coarse)").matches) return; // Skip touch devices
 
+    let lastTrailAt = 0;
+
     const onMove = e => {
       const prev = { ...pos.current };
       pos.current = { x: e.clientX, y: e.clientY };
       if (!pos.current.__ready) { pos.current.__ready = true; setReady(true); }
 
-      // Particle trail on fast movement
+      // Particle trail on fast movement — throttled to at most one new
+      // particle every 40ms. Previously this fired a React state update
+      // (setTrail) on every qualifying mousemove event with no limit,
+      // meaning fast mouse movement could trigger dozens of re-renders
+      // per second, competing directly with whatever else the page was
+      // doing (video decoding, tilt effects, etc.) for main-thread time.
+      const now = performance.now();
+      if (now - lastTrailAt < 40) return;
       const speed = Math.hypot(e.clientX - prev.x, e.clientY - prev.y);
       if (speed > 14) {
+        lastTrailAt = now;
         const id = Date.now() + Math.random();
         setTrail(t => [...t.slice(-8), { id, x: e.clientX, y: e.clientY, r: Math.random() * 3 + 2 }]);
         setTimeout(() => setTrail(t => t.filter(p => p.id !== id)), 450);
@@ -395,17 +405,21 @@ export function ClickRipple() {
 export function GlowBorder({ children, color = "#00ff88", style = {}, className = "" }) {
   const ref  = useRef(null);
   const spot = useRef(null);
+  const rectCache = useRef(null);
+  // Cache the card's position once on enter instead of calling
+  // getBoundingClientRect() (a layout-forcing read) on every single pixel
+  // of mouse movement — same fix as TiltCard, this was the other
+  // sitewide contributor to cursor lag, not just the video loading.
+  const onEnter = () => { rectCache.current = ref.current?.getBoundingClientRect() || null; };
   const onMove = e => {
-    const el = ref.current;
-    if (!el || !spot.current) return;
-    const { left, top } = el.getBoundingClientRect();
-    spot.current.style.left    = `${e.clientX - left}px`;
-    spot.current.style.top     = `${e.clientY - top}px`;
+    if (!rectCache.current || !spot.current) return;
+    spot.current.style.left    = `${e.clientX - rectCache.current.left}px`;
+    spot.current.style.top     = `${e.clientY - rectCache.current.top}px`;
     spot.current.style.opacity = "1";
   };
   const onLeave = () => { if (spot.current) spot.current.style.opacity = "0"; };
   return (
-    <div ref={ref} className={className} onMouseMove={onMove} onMouseLeave={onLeave}
+    <div ref={ref} className={className} onMouseEnter={onEnter} onMouseMove={onMove} onMouseLeave={onLeave}
       style={{ position:"relative", overflow:"hidden", ...style }}>
       <div ref={spot} style={{ position:"absolute", width:220, height:220, borderRadius:"50%", background:`radial-gradient(circle,${color}1e 0%,transparent 65%)`, transform:"translate(-50%,-50%)", pointerEvents:"none", opacity:0, transition:"opacity .35s", zIndex:0, willChange:"left,top,opacity" }}/>
       <div style={{ position:"relative", zIndex:1 }}>{children}</div>
