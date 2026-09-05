@@ -42,7 +42,7 @@ export default function ServiceDetail() {
             Get your free audit →
           </Link>
           <Link to="/pricing" style={{ padding: "12px 28px", borderRadius: 10, border: `1px solid ${borderCol}`, color: headingColor, fontWeight: 600, fontSize: 14, textDecoration: "none" }}>
-            See pricing — {service.price}
+            See pricing →
           </Link>
         </div>
       </section>
