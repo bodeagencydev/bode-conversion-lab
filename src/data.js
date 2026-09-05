@@ -161,12 +161,12 @@ export const QUIZ = [
 ];
 
 export const FAQS = [
-  { q:"Do I need a big ad budget to work with you?",         a:"No. We work with clients at various stages. The most important thing is a proven product and willingness to optimize." },
-  { q:"How long before I see results?",                      a:"Most clients see measurable improvements within 30 days. Full revenue compounding kicks in by month 3. Our record is 90 days from $1k to $70k." },
+  { q:"Do I need a big ad budget to work with you?",         a:"No. We work with clients at very different budget levels. What matters most is having a proven product and being willing to actually act on what we find." },
+  { q:"How long before I see results?",                      a:"Most clients see measurable improvements within 30 days, and the bigger revenue compounding usually kicks in by month 3. Our best result so far took one client from $1k to $70k a month in 90 days." },
   { q:"What platforms do you work with?",                    a:"Shopify, WooCommerce, Magento, BigCommerce and more. For ads: Meta, TikTok, and Google." },
-  { q:"What makes you different from a regular ad agency?",  a:"We don't just run ads. We fix the whole system — store speed, product pages, checkout flow, email sequences, then ads." },
-  { q:"Is there a contract?",                                a:"Month-to-month on The Lab retainer. We don't believe in locking clients in — we believe in results that make you want to stay." },
-  { q:"What if I'm just starting out?",                      a:"The Audit is the perfect entry point. We'll assess where you are and give you a clear roadmap to your first $10k month." },
+  { q:"What makes you different from a regular ad agency?",  a:"We don't just run ads. We fix the whole system first, store speed, product pages, checkout flow, email sequences, then layer ads on top." },
+  { q:"Is there a contract?",                                a:"Month-to-month on The Lab retainer. We'd rather earn you staying every month than lock you into one." },
+  { q:"What if I'm just starting out?",                      a:"The Audit is the right place to start. We'll look at exactly where you are and hand you a clear roadmap toward your first $10k month." },
 ];
 
 export const ECOM_PLATFORMS = [
