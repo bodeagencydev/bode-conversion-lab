@@ -862,6 +862,7 @@ export function Footer() {
         .footer-cols{display:grid;grid-template-columns:1.1fr 1.4fr 1fr;gap:.8rem 2rem;margin-bottom:1.4rem;}
         .footer-legal{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
         @media(max-width:700px){.footer-cols{grid-template-columns:1fr;gap:1.6rem;}.footer-brand{flex-direction:column;gap:1rem;}}
+        @media(max-width:480px){.footer-services-grid{grid-template-columns:1fr!important;}}
       `}</style>
       <div className="footer-inner">
         <div className="footer-brand">
@@ -899,7 +900,10 @@ export function Footer() {
           </div>
           <div>
             <ColHead>Services</ColHead>
-            {SERVICES.map(s => <ColLink key={s.id} to={`/services/${s.id}`}>{s.title}</ColLink>)}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 1.2rem" }} className="footer-services-grid">
+              <div>{SERVICES.slice(0,5).map(s => <ColLink key={s.id} to={`/services/${s.id}`}>{s.title}</ColLink>)}</div>
+              <div>{SERVICES.slice(5).map(s => <ColLink key={s.id} to={`/services/${s.id}`}>{s.title}</ColLink>)}</div>
+            </div>
           </div>
           <div>
             <ColHead>Get Started</ColHead>
