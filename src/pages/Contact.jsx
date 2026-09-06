@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useForm, ValidationError } from "@formspree/react";
 import { notifyFormSubmit } from "../NotificationSystem.js";
 import { G, GG, QUIZ } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 
 function ApplyForm() {
   const { dark } = useTheme();
@@ -142,6 +142,7 @@ export default function Contact() {
         path="/contact"
       />
       <section style={{ position:"relative", padding:"clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 3rem", overflow:"hidden" }}>
+        <HeroBackdrop dark={dark} />
         <div style={{ maxWidth:700, margin:"0 auto", textAlign:"center", position:"relative", zIndex:1 }}>
           <div style={{ marginBottom:"1.5rem" }}>
             <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.28)", borderRadius:100, padding:"5px 14px", fontSize:11, color:G, fontWeight:500 }}>

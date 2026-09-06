@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, createElement } from "react";
 import { Link } from "react-router-dom";
 import { G, GG } from "../data.js";
-import { PageWrapper, GradText, useTheme, SEO } from "../components.jsx";
+import { PageWrapper, GradText, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 import { TiltCard } from "../AnimationSystem.jsx";
 /* @react-pdf/renderer is ~500kB gzipped — loaded on demand (see handleDownload)
    so it never ships in the initial Audit page bundle. */
@@ -944,6 +944,7 @@ export default function Audit() {
       {/* ── HERO / INPUT ── */}
       {!loading && !analysis && (
         <section style={{ position:"relative", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"clamp(5rem,10vw,7rem) clamp(1rem,4vw,2rem) 4rem", overflow:"hidden" }}>
+          <HeroBackdrop dark={dark} />
           <div style={{ maxWidth:640, width:"100%", textAlign:"center", position:"relative", zIndex:1 }}>
             <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:dark?"rgba(0,255,136,.1)":"#1A1408", border:dark?".5px solid rgba(0,255,136,.28)":"none", borderRadius:100, padding:"6px 16px", fontSize:11, color:dark?G:"#F5C518", fontWeight:600, letterSpacing:".05em", marginBottom:"1.6rem" }}>
               <span style={{ width:6, height:6, background:G, borderRadius:"50%", animation:"pulse 2s ease-in-out infinite" }}/> Automatic store diagnostic

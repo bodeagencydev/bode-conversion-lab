@@ -1,6 +1,6 @@
 import { useParams, Link, Navigate } from "react-router-dom";
 import { SERVICES } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 
 export default function ServiceDetail() {
   const { id } = useParams();
@@ -27,23 +27,26 @@ export default function ServiceDetail() {
       />
 
       {/* ── HERO ── */}
-      <section style={{ padding: "clamp(5rem,10vw,7rem) clamp(1rem,4vw,2rem) 3rem", maxWidth: 900, margin: "0 auto" }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: service.color, letterSpacing: ".08em", textTransform: "uppercase", marginBottom: ".8rem" }}>
-          Service {service.icon}
-        </p>
-        <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize: "clamp(2rem,5vw,3rem)", fontWeight: 800, color: headingColor, lineHeight: 1.1, marginBottom: "1rem" }}>
-          {service.title}
-        </h1>
-        <p style={{ fontSize: "1.2rem", color: service.color, fontWeight: 600, marginBottom: "1.2rem" }}>{service.tagline}</p>
-        <p style={{ fontSize: 15, color: mutedText, lineHeight: 1.8, maxWidth: 640 }}>{service.desc}</p>
+      <section style={{ position: "relative", overflow: "hidden", padding: "clamp(5rem,10vw,7rem) clamp(1rem,4vw,2rem) 3rem" }}>
+        <HeroBackdrop dark={dark} accent={service.color} />
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 900, margin: "0 auto" }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: service.color, letterSpacing: ".08em", textTransform: "uppercase", marginBottom: ".8rem" }}>
+            Service {service.icon}
+          </p>
+          <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize: "clamp(2rem,5vw,3rem)", fontWeight: 800, color: headingColor, lineHeight: 1.1, marginBottom: "1rem" }}>
+            {service.title}
+          </h1>
+          <p style={{ fontSize: "1.2rem", color: service.color, fontWeight: 600, marginBottom: "1.2rem" }}>{service.tagline}</p>
+          <p style={{ fontSize: 15, color: mutedText, lineHeight: 1.8, maxWidth: 640 }}>{service.desc}</p>
 
-        <div style={{ display: "flex", gap: "1rem", marginTop: "2rem", flexWrap: "wrap" }}>
-          <Link to="/audit" style={{ padding: "12px 28px", borderRadius: 10, background: service.color, color: "#0A0A0A", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
-            Get your free audit →
-          </Link>
-          <Link to="/pricing" style={{ padding: "12px 28px", borderRadius: 10, border: `1px solid ${borderCol}`, color: headingColor, fontWeight: 600, fontSize: 14, textDecoration: "none" }}>
-            See pricing →
-          </Link>
+          <div style={{ display: "flex", gap: "1rem", marginTop: "2rem", flexWrap: "wrap" }}>
+            <Link to="/audit" style={{ padding: "12px 28px", borderRadius: 10, background: service.color, color: "#0A0A0A", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
+              Get your free audit →
+            </Link>
+            <Link to="/pricing" style={{ padding: "12px 28px", borderRadius: 10, border: `1px solid ${borderCol}`, color: headingColor, fontWeight: 600, fontSize: 14, textDecoration: "none" }}>
+              See pricing →
+            </Link>
+          </div>
         </div>
       </section>
 

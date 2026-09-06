@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { G, GG, PAST_PROJECTS, BADGES } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 import { ScrollReveal, TiltCard, GlowBorder } from "../AnimationSystem.jsx";
 
 /* ── GALLERY ARRAY ── */
@@ -16,7 +16,7 @@ const GALLERY = [
   { type: "video", src: "", videoSrc: "/proof/Videoproof12.mp4", label: "SassyL", tag: "Customer Winback Flow Built", color: "#B48CFF" },
   { type: "video", src: "/proof/proof-2.png", videoSrc: "/proof/Videoproof2.mp4", label: "Novi Good store", tag: "4.3x ROAS-$57k sales", color: "#0081FB" },
   { type: "video", src: "", videoSrc: "/proof/Videoproof9.mp4",  label: "Paws & Shelfs",   tag: "Store Built & Launched",         color: "#FF9500" },
-  { type: "video", src: "", videoSrc: "/proof/Videoproof13.mp4", label: "PLACEHOLDER_NAME", tag: "$61k sales, +184%", color: "#00D4FF" },
+  { type: "video", src: "", videoSrc: "/proof/Videoproof13.mp4", label: "Stephan Store", tag: "$61k sales, +184%", color: "#00D4FF" },
   { type: "video", src: "/proof/proof-5.png", videoSrc: "/proof/Videoproof5.mp4", label: "Robin and Roobaby store", tag: "$77k sales", color: "#00ff88" },
   { type: "video", src: "", videoSrc: "/proof/Videoproof10.mp4", label: "Glitch & Grin",   tag: "100% SEO Score",                 color: "#34D399" },
   { type: "video", src: "/proof/proof-4.png", videoSrc: "/proof/Videoproof4.mp4", label: "Bomia Brand Store 2", tag: "Roas 2x", color: "#FFD700" },
@@ -228,6 +228,7 @@ export function PastProjects() {
       {seoTag}
       {/* ── HERO ── */}
       <section style={{ position: "relative", padding: "7rem 2rem 5rem", overflow: "hidden" }}>
+        <HeroBackdrop dark={dark} />
         <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.28)", borderRadius: 100, padding: "5px 16px", fontSize: 11, color: G, fontWeight: 600, letterSpacing: ".05em", marginBottom: "1.6rem" }}>
             <span style={{ width: 6, height: 6, background: G, borderRadius: "50%" }}/> Past work
@@ -336,7 +337,7 @@ export function PastProjects() {
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
             <SectionLabel>Client campaign clips</SectionLabel>
-            <Heading size="2rem">Video work, <GradText>real results</GradText></Heading>
+            <Heading size="2rem">Not stock footage.<br /><GradText>Actual client campaigns.</GradText></Heading>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.2rem" }} className="how-grid">

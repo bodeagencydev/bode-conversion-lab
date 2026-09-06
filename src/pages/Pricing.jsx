@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { G, GG, FAQS } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 
 import { notifyPayment, notifyAccessCode } from "../NotificationSystem.js";
 
@@ -408,6 +408,7 @@ export default function Pricing() {
 
       {/* ── HERO ── */}
       <section style={{ position:"relative", padding:"6rem 2rem 4rem", overflow:"hidden" }}>
+        <HeroBackdrop dark={dark} />
         <div style={{ maxWidth:700, margin:"0 auto", textAlign:"center", position:"relative", zIndex:1 }}>
           <div style={{ marginBottom:"1.5rem" }}>
             <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:dark?"rgba(0,255,136,.1)":"#1A1408", border:dark?".5px solid rgba(0,255,136,.28)":"none", borderRadius:100, padding:"6px 16px", fontSize:11, color:dark?G:"#FFEFC2", fontWeight:600, letterSpacing:".05em" }}>

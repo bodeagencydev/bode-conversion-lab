@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { G, GG } from "../data.js";
-import { GradText, PageWrapper, useTheme } from "../components.jsx";
+import { GradText, PageWrapper, useTheme, HeroBackdrop } from "../components.jsx"; 
 
 export default function Subscribe() {
   const { dark } = useTheme();
@@ -39,6 +39,7 @@ export default function Subscribe() {
   return (
     <PageWrapper>
       <section style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem)", overflow: "hidden" }}>
+        <HeroBackdrop dark={dark} />
 
         <div style={{ maxWidth: 560, width: "100%", position: "relative", zIndex: 1 }}>
           {!submitted ? (

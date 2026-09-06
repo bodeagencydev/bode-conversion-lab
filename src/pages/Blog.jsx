@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { Link, useParams } from "react-router-dom";
 import { G, GG, BLOG_POSTS } from "../data.js";
-import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO } from "../components.jsx";
+import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 import { TiltCard, ScrollReveal } from "../AnimationSystem.jsx";
 
 // Category → accent color, gives each card a distinct visual identity
@@ -39,6 +39,7 @@ export function Blog() {
 
       {/* ── HERO ── */}
       <section style={{ position:"relative", padding:"7rem 2rem 5rem", overflow:"hidden" }}>
+        <HeroBackdrop dark={dark} />
         <div style={{ maxWidth:720, margin:"0 auto", textAlign:"center", position:"relative", zIndex:1 }}>
           <div style={{
             display:"flex", justifyContent:"center", alignItems:"center", gap:10,
@@ -328,24 +329,40 @@ export function BlogPost() {
       <Section>
         <div style={{ maxWidth:720, margin:"0 auto" }}>
 
-          {/* Table of contents */}
+          {/* Table of contents — now real jump links, not just decorative */}
           <div style={{ background:dark?"rgba(0,255,136,.04)":"rgba(255,255,255,.45)", border:dark?".5px solid rgba(0,255,136,.18)":".5px solid rgba(26,20,8,.14)", borderRadius:14, padding:"1.4rem 1.6rem", marginBottom:"3rem" }}>
             <p style={{ fontSize:11, color:mutedText3, letterSpacing:".08em", textTransform:"uppercase", fontWeight:700, marginBottom:"1rem" }}>In this article</p>
             {post.content.map((s, i) => (
-              <div key={i} style={{ display:"flex", gap:10, alignItems:"center", padding:"5px 0" }}>
+              <a key={i} href={`#section-${i}`} style={{ display:"flex", gap:10, alignItems:"center", padding:"5px 0", textDecoration:"none" }}>
                 <span style={{ width:18, height:18, borderRadius:"50%", background:"rgba(0,255,136,.12)", border:".5px solid rgba(0,255,136,.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800, color:G, flexShrink:0 }}>{i+1}</span>
                 <span style={{ fontSize:13, color:mutedText2, fontWeight:500 }}>{s.heading}</span>
-              </div>
+              </a>
             ))}
           </div>
 
-          {/* Content sections */}
+          {/* Content sections — with one contextual CTA inserted right
+              after the first section, catching the reader at their peak
+              interest instead of only offering a way forward at the very
+              end after momentum's gone. */}
           <div style={{ display:"flex", flexDirection:"column", gap:"3rem" }}>
             {post.content.map((section, i) => (
-              <div key={i} style={{ borderLeft:`2px solid rgba(0,255,136,.25)`, paddingLeft:"1.5rem" }}>
-                <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.3rem", fontWeight:800, color:headingColor, marginBottom:"1rem" }}>{section.heading}</h2>
-                <p style={{ fontSize:15, color:mutedText, lineHeight:1.9 }}>{section.body}</p>
-              </div>
+              <Fragment key={i}>
+                <div id={`section-${i}`} style={{ borderLeft:`2px solid rgba(0,255,136,.25)`, paddingLeft:"1.5rem", scrollMarginTop:100 }}>
+                  <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.3rem", fontWeight:800, color:headingColor, marginBottom:"1rem" }}>{section.heading}</h2>
+                  <p style={{ fontSize:15, color:mutedText, lineHeight:1.9 }}>{section.body}</p>
+                </div>
+                {i === 0 && (
+                  <Link to="/audit" style={{ textDecoration:"none" }}>
+                    <div style={{ background:"linear-gradient(135deg,rgba(0,255,136,.09),rgba(0,204,106,.03))", border:"1px solid rgba(0,255,136,.3)", borderRadius:14, padding:"1.2rem 1.5rem", display:"flex", justifyContent:"space-between", alignItems:"center", gap:"1rem", flexWrap:"wrap" }}>
+                      <div>
+                        <p style={{ fontSize:13.5, fontWeight:700, color:headingColor, margin:0 }}>See exactly where your own store stands</p>
+                        <p style={{ fontSize:12, color:mutedText3, margin:"3px 0 0" }}>Free audit — no card, no call needed to see the results.</p>
+                      </div>
+                      <span style={{ color:G, fontSize:13, fontWeight:700, whiteSpace:"nowrap" }}>Run free audit →</span>
+                    </div>
+                  </Link>
+                )}
+              </Fragment>
             ))}
           </div>
 

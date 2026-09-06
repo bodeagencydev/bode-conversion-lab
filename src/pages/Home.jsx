@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, AD_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
-import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, useInView, useTheme, PageWrapper, SEO } from "../components.jsx";
+import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, useInView, useTheme, PageWrapper, SEO, HeroBackdrop } from "../components.jsx";
 import { ScrollReveal, TiltCard, Magnetic, GlowBorder, SpringCounter, MaskedHeading } from "../AnimationSystem.jsx";
 
 const REDESIGN_STATUS_KEY = "bcl_redesign_status"; // 'active' | 'gone'
@@ -146,6 +146,7 @@ export default function Home() {
 
       {/* ── HERO ── */}
       <section style={{ position:"relative", minHeight:"92vh", display:"flex", alignItems:"center", padding:"clamp(4rem,9vw,6rem) clamp(1.2rem,4vw,2rem) 3rem", overflow:"hidden" }}>
+        <HeroBackdrop dark={dark} />
         <div style={{ maxWidth:1180, margin:"0 auto", width:"100%", display:"grid", gridTemplateColumns:"1.05fr 0.95fr", gap:"clamp(2rem,5vw,4rem)", alignItems:"center" }} className="hero-split">
 
           {/* ── LEFT: copy ── */}
