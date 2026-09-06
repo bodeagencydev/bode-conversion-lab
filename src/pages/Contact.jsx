@@ -14,9 +14,9 @@ function ApplyForm() {
 
   const headingColor  = dark ? "#fff"                : "#1A1408";
   const mutedText     = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.62)";
-  const mutedText2    = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.5)";
-  const mutedText3    = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.55)";
-  const mutedText4    = dark ? "rgba(255,255,255,.2)"  : "rgba(26,20,8,.35)";
+  const mutedText2    = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.62)";
+  const mutedText3    = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.62)";
+  const mutedText4    = dark ? "rgba(255,255,255,.2)"  : "rgba(26,20,8,.6)";
   const cardBg        = dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(255,255,255,.45),rgba(255,255,255,.2))";
   const cardBorder    = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
   const cardBorderTop = dark ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.65)";
@@ -130,7 +130,7 @@ export default function Contact() {
   const { dark } = useTheme();
   const headingColor = dark ? "#fff"                : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.62)";
-  const mutedText2   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.55)";
+  const mutedText2   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.62)";
   const noSellBg     = dark ? "rgba(0,255,136,.05)"   : "rgba(0,255,136,.06)";
   const noSellBorder = dark ? "rgba(0,255,136,.18)"   : "rgba(0,180,80,.2)";
 

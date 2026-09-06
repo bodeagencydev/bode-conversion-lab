@@ -49,13 +49,17 @@ function FreeRedesignOffer() {
   // Dismissed forever, or not one of this week's 2 offer days — render nothing.
   if (status === null || status === "gone" || !isOfferDay) return null;
 
-  const mutedText = "rgba(255,255,255,.65)";
+  // Solid, saturated green instead of a translucent tint — a translucent
+  // overlay looks fine on the dark theme's near-black page but turns pale
+  // mint (with white text nearly invisible on it) over the light theme's
+  // cream background. Solid color reads the same, reliably, in both.
+  const mutedText = "rgba(255,255,255,.7)";
 
   return (
     <div className="free-redesign-bar" style={{
       position: "sticky", top: 60, zIndex: 900, width: "100%",
-      background: "linear-gradient(90deg, rgba(0,255,136,.16), rgba(0,255,136,.08))",
-      borderBottom: "1px solid rgba(0,255,136,.35)", padding: "12px clamp(1rem,4vw,2rem) 10px",
+      background: "linear-gradient(90deg, #007A50, #00875A)",
+      borderBottom: "1px solid rgba(0,0,0,.15)", padding: "12px clamp(1rem,4vw,2rem) 10px",
       boxSizing: "border-box",
     }}>
       <style>{`
@@ -129,8 +133,8 @@ export default function Home() {
   const [statsRef, statsInView] = useInView(0.2);
 
   const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
-  const mutedText2   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.55)";
-  const mutedText3   = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.45)";
+  const mutedText2   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.62)";
+  const mutedText3   = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.6)";
   const borderCol    = dark ? "rgba(255,255,255,.06)"  : "rgba(26,20,8,.12)";
   const tickerBg     = dark ? "rgba(255,255,255,.01)"  : "rgba(26,20,8,.03)";
   const headingColor = dark ? "#fff" : "#1A1408";

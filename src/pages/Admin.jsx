@@ -135,8 +135,8 @@ export default function Admin() {
 
   const headingColor = dark ? "#fff"                  : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.5)"   : "rgba(26,20,8,.65)";
-  const mutedText2   = dark ? "rgba(255,255,255,.4)"   : "rgba(26,20,8,.55)";
-  const mutedText3   = dark ? "rgba(255,255,255,.3)"   : "rgba(26,20,8,.45)";
+  const mutedText2   = dark ? "rgba(255,255,255,.4)"   : "rgba(26,20,8,.62)";
+  const mutedText3   = dark ? "rgba(255,255,255,.3)"   : "rgba(26,20,8,.6)";
   const cardBg       = dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.2))";
   const cardBorder   = dark ? "rgba(255,255,255,.1)"   : "rgba(26,20,8,.15)";
   const inputBg      = dark ? "rgba(255,255,255,.05)"  : "rgba(255,255,255,.55)";

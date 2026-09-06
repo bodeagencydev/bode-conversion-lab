@@ -5,13 +5,26 @@ import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, H
 import { TiltCard, ScrollReveal } from "../AnimationSystem.jsx";
 
 // Category → accent color, gives each card a distinct visual identity
-// instead of every card reading identically at a glance.
+// instead of every card reading identically at a glance. The bright
+// neon versions work on the dark theme's near-black background, but
+// have almost no contrast against the light theme's cream background
+// even at full opacity — so light mode gets its own darker variant
+// for anything that's actually text (the letter, the pill, the link),
+// while decorative bits (band background, border) can stay bright.
 const CATEGORY_COLORS = {
   "Ad Strategy":    "#00FF88",
   "CRO":            "#00D4FF",
   "Email Marketing":"#FFD166",
 };
+const CATEGORY_COLORS_LIGHT = {
+  "Ad Strategy":    "#007A45",
+  "CRO":            "#006688",
+  "Email Marketing":"#8A5A00",
+};
 function categoryColor(cat) { return CATEGORY_COLORS[cat] || G; }
+function categoryTextColor(cat, dark) {
+  return dark ? (CATEGORY_COLORS[cat] || G) : (CATEGORY_COLORS_LIGHT[cat] || "#00A35C");
+}
 
 export function Blog() {
   const { dark } = useTheme();
@@ -24,9 +37,9 @@ export function Blog() {
   const headingColor = dark ? "#fff"                 : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.65)";
   const mutedText2   = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
-  const mutedText3   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.55)";
-  const mutedText4   = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.45)";
-  const mutedText5   = dark ? "rgba(255,255,255,.25)" : "rgba(26,20,8,.38)";
+  const mutedText3   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.62)";
+  const mutedText4   = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.6)";
+  const mutedText5   = dark ? "rgba(255,255,255,.25)" : "rgba(26,20,8,.6)";
   const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
 
   return (
@@ -147,6 +160,7 @@ export function Blog() {
               <p style={{ fontSize:14, color:mutedText3, gridColumn:"1/-1", textAlign:"center", padding:"2rem 0" }}>No articles in this category yet.</p>
             ) : filteredPosts.map((post, i) => {
               const accent = categoryColor(post.category);
+              const textAccent = categoryTextColor(post.category, dark);
               return (
               <ScrollReveal key={post.id} delay={i * 0.05}>
                 <Link to={`/blog/${post.id}`} style={{ textDecoration:"none" }}>
@@ -165,22 +179,24 @@ export function Blog() {
                         of an all-text list that reads as one flat block. */}
                     <div style={{
                       height:70, borderRadius:"18px 18px 0 0",
-                      background:`linear-gradient(135deg, ${accent}26, ${accent}08)`,
+                      background: dark
+                        ? `linear-gradient(135deg, ${accent}26, ${accent}08)`
+                        : `linear-gradient(135deg, ${accent}30, ${accent}12)`,
                       borderBottom:`1px solid ${accent}33`,
                       display:"flex", alignItems:"center", justifyContent:"center", position:"relative", overflow:"hidden",
                     }}>
-                      <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:30, fontWeight:800, color:accent, opacity:.5 }}>
+                      <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:30, fontWeight:800, color:textAccent, opacity:dark?.5:.85 }}>
                         {post.category.slice(0,2).toUpperCase()}
                       </span>
                     </div>
 
                     <div style={{ padding:"1.8rem", display:"flex", flexDirection:"column", flex:1 }}>
-                      <span style={{ display:"inline-block", background:`${accent}18`, border:`.5px solid ${accent}55`, borderRadius:100, padding:"3px 10px", fontSize:10, color:accent, fontWeight:700, letterSpacing:".04em", marginBottom:"1.2rem", alignSelf:"flex-start" }}>{post.category}</span>
+                      <span style={{ display:"inline-block", background:`${accent}18`, border:`.5px solid ${accent}55`, borderRadius:100, padding:"3px 10px", fontSize:10, color:textAccent, fontWeight:700, letterSpacing:".04em", marginBottom:"1.2rem", alignSelf:"flex-start" }}>{post.category}</span>
                       <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.05rem", fontWeight:800, color:headingColor, marginBottom:".75rem", lineHeight:1.3, flex:1 }}>{post.title}</h3>
                       <p style={{ fontSize:13, color:mutedText3, lineHeight:1.65, marginBottom:"1.5rem" }}>{post.excerpt.slice(0,110)}...</p>
                       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"auto" }}>
                         <span style={{ fontSize:11, color:mutedText5 }}>{post.readTime}</span>
-                        <span style={{ color:accent, fontSize:12, fontWeight:700, display:"flex", alignItems:"center", gap:4 }}>Read → </span>
+                        <span style={{ color:textAccent, fontSize:12, fontWeight:700, display:"flex", alignItems:"center", gap:4 }}>Read → </span>
                       </div>
                     </div>
                   </TiltCard>
@@ -247,7 +263,7 @@ export function BlogPost() {
   const headingColor = dark ? "#fff"                 : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.55)" : "rgba(26,20,8,.65)";
   const mutedText2   = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
-  const mutedText3   = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.45)";
+  const mutedText3   = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.6)";
   const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
 
   if (!post) return (

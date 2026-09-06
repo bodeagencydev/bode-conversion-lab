@@ -10,9 +10,9 @@ export default function Subscribe() {
   const [loading, setLoading] = useState(false);
 
   const headingColor = dark ? "#fff" : "#0a0a0a";
-  const mutedText = dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.5)";
+  const mutedText = dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.62)";
   const mutedText2 = dark ? "rgba(255,255,255,.6)" : "rgba(0,0,0,.6)";
-  const mutedText3 = dark ? "rgba(255,255,255,.25)" : "rgba(0,0,0,.3)";
+  const mutedText3 = dark ? "rgba(255,255,255,.25)" : "rgba(0,0,0,.6)";
   const cardBg = dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(0,0,0,.03),rgba(0,0,0,.01))";
   const cardBorder = dark ? "rgba(255,255,255,.12)" : "rgba(0,0,0,.1)";
   const cardBorderTop = dark ? "rgba(255,255,255,.22)" : "rgba(0,0,0,.15)";

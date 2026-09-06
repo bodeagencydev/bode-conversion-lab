@@ -4,7 +4,7 @@ export default function Terms() {
   const { dark } = useTheme();
   const headingColor = dark ? "#fff"                 : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.62)";
-  const mutedText2   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.55)";
+  const mutedText2   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.62)";
   const cardBg       = dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(255,255,255,.45),rgba(255,255,255,.2))";
   const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
 

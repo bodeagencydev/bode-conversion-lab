@@ -220,7 +220,7 @@ export function PastProjects() {
   const headingColor = dark ? "#fff"                 : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.65)";
   const mutedText2   = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
-  const mutedText3   = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.5)";
+  const mutedText3   = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.62)";
   const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
 
   return (

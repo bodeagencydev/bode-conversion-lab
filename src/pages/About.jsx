@@ -10,8 +10,8 @@ export default function About() {
   const headingColor = dark ? "#fff" : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.65)";
   const mutedText2   = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
-  const mutedText3   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.55)";
-  const mutedText4   = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.48)";
+  const mutedText3   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.62)";
+  const mutedText4   = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.6)";
 
   return (
     <PageWrapper>
