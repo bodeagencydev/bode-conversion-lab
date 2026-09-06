@@ -556,6 +556,53 @@ export function CookieConsent() {
   );
 }
 
+/* ── GRAIN ──
+   A near-invisible film-grain layer over the whole app. Flat gradients on a
+   pure-black background are the single biggest tell of an unfinished/AI-made
+   site — real screens never render perfectly smooth color. This fixes that
+   sitewide with one mount, at an opacity low enough that nobody consciously
+   "sees" it, they just register the page as more textured/expensive. ── */
+export function Grain() {
+  return (
+    <svg aria-hidden="true" style={{ position:"fixed", inset:0, width:"100%", height:"100%", zIndex:3, pointerEvents:"none", opacity:.035, mixBlendMode:"overlay" }}>
+      <filter id="bclGrain">
+        <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" stitchTiles="stitch" />
+        <feColorMatrix type="saturate" values="0" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#bclGrain)" />
+    </svg>
+  );
+}
+
+/* ── HERO BACKDROP ──
+   Drop this as the first child of any `position:relative, overflow:hidden`
+   hero section to replace a flat blank background with a faint dot-grid,
+   two off-center (never dead-centered — that's the giveaway) color blooms,
+   and a pair of viewfinder corner marks that echo the "scan/audit" brand
+   motif instead of being pure decoration. Everything renders under the
+   content because the content wrapper already sits at zIndex:1. ── */
+export function HeroBackdrop({ dark = true, accent = null, accent2 = null }) {
+  const a1 = accent  || G;
+  const a2 = accent2 || (dark ? "#FF5A3C" : "#C74B32");
+  const dot = dark ? "rgba(255,255,255,.05)" : "rgba(23,20,15,.06)";
+  const mark = dark ? "rgba(255,255,255,.14)" : "rgba(23,20,15,.16)";
+  return (
+    <div aria-hidden="true" style={{ position:"absolute", inset:0, zIndex:0, overflow:"hidden", pointerEvents:"none" }}>
+      <div style={{
+        position:"absolute", inset:0,
+        backgroundImage:`radial-gradient(${dot} 1px, transparent 1px)`,
+        backgroundSize:"26px 26px",
+        maskImage:"radial-gradient(ellipse 62% 55% at 62% 22%, #000 30%, transparent 82%)",
+        WebkitMaskImage:"radial-gradient(ellipse 62% 55% at 62% 22%, #000 30%, transparent 82%)",
+      }} />
+      <div style={{ position:"absolute", top:"-16%", right:"-8%", width:"min(40vw,420px)", height:"min(40vw,420px)", borderRadius:"50%", background:`radial-gradient(circle,${a1}22 0%,${a1}00 72%)` }} />
+      <div style={{ position:"absolute", bottom:"-20%", left:"-9%", width:"min(30vw,320px)", height:"min(30vw,320px)", borderRadius:"50%", background:`radial-gradient(circle,${a2}16 0%,${a2}00 72%)` }} />
+      <div style={{ position:"absolute", top:16, left:16, width:16, height:16, borderTop:`1px solid ${mark}`, borderLeft:`1px solid ${mark}` }} />
+      <div style={{ position:"absolute", bottom:16, right:16, width:16, height:16, borderBottom:`1px solid ${mark}`, borderRight:`1px solid ${mark}` }} />
+    </div>
+  );
+}
+
 export function PageWrapper({ children, style = {} }) {
   useEffect(() => { window.scrollTo(0, 0); }, []);
   return (
@@ -567,6 +614,7 @@ export function PageWrapper({ children, style = {} }) {
       transition:"background .3s,color .3s",
       ...style
     }}>
+      <Grain />
       <HelpMenuPopup />
       <ExitIntentPopup />
       {children}
