@@ -130,6 +130,15 @@ function FreeRedesignOffer() {
 
 export default function Home() {
   const { dark } = useTheme();
+  // rgba(0,255,136,X) / rgba(0,204,106,X) are the two neon-green tint
+  // families used for badges, borders, icon circles, and glow accents.
+  // They read fine on near-black but turn into pale washed-out mint on
+  // the light theme's cream background, so both get a deeper light-mode
+  // equivalent here instead of case-by-case guessing.
+  const glow  = a => dark ? `rgba(0,255,136,${a})` : `rgba(0,130,74,${a})`;
+  const glow2 = a => dark ? `rgba(0,204,106,${a})` : `rgba(0,110,64,${a})`;
+  const brandG = dark ? G : "#00A35C";
+  const brandGG = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
   const [statsRef, statsInView] = useInView(0.2);
 
   const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
@@ -163,7 +172,7 @@ export default function Home() {
                 fontSize:11, color: mutedText2, fontFamily:"'IBM Plex Mono',monospace",
                 letterSpacing:".03em", marginBottom:"1.6rem"
               }}>
-                <span style={{ width:6, height:6, background:G, borderRadius:"50%" }}/>
+                <span style={{ width:6, height:6, background:brandG, borderRadius:"50%" }}/>
                 STORE_AUDIT.STATUS — ACTIVE
               </span>
             </ScrollReveal>
@@ -177,7 +186,7 @@ export default function Home() {
                 stagger={0.06}
                 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,4.6vw,3.3rem)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:headingColor, wordBreak:"break-word", textAlign:"left", justifyContent:"flex-start" }}
               />
-              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,4.6vw,3.3rem)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:G, animation:"heroFadeUp .8s .5s ease both", animationFillMode:"forwards", opacity:0, textAlign:"left" }}>
+              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,4.6vw,3.3rem)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:brandG, animation:"heroFadeUp .8s .5s ease both", animationFillMode:"forwards", opacity:0, textAlign:"left" }}>
                 <Typewriter words={["revenue machine.", "conversion engine.", "ROAS multiplier.", "scaling system."]} />
               </div>
             </div>
@@ -198,7 +207,7 @@ export default function Home() {
                 <Link
                   to="/past-projects"
                   style={{ fontSize:13, color:mutedText2, textDecoration:"none", borderBottom:`.5px solid ${mutedText3}`, paddingBottom:1, transition:"color .2s" }}
-                  onMouseEnter={e => e.currentTarget.style.color = G}
+                  onMouseEnter={e => e.currentTarget.style.color = brandG}
                   onMouseLeave={e => e.currentTarget.style.color = mutedText2}>
                   See our past work →
                 </Link>
@@ -212,7 +221,7 @@ export default function Home() {
                   { n:"4x+", l:"Average ROAS\nimprovement" },
                   { n:"$0",  l:"Extra ad spend\nrequired" },
                 ].map((c, i) => (
-                  <div key={i} style={{ borderLeft:`2px solid ${G}`, paddingLeft:10 }}>
+                  <div key={i} style={{ borderLeft:`2px solid ${brandG}`, paddingLeft:10 }}>
                     <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:"clamp(1.2rem,3vw,1.5rem)", fontWeight:600, color:headingColor, lineHeight:1.1, marginBottom:4 }}>{c.n}</div>
                     <div style={{ fontSize:10.5, color:mutedText3, lineHeight:1.4, whiteSpace:"pre-line" }}>{c.l}</div>
                   </div>
@@ -232,7 +241,7 @@ export default function Home() {
               }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem", paddingBottom:"0.8rem", borderBottom:`1px solid ${dark ? "rgba(239,236,230,.1)" : "rgba(23,20,15,.16)"}` }}>
                   <span style={{ fontSize:11, color:mutedText3, letterSpacing:".04em" }}>SCAN://your-store.myshopify.com</span>
-                  <span style={{ fontSize:10, color:G }}>● LIVE</span>
+                  <span style={{ fontSize:10, color:brandG }}>● LIVE</span>
                 </div>
 
                 {[
@@ -244,10 +253,10 @@ export default function Home() {
                 ].map((row, i) => (
                   <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, padding:"9px 0", borderBottom: i < 4 ? `1px solid ${dark ? "rgba(239,236,230,.06)" : "rgba(23,20,15,.1)"}` : "none" }}>
                     <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                      <span style={{ width:6, height:6, borderRadius:"50%", background: row.tone === "rust" ? "var(--rust)" : G, flexShrink:0 }}/>
+                      <span style={{ width:6, height:6, borderRadius:"50%", background: row.tone === "rust" ? "var(--rust)" : brandG, flexShrink:0 }}/>
                       <span style={{ fontSize:12.5, color: dark ? "rgba(239,236,230,.75)" : "rgba(23,20,15,.75)" }}>{row.label}</span>
                     </div>
-                    <span style={{ fontSize:12, fontWeight:600, color: row.tone === "rust" ? "var(--rust)" : G, whiteSpace:"nowrap" }}>{row.status}</span>
+                    <span style={{ fontSize:12, fontWeight:600, color: row.tone === "rust" ? "var(--rust)" : brandG, whiteSpace:"nowrap" }}>{row.status}</span>
                   </div>
                 ))}
               </div>
@@ -292,7 +301,7 @@ export default function Home() {
             ].map((s, i) => (
               <ScrollReveal key={i} delay={i * 0.12}>
                 <div className="stat-card">
-                  <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,5vw,3rem)", fontWeight:800, background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", lineHeight:1, marginBottom:8 }}>
+                  <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,5vw,3rem)", fontWeight:800, background:brandGG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", lineHeight:1, marginBottom:8 }}>
                     {statsInView
                       ? <SpringCounter to={s.n} suffix={s.s} stiffness={100} damping={10} />
                       : `0${s.s}`}
@@ -325,7 +334,7 @@ export default function Home() {
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 0.1}>
                 <TiltCard className="glass" style={{ padding:"2.5rem", height:"100%" }}>
-                  <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.8rem", fontWeight:800, background:"linear-gradient(135deg,rgba(0,255,136,.55),rgba(0,255,136,.15))", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:".75rem" }}>{item.n}</div>
+                  <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.8rem", fontWeight:800, background:`linear-gradient(135deg,${glow(.55)},${glow(.15)})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:".75rem" }}>{item.n}</div>
                   <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.15rem", fontWeight:700, marginBottom:".6rem", color:headingColor }}>{item.t}</h3>
                   <p style={{ fontSize:14, color:mutedText, lineHeight:1.75 }}>{item.d}</p>
                 </TiltCard>
@@ -359,7 +368,7 @@ export default function Home() {
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 0.08}>
                 <TiltCard className="glass" style={{ padding:"1.4rem 1.2rem", height:"100%" }}>
-                  <p style={{ fontSize:10, fontWeight:700, color:G, letterSpacing:".06em", marginBottom:".4rem" }}>PHASE {item.phase}</p>
+                  <p style={{ fontSize:10, fontWeight:700, color:brandG, letterSpacing:".06em", marginBottom:".4rem" }}>PHASE {item.phase}</p>
                   <h4 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:14, fontWeight:700, marginBottom:".35rem", color:headingColor }}>{item.t}</h4>
                   <p style={{ fontSize:12, color:mutedText, lineHeight:1.6 }}>{item.d}</p>
                 </TiltCard>
@@ -444,7 +453,7 @@ export default function Home() {
         <ScrollReveal delay={0}>
           <div style={{ maxWidth:760, margin:"0 auto", textAlign:"center" }}>
             <GlowBorder
-              style={{ background: dark ? "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))" : "linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.25))", border:".5px solid rgba(0,255,136,.25)", borderRadius:24, padding:"clamp(2.5rem,5vw,5rem) clamp(1.5rem,4vw,3rem)" }}>
+              style={{ background: dark ? `linear-gradient(135deg,${glow(.08)},${glow2(.03)})` : "linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.25))", border:`.5px solid ${glow(.25)}`, borderRadius:24, padding:"clamp(2.5rem,5vw,5rem) clamp(1.5rem,4vw,3rem)" }}>
               <SectionLabel>Ready to scale?</SectionLabel>
               <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1.6rem,4vw,2.8rem)", fontWeight:800, letterSpacing:"-.02em", color:headingColor, lineHeight:1.2, wordBreak:"break-word", overflowWrap:"break-word" }}>
                 Stop burning money.<br /><GradText>Start compounding it.</GradText>

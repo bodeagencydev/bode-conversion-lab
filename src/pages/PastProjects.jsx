@@ -147,7 +147,7 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
       borderRadius: 16, overflow: "hidden", position: "relative",
       transition: "transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s",
     }}
-      onMouseEnter={e => { e.currentTarget.style.transform="translateY(-6px) scale(1.01)"; e.currentTarget.style.boxShadow=dark?"0 24px 48px rgba(0,255,136,.1)":"0 24px 48px rgba(26,20,8,.16)"; e.currentTarget.style.borderColor="rgba(0,255,136,.35)"; }}
+      onMouseEnter={e => { e.currentTarget.style.transform="translateY(-6px) scale(1.01)"; e.currentTarget.style.boxShadow=dark?`0 24px 48px ${glow(.1)}`:"0 24px 48px rgba(26,20,8,.16)"; e.currentTarget.style.borderColor=`${glow(.35)}`; }}
       onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; e.currentTarget.style.borderColor=cardBorder; }}>
 
       <div style={{ aspectRatio: "16/10", position: "relative", overflow: "hidden", background: dark ? "rgba(0,0,0,.4)" : "rgba(26,20,8,.1)" }}>
@@ -196,7 +196,7 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
 
       <div style={{ padding: ".9rem 1rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: headingColor, lineHeight: 1.4 }}>{item.label}</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={brandG} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
           <path d="M7 17L17 7M7 7h10v10"/>
         </svg>
       </div>
@@ -206,6 +206,15 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
 
 export function PastProjects() {
   const { dark } = useTheme();
+  // rgba(0,255,136,X) / rgba(0,204,106,X) are the two neon-green tint
+  // families used for badges, borders, icon circles, and glow accents.
+  // They read fine on near-black but turn into pale washed-out mint on
+  // the light theme's cream background, so both get a deeper light-mode
+  // equivalent here instead of case-by-case guessing.
+  const glow  = a => dark ? `rgba(0,255,136,${a})` : `rgba(0,130,74,${a})`;
+  const glow2 = a => dark ? `rgba(0,204,106,${a})` : `rgba(0,110,64,${a})`;
+  const brandG = dark ? G : "#00A35C";
+  const brandGG = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
   // Only real, filled-in projects render publicly. Placeholder slots stay
   // in data.js for Fiyin to edit directly — see the comment there.
   const realProjects = PAST_PROJECTS.filter(p => !p.placeholder);
@@ -230,8 +239,8 @@ export function PastProjects() {
       <section style={{ position: "relative", padding: "7rem 2rem 5rem", overflow: "hidden" }}>
         <HeroBackdrop dark={dark} />
         <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,255,136,.1)", border: ".5px solid rgba(0,255,136,.28)", borderRadius: 100, padding: "5px 16px", fontSize: 11, color: G, fontWeight: 600, letterSpacing: ".05em", marginBottom: "1.6rem" }}>
-            <span style={{ width: 6, height: 6, background: G, borderRadius: "50%" }}/> Past work
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `${glow(.1)}`, border: `.5px solid ${glow(.28)}`, borderRadius: 100, padding: "5px 16px", fontSize: 11, color: brandG, fontWeight: 600, letterSpacing: ".05em", marginBottom: "1.6rem" }}>
+            <span style={{ width: 6, height: 6, background: brandG, borderRadius: "50%" }}/> Past work
           </span>
           <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize: "clamp(2.2rem,6vw,3.8rem)", fontWeight: 800, lineHeight: 1.08, letterSpacing: "-.03em", color: headingColor, marginBottom: "1.2rem" }}>
             Real work.<br /><GradText>Real experience.</GradText>
@@ -248,7 +257,7 @@ export function PastProjects() {
                   border:`1px solid ${cardBorder}`, borderRadius:6, padding:"6px 12px",
                   display:"inline-flex", alignItems:"center", gap:8
                 }}>
-                  <span style={{ color:G }}>PROJECT_{String(i+1).padStart(2,"0")}</span>
+                  <span style={{ color:brandG }}>PROJECT_{String(i+1).padStart(2,"0")}</span>
                   <span>{p.category}</span>
                 </span>
               ))}
@@ -289,13 +298,13 @@ export function PastProjects() {
               {realProjects.map((p, index) => (
                 <ScrollReveal key={p.id} delay={index * 0.05}>
                   <TiltCard style={{ background: dark ? "rgba(255,255,255,.02)" : "rgba(255,255,255,.5)", border: `.5px solid ${cardBorder}`, borderRadius: 20, padding: "clamp(1.5rem,4vw,2.4rem)" }}>
-                    <p style={{ fontSize: 11, color: G, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: ".6rem" }}>{p.category}</p>
+                    <p style={{ fontSize: 11, color: brandG, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: ".6rem" }}>{p.category}</p>
                     <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize: "clamp(1.3rem,3vw,1.7rem)", fontWeight: 800, color: headingColor, lineHeight: 1.25, marginBottom: ".8rem" }}>{p.headline}</h2>
                     <p style={{ fontSize: 14.5, color: mutedText, lineHeight: 1.8, marginBottom: "1.4rem" }}>{p.summary}</p>
 
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: "1.4rem" }}>
                   {p.tags && p.tags.map((t, i) => (
-                    <span key={i} style={{ background: "rgba(0,255,136,.08)", border: ".5px solid rgba(0,255,136,.2)", borderRadius: 100, padding: "3px 10px", fontSize: 10, color: G, fontWeight: 600 }}>{t}</span>
+                    <span key={i} style={{ background: `${glow(.08)}`, border: `.5px solid ${glow(.2)}`, borderRadius: 100, padding: "3px 10px", fontSize: 10, color: brandG, fontWeight: 600 }}>{t}</span>
                   ))}
                   <span style={{ background: dark ? "rgba(255,255,255,.05)" : "rgba(26,20,8,.08)", border: dark ? ".5px solid rgba(255,255,255,.1)" : ".5px solid rgba(26,20,8,.16)", borderRadius: 100, padding: "3px 10px", fontSize: 10, color: mutedText3, fontWeight: 500 }}>{p.timeframe}</span>
                 </div>
@@ -306,7 +315,7 @@ export function PastProjects() {
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       {p.whatIDid && p.whatIDid.map((w, i) => (
                         <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                          <span style={{ color: G, fontSize: 13, marginTop: 2, flexShrink: 0 }}>✓</span>
+                          <span style={{ color: brandG, fontSize: 13, marginTop: 2, flexShrink: 0 }}>✓</span>
                           <p style={{ fontSize: 13, color: mutedText2, lineHeight: 1.7, margin: 0 }}>{w}</p>
                         </div>
                       ))}
@@ -353,7 +362,7 @@ export function PastProjects() {
       {/* ── BOTTOM CTA ── */}
       <Section style={{ paddingBottom: "8rem" }}>
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
-          <div style={{ background: "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border: ".5px solid rgba(0,255,136,.25)", borderRadius: 24, padding: "clamp(2.5rem,5vw,4rem) clamp(1.5rem,4vw,3rem)", textAlign: "center" }}>
+          <div style={{ background: `linear-gradient(135deg,${glow(.08)},${glow2(.03)})`, border: `.5px solid ${glow(.25)}`, borderRadius: 24, padding: "clamp(2.5rem,5vw,4rem) clamp(1.5rem,4vw,3rem)", textAlign: "center" }}>
             <SectionLabel>Ready to work together?</SectionLabel>
             <Heading size="2rem">Your project could be<br /><GradText>the next one here.</GradText></Heading>
             <p style={{ fontSize: 15, color: mutedText2, margin: "1.5rem auto 2rem", maxWidth: 420 }}>
@@ -372,6 +381,15 @@ export function PastProjects() {
 export function PastProjectDetail() {
   const { id } = useParams();
   const { dark } = useTheme();
+  // rgba(0,255,136,X) / rgba(0,204,106,X) are the two neon-green tint
+  // families used for badges, borders, icon circles, and glow accents.
+  // They read fine on near-black but turn into pale washed-out mint on
+  // the light theme's cream background, so both get a deeper light-mode
+  // equivalent here instead of case-by-case guessing.
+  const glow  = a => dark ? `rgba(0,255,136,${a})` : `rgba(0,130,74,${a})`;
+  const glow2 = a => dark ? `rgba(0,204,106,${a})` : `rgba(0,110,64,${a})`;
+  const brandG = dark ? G : "#00A35C";
+  const brandGG = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
   const p = PAST_PROJECTS?.find(item => item.id === id) || PAST_PROJECTS?.[0];
 
   const headingColor = dark ? "#fff"                 : "#1A1408";
@@ -388,7 +406,7 @@ export function PastProjectDetail() {
         path={`/past-projects/${p.id}`}
       />
       <section style={{ padding: "7rem 2rem 4rem", textAlign: "center" }}>
-        <Link to="/past-projects" style={{ color: G, textDecoration: "none" }}>← All past projects</Link>
+        <Link to="/past-projects" style={{ color: brandG, textDecoration: "none" }}>← All past projects</Link>
         <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", color: headingColor, marginTop: "1rem" }}>{p.headline}</h1>
         <p style={{ fontSize: 14, color: mutedText, marginTop: ".5rem" }}>{p.category} · {p.timeframe}</p>
       </section>
@@ -400,7 +418,7 @@ export function PastProjectDetail() {
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: "2.5rem" }}>
             {p.whatIDid && p.whatIDid.map((w, i) => (
               <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <span style={{ color: G, fontSize: 15, marginTop: 2 }}>✓</span>
+                <span style={{ color: brandG, fontSize: 15, marginTop: 2 }}>✓</span>
                 <p style={{ fontSize: 15, color: mutedText2, lineHeight: 1.8, margin: 0 }}>{w}</p>
               </div>
             ))}
@@ -409,7 +427,7 @@ export function PastProjectDetail() {
           <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize: "1.1rem", color: headingColor, marginBottom: "1rem" }}>Tools used</h2>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {p.toolsUsed && p.toolsUsed.map((t, i) => (
-              <span key={i} style={{ background: "rgba(0,255,136,.08)", border: ".5px solid rgba(0,255,136,.2)", borderRadius: 100, padding: "5px 14px", fontSize: 12.5, color: G, fontWeight: 600 }}>{t}</span>
+              <span key={i} style={{ background: `${glow(.08)}`, border: `.5px solid ${glow(.2)}`, borderRadius: 100, padding: "5px 14px", fontSize: 12.5, color: brandG, fontWeight: 600 }}>{t}</span>
             ))}
           </div>
         </div>

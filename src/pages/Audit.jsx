@@ -47,7 +47,7 @@ function getAccessCodes() {
 }
 
 /* ─── RING SVG ─── */
-function Ring({ score, size=90, color=G }) {
+function Ring({ score, size=90, color=brandG }) {
   const r    = size/2 - 7;
   const circ = 2 * Math.PI * r;
   const dash = (clamp(score)/100) * circ;
@@ -580,7 +580,7 @@ function ClientSnapshotCard({ innerRef, domain, visitors, aov, currentCR, potent
       <div style={{ height:6, background:"linear-gradient(90deg,#00FF88,#00CC6A)" }} />
       {/* Hero */}
       <div style={{ background:"#0A0F0C", padding:"36px 40px", position:"relative" }}>
-        <div style={{ position:"absolute", top:36, right:40, width:48, height:48, borderRadius:12, background:"rgba(0,255,136,.1)", border:"1.5px solid rgba(0,255,136,.4)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <div style={{ position:"absolute", top:36, right:40, width:48, height:48, borderRadius:12, background:`${glow(.1)}`, border:`1.5px solid ${glow(.4)}`, display:"flex", alignItems:"center", justifyContent:"center" }}>
           <img src="/logo-mark.png" alt="" style={{ width:"64%", height:"64%", objectFit:"contain" }} />
         </div>
         <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:16, fontWeight:800, color:"#fff", margin:0 }}>bode<span style={{color:"#00FF88"}}>conversion</span>lab</p>
@@ -670,7 +670,7 @@ function ClientSnapshotCard({ innerRef, domain, visitors, aov, currentCR, potent
         </div>
 
         {recommended && (
-          <div style={{ marginTop:20, background:"linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.02))", border:"1.5px solid rgba(0,204,106,.4)", borderRadius:14, padding:22, display:"flex", justifyContent:"space-between", alignItems:"center", gap:20 }}>
+          <div style={{ marginTop:20, background:`linear-gradient(135deg,${glow(.08)},${glow2(.02)})`, border:`1.5px solid ${glow2(.4)}`, borderRadius:14, padding:22, display:"flex", justifyContent:"space-between", alignItems:"center", gap:20 }}>
             <div>
               <p style={{ fontSize:10, fontWeight:800, color:"#00A868", textTransform:"uppercase", letterSpacing:.8, marginBottom:6 }}>Recommended For This Store</p>
               <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:20, fontWeight:800, color:"#1A1408", margin:0 }}>{recommended.name} — {recommended.price}</p>
@@ -726,6 +726,15 @@ const SCAN_STAGES = [
 ═══════════════════════════════ */
 export default function Audit() {
   const { dark } = useTheme();
+  // rgba(0,255,136,X) / rgba(0,204,106,X) are the two neon-green tint
+  // families used for badges, borders, icon circles, and glow accents.
+  // They read fine on near-black but turn into pale washed-out mint on
+  // the light theme's cream background, so both get a deeper light-mode
+  // equivalent here instead of case-by-case guessing.
+  const glow  = a => dark ? `rgba(0,255,136,${a})` : `rgba(0,130,74,${a})`;
+  const glow2 = a => dark ? `rgba(0,204,106,${a})` : `rgba(0,110,64,${a})`;
+  const brandG = dark ? G : "#00A35C";
+  const brandGG = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
   const seoTag = (
     <SEO
       title="Free Shopify Store Audit - Find the Leaks Costing You Sales"
@@ -920,7 +929,7 @@ export default function Audit() {
       {/* ── ACCESS MODAL ── */}
       {showModal && (
         <div onClick={() => setShowModal(false)} style={{ position:"fixed", inset:0, zIndex:99000, background:"rgba(0,0,0,.75)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"1rem" }}>
-          <div onClick={e => e.stopPropagation()} style={{ background:dark?"rgba(4,6,8,.97)":"rgba(255,248,210,.98)", border:dark?".5px solid rgba(255,255,255,.12)":".5px solid rgba(26,20,8,.29)", borderTop:".5px solid rgba(0,255,136,.4)", borderRadius:24, padding:"2rem", maxWidth:420, width:"100%", position:"relative" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background:dark?"rgba(4,6,8,.97)":"rgba(255,248,210,.98)", border:dark?".5px solid rgba(255,255,255,.12)":".5px solid rgba(26,20,8,.29)", borderTop:`.5px solid ${glow(.4)}`, borderRadius:24, padding:"2rem", maxWidth:420, width:"100%", position:"relative" }}>
             <button onClick={() => setShowModal(false)} style={{ position:"absolute", top:14, right:16, background:"transparent", border:"none", cursor:"pointer", fontSize:20, color:mutedText3 }}>×</button>
             <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>Unlock Download</h3>
             <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:"1rem" }}>Enter your payment access code from your confirmation email.</p>
@@ -928,14 +937,14 @@ export default function Audit() {
               onChange={e => setAccessCode(e.target.value.toUpperCase())}
               onKeyDown={e => e.key==="Enter" && verifyAccess()}
               style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".8rem 1rem", color:headingColor, fontSize:14, fontFamily:"inherit", outline:"none", boxSizing:"border-box", marginBottom:8, letterSpacing:".1em" }}
-              onFocus={e => e.target.style.borderColor="rgba(0,255,136,.5)"}
+              onFocus={e => e.target.style.borderColor=`${glow(.5)}`}
               onBlur={e => e.target.style.borderColor=inputBorder}
             />
             {accessErr && <p style={{ fontSize:12, color:"#FF6B6B", marginBottom:8 }}>{accessErr}</p>}
             <button onClick={verifyAccess} className="btn-g" style={{ width:"100%", fontFamily:"inherit", cursor:"pointer", marginBottom:"1rem" }}>Unlock →</button>
             <p style={{ fontSize:12, color:mutedText3, textAlign:"center" }}>
               No code?{" "}
-              <a href={"https://wa.me/19454076473?text="+encodeURIComponent("Hi, I need my audit access code.")} target="_blank" rel="noopener noreferrer" style={{ color:G, textDecoration:"none", fontWeight:600 }}>WhatsApp us</a>
+              <a href={"https://wa.me/19454076473?text="+encodeURIComponent("Hi, I need my audit access code.")} target="_blank" rel="noopener noreferrer" style={{ color:brandG, textDecoration:"none", fontWeight:600 }}>WhatsApp us</a>
             </p>
           </div>
         </div>
@@ -946,8 +955,8 @@ export default function Audit() {
         <section style={{ position:"relative", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"clamp(5rem,10vw,7rem) clamp(1rem,4vw,2rem) 4rem", overflow:"hidden" }}>
           <HeroBackdrop dark={dark} />
           <div style={{ maxWidth:640, width:"100%", textAlign:"center", position:"relative", zIndex:1 }}>
-            <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:dark?"rgba(0,255,136,.1)":"#1A1408", border:dark?".5px solid rgba(0,255,136,.28)":"none", borderRadius:100, padding:"6px 16px", fontSize:11, color:dark?G:"#F5C518", fontWeight:600, letterSpacing:".05em", marginBottom:"1.6rem" }}>
-              <span style={{ width:6, height:6, background:G, borderRadius:"50%", animation:"pulse 2s ease-in-out infinite" }}/> Automatic store diagnostic
+            <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:dark?`${glow(.1)}`:"#1A1408", border:dark?`.5px solid ${glow(.28)}`:"none", borderRadius:100, padding:"6px 16px", fontSize:11, color:dark?brandG:"#F5C518", fontWeight:600, letterSpacing:".05em", marginBottom:"1.6rem" }}>
+              <span style={{ width:6, height:6, background:brandG, borderRadius:"50%", animation:"pulse 2s ease-in-out infinite" }}/> Automatic store diagnostic
             </span>
             <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,6vw,3.5rem)", fontWeight:800, lineHeight:1.08, letterSpacing:"-.03em", color:headingColor, marginBottom:"1rem" }}>
               Find every leak in<br /><GradText>your store — free.</GradText>
@@ -955,9 +964,9 @@ export default function Audit() {
             <p style={{ fontSize:"clamp(0.9rem,2vw,1.05rem)", color:mutedText, lineHeight:1.8, maxWidth:500, margin:"0 auto 1rem" }}>
               Enter your store URL. We automatically scan 8 categories and 40+ technical factors. Nothing skipped. Nothing softened.
             </p>
-            <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:dark?"rgba(0,255,136,.06)":"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.25)", borderRadius:100, padding:"6px 14px", marginBottom:"2rem" }}>
+            <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:dark?`${glow(.06)}`:`${glow(.08)}`, border:`.5px solid ${glow(.25)}`, borderRadius:100, padding:"6px 14px", marginBottom:"2rem" }}>
               <span style={{ fontSize:12, color:mutedText2 }}>Then we hand you your</span>
-              <span style={{ fontSize:12, fontWeight:800, color:G }}>SRS — Sales Recovery System</span>
+              <span style={{ fontSize:12, fontWeight:800, color:brandG }}>SRS — Sales Recovery System</span>
               <span style={{ fontSize:12, color:mutedText2 }}>plan</span>
             </div>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"0.5rem", marginBottom:"2rem", textAlign:"left" }} className="how-grid">
@@ -968,14 +977,14 @@ export default function Audit() {
               ))}
             </div>
             <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderTop:dark?".5px solid rgba(255,255,255,.2)":".5px solid rgba(255,255,255,.6)", borderRadius:20, padding:"1.8rem", position:"relative", overflow:"hidden" }}>
-              <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.4),transparent)", pointerEvents:"none" }}/>
+              <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:`linear-gradient(90deg,transparent,${glow(.4)},transparent)`, pointerEvents:"none" }}/>
               <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:"1rem" }}>
                 <input type="url" placeholder="Your store URL (e.g. mystore.com)" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key==="Enter" && handleScan()}
                   style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".85rem 1.1rem", color:headingColor, fontSize:15, fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
-                  onFocus={e => e.target.style.borderColor="rgba(0,255,136,.5)"} onBlur={e => e.target.style.borderColor=inputBorder}/>
+                  onFocus={e => e.target.style.borderColor=`${glow(.5)}`} onBlur={e => e.target.style.borderColor=inputBorder}/>
                 <input type="email" placeholder="Your email address" value={email} onChange={e => setEmail(e.target.value)}
                   style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".85rem 1.1rem", color:headingColor, fontSize:15, fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
-                  onFocus={e => e.target.style.borderColor="rgba(0,255,136,.5)"} onBlur={e => e.target.style.borderColor=inputBorder}/>
+                  onFocus={e => e.target.style.borderColor=`${glow(.5)}`} onBlur={e => e.target.style.borderColor=inputBorder}/>
               </div>
               {error && <p style={{ fontSize:13, color:"#FF6B6B", marginBottom:"1rem", padding:".75rem", background:"rgba(255,107,107,.08)", border:".5px solid rgba(255,107,107,.25)", borderRadius:8 }}>{error}</p>}
               <button onClick={handleScan} className="btn-g" style={{ width:"100%", fontFamily:"inherit", cursor:"pointer" }}>Scan my store now →</button>
@@ -990,19 +999,19 @@ export default function Audit() {
         <section style={{ minHeight:"80vh", display:"flex", alignItems:"center", justifyContent:"center", padding:"4rem 2rem" }}>
           <div style={{ maxWidth:520, width:"100%", textAlign:"center" }}>
             <div style={{ width:60, height:60, position:"relative", margin:"0 auto 2rem" }}>
-              <div style={{ position:"absolute", inset:0, borderRadius:"50%", border:"2px solid rgba(0,255,136,.25)", borderTopColor:G, animation:"auditSpin .8s linear infinite" }}/>
-              <div style={{ position:"absolute", inset:10, borderRadius:"50%", border:"1px solid rgba(0,255,136,.15)", borderBottomColor:G, animation:"auditSpin 1.3s linear infinite reverse" }}/>
+              <div style={{ position:"absolute", inset:0, borderRadius:"50%", border:`2px solid ${glow(.25)}`, borderTopColor:brandG, animation:"auditSpin .8s linear infinite" }}/>
+              <div style={{ position:"absolute", inset:10, borderRadius:"50%", border:`1px solid ${glow(.15)}`, borderBottomColor:brandG, animation:"auditSpin 1.3s linear infinite reverse" }}/>
             </div>
             <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:800, color:headingColor, marginBottom:".4rem" }}>{SCAN_STAGES[stageIdx]?.msg}</h3>
             <p style={{ fontSize:13, color:mutedText3, marginBottom:"2.5rem" }}>{SCAN_STAGES[stageIdx]?.sub}</p>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               {SCAN_STAGES.map((s,i) => (
                 <div key={i} style={{ display:"flex", alignItems:"center", gap:12 }}>
-                  <span style={{ fontSize:12, color:i<=stageIdx?G:mutedText3, fontWeight:i<=stageIdx?700:400, minWidth:20 }}>{i<=stageIdx?"✓":"·"}</span>
+                  <span style={{ fontSize:12, color:i<=stageIdx?brandG:mutedText3, fontWeight:i<=stageIdx?700:400, minWidth:20 }}>{i<=stageIdx?"✓":"·"}</span>
                   <div style={{ flex:1, minWidth:0, height:2, background:trackBg, borderRadius:2, overflow:"hidden" }}>
-                    <div style={{ height:"100%", background:GG, width:i<stageIdx?"100%":i===stageIdx?"60%":"0%", transition:"width 1s ease", borderRadius:2 }}/>
+                    <div style={{ height:"100%", background:brandGG, width:i<stageIdx?"100%":i===stageIdx?"60%":"0%", transition:"width 1s ease", borderRadius:2 }}/>
                   </div>
-                  <span style={{ fontSize:"clamp(10px,3vw,12px)", color:i<=stageIdx?G:mutedText3, minWidth:0, maxWidth:"clamp(80px,34vw,160px)", flexShrink:0, textAlign:"right", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{s.msg.replace("...","")}</span>
+                  <span style={{ fontSize:"clamp(10px,3vw,12px)", color:i<=stageIdx?brandG:mutedText3, minWidth:0, maxWidth:"clamp(80px,34vw,160px)", flexShrink:0, textAlign:"right", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{s.msg.replace("...","")}</span>
                 </div>
               ))}
             </div>
@@ -1027,12 +1036,12 @@ export default function Audit() {
 
           {/* Overall score */}
           <div style={{ background:cardBg, border:`.5px solid ${analysis.isCritical?"rgba(255,59,59,.35)":cardBorder}`, borderRadius:24, padding:"1.8rem 2rem", marginBottom:"1.5rem", position:"relative", overflow:"hidden" }}>
-            <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:`linear-gradient(90deg,transparent,${analysis.isCritical?"rgba(255,59,59,.5)":"rgba(0,255,136,.4)"},transparent)` }}/>
+            <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:`linear-gradient(90deg,transparent,${analysis.isCritical?"rgba(255,59,59,.5)":`${glow(.4)}`},transparent)` }}/>
             <div style={{ display:"flex", gap:"1.5rem", alignItems:"center", flexWrap:"wrap" }}>
               <div style={{ position:"relative", flexShrink:0 }}>
-                <Ring score={analysis.overall} size={100} color={analysis.overall>74?G:analysis.overall>49?"#FF9900":"#FF3B3B"}/>
+                <Ring score={analysis.overall} size={100} color={analysis.overall>74?brandG:analysis.overall>49?"#FF9900":"#FF3B3B"}/>
                 <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-                  <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.5rem", fontWeight:800, color:analysis.overall>74?G:analysis.overall>49?"#FF9900":"#FF3B3B" }}>{analysis.grade}</span>
+                  <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.5rem", fontWeight:800, color:analysis.overall>74?brandG:analysis.overall>49?"#FF9900":"#FF3B3B" }}>{analysis.grade}</span>
                   <span style={{ fontSize:10, color:mutedText3 }}>{analysis.overall}/100</span>
                 </div>
               </div>
@@ -1062,8 +1071,8 @@ export default function Audit() {
           <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"0.75rem", marginBottom:"1.5rem" }} className="stat-grid">
             {Object.values(analysis.metrics).map((v,i) => (
               <div key={i} style={{ background:cardBg, border:`.5px solid ${v.score<50?"rgba(255,59,59,.25)":v.score<75?"rgba(255,153,0,.2)":cardBorder}`, borderRadius:12, padding:"1rem", textAlign:"center" }}>
-                <span style={{ display:"inline-block", width:10, height:10, borderRadius:"50%", background:v.score>74?G:v.score>49?"#FF9900":"#FF3B3B" }} />
-                <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.4rem", fontWeight:800, color:v.score>74?G:v.score>49?"#FF9900":"#FF3B3B", margin:"4px 0 2px" }}>{v.score}</p>
+                <span style={{ display:"inline-block", width:10, height:10, borderRadius:"50%", background:v.score>74?brandG:v.score>49?"#FF9900":"#FF3B3B" }} />
+                <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.4rem", fontWeight:800, color:v.score>74?brandG:v.score>49?"#FF9900":"#FF3B3B", margin:"4px 0 2px" }}>{v.score}</p>
                 <p style={{ fontSize:10, color:mutedText3, lineHeight:1.3 }}>{v.label}</p>
               </div>
             ))}
@@ -1082,7 +1091,7 @@ export default function Audit() {
               );
             })}
             <div style={{ background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.4)", border:`.5px solid ${cardBorder}`, borderRadius:10, padding:".6rem 1rem", display:"flex", alignItems:"center", gap:8 }}>
-              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:800, color:G }}>{analysis.findings.length}</span>
+              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:800, color:brandG }}>{analysis.findings.length}</span>
               <span style={{ fontSize:12, color:mutedText2 }}>total issues found</span>
             </div>
           </div>
@@ -1098,8 +1107,8 @@ export default function Audit() {
                 <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:800, color:headingColor, marginBottom:".5rem" }}>{f.title}</h3>
                 <p style={{ fontSize:13, color:mutedText, lineHeight:1.75, marginBottom:".6rem" }}>{f.finding}</p>
                 <p style={{ fontSize:12, color:mutedText3, fontStyle:"italic", marginBottom:".75rem" }}>Revenue impact: {f.impact}</p>
-                <div style={{ background:dark?"rgba(0,255,136,.04)":"rgba(0,255,136,.06)", border:".5px solid rgba(0,255,136,.18)", borderRadius:8, padding:".75rem 1rem" }}>
-                  <span style={{ fontSize:11, color:G, fontWeight:700 }}>→ Fix: </span>
+                <div style={{ background:dark?`${glow(.04)}`:`${glow(.06)}`, border:`.5px solid ${glow(.18)}`, borderRadius:8, padding:".75rem 1rem" }}>
+                  <span style={{ fontSize:11, color:brandG, fontWeight:700 }}>→ Fix: </span>
                   <span style={{ fontSize:13, color:mutedText, lineHeight:1.7 }}>{f.fix}</span>
                 </div>
               </div>
@@ -1108,27 +1117,27 @@ export default function Audit() {
 
           {/* Access tier indicator */}
           {accessTier && (
-            <div style={{ background:"rgba(0,255,136,.06)", border:".5px solid rgba(0,255,136,.2)", borderRadius:12, padding:".9rem 1.2rem", marginBottom:"1.5rem", display:"flex", alignItems:"center", gap:10 }}>
-              <UnlockIcon size={16} color={G} />
-              <span style={{ fontSize:13, color:G, fontWeight:600 }}>
+            <div style={{ background:`${glow(.06)}`, border:`.5px solid ${glow(.2)}`, borderRadius:12, padding:".9rem 1.2rem", marginBottom:"1.5rem", display:"flex", alignItems:"center", gap:10 }}>
+              <UnlockIcon size={16} color={brandG} />
+              <span style={{ fontSize:13, color:brandG, fontWeight:600 }}>
                 {accessTier==="admin" ? "Admin — all downloads unlocked" : `${accessTier} package unlocked`}
               </span>
             </div>
           )}
 
           {/* ── SRS — SALES RECOVERY SYSTEM ── */}
-          <div style={{ background:"linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))", border:".5px solid rgba(0,255,136,.22)", borderTop:".5px solid rgba(0,255,136,.4)", borderRadius:24, padding:"clamp(1.8rem,4vw,2.6rem)", marginBottom:"2rem", position:"relative", overflow:"hidden" }}>
-            <div style={{ position:"absolute", top:0, left:"8%", right:"8%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)" }}/>
+          <div style={{ background:`linear-gradient(135deg,${glow(.07)},${glow2(.02)})`, border:`.5px solid ${glow(.22)}`, borderTop:`.5px solid ${glow(.4)}`, borderRadius:24, padding:"clamp(1.8rem,4vw,2.6rem)", marginBottom:"2rem", position:"relative", overflow:"hidden" }}>
+            <div style={{ position:"absolute", top:0, left:"8%", right:"8%", height:1, background:`linear-gradient(90deg,transparent,${glow(.5)},transparent)` }}/>
 
-            <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(0,255,136,.12)", border:".5px solid rgba(0,255,136,.35)", borderRadius:100, padding:"5px 14px", marginBottom:"1rem" }}>
-              <span style={{ width:6, height:6, borderRadius:"50%", background:G }}/>
-              <span style={{ fontSize:11, fontWeight:700, color:G, letterSpacing:".06em" }}>THE SYSTEM BEHIND THE FIX</span>
+            <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:`${glow(.12)}`, border:`.5px solid ${glow(.35)}`, borderRadius:100, padding:"5px 14px", marginBottom:"1rem" }}>
+              <span style={{ width:6, height:6, borderRadius:"50%", background:brandG }}/>
+              <span style={{ fontSize:11, fontWeight:700, color:brandG, letterSpacing:".06em" }}>THE SYSTEM BEHIND THE FIX</span>
             </div>
 
             <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1.5rem,4vw,2.1rem)", fontWeight:800, color:headingColor, marginBottom:".3rem", lineHeight:1.15 }}>
               Sales Recovery System
             </h2>
-            <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1rem,2.5vw,1.2rem)", fontWeight:800, color:G, letterSpacing:".04em", marginBottom:"1rem" }}>
+            <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1rem,2.5vw,1.2rem)", fontWeight:800, color:brandG, letterSpacing:".04em", marginBottom:"1rem" }}>
               SRS — our 90–120 day growth framework
             </p>
 
@@ -1143,9 +1152,9 @@ export default function Audit() {
                 { phase:"Phase 3", days:"Days 61–90", title:"Multiply the Win", desc:"Double down on winners, cut what isn't working, second-round CRO informed by real traffic data." },
                 { phase:"Phase 4", days:"Days 91–120", title:"Lock It In", desc:"Document the playbook, test new channels, and turn the system into something that runs without you.", optional:true },
               ].map((p,i) => (
-                <div key={i} style={{ background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.5)", border:".5px solid rgba(0,255,136,.18)", borderRadius:14, padding:"1.1rem 1.2rem", position:"relative" }}>
+                <div key={i} style={{ background:dark?"rgba(255,255,255,.04)":"rgba(255,255,255,.5)", border:`.5px solid ${glow(.18)}`, borderRadius:14, padding:"1.1rem 1.2rem", position:"relative" }}>
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:".4rem" }}>
-                    <span style={{ fontSize:10, fontWeight:700, color:G, textTransform:"uppercase", letterSpacing:".06em" }}>{p.phase}</span>
+                    <span style={{ fontSize:10, fontWeight:700, color:brandG, textTransform:"uppercase", letterSpacing:".06em" }}>{p.phase}</span>
                     {p.optional && <span style={{ fontSize:9, color:mutedText3, fontStyle:"italic" }}>optional</span>}
                   </div>
                   <p style={{ fontSize:11, color:mutedText3, marginBottom:".5rem" }}>{p.days}</p>
@@ -1178,7 +1187,7 @@ export default function Audit() {
               </label>
             </div>
             <button onClick={handleSnapshotDownload} disabled={snapLoading}
-              style={{ width:"100%", background:GG, color:"#040608", border:"none", borderRadius:8, padding:".75rem", fontSize:14, fontWeight:700, cursor:snapLoading?"default":"pointer", fontFamily:"inherit", opacity:snapLoading?0.6:1 }}>
+              style={{ width:"100%", background:brandGG, color:"#040608", border:"none", borderRadius:8, padding:".75rem", fontSize:14, fontWeight:700, cursor:snapLoading?"default":"pointer", fontFamily:"inherit", opacity:snapLoading?0.6:1 }}>
               {snapLoading ? "Generating…" : "Download Client Snapshot →"}
             </button>
           </div>
@@ -1204,11 +1213,11 @@ export default function Audit() {
                 const unlocked = d.free || (accessTier && accessTier !== null);
                 const isDownloading = downloading === d.type;
                 return (
-                  <div key={i} style={{ background:unlocked?dark?"rgba(0,255,136,.05)":"rgba(0,255,136,.07)":dark?"rgba(255,255,255,.02)":"rgba(26,20,8,.05)", border:unlocked?".5px solid rgba(0,255,136,.22)":`.5px solid ${cardBorder}`, borderRadius:12, padding:"1.2rem" }}>
+                  <div key={i} style={{ background:unlocked?dark?`${glow(.05)}`:`${glow(.07)}`:dark?"rgba(255,255,255,.02)":"rgba(26,20,8,.05)", border:unlocked?`.5px solid ${glow(.22)}`:`.5px solid ${cardBorder}`, borderRadius:12, padding:"1.2rem" }}>
                     <p style={{ fontSize:13, fontWeight:700, color:headingColor, marginBottom:4 }}>{d.label}</p>
                     <p style={{ fontSize:11, color:mutedText3, marginBottom:".9rem", lineHeight:1.5 }}>{d.desc}</p>
                     <button onClick={() => handleDownload(d.type)} disabled={isDownloading}
-                      style={{ width:"100%", background:unlocked?GG:"transparent", color:unlocked?"#040608":mutedText3, border:unlocked?"none":`.5px solid ${cardBorder}`, borderRadius:8, padding:".6rem", fontSize:13, fontWeight:700, cursor:isDownloading?"default":"pointer", fontFamily:"inherit", opacity:isDownloading?0.6:1 }}>
+                      style={{ width:"100%", background:unlocked?brandGG:"transparent", color:unlocked?"#040608":mutedText3, border:unlocked?"none":`.5px solid ${cardBorder}`, borderRadius:8, padding:".6rem", fontSize:13, fontWeight:700, cursor:isDownloading?"default":"pointer", fontFamily:"inherit", opacity:isDownloading?0.6:1 }}>
                       {isDownloading ? "Preparing PDF…" : unlocked ? "Download PDF" : "Enter access code"}
                     </button>
                   </div>
@@ -1240,16 +1249,16 @@ export default function Audit() {
           </div>
 
           {/* Bottom CTA */}
-          <div style={{ background:"linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border:".5px solid rgba(0,255,136,.25)", borderTop:".5px solid rgba(0,255,136,.45)", borderRadius:24, padding:"clamp(2rem,5vw,3rem)", textAlign:"center", position:"relative", overflow:"hidden" }}>
-            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)", pointerEvents:"none" }}/>
-            <p style={{ fontSize:10, color:G, letterSpacing:".14em", textTransform:"uppercase", marginBottom:".6rem", fontWeight:700 }}>Want us to fix all of this?</p>
+          <div style={{ background:`linear-gradient(135deg,${glow(.08)},${glow2(.03)})`, border:`.5px solid ${glow(.25)}`, borderTop:`.5px solid ${glow(.45)}`, borderRadius:24, padding:"clamp(2rem,5vw,3rem)", textAlign:"center", position:"relative", overflow:"hidden" }}>
+            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:`linear-gradient(90deg,transparent,${glow(.5)},transparent)`, pointerEvents:"none" }}/>
+            <p style={{ fontSize:10, color:brandG, letterSpacing:".14em", textTransform:"uppercase", marginBottom:".6rem", fontWeight:700 }}>Want us to fix all of this?</p>
             <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1.3rem,4vw,2rem)", fontWeight:800, color:headingColor, marginBottom:".6rem", lineHeight:1.15 }}>
               We found the problems.<br /><GradText>We can fix them too.</GradText>
             </h3>
             <p style={{ fontSize:14, color:mutedText, maxWidth:460, margin:"0 auto 1.5rem", lineHeight:1.75 }}>
               Apply for our paid service — we fix your top revenue leaks, rebuild your conversion system, and scale what works.
             </p>
-            <p style={{ fontSize:12.5, color:G, maxWidth:480, margin:"0 auto 1.5rem", lineHeight:1.7, fontWeight:600 }}>
+            <p style={{ fontSize:12.5, color:brandG, maxWidth:480, margin:"0 auto 1.5rem", lineHeight:1.7, fontWeight:600 }}>
               Follow the full plan and don't see measurable movement in 90 days? We keep working with you free until you do.
             </p>
             <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>

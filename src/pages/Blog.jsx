@@ -28,6 +28,15 @@ function categoryTextColor(cat, dark) {
 
 export function Blog() {
   const { dark } = useTheme();
+  // rgba(0,255,136,X) / rgba(0,204,106,X) are the two neon-green tint
+  // families used for badges, borders, icon circles, and glow accents.
+  // They read fine on near-black but turn into pale washed-out mint on
+  // the light theme's cream background, so both get a deeper light-mode
+  // equivalent here instead of case-by-case guessing.
+  const glow  = a => dark ? `rgba(0,255,136,${a})` : `rgba(0,130,74,${a})`;
+  const glow2 = a => dark ? `rgba(0,204,106,${a})` : `rgba(0,110,64,${a})`;
+  const brandG = dark ? G : "#00A35C";
+  const brandGG = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
   const [activeCategory, setActiveCategory] = useState("All");
 
   const categories = ["All", ...new Set(BLOG_POSTS.map(p => p.category))];
@@ -63,7 +72,7 @@ export function Blog() {
             <span style={{ width:3, height:3, borderRadius:"50%", background:mutedText5 }}/>
             <span>Vol. {String(BLOG_POSTS.length).padStart(2,"0")}</span>
             <span style={{ width:3, height:3, borderRadius:"50%", background:mutedText5 }}/>
-            <span style={{ color:G }}>{categories.length - 1} topics</span>
+            <span style={{ color:brandG }}>{categories.length - 1} topics</span>
           </div>
           <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2.2rem,6vw,3.8rem)", fontWeight:800, lineHeight:1.08, letterSpacing:"-.03em", color:headingColor, marginBottom:"1.2rem" }}>
             The Conversion<br /><GradText>Lab Blog</GradText>
@@ -84,15 +93,15 @@ export function Blog() {
           <Link to={`/blog/${BLOG_POSTS[0].id}`} style={{ textDecoration:"none", display:"block" }}>
             <TiltCard intensity={5} style={{
               background: dark
-                ? "linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))"
+                ? `linear-gradient(135deg,${glow(.07)},${glow2(.02)})`
                 : "linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,.25))",
-              border:`.5px solid ${dark?"rgba(0,255,136,.22)":"rgba(26,20,8,.29)"}`,
-              borderTop:`.5px solid ${dark?"rgba(0,255,136,.4)":"rgba(255,255,255,.7)"}`,
+              border:`.5px solid ${dark?`${glow(.22)}`:"rgba(26,20,8,.29)"}`,
+              borderTop:`.5px solid ${dark?`${glow(.4)}`:"rgba(255,255,255,.7)"}`,
               borderRadius:24, padding:"clamp(2rem,5vw,3.5rem)",
             }}>
 
               {/* Top shimmer */}
-              <div style={{ position:"absolute", top:0, left:"8%", right:"8%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)", pointerEvents:"none" }}/>
+              <div style={{ position:"absolute", top:0, left:"8%", right:"8%", height:1, background:`linear-gradient(90deg,transparent,${glow(.5)},transparent)`, pointerEvents:"none" }}/>
 
               {/* Glow orb */}
 
@@ -100,7 +109,7 @@ export function Blog() {
                 {/* Left content */}
                 <div style={{ flex:1, minWidth:280 }}>
                   <div style={{ display:"flex", gap:8, marginBottom:"1.4rem", flexWrap:"wrap" }}>
-                    <span style={{ background:"rgba(0,255,136,.12)", border:".5px solid rgba(0,255,136,.35)", borderRadius:100, padding:"4px 12px", fontSize:11, color:G, fontWeight:700, letterSpacing:".04em" }}>Featured</span>
+                    <span style={{ background:`${glow(.12)}`, border:`.5px solid ${glow(.35)}`, borderRadius:100, padding:"4px 12px", fontSize:11, color:brandG, fontWeight:700, letterSpacing:".04em" }}>Featured</span>
                     <span style={{ background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.1)", border:dark?".5px solid rgba(255,255,255,.12)":".5px solid rgba(26,20,8,.22)", borderRadius:100, padding:"4px 12px", fontSize:11, color:mutedText3, fontWeight:500 }}>{BLOG_POSTS[0].category}</span>
                   </div>
                   <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1.4rem,3vw,2rem)", fontWeight:800, color:headingColor, marginBottom:"1rem", lineHeight:1.2 }}>{BLOG_POSTS[0].title}</h2>
@@ -110,7 +119,7 @@ export function Blog() {
                       <span style={{ fontSize:12, color:mutedText4 }}>{BLOG_POSTS[0].date}</span>
                       <span style={{ fontSize:12, color:mutedText4 }}>{BLOG_POSTS[0].readTime}</span>
                     </div>
-                    <span style={{ display:"inline-flex", alignItems:"center", gap:6, color:G, fontSize:13, fontWeight:700, background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.28)", borderRadius:100, padding:"6px 16px" }}>
+                    <span style={{ display:"inline-flex", alignItems:"center", gap:6, color:brandG, fontSize:13, fontWeight:700, background:`${glow(.1)}`, border:`.5px solid ${glow(.28)}`, borderRadius:100, padding:"6px 16px" }}>
                       Read article →
                     </span>
                   </div>
@@ -121,7 +130,7 @@ export function Blog() {
                   <p style={{ fontSize:11, color:mutedText4, letterSpacing:".08em", textTransform:"uppercase", fontWeight:600, marginBottom:"1rem" }}>In this article</p>
                   {BLOG_POSTS[0].content.map((s, i) => (
                     <div key={i} style={{ display:"flex", gap:10, alignItems:"flex-start", marginBottom:".75rem" }}>
-                      <span style={{ width:18, height:18, borderRadius:"50%", background:"rgba(0,255,136,.12)", border:".5px solid rgba(0,255,136,.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800, color:G, flexShrink:0 }}>{i+1}</span>
+                      <span style={{ width:18, height:18, borderRadius:"50%", background:`${glow(.12)}`, border:`.5px solid ${glow(.3)}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800, color:brandG, flexShrink:0 }}>{i+1}</span>
                       <span style={{ fontSize:12, color:mutedText3, lineHeight:1.5 }}>{s.heading}</span>
                     </div>
                   ))}
@@ -144,9 +153,9 @@ export function Blog() {
               {categories.map(cat => (
                 <button key={cat} onClick={() => setActiveCategory(cat)}
                   style={{
-                    background: activeCategory===cat ? "rgba(0,255,136,.14)" : "transparent",
-                    border: activeCategory===cat ? ".5px solid rgba(0,255,136,.45)" : `.5px solid ${cardBorder}`,
-                    color: activeCategory===cat ? G : mutedText3,
+                    background: activeCategory===cat ? `${glow(.14)}` : "transparent",
+                    border: activeCategory===cat ? `.5px solid ${glow(.45)}` : `.5px solid ${cardBorder}`,
+                    color: activeCategory===cat ? brandG : mutedText3,
                     borderRadius:100, padding:"5px 14px", fontSize:12, fontWeight:600,
                     cursor:"pointer", fontFamily:"inherit", transition:"all .2s",
                   }}>
@@ -215,16 +224,16 @@ export function Blog() {
         <div style={{ maxWidth:640, margin:"0 auto" }}>
           <div style={{
             background: dark
-              ? "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))"
+              ? `linear-gradient(135deg,${glow(.08)},${glow2(.03)})`
               : "linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,.25))",
-            border:".5px solid rgba(0,255,136,.25)",
-            borderTop:".5px solid rgba(0,255,136,.45)",
+            border:`.5px solid ${glow(.25)}`,
+            borderTop:`.5px solid ${glow(.45)}`,
             borderRadius:24,
             padding:"clamp(2.5rem,5vw,4rem) clamp(1.5rem,4vw,3rem)",
             textAlign:"center",
             position:"relative", overflow:"hidden",
           }}>
-            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)", pointerEvents:"none" }}/>
+            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:`linear-gradient(90deg,transparent,${glow(.5)},transparent)`, pointerEvents:"none" }}/>
             <SectionLabel>Want results, not just reading?</SectionLabel>
             <Heading size="2rem">Apply these tactics<br /><GradText>with our help</GradText></Heading>
             <p style={{ fontSize:15, color:mutedText2, lineHeight:1.75, margin:"1.5rem auto 2rem", maxWidth:420 }}>
@@ -247,6 +256,15 @@ export function Blog() {
 export function BlogPost() {
   const { id } = useParams();
   const { dark } = useTheme();
+  // rgba(0,255,136,X) / rgba(0,204,106,X) are the two neon-green tint
+  // families used for badges, borders, icon circles, and glow accents.
+  // They read fine on near-black but turn into pale washed-out mint on
+  // the light theme's cream background, so both get a deeper light-mode
+  // equivalent here instead of case-by-case guessing.
+  const glow  = a => dark ? `rgba(0,255,136,${a})` : `rgba(0,130,74,${a})`;
+  const glow2 = a => dark ? `rgba(0,204,106,${a})` : `rgba(0,110,64,${a})`;
+  const brandG = dark ? G : "#00A35C";
+  const brandGG = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
   const post = BLOG_POSTS.find(p => p.id === id);
   const [progress, setProgress] = useState(0);
 
@@ -289,23 +307,23 @@ export function BlogPost() {
         article={{ datePublished: post.date ? new Date(post.date).toISOString().slice(0, 10) : undefined }}
       />
       <div style={{ position:"fixed", top:0, left:0, right:0, height:3, zIndex:9999, background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.13)" }}>
-        <div style={{ height:"100%", width:`${progress}%`, background:GG, transition:"width .1s linear" }}/>
+        <div style={{ height:"100%", width:`${progress}%`, background:brandGG, transition:"width .1s linear" }}/>
       </div>
       <section style={{ padding:"7rem 2rem 4rem", position:"relative", overflow:"hidden" }}>
         <div style={{ maxWidth:720, margin:"0 auto", position:"relative", zIndex:1 }}>
           <Link to="/blog" style={{ display:"inline-flex", alignItems:"center", gap:6, color:mutedText3, textDecoration:"none", fontSize:13, fontWeight:500, marginBottom:"2rem", transition:"color .2s" }}
-            onMouseEnter={e => e.currentTarget.style.color=G}
+            onMouseEnter={e => e.currentTarget.style.color=brandG}
             onMouseLeave={e => e.currentTarget.style.color=mutedText3}>
             ← Back to blog
           </Link>
           <div style={{ display:"flex", gap:8, marginBottom:"1.4rem" }}>
-            <span style={{ background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.25)", borderRadius:100, padding:"4px 12px", fontSize:11, color:G, fontWeight:700 }}>{post.category}</span>
+            <span style={{ background:`${glow(.1)}`, border:`.5px solid ${glow(.25)}`, borderRadius:100, padding:"4px 12px", fontSize:11, color:brandG, fontWeight:700 }}>{post.category}</span>
           </div>
           <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1.8rem,5vw,2.8rem)", fontWeight:800, lineHeight:1.15, letterSpacing:"-.02em", color:headingColor, marginBottom:"1.4rem" }}>{post.title}</h1>
 
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"1rem", marginBottom:"2.5rem", paddingBottom:"1.4rem", borderBottom:`.5px solid ${cardBorder}` }}>
             <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-              <div style={{ width:34, height:34, borderRadius:"50%", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.4)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:800, color:G, fontFamily:"'Space Grotesk',sans-serif", flexShrink:0 }}>F</div>
+              <div style={{ width:34, height:34, borderRadius:"50%", background:`${glow(.15)}`, border:`.5px solid ${glow(.4)}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:800, color:brandG, fontFamily:"'Space Grotesk',sans-serif", flexShrink:0 }}>F</div>
               <div>
                 <p style={{ fontSize:13, fontWeight:700, color:headingColor, margin:0 }}>Fiyin — Founder, Bode Conversion Lab</p>
                 <div style={{ display:"flex", gap:10 }}>
@@ -319,7 +337,7 @@ export function BlogPost() {
                 href={"https://wa.me/?text=" + encodeURIComponent(`${post.title} — ${shareUrl}`)}
                 target="_blank" rel="noopener noreferrer"
                 style={{ display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:"50%", background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.1)", border:`.5px solid ${cardBorder}`, color:mutedText3, textDecoration:"none", transition:"all .2s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(0,255,136,.4)"; e.currentTarget.style.color=G; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor=`${glow(.4)}`; e.currentTarget.style.color=brandG; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor=cardBorder; e.currentTarget.style.color=mutedText3; }}
                 title="Share on WhatsApp">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 6.32A7.85 7.85 0 0 0 12.05 4a7.94 7.94 0 0 0-6.9 11.9L4 20l4.2-1.1a7.9 7.9 0 0 0 3.85 1h0a7.94 7.94 0 0 0 5.55-13.58zM12.05 18.4a6.6 6.6 0 0 1-3.36-.92l-.24-.14-2.5.65.67-2.43-.16-.25a6.6 6.6 0 1 1 5.6 3.09zm3.6-4.94c-.2-.1-1.17-.58-1.35-.64s-.32-.1-.45.1-.5.64-.62.77-.23.15-.43.05a5.4 5.4 0 0 1-2.7-2.36c-.2-.35.2-.32.58-1.08.06-.13.03-.24-.02-.34s-.45-1.08-.62-1.48-.33-.34-.45-.34h-.4a.75.75 0 0 0-.55.26 2.3 2.3 0 0 0-.72 1.7 4 4 0 0 0 .85 2.13 9.1 9.1 0 0 0 3.5 3.1c.49.21.87.34 1.17.43.49.16.94.13 1.29.08.4-.06 1.17-.48 1.33-.94s.17-.87.12-.95-.18-.14-.38-.24z"/></svg>
@@ -327,7 +345,7 @@ export function BlogPost() {
               <button
                 onClick={() => { navigator.clipboard.writeText(shareUrl); }}
                 style={{ display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:"50%", background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.1)", border:`.5px solid ${cardBorder}`, color:mutedText3, cursor:"pointer", transition:"all .2s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(0,255,136,.4)"; e.currentTarget.style.color=G; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor=`${glow(.4)}`; e.currentTarget.style.color=brandG; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor=cardBorder; e.currentTarget.style.color=mutedText3; }}
                 title="Copy link">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -335,7 +353,7 @@ export function BlogPost() {
             </div>
           </div>
 
-          <p style={{ fontSize:"1.1rem", color:mutedText, lineHeight:1.8, fontStyle:"italic", borderLeft:`2px solid ${G}`, paddingLeft:"1.5rem", marginBottom:0 }}>{post.excerpt}</p>
+          <p style={{ fontSize:"1.1rem", color:mutedText, lineHeight:1.8, fontStyle:"italic", borderLeft:`2px solid ${brandG}`, paddingLeft:"1.5rem", marginBottom:0 }}>{post.excerpt}</p>
         </div>
       </section>
 
@@ -346,11 +364,11 @@ export function BlogPost() {
         <div style={{ maxWidth:720, margin:"0 auto" }}>
 
           {/* Table of contents — now real jump links, not just decorative */}
-          <div style={{ background:dark?"rgba(0,255,136,.04)":"rgba(255,255,255,.45)", border:dark?".5px solid rgba(0,255,136,.18)":".5px solid rgba(26,20,8,.22)", borderRadius:14, padding:"1.4rem 1.6rem", marginBottom:"3rem" }}>
+          <div style={{ background:dark?`${glow(.04)}`:"rgba(255,255,255,.45)", border:dark?`.5px solid ${glow(.18)}`:".5px solid rgba(26,20,8,.22)", borderRadius:14, padding:"1.4rem 1.6rem", marginBottom:"3rem" }}>
             <p style={{ fontSize:11, color:mutedText3, letterSpacing:".08em", textTransform:"uppercase", fontWeight:700, marginBottom:"1rem" }}>In this article</p>
             {post.content.map((s, i) => (
               <a key={i} href={`#section-${i}`} style={{ display:"flex", gap:10, alignItems:"center", padding:"5px 0", textDecoration:"none" }}>
-                <span style={{ width:18, height:18, borderRadius:"50%", background:"rgba(0,255,136,.12)", border:".5px solid rgba(0,255,136,.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800, color:G, flexShrink:0 }}>{i+1}</span>
+                <span style={{ width:18, height:18, borderRadius:"50%", background:`${glow(.12)}`, border:`.5px solid ${glow(.3)}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800, color:brandG, flexShrink:0 }}>{i+1}</span>
                 <span style={{ fontSize:13, color:mutedText2, fontWeight:500 }}>{s.heading}</span>
               </a>
             ))}
@@ -363,18 +381,18 @@ export function BlogPost() {
           <div style={{ display:"flex", flexDirection:"column", gap:"3rem" }}>
             {post.content.map((section, i) => (
               <Fragment key={i}>
-                <div id={`section-${i}`} style={{ borderLeft:`2px solid rgba(0,255,136,.25)`, paddingLeft:"1.5rem", scrollMarginTop:100 }}>
+                <div id={`section-${i}`} style={{ borderLeft:`2px solid ${glow(.25)}`, paddingLeft:"1.5rem", scrollMarginTop:100 }}>
                   <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.3rem", fontWeight:800, color:headingColor, marginBottom:"1rem" }}>{section.heading}</h2>
                   <p style={{ fontSize:15, color:mutedText, lineHeight:1.9 }}>{section.body}</p>
                 </div>
                 {i === 0 && (
                   <Link to="/audit" style={{ textDecoration:"none" }}>
-                    <div style={{ background:"linear-gradient(135deg,rgba(0,255,136,.09),rgba(0,204,106,.03))", border:"1px solid rgba(0,255,136,.3)", borderRadius:14, padding:"1.2rem 1.5rem", display:"flex", justifyContent:"space-between", alignItems:"center", gap:"1rem", flexWrap:"wrap" }}>
+                    <div style={{ background:`linear-gradient(135deg,${glow(.09)},${glow2(.03)})`, border:`1px solid ${glow(.3)}`, borderRadius:14, padding:"1.2rem 1.5rem", display:"flex", justifyContent:"space-between", alignItems:"center", gap:"1rem", flexWrap:"wrap" }}>
                       <div>
                         <p style={{ fontSize:13.5, fontWeight:700, color:headingColor, margin:0 }}>See exactly where your own store stands</p>
                         <p style={{ fontSize:12, color:mutedText3, margin:"3px 0 0" }}>Free audit — no card, no call needed to see the results.</p>
                       </div>
-                      <span style={{ color:G, fontSize:13, fontWeight:700, whiteSpace:"nowrap" }}>Run free audit →</span>
+                      <span style={{ color:brandG, fontSize:13, fontWeight:700, whiteSpace:"nowrap" }}>Run free audit →</span>
                     </div>
                   </Link>
                 )}
@@ -393,10 +411,10 @@ export function BlogPost() {
                       border:`.5px solid ${cardBorder}`, borderRadius:14, padding:"1.2rem",
                       transition:"transform .3s cubic-bezier(.22,1,.36,1), border-color .3s",
                     }}
-                      onMouseEnter={e => { e.currentTarget.style.transform="translateY(-4px)"; e.currentTarget.style.borderColor="rgba(0,255,136,.35)"; }}
+                      onMouseEnter={e => { e.currentTarget.style.transform="translateY(-4px)"; e.currentTarget.style.borderColor=`${glow(.35)}`; }}
                       onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor=cardBorder; }}>
                       <h4 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:13, fontWeight:800, color:headingColor, marginBottom:6, lineHeight:1.4 }}>{rp.title}</h4>
-                      <span style={{ fontSize:11, color:G, fontWeight:700 }}>Read →</span>
+                      <span style={{ fontSize:11, color:brandG, fontWeight:700 }}>Read →</span>
                     </div>
                   </Link>
                 ))}
@@ -405,8 +423,8 @@ export function BlogPost() {
           )}
 
           {/* CTA */}
-          <div style={{ background:"linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,204,106,.03))", border:".5px solid rgba(0,255,136,.25)", borderTop:".5px solid rgba(0,255,136,.45)", borderRadius:20, padding:"2.5rem", textAlign:"center", marginTop:"4rem", position:"relative", overflow:"hidden" }}>
-            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)", pointerEvents:"none" }}/>
+          <div style={{ background:`linear-gradient(135deg,${glow(.08)},${glow2(.03)})`, border:`.5px solid ${glow(.25)}`, borderTop:`.5px solid ${glow(.45)}`, borderRadius:20, padding:"2.5rem", textAlign:"center", marginTop:"4rem", position:"relative", overflow:"hidden" }}>
+            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:`linear-gradient(90deg,transparent,${glow(.5)},transparent)`, pointerEvents:"none" }}/>
             <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.4rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>Want us to implement this for you?</h3>
             <p style={{ fontSize:14, color:mutedText2, marginBottom:"1.5rem", lineHeight:1.7, maxWidth:400, margin:"0 auto 1.5rem" }}>Apply for a free store audit. We'll identify your biggest opportunities and build the system to capture them.</p>
             <div style={{ display:"flex", justifyContent:"center" }}>

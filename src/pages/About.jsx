@@ -5,6 +5,15 @@ import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, H
 
 export default function About() {
   const { dark } = useTheme();
+  // rgba(0,255,136,X) / rgba(0,204,106,X) are the two neon-green tint
+  // families used for badges, borders, icon circles, and glow accents.
+  // They read fine on near-black but turn into pale washed-out mint on
+  // the light theme's cream background, so both get a deeper light-mode
+  // equivalent here instead of case-by-case guessing.
+  const glow  = a => dark ? `rgba(0,255,136,${a})` : `rgba(0,130,74,${a})`;
+  const glow2 = a => dark ? `rgba(0,204,106,${a})` : `rgba(0,110,64,${a})`;
+  const brandG = dark ? G : "#00A35C";
+  const brandGG = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
   const [activeService, setActiveService] = useState(null);
 
   const headingColor = dark ? "#fff" : "#1A1408";
@@ -25,8 +34,8 @@ export default function About() {
         <HeroBackdrop dark={dark} />
         <div style={{ maxWidth:760, textAlign:"center", position:"relative", zIndex:1 }}>
           <div style={{ marginBottom:"1.5rem" }}>
-            <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.28)", borderRadius:100, padding:"5px 14px", fontSize:11, color:G, fontWeight:500 }}>
-              <span style={{ width:6, height:6, background:G, borderRadius:"50%" }}/> About us
+            <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:`${glow(.1)}`, border:`.5px solid ${glow(.28)}`, borderRadius:100, padding:"5px 14px", fontSize:11, color:brandG, fontWeight:500 }}>
+              <span style={{ width:6, height:6, background:brandG, borderRadius:"50%" }}/> About us
             </span>
           </div>
           <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,7vw,3.2rem)", fontWeight:800, lineHeight:1.1, letterSpacing:"-.03em", color:headingColor, marginBottom:"1.2rem", wordBreak:"break-word" }}>
@@ -38,11 +47,11 @@ export default function About() {
 
           {/* OPERATOR LOG — signature ledger strip, grounded in the real story */}
           <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", gap:"0 clamp(.6rem,2vw,1.4rem)", fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:mutedText3 }}>
-            <span><span style={{ color:G }}>4 yrs</span> running a real store</span>
+            <span><span style={{ color:brandG }}>4 yrs</span> running a real store</span>
             <span style={{ color:mutedText4 }}>→</span>
-            <span><span style={{ color:G }}>2 yrs</span> R&D on what actually works</span>
+            <span><span style={{ color:brandG }}>2 yrs</span> R&D on what actually works</span>
             <span style={{ color:mutedText4 }}>→</span>
-            <span><span style={{ color:G }}>now</span> Bode Conversion Lab</span>
+            <span><span style={{ color:brandG }}>now</span> Bode Conversion Lab</span>
           </div>
         </div>
       </section>
@@ -73,7 +82,7 @@ export default function About() {
               { n:"100%", label:"Client retention",      sub:"Month-to-month, no contracts" },
             ].map((s, i) => (
               <div key={i} className="glass card3d" style={{ padding:"1.4rem 1.6rem", display:"flex", alignItems:"center", gap:"1.5rem" }}>
-                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.8rem", fontWeight:800, background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", minWidth:70 }}>{s.n}</div>
+                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.8rem", fontWeight:800, background:brandGG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", minWidth:70 }}>{s.n}</div>
                 <div>
                   <p style={{ fontSize:14, fontWeight:600, color:headingColor, margin:0 }}>{s.label}</p>
                   <p style={{ fontSize:12, color:mutedText4, margin:0 }}>{s.sub}</p>
@@ -100,10 +109,10 @@ export default function About() {
                 onClick={() => setActiveService(activeService === s.id ? null : s.id)}
                 style={{
                   background: activeService === s.id
-                    ? "linear-gradient(135deg,rgba(0,255,136,.1),rgba(0,204,106,.04))"
+                    ? `linear-gradient(135deg,${glow(.1)},${glow2(.04)})`
                     : dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(255,255,255,.4),rgba(255,255,255,.15))",
                   border: activeService === s.id
-                    ? ".5px solid rgba(0,255,136,.45)"
+                    ? `.5px solid ${glow(.45)}`
                     : dark ? ".5px solid rgba(255,255,255,.12)" : ".5px solid rgba(26,20,8,.29)",
                   borderRadius:16, padding:"1.5rem", cursor:"pointer", transition:"all .3s"
                 }}>
@@ -111,9 +120,9 @@ export default function About() {
                   <div>
                     <span style={{ fontSize:24, display:"block", marginBottom:".5rem" }}>{s.icon}</span>
                     <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, margin:0 }}>{s.title}</h3>
-                    <p style={{ fontSize:12, color:G, margin:"4px 0 0", fontWeight:500 }}>{s.tagline}</p>
+                    <p style={{ fontSize:12, color:brandG, margin:"4px 0 0", fontWeight:500 }}>{s.tagline}</p>
                   </div>
-                  <span style={{ color:G, fontSize:20, transition:"transform .3s", transform:activeService===s.id?"rotate(45deg)":"none", display:"block", flexShrink:0, marginLeft:8 }}>+</span>
+                  <span style={{ color:brandG, fontSize:20, transition:"transform .3s", transform:activeService===s.id?"rotate(45deg)":"none", display:"block", flexShrink:0, marginLeft:8 }}>+</span>
                 </div>
                 <p style={{ fontSize:13, color:mutedText2, lineHeight:1.7, marginBottom:activeService===s.id?"1rem":0 }}>{s.desc}</p>
                 {activeService === s.id && (
@@ -121,16 +130,16 @@ export default function About() {
                     <ul style={{ listStyle:"none", marginBottom:"1.2rem", paddingLeft: 0 }}>
                       {s.bullets.map((b, j) => (
                         <li key={j} style={{ fontSize:13, color:dark?"rgba(255,255,255,.6)":"rgba(26,20,8,.65)", padding:"6px 0", borderBottom:dark?".5px solid rgba(255,255,255,.06)":".5px solid rgba(26,20,8,.16)", display:"flex", gap:8, alignItems:"center" }}>
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke={G} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke={brandG} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           {b}
                         </li>
                       ))}
                     </ul>
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:8 }}>
-                      <Link to="/pricing" onClick={e => e.stopPropagation()} style={{ fontSize:14, fontWeight:700, color:G, textDecoration:"underline" }}>See pricing →</Link>
+                      <Link to="/pricing" onClick={e => e.stopPropagation()} style={{ fontSize:14, fontWeight:700, color:brandG, textDecoration:"underline" }}>See pricing →</Link>
                       <div style={{ display:"flex", gap:8, alignItems:"center" }}>
                         <Link to={`/services/${s.id}`} onClick={e => e.stopPropagation()} style={{ color:mutedText2, fontSize:13, fontWeight:600, textDecoration:"underline" }}>Learn more</Link>
-                        <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ background:GG, color:"#040608", borderRadius:8, padding:".5rem 1.2rem", fontSize:13, fontWeight:700, textDecoration:"none" }}>Apply →</a>
+                        <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ background:brandGG, color:"#040608", borderRadius:8, padding:".5rem 1.2rem", fontSize:13, fontWeight:700, textDecoration:"none" }}>Apply →</a>
                       </div>
                     </div>
                   </div>
@@ -160,7 +169,7 @@ export default function About() {
               { icon:"06", title:"Partnership over transaction", desc:"We don't take clients we can't help. When you win, we win." },
             ].map((v, i) => (
               <div key={i} className="glass card3d" style={{ padding:"2rem" }}>
-                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:800, background:"linear-gradient(135deg,rgba(0,255,136,.55),rgba(0,255,136,.15))", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:".75rem" }}>{v.icon}</div>
+                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:800, background:`linear-gradient(135deg,${glow(.55)},${glow(.15)})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:".75rem" }}>{v.icon}</div>
                 <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:700, color:headingColor, marginBottom:".5rem" }}>{v.title}</h3>
                 <p style={{ fontSize:13, color:mutedText3, lineHeight:1.7 }}>{v.desc}</p>
               </div>

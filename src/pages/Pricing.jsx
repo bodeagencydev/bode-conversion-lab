@@ -27,6 +27,15 @@ function loadPaystack() {
 
 export default function Pricing() {
   const { dark } = useTheme();
+  // rgba(0,255,136,X) / rgba(0,204,106,X) are the two neon-green tint
+  // families used for badges, borders, icon circles, and glow accents.
+  // They read fine on near-black but turn into pale washed-out mint on
+  // the light theme's cream background, so both get a deeper light-mode
+  // equivalent here instead of case-by-case guessing.
+  const glow  = a => dark ? `rgba(0,255,136,${a})` : `rgba(0,130,74,${a})`;
+  const glow2 = a => dark ? `rgba(0,204,106,${a})` : `rgba(0,110,64,${a})`;
+  const brandG = dark ? G : "#00A35C";
+  const brandGG = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
   const [faqOpen, setFaqOpen] = useState(null);
   const [activeModal, setActiveModal] = useState(null);
   const [email, setEmail] = useState("");
@@ -239,8 +248,8 @@ export default function Pricing() {
               /* ── SUCCESS STATE — START YOUR PROJECT ── */
               <div style={{ padding:"0.5rem 0" }}>
                 <div style={{ textAlign:"center", marginBottom:"1.8rem" }}>
-                  <div style={{ width:64, height:64, borderRadius:"50%", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.4)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.2rem" }}>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={G} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <div style={{ width:64, height:64, borderRadius:"50%", background:`${glow(.15)}`, border:`.5px solid ${glow(.4)}`, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.2rem" }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={brandG} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </div>
                   <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.4rem", fontWeight:800, color:headingColor, marginBottom:".5rem" }}>Payment confirmed!</h3>
                   <p style={{ fontSize:13, color:mutedText, lineHeight:1.7 }}>
@@ -251,10 +260,10 @@ export default function Pricing() {
                 {issuedCode && (
                   <div
                     onClick={() => { navigator.clipboard.writeText(issuedCode); setCodeCopied(true); setTimeout(() => setCodeCopied(false), 2000); }}
-                    style={{ background:"rgba(0,255,136,.08)", border:".5px solid rgba(0,255,136,.3)", borderRadius:14, padding:"1.1rem", textAlign:"center", marginBottom:"1.6rem", cursor:"pointer" }}>
+                    style={{ background:`${glow(.08)}`, border:`.5px solid ${glow(.3)}`, borderRadius:14, padding:"1.1rem", textAlign:"center", marginBottom:"1.6rem", cursor:"pointer" }}>
                     <p style={{ fontSize:11, color:mutedText, marginBottom:6 }}>Your report access code — tap to copy</p>
-                    <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.5rem", fontWeight:800, color:G, letterSpacing:".1em", margin:0 }}>{issuedCode}</p>
-                    <p style={{ fontSize:11, color:codeCopied?G:mutedText, marginTop:6, fontWeight:codeCopied?700:400 }}>
+                    <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.5rem", fontWeight:800, color:brandG, letterSpacing:".1em", margin:0 }}>{issuedCode}</p>
+                    <p style={{ fontSize:11, color:codeCopied?brandG:mutedText, marginTop:6, fontWeight:codeCopied?700:400 }}>
                       {codeCopied ? "Copied!" : "Use this on the Audit page to unlock your downloads"}
                     </p>
                   </div>
@@ -267,7 +276,7 @@ export default function Pricing() {
                     { n:"03", t:"Kickoff begins", d: pkg?.kickoffNote || "We schedule your onboarding call and get started on your project right away." },
                   ].map((s,i) => (
                     <div key={i} style={{ display:"flex", gap:"0.9rem", alignItems:"flex-start" }}>
-                      <div style={{ width:28, height:28, borderRadius:"50%", background:"rgba(0,255,136,.1)", border:".5px solid rgba(0,255,136,.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, fontWeight:800, color:G, flexShrink:0, fontFamily:"'Space Grotesk',sans-serif" }}>{s.n}</div>
+                      <div style={{ width:28, height:28, borderRadius:"50%", background:`${glow(.1)}`, border:`.5px solid ${glow(.3)}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, fontWeight:800, color:brandG, flexShrink:0, fontFamily:"'Space Grotesk',sans-serif" }}>{s.n}</div>
                       <div>
                         <h4 style={{ fontSize:13, fontWeight:700, color:headingColor, margin:"0 0 3px" }}>{s.t}</h4>
                         <p style={{ fontSize:12, color:mutedText2, lineHeight:1.6, margin:0 }}>{s.d}</p>
@@ -298,11 +307,11 @@ export default function Pricing() {
                 {/* Package summary */}
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"1.5rem", paddingBottom:"1.2rem", borderBottom:`.5px solid ${itemBorder}` }}>
                   <div>
-                    <p style={{ fontSize:11, color:G, fontWeight:700, textTransform:"uppercase", letterSpacing:".06em", margin:0 }}>{pkg?.tier}</p>
+                    <p style={{ fontSize:11, color:brandG, fontWeight:700, textTransform:"uppercase", letterSpacing:".06em", margin:0 }}>{pkg?.tier}</p>
                     <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.3rem", fontWeight:800, color:headingColor, margin:"4px 0 0" }}>{pkg?.name}</h3>
                   </div>
                   <div style={{ textAlign:"right" }}>
-                    <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.6rem", fontWeight:800, color:G, margin:0 }}>${pkg?.price}</p>
+                    <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.6rem", fontWeight:800, color:brandG, margin:0 }}>${pkg?.price}</p>
                     <p style={{ fontSize:11, color:mutedText3, margin:0 }}>{pkg?.cycle}</p>
                   </div>
                 </div>
@@ -316,7 +325,7 @@ export default function Pricing() {
                     value={name}
                     onChange={e => setName(e.target.value)}
                     style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".8rem 1rem", color:headingColor, fontSize:14, fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
-                    onFocus={e => e.target.style.borderColor="rgba(0,255,136,.5)"}
+                    onFocus={e => e.target.style.borderColor=`${glow(.5)}`}
                     onBlur={e => e.target.style.borderColor=inputBorder}
                   />
                   <input
@@ -325,7 +334,7 @@ export default function Pricing() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".8rem 1rem", color:headingColor, fontSize:14, fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
-                    onFocus={e => e.target.style.borderColor="rgba(0,255,136,.5)"}
+                    onFocus={e => e.target.style.borderColor=`${glow(.5)}`}
                     onBlur={e => e.target.style.borderColor=inputBorder}
                   />
                 </div>
@@ -336,20 +345,20 @@ export default function Pricing() {
                     type="checkbox"
                     checked={agreed}
                     onChange={e => setAgreed(e.target.checked)}
-                    style={{ marginTop:3, width:16, height:16, flexShrink:0, accentColor:G, cursor:"pointer" }}
+                    style={{ marginTop:3, width:16, height:16, flexShrink:0, accentColor:brandG, cursor:"pointer" }}
                   />
                   <span style={{ fontSize:12, color:mutedText2, lineHeight:1.6 }}>
                     I agree to the{" "}
-                    <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color:G, fontWeight:600, textDecoration:"none" }}>Terms of Service</a>
+                    <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color:brandG, fontWeight:600, textDecoration:"none" }}>Terms of Service</a>
                     {" "}and{" "}
-                    <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color:G, fontWeight:600, textDecoration:"none" }}>Privacy Policy</a>.
+                    <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color:brandG, fontWeight:600, textDecoration:"none" }}>Privacy Policy</a>.
                   </span>
                 </label>
 
                 {/* Due today summary */}
-                <div style={{ background:"rgba(0,255,136,.05)", border:".5px solid rgba(0,255,136,.18)", borderRadius:10, padding:".9rem 1rem", marginBottom:".6rem", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <div style={{ background:`${glow(.05)}`, border:`.5px solid ${glow(.18)}`, borderRadius:10, padding:".9rem 1rem", marginBottom:".6rem", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <span style={{ fontSize:13, color:mutedText2 }}>Due today</span>
-                  <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.3rem", fontWeight:800, color:G }}>${pkg?.price?.toLocaleString()}</span>
+                  <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.3rem", fontWeight:800, color:brandG }}>${pkg?.price?.toLocaleString()}</span>
                 </div>
 
                 {/* Currency conversion notice — the card popup charges in NGN,
@@ -378,7 +387,7 @@ export default function Pricing() {
                 <button
                   onClick={handlePay}
                   disabled={loading || !agreed}
-                  style={{ width:"100%", background:(loading || !agreed)?"rgba(0,255,136,.4)":GG, color:"#040608", border:"none", borderRadius:10, padding:".9rem", fontSize:15, fontWeight:700, cursor:(loading || !agreed)?"not-allowed":"pointer", fontFamily:"inherit", boxShadow:(loading || !agreed)?"none":"0 4px 22px rgba(0,255,136,.35)", marginBottom:".75rem" }}>
+                  style={{ width:"100%", background:(loading || !agreed)?`${glow(.4)}`:brandGG, color:"#040608", border:"none", borderRadius:10, padding:".9rem", fontSize:15, fontWeight:700, cursor:(loading || !agreed)?"not-allowed":"pointer", fontFamily:"inherit", boxShadow:(loading || !agreed)?"none":`0 4px 22px ${glow(.35)}`, marginBottom:".75rem" }}>
                   {loading ? "Loading..." : `Pay $${pkg?.price?.toLocaleString()} securely →`}
                 </button>
 
@@ -395,7 +404,7 @@ export default function Pricing() {
                       href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi, I have a question about the ${pkg?.name} package before paying.`)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ color:G, textDecoration:"none", fontWeight:600 }}>
+                      style={{ color:brandG, textDecoration:"none", fontWeight:600 }}>
                       Message us on WhatsApp
                     </a>
                   </p>
@@ -411,8 +420,8 @@ export default function Pricing() {
         <HeroBackdrop dark={dark} />
         <div style={{ maxWidth:700, margin:"0 auto", textAlign:"center", position:"relative", zIndex:1 }}>
           <div style={{ marginBottom:"1.5rem" }}>
-            <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:dark?"rgba(0,255,136,.1)":"#1A1408", border:dark?".5px solid rgba(0,255,136,.28)":"none", borderRadius:100, padding:"6px 16px", fontSize:11, color:dark?G:"#FFEFC2", fontWeight:600, letterSpacing:".05em" }}>
-              <span style={{ width:6, height:6, background:G, borderRadius:"50%", animation:"pulse 2s ease-in-out infinite" }}/> Investment
+            <span style={{ display:"inline-flex", alignItems:"center", gap:6, background:dark?`${glow(.1)}`:"#1A1408", border:dark?`.5px solid ${glow(.28)}`:"none", borderRadius:100, padding:"6px 16px", fontSize:11, color:dark?brandG:"#FFEFC2", fontWeight:600, letterSpacing:".05em" }}>
+              <span style={{ width:6, height:6, background:brandG, borderRadius:"50%", animation:"pulse 2s ease-in-out infinite" }}/> Investment
             </span>
           </div>
           <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"3.2rem", fontWeight:800, lineHeight:1.1, letterSpacing:"-.03em", color:headingColor, marginBottom:"1.2rem" }}>
@@ -433,7 +442,7 @@ export default function Pricing() {
             <span style={{ color: dark ? "rgba(255,255,255,.15)" : "rgba(26,20,8,.32)" }}>|</span>
             <span>48HR AUDIT TURNAROUND</span>
             <span style={{ color: dark ? "rgba(255,255,255,.15)" : "rgba(26,20,8,.32)" }}>|</span>
-            <span style={{ color:G }}>NO LOCK-IN CONTRACTS</span>
+            <span style={{ color:brandG }}>NO LOCK-IN CONTRACTS</span>
           </div>
         </div>
       </section>
@@ -456,7 +465,7 @@ export default function Pricing() {
             ].map((item, i) => (
               <div key={i} className="glass" style={{ padding:"1.5rem" }}>
                 <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
-                  <span style={{ color:G, fontSize:18, fontWeight:800, flexShrink:0, marginTop:2 }}>{item.icon}</span>
+                  <span style={{ color:brandG, fontSize:18, fontWeight:800, flexShrink:0, marginTop:2 }}>{item.icon}</span>
                   <div>
                     <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:700, color:headingColor, marginBottom:".4rem" }}>{item.title}</h3>
                     <p style={{ fontSize:13, color:mutedText2, lineHeight:1.7 }}>{item.desc}</p>
@@ -487,11 +496,11 @@ export default function Pricing() {
                 {tiers.map((o, i) => (
                   <div key={i} className={`offer-card ${o.feat ? "feat" : ""}`} style={{ display:"flex", flexDirection:"column" }}>
                     {o.feat
-                      ? <div style={{ display:"inline-block", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.4)", borderRadius:100, padding:"3px 12px", fontSize:11, color:G, marginBottom:"1rem", alignSelf:"flex-start" }}>{o.tier}</div>
+                      ? <div style={{ display:"inline-block", background:`${glow(.15)}`, border:`.5px solid ${glow(.4)}`, borderRadius:100, padding:"3px 12px", fontSize:11, color:brandG, marginBottom:"1rem", alignSelf:"flex-start" }}>{o.tier}</div>
                       : <p style={{ fontSize:11, color:mutedText4, marginBottom:".5rem", fontWeight:600, textTransform:"uppercase", letterSpacing:".05em" }}>{o.tier}</p>
                     }
                     <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:800, marginBottom:".4rem", color:headingColor }}>{o.name}</h3>
-                    <p style={{ fontSize:12, color:G, fontWeight:600, marginBottom:".75rem" }}>{o.tagline}</p>
+                    <p style={{ fontSize:12, color:brandG, fontWeight:600, marginBottom:".75rem" }}>{o.tagline}</p>
                     <p style={{ fontSize:12, color:mutedText3, marginBottom:"1.2rem", lineHeight:1.6 }}>{o.desc}</p>
 
                     {/* Price */}
@@ -504,7 +513,7 @@ export default function Pricing() {
                     <ul style={{ listStyle:"none", marginBottom:"1.5rem", flexGrow:1 }}>
                       {o.items.map((item, j) => (
                         <li key={j} style={{ fontSize:13, color:mutedText5, padding:"7px 0", borderBottom:`.5px solid ${itemBorder}`, display:"flex", gap:8, alignItems:"center" }}>
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke={G} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke={brandG} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           {item}
                         </li>
                       ))}
@@ -525,7 +534,7 @@ export default function Pricing() {
               <div style={{ textAlign:"center", marginTop:"2.5rem" }}>
                 <p style={{ fontSize:13, color:mutedText3, lineHeight:1.8 }}>
                   All engagements are cycle-to-cycle. No lock-in. No contracts.<br />
-                  <span style={{ color:G, fontWeight:600 }}>Every tier starts with a store audit.</span> We don't run blind.
+                  <span style={{ color:brandG, fontWeight:600 }}>Every tier starts with a store audit.</span> We don't run blind.
                 </p>
               </div>
             </div>
@@ -546,7 +555,7 @@ export default function Pricing() {
               <button onClick={() => setFaqOpen(faqOpen === i ? null : i)}
                 style={{ width:"100%", textAlign:"left", background:"transparent", border:"none", color:headingColor, fontSize:15, fontWeight:500, cursor:"pointer", padding:"1.2rem 0", display:"flex", justifyContent:"space-between", alignItems:"center", fontFamily:"inherit", borderBottom:`.5px solid ${faqBorder}` }}>
                 <span>{f.q}</span>
-                <span style={{ color:G, fontSize:18, transition:"transform .25s", transform:faqOpen===i?"rotate(45deg)":"none", display:"inline-block", flexShrink:0, marginLeft:12 }}>+</span>
+                <span style={{ color:brandG, fontSize:18, transition:"transform .25s", transform:faqOpen===i?"rotate(45deg)":"none", display:"inline-block", flexShrink:0, marginLeft:12 }}>+</span>
               </button>
               {faqOpen === i && (
                 <p style={{ fontSize:14, color:mutedText, lineHeight:1.75, padding:"1rem 0 1.2rem", borderBottom:`.5px solid ${faqBorder}` }}>{f.a}</p>
