@@ -44,10 +44,10 @@ export default function Pricing() {
   const mutedText3   = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.62)";
   const mutedText4   = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.6)";
   const mutedText5   = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.65)";
-  const faqBorder    = dark ? "rgba(255,255,255,.07)" : "rgba(26,20,8,.14)";
-  const itemBorder   = dark ? "rgba(255,255,255,.05)" : "rgba(26,20,8,.1)";
+  const faqBorder    = dark ? "rgba(255,255,255,.07)" : "rgba(26,20,8,.22)";
+  const itemBorder   = dark ? "rgba(255,255,255,.05)" : "rgba(26,20,8,.16)";
   const inputBg      = dark ? "rgba(255,255,255,.05)" : "rgba(255,255,255,.5)";
-  const inputBorder  = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
+  const inputBorder  = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.29)";
   const modalBg      = dark ? "rgba(4,6,8,.96)"       : "rgba(250,245,233,.96)";
 
   const tiers = [
@@ -226,7 +226,7 @@ export default function Pricing() {
           style={{ position:"fixed", inset:0, zIndex:9000, background:"rgba(0,0,0,.7)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"1rem" }}>
           <div
             onClick={e => e.stopPropagation()}
-            style={{ background:modalBg, border:dark?".5px solid rgba(255,255,255,.12)":".5px solid rgba(26,20,8,.18)", borderRadius:24, padding:"clamp(1.5rem,4vw,2.5rem)", width:"100%", maxWidth:480, position:"relative", maxHeight:"90vh", overflowY:"auto" }}>
+            style={{ background:modalBg, border:dark?".5px solid rgba(255,255,255,.12)":".5px solid rgba(26,20,8,.29)", borderRadius:24, padding:"clamp(1.5rem,4vw,2.5rem)", width:"100%", maxWidth:480, position:"relative", maxHeight:"90vh", overflowY:"auto" }}>
 
             {/* Close */}
             <button
@@ -354,7 +354,7 @@ export default function Pricing() {
 
                 {/* Currency conversion notice — the card popup charges in NGN,
                     this makes sure that isn't a surprise mid-checkout */}
-                <div style={{ display:"flex", gap:".5rem", alignItems:"flex-start", marginBottom:"1.2rem", padding:".7rem .8rem", background:dark?"rgba(255,255,255,.03)":"rgba(26,20,8,.03)", border:`.5px solid ${inputBorder}`, borderRadius:8 }}>
+                <div style={{ display:"flex", gap:".5rem", alignItems:"flex-start", marginBottom:"1.2rem", padding:".7rem .8rem", background:dark?"rgba(255,255,255,.03)":"rgba(26,20,8,.05)", border:`.5px solid ${inputBorder}`, borderRadius:8 }}>
                   <span style={{ flexShrink:0, width:14, height:14, borderRadius:"50%", border:`1px solid ${mutedText3}`, color:mutedText3, fontSize:9, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center", marginTop:2 }}>i</span>
                   <p style={{ fontSize:11.5, color:mutedText3, lineHeight:1.55, margin:0 }}>
                     Any amount paid is converted to its equivalent value and applied directly as <strong style={{ color:mutedText2 }}>credit toward your project</strong> — nothing is lost in the process, your full ${pkg?.price?.toLocaleString()} goes to work for your store. Your bank may show this as a standard international transaction.
@@ -364,7 +364,7 @@ export default function Pricing() {
                 {/* Processing fee notice — small card fee is passed to the
                     customer at checkout rather than absorbed and quietly
                     priced into the package, so the sticker price stays real */}
-                <div style={{ display:"flex", gap:".5rem", alignItems:"flex-start", marginBottom:"1.2rem", padding:".7rem .8rem", background:dark?"rgba(255,255,255,.03)":"rgba(26,20,8,.03)", border:`.5px solid ${inputBorder}`, borderRadius:8 }}>
+                <div style={{ display:"flex", gap:".5rem", alignItems:"flex-start", marginBottom:"1.2rem", padding:".7rem .8rem", background:dark?"rgba(255,255,255,.03)":"rgba(26,20,8,.05)", border:`.5px solid ${inputBorder}`, borderRadius:8 }}>
                   <span style={{ flexShrink:0, width:14, height:14, borderRadius:"50%", border:`1px solid ${mutedText3}`, color:mutedText3, fontSize:9, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center", marginTop:2 }}>i</span>
                   <p style={{ fontSize:11.5, color:mutedText3, lineHeight:1.55, margin:0 }}>
                     A small card processing fee, charged by our payment processor, may be added at the final checkout step. We keep this separate on purpose — it means <strong style={{ color:mutedText2 }}>the price you see above is never quietly padded</strong> to absorb transaction costs, it stays exactly what it says.
@@ -426,13 +426,13 @@ export default function Pricing() {
           <div style={{
             display:"inline-flex", flexWrap:"wrap", justifyContent:"center", gap:"0 1.4rem",
             fontFamily:"'IBM Plex Mono',monospace", fontSize:11.5, color:mutedText3,
-            border:`1px dashed ${dark ? "rgba(255,255,255,.16)" : "rgba(26,20,8,.2)"}`,
+            border:`1px dashed ${dark ? "rgba(255,255,255,.16)" : "rgba(26,20,8,.32)"}`,
             borderRadius:6, padding:"10px 20px"
           }}>
             <span>MONTH-TO-MONTH</span>
-            <span style={{ color: dark ? "rgba(255,255,255,.15)" : "rgba(26,20,8,.2)" }}>|</span>
+            <span style={{ color: dark ? "rgba(255,255,255,.15)" : "rgba(26,20,8,.32)" }}>|</span>
             <span>48HR AUDIT TURNAROUND</span>
-            <span style={{ color: dark ? "rgba(255,255,255,.15)" : "rgba(26,20,8,.2)" }}>|</span>
+            <span style={{ color: dark ? "rgba(255,255,255,.15)" : "rgba(26,20,8,.32)" }}>|</span>
             <span style={{ color:G }}>NO LOCK-IN CONTRACTS</span>
           </div>
         </div>

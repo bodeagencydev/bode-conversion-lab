@@ -104,7 +104,7 @@ export default function About() {
                     : dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(255,255,255,.4),rgba(255,255,255,.15))",
                   border: activeService === s.id
                     ? ".5px solid rgba(0,255,136,.45)"
-                    : dark ? ".5px solid rgba(255,255,255,.12)" : ".5px solid rgba(26,20,8,.18)",
+                    : dark ? ".5px solid rgba(255,255,255,.12)" : ".5px solid rgba(26,20,8,.29)",
                   borderRadius:16, padding:"1.5rem", cursor:"pointer", transition:"all .3s"
                 }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"1rem" }}>
@@ -120,7 +120,7 @@ export default function About() {
                   <div>
                     <ul style={{ listStyle:"none", marginBottom:"1.2rem", paddingLeft: 0 }}>
                       {s.bullets.map((b, j) => (
-                        <li key={j} style={{ fontSize:13, color:dark?"rgba(255,255,255,.6)":"rgba(26,20,8,.65)", padding:"6px 0", borderBottom:dark?".5px solid rgba(255,255,255,.06)":".5px solid rgba(26,20,8,.1)", display:"flex", gap:8, alignItems:"center" }}>
+                        <li key={j} style={{ fontSize:13, color:dark?"rgba(255,255,255,.6)":"rgba(26,20,8,.65)", padding:"6px 0", borderBottom:dark?".5px solid rgba(255,255,255,.06)":".5px solid rgba(26,20,8,.16)", display:"flex", gap:8, alignItems:"center" }}>
                           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke={G} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           {b}
                         </li>

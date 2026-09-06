@@ -757,10 +757,10 @@ export default function Audit() {
   const mutedText2   = dark?"rgba(255,255,255,.4)":"rgba(26,20,8,.62)";
   const mutedText3   = dark?"rgba(255,255,255,.3)":"rgba(26,20,8,.6)";
   const cardBg       = dark?"linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))":"linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.2))";
-  const cardBorder   = dark?"rgba(255,255,255,.1)":"rgba(26,20,8,.15)";
+  const cardBorder   = dark?"rgba(255,255,255,.1)":"rgba(26,20,8,.24)";
   const inputBg      = dark?"rgba(255,255,255,.05)":"rgba(255,255,255,.55)";
-  const inputBorder  = dark?"rgba(255,255,255,.12)":"rgba(26,20,8,.18)";
-  const trackBg      = dark?"rgba(255,255,255,.08)":"rgba(26,20,8,.1)";
+  const inputBorder  = dark?"rgba(255,255,255,.12)":"rgba(26,20,8,.29)";
+  const trackBg      = dark?"rgba(255,255,255,.08)":"rgba(26,20,8,.16)";
   const vitC         = s => s==="good"?"#00ff88":s==="warn"?"#FF9900":"#FF3B3B";
 
   async function handleScan() {
@@ -920,7 +920,7 @@ export default function Audit() {
       {/* ── ACCESS MODAL ── */}
       {showModal && (
         <div onClick={() => setShowModal(false)} style={{ position:"fixed", inset:0, zIndex:99000, background:"rgba(0,0,0,.75)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"1rem" }}>
-          <div onClick={e => e.stopPropagation()} style={{ background:dark?"rgba(4,6,8,.97)":"rgba(255,248,210,.98)", border:dark?".5px solid rgba(255,255,255,.12)":".5px solid rgba(26,20,8,.18)", borderTop:".5px solid rgba(0,255,136,.4)", borderRadius:24, padding:"2rem", maxWidth:420, width:"100%", position:"relative" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background:dark?"rgba(4,6,8,.97)":"rgba(255,248,210,.98)", border:dark?".5px solid rgba(255,255,255,.12)":".5px solid rgba(26,20,8,.29)", borderTop:".5px solid rgba(0,255,136,.4)", borderRadius:24, padding:"2rem", maxWidth:420, width:"100%", position:"relative" }}>
             <button onClick={() => setShowModal(false)} style={{ position:"absolute", top:14, right:16, background:"transparent", border:"none", cursor:"pointer", fontSize:20, color:mutedText3 }}>×</button>
             <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>Unlock Download</h3>
             <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:"1rem" }}>Enter your payment access code from your confirmation email.</p>
@@ -1204,7 +1204,7 @@ export default function Audit() {
                 const unlocked = d.free || (accessTier && accessTier !== null);
                 const isDownloading = downloading === d.type;
                 return (
-                  <div key={i} style={{ background:unlocked?dark?"rgba(0,255,136,.05)":"rgba(0,255,136,.07)":dark?"rgba(255,255,255,.02)":"rgba(26,20,8,.03)", border:unlocked?".5px solid rgba(0,255,136,.22)":`.5px solid ${cardBorder}`, borderRadius:12, padding:"1.2rem" }}>
+                  <div key={i} style={{ background:unlocked?dark?"rgba(0,255,136,.05)":"rgba(0,255,136,.07)":dark?"rgba(255,255,255,.02)":"rgba(26,20,8,.05)", border:unlocked?".5px solid rgba(0,255,136,.22)":`.5px solid ${cardBorder}`, borderRadius:12, padding:"1.2rem" }}>
                     <p style={{ fontSize:13, fontWeight:700, color:headingColor, marginBottom:4 }}>{d.label}</p>
                     <p style={{ fontSize:11, color:mutedText3, marginBottom:".9rem", lineHeight:1.5 }}>{d.desc}</p>
                     <button onClick={() => handleDownload(d.type)} disabled={isDownloading}

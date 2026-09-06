@@ -40,7 +40,7 @@ export function Blog() {
   const mutedText3   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.62)";
   const mutedText4   = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.6)";
   const mutedText5   = dark ? "rgba(255,255,255,.25)" : "rgba(26,20,8,.6)";
-  const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
+  const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.29)";
 
   return (
     <PageWrapper>
@@ -86,7 +86,7 @@ export function Blog() {
               background: dark
                 ? "linear-gradient(135deg,rgba(0,255,136,.07),rgba(0,204,106,.02))"
                 : "linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,.25))",
-              border:`.5px solid ${dark?"rgba(0,255,136,.22)":"rgba(26,20,8,.18)"}`,
+              border:`.5px solid ${dark?"rgba(0,255,136,.22)":"rgba(26,20,8,.29)"}`,
               borderTop:`.5px solid ${dark?"rgba(0,255,136,.4)":"rgba(255,255,255,.7)"}`,
               borderRadius:24, padding:"clamp(2rem,5vw,3.5rem)",
             }}>
@@ -101,7 +101,7 @@ export function Blog() {
                 <div style={{ flex:1, minWidth:280 }}>
                   <div style={{ display:"flex", gap:8, marginBottom:"1.4rem", flexWrap:"wrap" }}>
                     <span style={{ background:"rgba(0,255,136,.12)", border:".5px solid rgba(0,255,136,.35)", borderRadius:100, padding:"4px 12px", fontSize:11, color:G, fontWeight:700, letterSpacing:".04em" }}>Featured</span>
-                    <span style={{ background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.06)", border:dark?".5px solid rgba(255,255,255,.12)":".5px solid rgba(26,20,8,.14)", borderRadius:100, padding:"4px 12px", fontSize:11, color:mutedText3, fontWeight:500 }}>{BLOG_POSTS[0].category}</span>
+                    <span style={{ background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.1)", border:dark?".5px solid rgba(255,255,255,.12)":".5px solid rgba(26,20,8,.22)", borderRadius:100, padding:"4px 12px", fontSize:11, color:mutedText3, fontWeight:500 }}>{BLOG_POSTS[0].category}</span>
                   </div>
                   <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1.4rem,3vw,2rem)", fontWeight:800, color:headingColor, marginBottom:"1rem", lineHeight:1.2 }}>{BLOG_POSTS[0].title}</h2>
                   <p style={{ fontSize:15, color:mutedText, lineHeight:1.8, marginBottom:"2rem" }}>{BLOG_POSTS[0].excerpt}</p>
@@ -117,7 +117,7 @@ export function Blog() {
                 </div>
 
                 {/* Right — article preview */}
-                <div style={{ width:"min(260px,100%)", background:dark?"rgba(0,0,0,.25)":"rgba(26,20,8,.04)", border:dark?".5px solid rgba(255,255,255,.08)":".5px solid rgba(26,20,8,.12)", borderRadius:16, padding:"1.5rem", flexShrink:0 }}>
+                <div style={{ width:"min(260px,100%)", background:dark?"rgba(0,0,0,.25)":"rgba(26,20,8,.06)", border:dark?".5px solid rgba(255,255,255,.08)":".5px solid rgba(26,20,8,.19)", borderRadius:16, padding:"1.5rem", flexShrink:0 }}>
                   <p style={{ fontSize:11, color:mutedText4, letterSpacing:".08em", textTransform:"uppercase", fontWeight:600, marginBottom:"1rem" }}>In this article</p>
                   {BLOG_POSTS[0].content.map((s, i) => (
                     <div key={i} style={{ display:"flex", gap:10, alignItems:"flex-start", marginBottom:".75rem" }}>
@@ -264,7 +264,7 @@ export function BlogPost() {
   const mutedText    = dark ? "rgba(255,255,255,.55)" : "rgba(26,20,8,.65)";
   const mutedText2   = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
   const mutedText3   = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.6)";
-  const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
+  const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.29)";
 
   if (!post) return (
     <PageWrapper>
@@ -288,7 +288,7 @@ export function BlogPost() {
         path={`/blog/${post.id}`}
         article={{ datePublished: post.date ? new Date(post.date).toISOString().slice(0, 10) : undefined }}
       />
-      <div style={{ position:"fixed", top:0, left:0, right:0, height:3, zIndex:9999, background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.08)" }}>
+      <div style={{ position:"fixed", top:0, left:0, right:0, height:3, zIndex:9999, background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.13)" }}>
         <div style={{ height:"100%", width:`${progress}%`, background:GG, transition:"width .1s linear" }}/>
       </div>
       <section style={{ padding:"7rem 2rem 4rem", position:"relative", overflow:"hidden" }}>
@@ -318,7 +318,7 @@ export function BlogPost() {
               <a
                 href={"https://wa.me/?text=" + encodeURIComponent(`${post.title} — ${shareUrl}`)}
                 target="_blank" rel="noopener noreferrer"
-                style={{ display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:"50%", background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.06)", border:`.5px solid ${cardBorder}`, color:mutedText3, textDecoration:"none", transition:"all .2s" }}
+                style={{ display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:"50%", background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.1)", border:`.5px solid ${cardBorder}`, color:mutedText3, textDecoration:"none", transition:"all .2s" }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(0,255,136,.4)"; e.currentTarget.style.color=G; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor=cardBorder; e.currentTarget.style.color=mutedText3; }}
                 title="Share on WhatsApp">
@@ -326,7 +326,7 @@ export function BlogPost() {
               </a>
               <button
                 onClick={() => { navigator.clipboard.writeText(shareUrl); }}
-                style={{ display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:"50%", background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.06)", border:`.5px solid ${cardBorder}`, color:mutedText3, cursor:"pointer", transition:"all .2s" }}
+                style={{ display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:"50%", background:dark?"rgba(255,255,255,.06)":"rgba(26,20,8,.1)", border:`.5px solid ${cardBorder}`, color:mutedText3, cursor:"pointer", transition:"all .2s" }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(0,255,136,.4)"; e.currentTarget.style.color=G; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor=cardBorder; e.currentTarget.style.color=mutedText3; }}
                 title="Copy link">
@@ -346,7 +346,7 @@ export function BlogPost() {
         <div style={{ maxWidth:720, margin:"0 auto" }}>
 
           {/* Table of contents — now real jump links, not just decorative */}
-          <div style={{ background:dark?"rgba(0,255,136,.04)":"rgba(255,255,255,.45)", border:dark?".5px solid rgba(0,255,136,.18)":".5px solid rgba(26,20,8,.14)", borderRadius:14, padding:"1.4rem 1.6rem", marginBottom:"3rem" }}>
+          <div style={{ background:dark?"rgba(0,255,136,.04)":"rgba(255,255,255,.45)", border:dark?".5px solid rgba(0,255,136,.18)":".5px solid rgba(26,20,8,.22)", borderRadius:14, padding:"1.4rem 1.6rem", marginBottom:"3rem" }}>
             <p style={{ fontSize:11, color:mutedText3, letterSpacing:".08em", textTransform:"uppercase", fontWeight:700, marginBottom:"1rem" }}>In this article</p>
             {post.content.map((s, i) => (
               <a key={i} href={`#section-${i}`} style={{ display:"flex", gap:10, alignItems:"center", padding:"5px 0", textDecoration:"none" }}>

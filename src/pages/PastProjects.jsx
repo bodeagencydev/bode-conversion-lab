@@ -57,7 +57,7 @@ function releaseLoadSlot() {
    Clicking swaps in the real, visible, controllable <video>.
 ──────────────────────────────────────────────────────────────────────────── */
 function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
-  const cardBorder = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.15)";
+  const cardBorder = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.24)";
   const [playing, setPlaying] = useState(false);
   const [thumb, setThumb]     = useState(null);
   const [failed, setFailed]   = useState(false);
@@ -147,10 +147,10 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
       borderRadius: 16, overflow: "hidden", position: "relative",
       transition: "transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s",
     }}
-      onMouseEnter={e => { e.currentTarget.style.transform="translateY(-6px) scale(1.01)"; e.currentTarget.style.boxShadow=dark?"0 24px 48px rgba(0,255,136,.1)":"0 24px 48px rgba(26,20,8,.1)"; e.currentTarget.style.borderColor="rgba(0,255,136,.35)"; }}
+      onMouseEnter={e => { e.currentTarget.style.transform="translateY(-6px) scale(1.01)"; e.currentTarget.style.boxShadow=dark?"0 24px 48px rgba(0,255,136,.1)":"0 24px 48px rgba(26,20,8,.16)"; e.currentTarget.style.borderColor="rgba(0,255,136,.35)"; }}
       onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; e.currentTarget.style.borderColor=cardBorder; }}>
 
-      <div style={{ aspectRatio: "16/10", position: "relative", overflow: "hidden", background: dark ? "rgba(0,0,0,.4)" : "rgba(26,20,8,.06)" }}>
+      <div style={{ aspectRatio: "16/10", position: "relative", overflow: "hidden", background: dark ? "rgba(0,0,0,.4)" : "rgba(26,20,8,.1)" }}>
         {hasSlot && !playing && !thumb && !failed && (
           <video ref={captureRef} src={item.videoSrc} muted playsInline preload="metadata"
             style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }} />
@@ -179,7 +179,7 @@ function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
             </div>
           </>
         ) : (
-          <div style={{ position: "absolute", inset: 0, background: dark ? "rgba(255,255,255,.04)" : "rgba(26,20,8,.05)", animation: "pulse 1.6s ease-in-out infinite" }}/>
+          <div style={{ position: "absolute", inset: 0, background: dark ? "rgba(255,255,255,.04)" : "rgba(26,20,8,.08)", animation: "pulse 1.6s ease-in-out infinite" }}/>
         )}
 
         {!playing && (
@@ -221,7 +221,7 @@ export function PastProjects() {
   const mutedText    = dark ? "rgba(255,255,255,.5)"  : "rgba(26,20,8,.65)";
   const mutedText2   = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
   const mutedText3   = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.62)";
-  const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
+  const cardBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.29)";
 
   return (
     <PageWrapper>
@@ -267,7 +267,7 @@ export function PastProjects() {
           </p>
           <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
             {BADGES && BADGES.map((b, i) => (
-              <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: dark ? "rgba(255,255,255,.04)" : "rgba(255,255,255,.5)", border: dark ? ".5px solid rgba(255,255,255,.1)" : `.5px solid rgba(26,20,8,.15)`, borderRadius: 100, padding: ".5rem 1.1rem" }}>
+              <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: dark ? "rgba(255,255,255,.04)" : "rgba(255,255,255,.5)", border: dark ? ".5px solid rgba(255,255,255,.1)" : `.5px solid rgba(26,20,8,.24)`, borderRadius: 100, padding: ".5rem 1.1rem" }}>
                 <span style={{ fontSize: 16 }}>{b.icon}</span>
                 <div>
                   <p style={{ fontSize: 12, fontWeight: 700, color: headingColor, margin: 0 }}>{b.title}</p>
@@ -297,7 +297,7 @@ export function PastProjects() {
                   {p.tags && p.tags.map((t, i) => (
                     <span key={i} style={{ background: "rgba(0,255,136,.08)", border: ".5px solid rgba(0,255,136,.2)", borderRadius: 100, padding: "3px 10px", fontSize: 10, color: G, fontWeight: 600 }}>{t}</span>
                   ))}
-                  <span style={{ background: dark ? "rgba(255,255,255,.05)" : "rgba(26,20,8,.05)", border: dark ? ".5px solid rgba(255,255,255,.1)" : ".5px solid rgba(26,20,8,.1)", borderRadius: 100, padding: "3px 10px", fontSize: 10, color: mutedText3, fontWeight: 500 }}>{p.timeframe}</span>
+                  <span style={{ background: dark ? "rgba(255,255,255,.05)" : "rgba(26,20,8,.08)", border: dark ? ".5px solid rgba(255,255,255,.1)" : ".5px solid rgba(26,20,8,.16)", borderRadius: 100, padding: "3px 10px", fontSize: 10, color: mutedText3, fontWeight: 500 }}>{p.timeframe}</span>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.6rem" }} className="about-grid">

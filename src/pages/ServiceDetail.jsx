@@ -12,8 +12,8 @@ export default function ServiceDetail() {
   const headingColor = dark ? "#fff" : "#1A1408";
   const mutedText    = dark ? "rgba(255,255,255,.6)"  : "rgba(26,20,8,.65)";
   const mutedText2   = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.62)";
-  const borderCol    = dark ? "rgba(255,255,255,.1)"  : "rgba(26,20,8,.12)";
-  const cardBg       = dark ? "rgba(255,255,255,.03)" : "rgba(26,20,8,.03)";
+  const borderCol    = dark ? "rgba(255,255,255,.1)"  : "rgba(26,20,8,.19)";
+  const cardBg       = dark ? "rgba(255,255,255,.03)" : "rgba(26,20,8,.05)";
 
   const otherServices = SERVICES.filter(s => s.id !== service.id).slice(0, 3);
 

@@ -138,9 +138,9 @@ export default function Admin() {
   const mutedText2   = dark ? "rgba(255,255,255,.4)"   : "rgba(26,20,8,.62)";
   const mutedText3   = dark ? "rgba(255,255,255,.3)"   : "rgba(26,20,8,.6)";
   const cardBg       = dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.2))";
-  const cardBorder   = dark ? "rgba(255,255,255,.1)"   : "rgba(26,20,8,.15)";
+  const cardBorder   = dark ? "rgba(255,255,255,.1)"   : "rgba(26,20,8,.24)";
   const inputBg      = dark ? "rgba(255,255,255,.05)"  : "rgba(255,255,255,.55)";
-  const inputBorder  = dark ? "rgba(255,255,255,.12)"  : "rgba(26,20,8,.18)";
+  const inputBorder  = dark ? "rgba(255,255,255,.12)"  : "rgba(26,20,8,.29)";
   const rowBg        = dark ? "rgba(255,255,255,.03)"  : "rgba(255,255,255,.35)";
 
   /* Load on mount */
@@ -450,7 +450,7 @@ export default function Admin() {
                           {copied===entry.code+"_wa" ? "✅ Copied!" : "📱 Copy WhatsApp msg"}
                         </button>
                         <button onClick={() => markUsed(entry.code, !entry.used)}
-                          style={{ background:dark?"rgba(255,255,255,.05)":"rgba(26,20,8,.05)", border:`.5px solid ${cardBorder}`, borderRadius:6, padding:"4px 10px", fontSize:11, color:mutedText2, cursor:"pointer", fontFamily:"inherit" }}>
+                          style={{ background:dark?"rgba(255,255,255,.05)":"rgba(26,20,8,.08)", border:`.5px solid ${cardBorder}`, borderRadius:6, padding:"4px 10px", fontSize:11, color:mutedText2, cursor:"pointer", fontFamily:"inherit" }}>
                           {entry.used ? "Mark unused" : "Mark used"}
                         </button>
                         {entry.active

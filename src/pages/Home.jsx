@@ -135,8 +135,8 @@ export default function Home() {
   const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
   const mutedText2   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.62)";
   const mutedText3   = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.6)";
-  const borderCol    = dark ? "rgba(255,255,255,.06)"  : "rgba(26,20,8,.12)";
-  const tickerBg     = dark ? "rgba(255,255,255,.01)"  : "rgba(26,20,8,.03)";
+  const borderCol    = dark ? "rgba(255,255,255,.06)"  : "rgba(26,20,8,.19)";
+  const tickerBg     = dark ? "rgba(255,255,255,.01)"  : "rgba(26,20,8,.05)";
   const headingColor = dark ? "#fff" : "#1A1408";
 
   return (
@@ -158,7 +158,7 @@ export default function Home() {
             <ScrollReveal delay={0}>
               <span style={{
                 display:"inline-flex", alignItems:"center", gap:8,
-                border: `1px solid ${dark ? "rgba(239,236,230,.18)" : "rgba(23,20,15,.2)"}`,
+                border: `1px solid ${dark ? "rgba(239,236,230,.18)" : "rgba(23,20,15,.32)"}`,
                 borderRadius:4, padding:"5px 12px",
                 fontSize:11, color: mutedText2, fontFamily:"'IBM Plex Mono',monospace",
                 letterSpacing:".03em", marginBottom:"1.6rem"
@@ -226,11 +226,11 @@ export default function Home() {
           <ScrollReveal delay={0.25}>
             <div style={{ position:"relative" }}>
               <div style={{
-                border:`1px solid ${dark ? "rgba(239,236,230,.14)" : "rgba(23,20,15,.16)"}`,
-                borderRadius:8, background: dark ? "rgba(239,236,230,.025)" : "rgba(23,20,15,.02)",
+                border:`1px solid ${dark ? "rgba(239,236,230,.14)" : "rgba(23,20,15,.26)"}`,
+                borderRadius:8, background: dark ? "rgba(239,236,230,.025)" : "rgba(23,20,15,.03)",
                 padding:"1.1rem 1.2rem", fontFamily:"'IBM Plex Mono',monospace",
               }}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem", paddingBottom:"0.8rem", borderBottom:`1px solid ${dark ? "rgba(239,236,230,.1)" : "rgba(23,20,15,.1)"}` }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem", paddingBottom:"0.8rem", borderBottom:`1px solid ${dark ? "rgba(239,236,230,.1)" : "rgba(23,20,15,.16)"}` }}>
                   <span style={{ fontSize:11, color:mutedText3, letterSpacing:".04em" }}>SCAN://your-store.myshopify.com</span>
                   <span style={{ fontSize:10, color:G }}>● LIVE</span>
                 </div>
@@ -242,7 +242,7 @@ export default function Home() {
                   { label:"Trust signals",       status:"Missing",        tone:"rust" },
                   { label:"ROAS",                status:"0.8x → 4.2x",    tone:"good" },
                 ].map((row, i) => (
-                  <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, padding:"9px 0", borderBottom: i < 4 ? `1px solid ${dark ? "rgba(239,236,230,.06)" : "rgba(23,20,15,.06)"}` : "none" }}>
+                  <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, padding:"9px 0", borderBottom: i < 4 ? `1px solid ${dark ? "rgba(239,236,230,.06)" : "rgba(23,20,15,.1)"}` : "none" }}>
                     <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                       <span style={{ width:6, height:6, borderRadius:"50%", background: row.tone === "rust" ? "var(--rust)" : G, flexShrink:0 }}/>
                       <span style={{ fontSize:12.5, color: dark ? "rgba(239,236,230,.75)" : "rgba(23,20,15,.75)" }}>{row.label}</span>

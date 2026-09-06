@@ -18,15 +18,15 @@ function ApplyForm() {
   const mutedText3    = dark ? "rgba(255,255,255,.35)" : "rgba(26,20,8,.62)";
   const mutedText4    = dark ? "rgba(255,255,255,.2)"  : "rgba(26,20,8,.6)";
   const cardBg        = dark ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))" : "linear-gradient(135deg,rgba(255,255,255,.45),rgba(255,255,255,.2))";
-  const cardBorder    = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
+  const cardBorder    = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.29)";
   const cardBorderTop = dark ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.65)";
-  const progressTrack = dark ? "rgba(255,255,255,.08)" : "rgba(26,20,8,.12)";
+  const progressTrack = dark ? "rgba(255,255,255,.08)" : "rgba(26,20,8,.19)";
   const optionBg      = dark ? "rgba(255,255,255,.04)" : "rgba(255,255,255,.35)";
-  const optionBorder  = dark ? "rgba(255,255,255,.1)"  : "rgba(26,20,8,.15)";
+  const optionBorder  = dark ? "rgba(255,255,255,.1)"  : "rgba(26,20,8,.24)";
   const optionText    = dark ? "#f0f0f0"               : "#1A1408";
-  const optionLetter  = dark ? "rgba(255,255,255,.25)" : "rgba(26,20,8,.4)";
+  const optionLetter  = dark ? "rgba(255,255,255,.25)" : "rgba(26,20,8,.64)";
   const inputBg       = dark ? "rgba(255,255,255,.05)" : "rgba(255,255,255,.45)";
-  const inputBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
+  const inputBorder   = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.29)";
   const inputColor    = dark ? "#f0f0f0"               : "#1A1408";
   const summaryBorder = dark ? "rgba(0,255,136,.18)"   : "rgba(0,180,80,.22)";
 
