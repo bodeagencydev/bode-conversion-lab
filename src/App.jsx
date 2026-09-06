@@ -98,15 +98,15 @@ function AppInner({ dark }) {
           --g:            #00A35C;
           --gg:           linear-gradient(135deg,#00A35C,#00b869);
           --rust:         #C74B32;
-          --card-bg:      rgba(23,20,15,.035);
-          --card-border:  rgba(23,20,15,.1);
+          --card-bg:      rgba(23,20,15,.06);
+          --card-border:  rgba(23,20,15,.16);
           --muted:        rgba(23,20,15,.72);
           --muted2:       rgba(23,20,15,.62);
           --muted3:       rgba(23,20,15,.6);
-          --ghost-bg:     rgba(23,20,15,.045);
+          --ghost-bg:     rgba(23,20,15,.07);
           --ghost-fg:     rgba(23,20,15,.75);
-          --ghost-border: rgba(23,20,15,.16);
-          --divider:      rgba(23,20,15,.1);
+          --ghost-border: rgba(23,20,15,.26);
+          --divider:      rgba(23,20,15,.16);
         }
 
         *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }

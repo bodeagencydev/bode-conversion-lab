@@ -510,9 +510,9 @@ export function CookieConsent() {
   if (!show) return null;
 
   const bg = dark ? "#0A0A0A" : "#FFFDF7";
-  const border = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.15)";
+  const border = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.24)";
   const text = dark ? "rgba(255,255,255,.72)" : "rgba(26,20,8,.72)";
-  const declineBorder = dark ? "rgba(255,255,255,.22)" : "rgba(26,20,8,.28)";
+  const declineBorder = dark ? "rgba(255,255,255,.22)" : "rgba(26,20,8,.45)";
 
   return (
     <div style={{
@@ -567,8 +567,8 @@ export function CookieConsent() {
 export function HeroBackdrop({ dark = true, accent = null, accent2 = null }) {
   const a1 = accent  || G;
   const a2 = accent2 || (dark ? "#FF5A3C" : "#C74B32");
-  const dot = dark ? "rgba(255,255,255,.05)" : "rgba(23,20,15,.06)";
-  const mark = dark ? "rgba(255,255,255,.14)" : "rgba(23,20,15,.16)";
+  const dot = dark ? "rgba(255,255,255,.05)" : "rgba(23,20,15,.1)";
+  const mark = dark ? "rgba(255,255,255,.14)" : "rgba(23,20,15,.26)";
   return (
     <div aria-hidden="true" style={{ position:"absolute", inset:0, zIndex:0, overflow:"hidden", pointerEvents:"none" }}>
       <div style={{
