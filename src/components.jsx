@@ -197,6 +197,9 @@ export function Nav() {
   const navBg = dark
     ? (scrolled ? "rgba(4,6,8,.96)"       : "rgba(4,6,8,.75)")
     : (scrolled ? "rgba(248,249,250,.97)" : "rgba(248,249,250,.88)");
+  const navG   = dark ? G  : "#00A35C";
+  const navGG  = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
+  const navGlow = dark ? "0,255,136" : "0,130,74";
 
   return (
     <>
@@ -220,14 +223,14 @@ export function Nav() {
                 onMouseEnter={e => { if (!active) e.currentTarget.style.color="var(--g,#00ff88)"; }}
                 onMouseLeave={e => { if (!active) e.currentTarget.style.color="var(--muted,rgba(255,255,255,.5))"; }}>
                 {l.label}
-                {active && <span style={{ position:"absolute", bottom:-2, left:0, right:0, height:2, background:GG, borderRadius:2 }}/>}
+                {active && <span style={{ position:"absolute", bottom:-2, left:0, right:0, height:2, background:navGG, borderRadius:2 }}/>}
               </Link>
             );
           })}
           <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer"
-            style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", lineHeight:1, background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:"0 2px 14px rgba(0,255,136,.3)", transition:"transform .2s,box-shadow .2s" }}
-            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 6px 22px rgba(0,255,136,.5)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 2px 14px rgba(0,255,136,.3)"; }}>
+            style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", lineHeight:1, background:navGG, color:"#040608", borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:`0 2px 14px rgba(${navGlow},.3)`, transition:"transform .2s,box-shadow .2s" }}
+            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow=`0 6px 22px rgba(${navGlow},.5)`; }}
+            onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow=`0 2px 14px rgba(${navGlow},.3)`; }}>
             Apply Now →
           </a>
         </div>
@@ -264,7 +267,7 @@ export function Nav() {
             </Link>
           );
         })}
-        <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer" style={{ display:"inline-block", marginTop:"1rem", background:GG, color:"#040608", borderRadius:8, padding:".55rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none" }}>
+        <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer" style={{ display:"inline-block", marginTop:"1rem", background:navGG, color:"#040608", borderRadius:8, padding:".55rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none" }}>
           Apply Now →
         </a>
       </div>
@@ -282,14 +285,14 @@ export function ThemeToggle() {
         position:"fixed", bottom:24, left:24, zIndex:9999,
         width:44, height:44, borderRadius:"50%",
         background: dark ? "rgba(0,255,136,.08)" : "rgba(10,15,18,.85)",
-        border: dark ? ".5px solid rgba(0,255,136,.3)" : ".5px solid rgba(0,255,136,.4)",
+        border: dark ? ".5px solid rgba(0,255,136,.3)" : ".5px solid rgba(0,130,74,.5)",
         backdropFilter:"blur(12px)",
         display:"flex", alignItems:"center", justifyContent:"center",
         cursor:"pointer",
         transition:"transform .25s cubic-bezier(.22,1,.36,1),background .25s,box-shadow .25s",
         boxShadow: dark ? "0 2px 16px rgba(0,255,136,.15)" : "0 2px 20px rgba(0,0,0,.3)",
       }}
-      onMouseEnter={e => { e.currentTarget.style.transform="scale(1.12)"; e.currentTarget.style.boxShadow="0 4px 28px rgba(0,255,136,.5)"; }}
+      onMouseEnter={e => { e.currentTarget.style.transform="scale(1.12)"; e.currentTarget.style.boxShadow=dark?"0 4px 28px rgba(0,255,136,.5)":"0 4px 20px rgba(0,0,0,.4)"; }}
       onMouseLeave={e => { e.currentTarget.style.transform="scale(1)"; e.currentTarget.style.boxShadow=dark?"0 2px 16px rgba(0,255,136,.15)":"0 2px 20px rgba(0,0,0,.3)"; }}
       aria-label="Toggle theme">
       {dark ? (
@@ -429,7 +432,7 @@ function ExitIntentPopup() {
 
         {state.succeeded ? (
           <div style={{ textAlign:"center", padding:"1.5rem 0" }}>
-            <p style={{ fontSize:"1.1rem", fontWeight:700, color:G, marginBottom:".5rem" }}>You're in! 🎉</p>
+            <p style={{ fontSize:"1.1rem", fontWeight:700, color:dark?"#00ff88":"#00A35C", marginBottom:".5rem" }}>You're in! 🎉</p>
             <p style={{ fontSize:14, color:"var(--muted,rgba(255,255,255,.7))" }}>Check your inbox — the free audit checklist is on its way.</p>
           </div>
         ) : (
@@ -453,7 +456,7 @@ function ExitIntentPopup() {
               <button
                 type="submit" disabled={state.submitting}
                 style={{
-                  padding:"12px 16px", borderRadius:10, border:"none", background:GG,
+                  padding:"12px 16px", borderRadius:10, border:"none", background:dark?GG:"linear-gradient(135deg,#00A35C,#00814A)",
                   color:"#0A0A0A", fontWeight:700, fontSize:14, cursor:"pointer",
                 }}
               >
@@ -530,7 +533,7 @@ export function CookieConsent() {
         <p style={{ fontSize:12.5, color:text, lineHeight:1.55, margin:0, flex:"1 1 320px", display:"flex", gap:8, alignItems:"flex-start" }}>
           <span style={{ fontSize:16, flexShrink:0 }}>🍪</span>
           <span>We use cookies to enhance your browsing experience and remember your preferences. By clicking "Accept", you consent to our use of cookies. Read our{" "}
-          <a href="/privacy" style={{ color:G, fontWeight:600, textDecoration:"none" }}>Privacy Policy</a> to learn more.</span>
+          <a href="/privacy" style={{ color:dark?G:"#00A35C", fontWeight:600, textDecoration:"none" }}>Privacy Policy</a> to learn more.</span>
         </p>
         <div style={{ display:"flex", gap:".6rem", flexShrink:0 }}>
           <button
@@ -545,7 +548,7 @@ export function CookieConsent() {
           <button
             onClick={() => choose("accepted")}
             style={{
-              background:GG, color:"#040608", border:"none",
+              background:dark?GG:"linear-gradient(135deg,#00A35C,#00814A)", color:"#040608", border:"none",
               borderRadius:8, padding:"9px 18px", fontSize:13, fontWeight:700,
               cursor:"pointer", fontFamily:"inherit",
             }}>
@@ -605,8 +608,14 @@ export function PageWrapper({ children, style = {} }) {
 }
 
 export function GradText({ children, style = {} }) {
+  const { dark } = useTheme();
+  // The bright neon gradient reads great on the near-black dark theme but
+  // looks washed-out/oversaturated against the light theme's cream
+  // background — same problem as the buttons below, same fix: a deeper,
+  // less saturated green for light mode instead of reusing the neon one.
+  const grad = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
   return (
-    <span style={{ background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", ...style }}>
+    <span style={{ background:grad, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", ...style }}>
       {children}
     </span>
   );
@@ -695,6 +704,7 @@ export function Particles() {
 }
 
 export function Typewriter({ words }) {
+  const { dark } = useTheme();
   const [wi, setWi]     = useState(0);
   const [text, setText] = useState("");
   const [del, setDel]   = useState(false);
@@ -707,8 +717,8 @@ export function Typewriter({ words }) {
     return () => clearTimeout(t);
   }, [text, del, wi, words]);
   return (
-    <span style={{ background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
-      {text}<span style={{ color:G }}>|</span>
+    <span style={{ background:dark?GG:"linear-gradient(135deg,#00A35C,#00814A)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+      {text}<span style={{ color:dark?G:"#00A35C" }}>|</span>
     </span>
   );
 }
@@ -746,8 +756,16 @@ export function ContinuousTicker({ items = [], speed = 30, reverse = false }) {
 }
 
 export function TestimonialTicker({ items = [] }) {
+  const { dark } = useTheme();
   const [paused, setPaused] = useState(false);
   const doubled = [...items, ...items];
+  // Same story as everywhere else: this card's green tint and gold stars
+  // were built once for the near-black dark theme and never given a light
+  // counterpart, so on a cream background they render as pale mint and
+  // washed-out yellow instead of a crisp accent.
+  const tint      = dark ? "0,255,136" : "0,130,74";   // rgba() triplet, deep green for light
+  const solidG    = dark ? "#00ff88"   : "#00A35C";
+  const starColor = dark ? "#FFD700"   : "#96650A";
   return (
     <div style={{ overflow:"hidden" }}
       onMouseEnter={() => setPaused(true)}
@@ -763,39 +781,39 @@ export function TestimonialTicker({ items = [] }) {
             style={{
               width:310, flexShrink:0,
               background:"var(--card-bg,rgba(255,255,255,.06))",
-              border:".5px solid rgba(0,255,136,.25)",
-              borderTop:".5px solid rgba(0,255,136,.4)",
+              border:`.5px solid rgba(${tint},.25)`,
+              borderTop:`.5px solid rgba(${tint},.4)`,
               borderRadius:16, padding:"1.2rem",
               textDecoration:"none", display:"block",
               transition:"transform .3s,border-color .3s,box-shadow .3s",
               position:"relative", overflow:"hidden"
             }}
-            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-5px) scale(1.01)"; e.currentTarget.style.borderColor="rgba(0,255,136,.6)"; e.currentTarget.style.boxShadow="0 16px 40px rgba(0,255,136,.15)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor="rgba(0,255,136,.25)"; e.currentTarget.style.boxShadow="none"; }}>
-            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.5),transparent)", pointerEvents:"none" }}/>
+            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-5px) scale(1.01)"; e.currentTarget.style.borderColor=`rgba(${tint},.6)`; e.currentTarget.style.boxShadow=`0 16px 40px rgba(${tint},.15)`; }}
+            onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor=`rgba(${tint},.25)`; e.currentTarget.style.boxShadow="none"; }}>
+            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:`linear-gradient(90deg,transparent,rgba(${tint},.5),transparent)`, pointerEvents:"none" }}/>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:".75rem" }}>
               <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                 {t.storeLogo && <img src={t.storeLogo} alt={t.storeName} width="20" height="20" loading="lazy" style={{ borderRadius:4, objectFit:"contain", background:"#fff", padding:"2px", flexShrink:0 }} onError={e => e.target.style.display="none"}/>}
                 <span style={{ fontSize:11, color:"var(--muted2,rgba(255,255,255,.4))", fontWeight:500 }}>{t.storeName}</span>
               </div>
-              <span style={{ background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.5)", borderRadius:100, padding:"3px 10px", fontSize:10, color:"#00ff88", fontWeight:800 }}>{t.result}</span>
+              <span style={{ background:`rgba(${tint},.15)`, border:`.5px solid rgba(${tint},.5)`, borderRadius:100, padding:"3px 10px", fontSize:10, color:solidG, fontWeight:800 }}>{t.result}</span>
             </div>
             <div style={{ display:"flex", gap:2, marginBottom:".75rem" }}>
-              {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize:13, color:"#FFD700" }}>★</span>)}
+              {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize:13, color:starColor }}>★</span>)}
             </div>
             <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.7, marginBottom:".9rem", fontStyle:"italic" }}>"{t.text}"</p>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                 {t.avatar
-                  ? <img src={t.avatar} alt={t.name} width="32" height="32" loading="lazy" style={{ borderRadius:"50%", objectFit:"cover", border:".5px solid rgba(0,255,136,.4)", flexShrink:0 }} onError={e => e.target.style.display="none"}/>
-                  : <div style={{ width:32, height:32, borderRadius:"50%", background:"rgba(0,255,136,.15)", border:".5px solid rgba(0,255,136,.4)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:G, flexShrink:0 }}>{t.init||t.name?.[0]}</div>
+                  ? <img src={t.avatar} alt={t.name} width="32" height="32" loading="lazy" style={{ borderRadius:"50%", objectFit:"cover", border:`.5px solid rgba(${tint},.4)`, flexShrink:0 }} onError={e => e.target.style.display="none"}/>
+                  : <div style={{ width:32, height:32, borderRadius:"50%", background:`rgba(${tint},.15)`, border:`.5px solid rgba(${tint},.4)`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:solidG, flexShrink:0 }}>{t.init||t.name?.[0]}</div>
                 }
                 <div>
                   <p style={{ fontSize:12, fontWeight:700, color:"var(--fg,#f0f0f0)", margin:0 }}>{t.name}</p>
                   <p style={{ fontSize:10, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>{t.storeCategory||t.role}</p>
                 </div>
               </div>
-              {t.storeUrl && <span style={{ fontSize:10, color:G, fontWeight:700 }}>Visit store →</span>}
+              {t.storeUrl && <span style={{ fontSize:10, color:solidG, fontWeight:700 }}>Visit store →</span>}
             </div>
           </a>
         ))}
@@ -805,18 +823,21 @@ export function TestimonialTicker({ items = [] }) {
 }
 
 export function VideoTips({ items = [] }) {
+  const { dark } = useTheme();
+  const solidG = dark ? "#00ff88" : "#00A35C";
+  const tint   = dark ? "0,255,136" : "0,130,74";
   const scrollRef = useRef(null);
   const [playing, setPlaying] = useState(null);
   const scroll = dir => { if (scrollRef.current) scrollRef.current.scrollBy({ left:dir*280, behavior:"smooth" }); };
   return (
     <div style={{ position:"relative" }}>
-      <button onClick={() => scroll(-1)} style={{ position:"absolute", left:-16, top:"40%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:"rgba(0,255,136,.12)", border:".5px solid rgba(0,255,136,.4)", color:G, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
-      <button onClick={() => scroll(1)}  style={{ position:"absolute", right:-16, top:"40%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:"rgba(0,255,136,.12)", border:".5px solid rgba(0,255,136,.4)", color:G, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
+      <button onClick={() => scroll(-1)} style={{ position:"absolute", left:-16, top:"40%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:`rgba(${tint},.12)`, border:`.5px solid rgba(${tint},.4)`, color:solidG, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
+      <button onClick={() => scroll(1)}  style={{ position:"absolute", right:-16, top:"40%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:`rgba(${tint},.12)`, border:`.5px solid rgba(${tint},.4)`, color:solidG, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
       <div ref={scrollRef} style={{ display:"flex", gap:"1.5rem", overflowX:"auto", scrollSnapType:"x mandatory", paddingBottom:"1rem", scrollbarWidth:"none" }}>
         {items.map((v, i) => (
           <div key={i}
             style={{ flexShrink:0, width:240, scrollSnapAlign:"start", background:"var(--card-bg,rgba(255,255,255,.06))", border:".5px solid var(--card-border,rgba(255,255,255,.1))", borderRadius:16, overflow:"hidden", transition:"transform .3s,border-color .3s" }}
-            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-5px)"; e.currentTarget.style.borderColor="rgba(0,255,136,.4)"; }}
+            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-5px)"; e.currentTarget.style.borderColor=`rgba(${tint},.4)`; }}
             onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor="var(--card-border,rgba(255,255,255,.1))"; }}>
             <div style={{ width:"100%", aspectRatio:"9/16", position:"relative", background:"#000" }}>
               {playing === i
@@ -917,6 +938,7 @@ export function WhatsAppButton() {
 }
 
 export function Footer() {
+  const { dark } = useTheme();
   const ColLink = ({ to, children }) => (
     <Link to={to}
       style={{ display:"block", fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", textDecoration:"none", marginBottom:".35rem", lineHeight:1.4, transition:"color .2s,transform .15s", minHeight:28 }}
@@ -956,9 +978,9 @@ export function Footer() {
           </div>
           <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-start", gap:".5rem" }}>
             <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer"
-              style={{ display:"inline-block", background:GG, color:"#040608", borderRadius:10, padding:".65rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none", boxShadow:"0 4px 18px rgba(0,255,136,.35)", transition:"transform .2s,box-shadow .2s", whiteSpace:"nowrap" }}
-              onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 8px 28px rgba(0,255,136,.5)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="0 4px 18px rgba(0,255,136,.35)"; }}>
+              style={{ display:"inline-block", background:dark?GG:"linear-gradient(135deg,#00A35C,#00814A)", color:"#040608", borderRadius:10, padding:".65rem 1.4rem", fontSize:14, fontWeight:700, textDecoration:"none", boxShadow:dark?"0 4px 18px rgba(0,255,136,.35)":"0 4px 18px rgba(0,130,74,.35)", transition:"transform .2s,box-shadow .2s", whiteSpace:"nowrap" }}
+              onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow=dark?"0 8px 28px rgba(0,255,136,.5)":"0 8px 28px rgba(0,130,74,.5)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow=dark?"0 4px 18px rgba(0,255,136,.35)":"0 4px 18px rgba(0,130,74,.35)"; }}>
               Apply Now →
             </a>
             <p style={{ fontSize:12, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>Response within 24 hours.</p>
