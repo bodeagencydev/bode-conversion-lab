@@ -100,9 +100,9 @@ function AppInner({ dark }) {
           --rust:         #C74B32;
           --card-bg:      rgba(23,20,15,.035);
           --card-border:  rgba(23,20,15,.1);
-          --muted:        rgba(23,20,15,.62);
-          --muted2:       rgba(23,20,15,.5);
-          --muted3:       rgba(23,20,15,.4);
+          --muted:        rgba(23,20,15,.72);
+          --muted2:       rgba(23,20,15,.62);
+          --muted3:       rgba(23,20,15,.6);
           --ghost-bg:     rgba(23,20,15,.045);
           --ghost-fg:     rgba(23,20,15,.75);
           --ghost-border: rgba(23,20,15,.16);

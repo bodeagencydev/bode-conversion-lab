@@ -34,8 +34,8 @@ export default function NotFound() {
   const dark = useDark();
 
   const headingColor = dark ? "#fff" : "#0a0a0a";
-  const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.5)";
-  const mutedText2   = dark ? "rgba(255,255,255,.28)" : "rgba(0,0,0,.3)";
+  const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.62)";
+  const mutedText2   = dark ? "rgba(255,255,255,.28)" : "rgba(0,0,0,.6)";
   const cardBg       = dark
     ? "linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))"
     : "linear-gradient(135deg,rgba(0,0,0,.03),rgba(0,0,0,.01))";
