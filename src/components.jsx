@@ -383,6 +383,7 @@ function HelpMenuPopup() {
       signal). Offers the free audit in exchange for an email, so visitors
       who leave without messaging aren't lost entirely. ── */
 function ExitIntentPopup() {
+  const { dark } = useTheme();
   const [show, setShow] = useState(false);
   const [state, handleSubmit] = useForm("xaqadyal");
 
@@ -415,36 +416,36 @@ function ExitIntentPopup() {
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background:"#0A0A0A", border:"1px solid rgba(0,255,136,.3)", borderRadius:20,
+          background:"var(--bg,#0A0A0A)", border:`1px solid ${dark ? "rgba(0,255,136,.3)" : "rgba(0,163,92,.35)"}`, borderRadius:20,
           padding:"2.2rem", maxWidth:440, width:"100%", position:"relative",
           boxShadow:"0 30px 80px rgba(0,0,0,.6)",
         }}
       >
         <button
           onClick={() => setShow(false)}
-          style={{ position:"absolute", top:16, right:16, background:"none", border:"none", color:"rgba(255,255,255,.5)", fontSize:22, cursor:"pointer" }}
+          style={{ position:"absolute", top:16, right:16, background:"none", border:"none", color:"var(--muted,rgba(255,255,255,.5))", fontSize:22, cursor:"pointer" }}
           aria-label="Close"
         >×</button>
 
         {state.succeeded ? (
           <div style={{ textAlign:"center", padding:"1.5rem 0" }}>
-            <p style={{ fontSize:"1.1rem", fontWeight:700, color:"#00FF88", marginBottom:".5rem" }}>You're in! 🎉</p>
-            <p style={{ fontSize:14, color:"rgba(255,255,255,.7)" }}>Check your inbox — the free audit checklist is on its way.</p>
+            <p style={{ fontSize:"1.1rem", fontWeight:700, color:G, marginBottom:".5rem" }}>You're in! 🎉</p>
+            <p style={{ fontSize:14, color:"var(--muted,rgba(255,255,255,.7))" }}>Check your inbox — the free audit checklist is on its way.</p>
           </div>
         ) : (
           <>
-            <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.4rem", fontWeight:800, color:"#fff", marginBottom:".6rem", lineHeight:1.25 }}>
+            <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.4rem", fontWeight:800, color:"var(--fg,#fff)", marginBottom:".6rem", lineHeight:1.25 }}>
               Before you go — is your store leaking money?
             </p>
-            <p style={{ fontSize:14, color:"rgba(255,255,255,.6)", marginBottom:"1.4rem", lineHeight:1.6 }}>
+            <p style={{ fontSize:14, color:"var(--muted,rgba(255,255,255,.6))", marginBottom:"1.4rem", lineHeight:1.6 }}>
               Get our free Store Leak Finder checklist — the exact 12-point framework we use on every audit. Takes 10 minutes, finds thousands in lost revenue.
             </p>
             <form onSubmit={handleSubmit} style={{ display:"flex", flexDirection:"column", gap:".7rem" }}>
               <input
                 type="email" name="email" required placeholder="Your email address"
                 style={{
-                  padding:"12px 16px", borderRadius:10, border:"1px solid rgba(255,255,255,.15)",
-                  background:"rgba(255,255,255,.04)", color:"#fff", fontSize:14, outline:"none",
+                  padding:"12px 16px", borderRadius:10, border:"1px solid var(--card-border,rgba(255,255,255,.15))",
+                  background:"var(--card-bg,rgba(255,255,255,.04))", color:"var(--fg,#fff)", fontSize:14, outline:"none",
                 }}
               />
               <input type="hidden" name="source" value="exit_intent_popup" />
@@ -452,14 +453,14 @@ function ExitIntentPopup() {
               <button
                 type="submit" disabled={state.submitting}
                 style={{
-                  padding:"12px 16px", borderRadius:10, border:"none", background:"#00FF88",
+                  padding:"12px 16px", borderRadius:10, border:"none", background:GG,
                   color:"#0A0A0A", fontWeight:700, fontSize:14, cursor:"pointer",
                 }}
               >
                 Send me the checklist →
               </button>
             </form>
-            <p style={{ fontSize:11, color:"rgba(255,255,255,.35)", marginTop:".8rem", textAlign:"center" }}>
+            <p style={{ fontSize:11, color:"var(--muted3,rgba(255,255,255,.35))", marginTop:".8rem", textAlign:"center" }}>
               No spam. Unsubscribe anytime.
             </p>
           </>
@@ -556,24 +557,6 @@ export function CookieConsent() {
   );
 }
 
-/* ── GRAIN ──
-   A near-invisible film-grain layer over the whole app. Flat gradients on a
-   pure-black background are the single biggest tell of an unfinished/AI-made
-   site — real screens never render perfectly smooth color. This fixes that
-   sitewide with one mount, at an opacity low enough that nobody consciously
-   "sees" it, they just register the page as more textured/expensive. ── */
-export function Grain() {
-  return (
-    <svg aria-hidden="true" style={{ position:"fixed", inset:0, width:"100%", height:"100%", zIndex:3, pointerEvents:"none", opacity:.035, mixBlendMode:"overlay" }}>
-      <filter id="bclGrain">
-        <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" stitchTiles="stitch" />
-        <feColorMatrix type="saturate" values="0" />
-      </filter>
-      <rect width="100%" height="100%" filter="url(#bclGrain)" />
-    </svg>
-  );
-}
-
 /* ── HERO BACKDROP ──
    Drop this as the first child of any `position:relative, overflow:hidden`
    hero section to replace a flat blank background with a faint dot-grid,
@@ -614,7 +597,6 @@ export function PageWrapper({ children, style = {} }) {
       transition:"background .3s,color .3s",
       ...style
     }}>
-      <Grain />
       <HelpMenuPopup />
       <ExitIntentPopup />
       {children}
@@ -878,13 +860,59 @@ export function PartnerCard({ partner }) {
 
 export function WhatsAppButton() {
   const msg = encodeURIComponent("Hi! I'd love to work with you.");
+  const href = `https://wa.me/19454076473?text=${msg}`;
+  const NUDGES = ["Message us now →", "Got a question? Chat with us", "We reply in minutes →"];
+  const [nudgeIndex, setNudgeIndex] = useState(0);
+  const [showNudge, setShowNudge] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (dismissed) return;
+    const interval = setInterval(() => {
+      setNudgeIndex(i => (i + 1) % NUDGES.length);
+      setShowNudge(true);
+      const hide = setTimeout(() => setShowNudge(false), 4500);
+      return () => clearTimeout(hide);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [dismissed]);
+
   return (
-    <a href={`https://wa.me/19454076473?text=${msg}`} target="_blank" rel="noopener noreferrer"
-      style={{ position:"fixed", bottom:24, right:24, zIndex:9999, width:56, height:56, borderRadius:"50%", background:"#25D366", boxShadow:"0 4px 20px rgba(37,211,102,.5)", display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", transition:"transform .2s,box-shadow .2s" }}
-      onMouseEnter={e => { e.currentTarget.style.transform="scale(1.12)"; e.currentTarget.style.boxShadow="0 8px 32px rgba(37,211,102,.65)"; }}
-      onMouseLeave={e => { e.currentTarget.style.transform="scale(1)"; e.currentTarget.style.boxShadow="0 4px 20px rgba(37,211,102,.5)"; }}>
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    </a>
+    <div style={{ position:"fixed", bottom:24, right:24, zIndex:9999, display:"flex", alignItems:"center", gap:10 }}>
+      {showNudge && !dismissed && (
+        <div
+          role="button"
+          onClick={() => { window.open(href, "_blank", "noopener,noreferrer"); setShowNudge(false); }}
+          style={{
+            display:"flex", alignItems:"center", gap:8,
+            background:"var(--bg,#0B0D0C)", border:"1px solid var(--card-border,rgba(255,255,255,.12))",
+            color:"var(--fg,#f0f0f0)", fontSize:13, fontWeight:600,
+            padding:"10px 14px", borderRadius:100, whiteSpace:"nowrap", cursor:"pointer",
+            boxShadow:"0 8px 24px rgba(0,0,0,.3)",
+            animation:"waNudgeIn .35s cubic-bezier(.22,1,.36,1) both",
+          }}
+        >
+          <span>{NUDGES[nudgeIndex]}</span>
+          <button
+            onClick={e => { e.stopPropagation(); setShowNudge(false); setDismissed(true); }}
+            aria-label="Dismiss"
+            style={{ background:"none", border:"none", color:"var(--muted3,rgba(255,255,255,.35))", fontSize:15, lineHeight:1, cursor:"pointer", padding:0, marginLeft:2 }}
+          >×</button>
+        </div>
+      )}
+      <a href={href} target="_blank" rel="noopener noreferrer"
+        style={{ width:56, height:56, borderRadius:"50%", background:"#25D366", boxShadow:"0 4px 20px rgba(37,211,102,.5)", display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", transition:"transform .2s,box-shadow .2s", flexShrink:0 }}
+        onMouseEnter={e => { e.currentTarget.style.transform="scale(1.12)"; e.currentTarget.style.boxShadow="0 8px 32px rgba(37,211,102,.65)"; }}
+        onMouseLeave={e => { e.currentTarget.style.transform="scale(1)"; e.currentTarget.style.boxShadow="0 4px 20px rgba(37,211,102,.5)"; }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+      <style>{`
+        @keyframes waNudgeIn {
+          0%   { opacity:0; transform:translateX(16px) scale(.92); }
+          100% { opacity:1; transform:translateX(0) scale(1); }
+        }
+      `}</style>
+    </div>
   );
 }
 
