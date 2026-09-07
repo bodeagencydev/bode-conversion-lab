@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Nav, Footer, WhatsAppButton, ThemeToggle, ThemeContext, CookieConsent, hasCookieConsent } from "./components.jsx";
 import { CursorSystem, ClickRipple, ScrollProgress, NoiseOverlay } from "./AnimationSystem.jsx";
@@ -41,6 +41,25 @@ export default function App() {
     try { const s = localStorage.getItem("bcl-theme"); if (s !== null) return s === "dark"; } catch {}
     return true;
   });
+  useEffect(() => {
+    // Belt-and-suspenders against a known Chrome quirk: gradient-clipped
+    // text (background-clip:text) can get "stuck" showing an unclipped
+    // solid box if the custom heading font finishes loading and swaps in
+    // after that text already painted once. Moving the font <link> into
+    // index.html's <head> (instead of a React-injected <style> import)
+    // fixes the vast majority of this by making the font load far earlier
+    // — this just forces one clean repaint of the whole page the moment
+    // the font is confirmed ready, as a safety net for slow connections.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        const b = document.body;
+        const prev = b.style.display;
+        b.style.display = "none";
+        void b.offsetHeight; // force reflow
+        b.style.display = prev;
+      });
+    }
+  }, []);
   const toggle = () => setDark(v => {
     const next = !v;
     // Only persist the theme choice once the visitor has accepted the
@@ -73,8 +92,6 @@ function AppInner({ dark }) {
       <NoiseOverlay opacity={dark ? 0.02 : 0.012} />
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-
         :root {
           --bg:           #0B0D0C;
           --fg:           #EFECE6;
