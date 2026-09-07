@@ -82,7 +82,7 @@ export default function About() {
               { n:"100%", label:"Client retention",      sub:"Month-to-month, no contracts" },
             ].map((s, i) => (
               <div key={i} className="glass card3d" style={{ padding:"1.4rem 1.6rem", display:"flex", alignItems:"center", gap:"1.5rem" }}>
-                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.8rem", fontWeight:800, background:brandGG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", minWidth:70 }}>{s.n}</div>
+                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.8rem", fontWeight:800, background:brandGG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", minWidth:70 }}>{s.n}</div>
                 <div>
                   <p style={{ fontSize:14, fontWeight:600, color:headingColor, margin:0 }}>{s.label}</p>
                   <p style={{ fontSize:12, color:mutedText4, margin:0 }}>{s.sub}</p>
@@ -169,7 +169,7 @@ export default function About() {
               { icon:"06", title:"Partnership over transaction", desc:"We don't take clients we can't help. When you win, we win." },
             ].map((v, i) => (
               <div key={i} className="glass card3d" style={{ padding:"2rem" }}>
-                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:800, background:`linear-gradient(135deg,${glow(.55)},${glow(.15)})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", marginBottom:".75rem" }}>{v.icon}</div>
+                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:800, background:`linear-gradient(135deg,${glow(.55)},${glow(.15)})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", marginBottom:".75rem" }}>{v.icon}</div>
                 <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:700, color:headingColor, marginBottom:".5rem" }}>{v.title}</h3>
                 <p style={{ fontSize:13, color:mutedText3, lineHeight:1.7 }}>{v.desc}</p>
               </div>
