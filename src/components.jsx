@@ -614,8 +614,14 @@ export function GradText({ children, style = {} }) {
   // background — same problem as the buttons below, same fix: a deeper,
   // less saturated green for light mode instead of reusing the neon one.
   const grad = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
+  // transform:translateZ(0) forces this element onto its own compositing
+  // layer. Without it, when this sits inside a parent that's mid-animation
+  // (ScrollReveal fade-ups, TiltCard hover tilts, the hero's fade-in), Chrome
+  // can fail to recompute the background-clip text mask and paints the full
+  // gradient as a solid rectangle instead of clipping it to the letters —
+  // this is what was causing the green boxes instead of gradient text.
   return (
-    <span style={{ background:grad, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", ...style }}>
+    <span style={{ background:grad, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block", ...style }}>
       {children}
     </span>
   );
@@ -717,7 +723,7 @@ export function Typewriter({ words }) {
     return () => clearTimeout(t);
   }, [text, del, wi, words]);
   return (
-    <span style={{ background:dark?GG:"linear-gradient(135deg,#00A35C,#00814A)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+    <span style={{ background:dark?GG:"linear-gradient(135deg,#00A35C,#00814A)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block" }}>
       {text}<span style={{ color:dark?G:"#00A35C" }}>|</span>
     </span>
   );
