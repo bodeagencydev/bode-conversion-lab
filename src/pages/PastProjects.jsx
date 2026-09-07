@@ -58,6 +58,8 @@ function releaseLoadSlot() {
 ──────────────────────────────────────────────────────────────────────────── */
 function GalleryCard({ item, dark, mutedText, mutedText3, headingColor }) {
   const cardBorder = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.24)";
+  const glow  = a => dark ? `rgba(0,255,136,${a})` : `rgba(0,130,74,${a})`;
+  const brandG = dark ? "#00ff88" : "#00A35C";
   const [playing, setPlaying] = useState(false);
   const [thumb, setThumb]     = useState(null);
   const [failed, setFailed]   = useState(false);

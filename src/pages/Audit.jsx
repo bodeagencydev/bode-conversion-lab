@@ -47,7 +47,7 @@ function getAccessCodes() {
 }
 
 /* ─── RING SVG ─── */
-function Ring({ score, size=90, color=brandG }) {
+function Ring({ score, size=90, color="#00ff88" }) {
   const r    = size/2 - 7;
   const circ = 2 * Math.PI * r;
   const dash = (clamp(score)/100) * circ;
@@ -573,6 +573,11 @@ function buildSolutionPlan(analysis) {
    always looks the same regardless of the visitor's screen. */
 function ClientSnapshotCard({ innerRef, domain, visitors, aov, currentCR, potentialCRLow, potentialCRHigh, lossLow, lossHigh, leaks, recommended, overall, grade, problemCount, criticalCount, topIssues }) {
   const fmt = n => "$" + Math.round(n).toLocaleString();
+  // This card always renders as a fixed white/dark-text branded graphic for
+  // export (html2canvas → PNG) regardless of the site's light/dark theme,
+  // so its green accent tint is fixed too rather than theme-switching.
+  const glow  = a => `rgba(0,255,136,${a})`;
+  const glow2 = a => `rgba(0,204,106,${a})`;
   return (
     <div ref={innerRef} style={{ width:860, background:"#fff", fontFamily:"'IBM Plex Sans',sans-serif", color:"#1A1408" }}>
       {/* Top brand accent bar — a real, visible strip of brand color the
