@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, AD_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
-import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, useInView, useTheme, PageWrapper, SEO, HeroBackdrop } from "../components.jsx";
+import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, GradClipEl, useInView, useTheme, PageWrapper, SEO, HeroBackdrop } from "../components.jsx";
 import { ScrollReveal, TiltCard, Magnetic, GlowBorder, SpringCounter, MaskedHeading } from "../AnimationSystem.jsx";
 
 const REDESIGN_STATUS_KEY = "bcl_redesign_status"; // 'active' | 'gone'
@@ -301,11 +301,11 @@ export default function Home() {
             ].map((s, i) => (
               <ScrollReveal key={i} delay={i * 0.12}>
                 <div className="stat-card">
-                  <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,5vw,3rem)", fontWeight:800, background:brandGG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", lineHeight:1, marginBottom:8 }}>
+                  <GradClipEl style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,5vw,3rem)", fontWeight:800, background:brandGG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", lineHeight:1, marginBottom:8 }}>
                     {statsInView
                       ? <SpringCounter to={s.n} suffix={s.s} stiffness={100} damping={10} />
                       : `0${s.s}`}
-                  </div>
+                  </GradClipEl>
                   <p style={{ fontSize:14, color:mutedText2 }}>{s.l}</p>
                 </div>
               </ScrollReveal>
@@ -334,7 +334,7 @@ export default function Home() {
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 0.1}>
                 <TiltCard className="glass" style={{ padding:"2.5rem", height:"100%" }}>
-                  <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.8rem", fontWeight:800, background:`linear-gradient(135deg,${glow(.55)},${glow(.15)})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", marginBottom:".75rem" }}>{item.n}</div>
+                  <GradClipEl style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.8rem", fontWeight:800, background:`linear-gradient(135deg,${glow(.55)},${glow(.15)})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", marginBottom:".75rem" }}>{item.n}</GradClipEl>
                   <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.15rem", fontWeight:700, marginBottom:".6rem", color:headingColor }}>{item.t}</h3>
                   <p style={{ fontSize:14, color:mutedText, lineHeight:1.75 }}>{item.d}</p>
                 </TiltCard>
