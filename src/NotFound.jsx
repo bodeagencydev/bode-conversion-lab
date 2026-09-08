@@ -33,8 +33,8 @@ const QUICK_LINKS = [
 
 export default function NotFound() {
   const dark = useDark();
-  const fix404 = useGradClipFix();
-  const fixLine = useGradClipFix();
+  const [fix404, ready404] = useGradClipFix();
+  const [fixLine, readyLine] = useGradClipFix();
 
   const headingColor = dark ? "#fff" : "#0a0a0a";
   const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.62)";
@@ -65,6 +65,7 @@ export default function NotFound() {
           WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text",
           filter:"drop-shadow(0 0 40px rgba(0,255,136,.25))",
           animation:"heroFadeUp .6s cubic-bezier(.22,1,.36,1) both",
+          opacity:ready404?1:0, transition:"opacity .25s",
         }}>
           404
         </div>
@@ -87,7 +88,7 @@ export default function NotFound() {
 
         <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1.3rem,4vw,1.7rem)", fontWeight:800, color:headingColor, marginBottom:".75rem", lineHeight:1.25 }}>
           Page missing — but your{" "}
-          <span ref={fixLine} style={{ background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+          <span ref={fixLine} style={{ background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", opacity:readyLine?1:0, transition:"opacity .25s" }}>
             revenue leaks aren't.
           </span>
         </h1>

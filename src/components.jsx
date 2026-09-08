@@ -6,37 +6,33 @@ import { SERVICES } from "./data.js";
 const G  = "#00ff88";
 const GG = "linear-gradient(135deg,#00ff88,#00e676,#00cc6a)";
 
-// Chrome has an intermittent bug where background-clip:text (used for all
-// gradient headline/number text on this site) fails on an element's very
-// first paint — usually tangled up with a custom web font still resolving
-// and/or the element sitting inside a clamp()-sized flex/grid layout — and
-// paints a solid rectangle instead of clipping to the letters. Nothing
-// about a later re-render (same size, same gradient) gives Chrome a reason
-// to redo that expensive mask, so it stays broken until something forces a
-// brand-new paint — which is exactly what a full remount (e.g. navigating
-// to another route and back) does. This hook reproduces that same "fresh
-// paint" nudge on the element itself, without needing a remount: it flips
-// the clip property off and back on (with a forced reflow in between so
-// nothing flashes), once shortly after mount and again after any reveal
-// animation on the element would have finished.
+// The earlier fix here (toggling background-clip off/on after mount) turned
+// out to not be enough — it still shows up live. Digging further: Google
+// Fonts is loaded with `&display=swap`, so on a genuinely fresh visit the
+// browser paints these headings once with a fallback font, then SWAPS to
+// Space Grotesk once it downloads. Chrome has a real bug where that font
+// swap breaks an already-painted background-clip:text mask and leaves the
+// solid-color box behind — and because nothing about the element changes
+// again afterward, it never repaints correctly. On a client-side route
+// change the font is already cached from the first page, so no swap ever
+// happens for the newly-mounted elements and they paint correctly from
+// frame one — which is exactly why navigating away and back "fixes" it.
+// The reliable fix is to not let these elements paint at all until the
+// font is confirmed loaded, so there's no swap left to break anything.
 export function useGradClipFix() {
   const ref = useRef(null);
+  const [ready, setReady] = useState(false);
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const nudge = () => {
-      if (!ref.current) return;
-      ref.current.style.webkitBackgroundClip = "border-box";
-      ref.current.style.backgroundClip = "border-box";
-      void ref.current.offsetHeight; // forced synchronous reflow, no visible frame
-      ref.current.style.webkitBackgroundClip = "text";
-      ref.current.style.backgroundClip = "text";
-    };
-    const raf1 = requestAnimationFrame(() => { const raf2 = requestAnimationFrame(nudge); ref._raf2 = raf2; });
-    const t = setTimeout(nudge, 1500); // catches elements still inside a delayed reveal animation
-    return () => { cancelAnimationFrame(raf1); if (ref._raf2) cancelAnimationFrame(ref._raf2); clearTimeout(t); };
+    let cancelled = false;
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => { if (!cancelled) setReady(true); });
+    } else {
+      setReady(true);
+    }
+    const t = setTimeout(() => setReady(true), 2000); // safety net if fonts.ready never settles
+    return () => { cancelled = true; clearTimeout(t); };
   }, []);
-  return ref;
+  return [ref, ready];
 }
 
 const DOMAIN_MAP = {
@@ -655,9 +651,9 @@ export function GradText({ children, style = {} }) {
   // background — same problem as the buttons below, same fix: a deeper,
   // less saturated green for light mode instead of reusing the neon one.
   const grad = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
-  const fixRef = useGradClipFix();
+  const [fixRef, ready] = useGradClipFix();
   return (
-    <span ref={fixRef} style={{ background:grad, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block", ...style }}>
+    <span ref={fixRef} style={{ background:grad, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block", opacity:ready?1:0, transition:"opacity .25s", ...style }}>
       {children}
     </span>
   );
@@ -667,8 +663,8 @@ export function GradText({ children, style = {} }) {
 // gradient-clipped stat numbers / icons that are built inline (usually
 // inside a .map()) rather than through the GradText component.
 export function GradClipEl({ as: Tag = "div", style = {}, children }) {
-  const fixRef = useGradClipFix();
-  return <Tag ref={fixRef} style={style}>{children}</Tag>;
+  const [fixRef, ready] = useGradClipFix();
+  return <Tag ref={fixRef} style={{ ...style, opacity:ready?1:0, transition:"opacity .25s" }}>{children}</Tag>;
 }
 
 export function Section({ id, children, style = {} }) {
@@ -758,17 +754,18 @@ export function Typewriter({ words }) {
   const [wi, setWi]     = useState(0);
   const [text, setText] = useState("");
   const [del, setDel]   = useState(false);
+  const [fixRef, ready] = useGradClipFix();
   useEffect(() => {
+    if (!ready) return; // don't start typing until the font is settled, see useGradClipFix
     const word = words[wi]; let t;
     if (!del && text.length < word.length)       t = setTimeout(() => setText(word.slice(0,text.length+1)), 80);
     else if (!del && text.length === word.length) t = setTimeout(() => setDel(true), 2200);
     else if (del && text.length > 0)             t = setTimeout(() => setText(text.slice(0,-1)), 45);
     else if (del && text.length === 0)           { setDel(false); setWi((wi+1)%words.length); }
     return () => clearTimeout(t);
-  }, [text, del, wi, words]);
-  const fixRef = useGradClipFix();
+  }, [text, del, wi, words, ready]);
   return (
-    <span ref={fixRef} style={{ background:dark?GG:"linear-gradient(135deg,#00A35C,#00814A)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block" }}>
+    <span ref={fixRef} style={{ background:dark?GG:"linear-gradient(135deg,#00A35C,#00814A)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block", opacity:ready?1:0, transition:"opacity .25s" }}>
       {text}<span style={{ color:dark?G:"#00A35C" }}>|</span>
     </span>
   );
@@ -1028,10 +1025,20 @@ export function Footer() {
               </a>
               <a href="https://www.instagram.com/bodeconversionlab/"
                 target="_blank" rel="noopener noreferrer" aria-label="Instagram"
-                style={{ display:"flex", alignItems:"center", justifyContent:"center", color:"var(--muted,rgba(255,255,255,.5))", transition:"color .2s,transform .2s" }}
-                onMouseEnter={e => { e.currentTarget.style.color=dark?G:"#00A35C"; e.currentTarget.style.transform="translateY(-2px) scale(1.08)"; }}
-                onMouseLeave={e => { e.currentTarget.style.color="var(--muted,rgba(255,255,255,.5))"; e.currentTarget.style.transform="none"; }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37a4 4 0 1 1-7.914 1.174A4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                style={{ display:"flex", alignItems:"center", justifyContent:"center", transition:"transform .2s" }}
+                onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px) scale(1.08)"}
+                onMouseLeave={e => e.currentTarget.style.transform="none"}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#igGrad)" strokeWidth="2">
+                  <defs>
+                    <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#FED576"/>
+                      <stop offset="26%" stopColor="#F47133"/>
+                      <stop offset="61%" stopColor="#BC3081"/>
+                      <stop offset="100%" stopColor="#4C63D2"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37a4 4 0 1 1-7.914 1.174A4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                </svg>
               </a>
             </div>
           </div>
