@@ -3,10 +3,38 @@
  * ZERO theme imports — reads theme from data-theme attribute on root div
  * This guarantees it builds regardless of what components.jsx exports
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Link } from "react-router-dom";
-import { G, GG } from "./data.js";
-import { useGradClipFix } from "./components.jsx";
+import { G } from "./data.js";
+
+// Local, self-contained version of the SVG-gradient-text technique used
+// elsewhere (see components.jsx SvgGradText) — duplicated rather than
+// imported so this page keeps its zero-dependency-on-components.jsx
+// guarantee above.
+function LocalGradText({ children, fontSize, fontWeight, style = {} }) {
+  const textRef = useRef(null);
+  const [w, setW] = useState(null);
+  useLayoutEffect(() => {
+    if (!textRef.current) return;
+    const measure = () => setW(Math.ceil(textRef.current.getComputedTextLength()) + 2);
+    measure();
+    window.addEventListener("resize", measure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [children, fontSize, fontWeight]);
+  return (
+    <svg width={w ?? 1} height="1em" style={{ display:"inline-block", overflow:"visible", verticalAlign:"baseline", ...style }}>
+      <defs>
+        <linearGradient id="notfound-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#00ff88"/><stop offset="50%" stopColor="#00e676"/><stop offset="100%" stopColor="#00cc6a"/>
+        </linearGradient>
+      </defs>
+      <text ref={textRef} x="0" y="0.75em" fill="url(#notfound-grad)" style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize, fontWeight, opacity: w ? 1 : 0 }}>
+        {children}
+      </text>
+    </svg>
+  );
+}
 
 function useDark() {
   const [dark, setDark] = useState(true);
@@ -33,8 +61,6 @@ const QUICK_LINKS = [
 
 export default function NotFound() {
   const dark = useDark();
-  const [fix404, ready404] = useGradClipFix();
-  const [fixLine, readyLine] = useGradClipFix();
 
   const headingColor = dark ? "#fff" : "#0a0a0a";
   const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.62)";
@@ -57,18 +83,13 @@ export default function NotFound() {
 
       {/* 404 */}
       <div style={{ position:"relative", marginBottom:"1.5rem" }}>
-        <div ref={fix404} style={{
-          fontFamily:"'Space Grotesk',sans-serif",
-          fontSize:"clamp(5rem,18vw,10rem)",
-          fontWeight:800, lineHeight:1,
-          background:GG,
-          WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text",
+        <LocalGradText fontSize="clamp(5rem,18vw,10rem)" fontWeight={800} style={{
+          lineHeight:1,
           filter:"drop-shadow(0 0 40px rgba(0,255,136,.25))",
           animation:"heroFadeUp .6s cubic-bezier(.22,1,.36,1) both",
-          opacity:ready404?1:0, transition:"opacity .25s",
         }}>
           404
-        </div>
+        </LocalGradText>
         <div style={{ position:"absolute", left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,rgba(0,255,136,.6),transparent)", animation:"scan 3s ease-in-out infinite", pointerEvents:"none" }}/>
       </div>
 
@@ -88,9 +109,7 @@ export default function NotFound() {
 
         <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1.3rem,4vw,1.7rem)", fontWeight:800, color:headingColor, marginBottom:".75rem", lineHeight:1.25 }}>
           Page missing — but your{" "}
-          <span ref={fixLine} style={{ background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", opacity:readyLine?1:0, transition:"opacity .25s" }}>
-            revenue leaks aren't.
-          </span>
+          <LocalGradText>revenue leaks aren't.</LocalGradText>
         </h1>
 
         <p style={{ fontSize:14, color:mutedText, lineHeight:1.75, marginBottom:"1.5rem" }}>

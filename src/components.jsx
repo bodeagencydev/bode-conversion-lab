@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useRef } from "react";
+import { createContext, useContext, useState, useEffect, useLayoutEffect, useRef, useId } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useForm, ValidationError } from "@formspree/react";
 import { SERVICES } from "./data.js";
@@ -6,33 +6,56 @@ import { SERVICES } from "./data.js";
 const G  = "#00ff88";
 const GG = "linear-gradient(135deg,#00ff88,#00e676,#00cc6a)";
 
-// The earlier fix here (toggling background-clip off/on after mount) turned
-// out to not be enough — it still shows up live. Digging further: Google
-// Fonts is loaded with `&display=swap`, so on a genuinely fresh visit the
-// browser paints these headings once with a fallback font, then SWAPS to
-// Space Grotesk once it downloads. Chrome has a real bug where that font
-// swap breaks an already-painted background-clip:text mask and leaves the
-// solid-color box behind — and because nothing about the element changes
-// again afterward, it never repaints correctly. On a client-side route
-// change the font is already cached from the first page, so no swap ever
-// happens for the newly-mounted elements and they paint correctly from
-// frame one — which is exactly why navigating away and back "fixes" it.
-// The reliable fix is to not let these elements paint at all until the
-// font is confirmed loaded, so there's no swap left to break anything.
-export function useGradClipFix() {
-  const ref = useRef(null);
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    let cancelled = false;
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => { if (!cancelled) setReady(true); });
-    } else {
-      setReady(true);
-    }
-    const t = setTimeout(() => setReady(true), 2000); // safety net if fonts.ready never settles
-    return () => { cancelled = true; clearTimeout(t); };
-  }, []);
-  return [ref, ready];
+// Every previous attempt here (translateZ(0), a fresh <link> for the font,
+// a forced reflow, toggling background-clip after mount, gating render
+// behind document.fonts.ready) targeted a specific theory about WHY Chrome's
+// background-clip:text + -webkit-text-fill-color:transparent trick paints as
+// a solid box on some loads — and none of them held up once actually tested
+// live. Rather than guess a fourth cause, this sidesteps the technique
+// entirely: it draws the text with real SVG (a <text> element filled with a
+// gradient paint server) instead of asking Chrome to clip an HTML box to a
+// text-shaped mask. SVG fills aren't subject to that CSS compositing bug at
+// all, so this isn't a fix for the specific cause (still not confirmed) —
+// it's a different tool that was never exposed to that failure mode.
+export function SvgGradText({ children, fontSize, fontWeight, fontFamily, colors, style = {}, className }) {
+  const { dark } = useTheme();
+  const textRef = useRef(null);
+  const gradId = useId().replace(/:/g, "");
+  const [w, setW] = useState(null);
+  const stops = colors || (dark ? ["#00ff88", "#00e676", "#00cc6a"] : ["#00A35C", "#00814A"]);
+
+  useLayoutEffect(() => {
+    if (!textRef.current) return;
+    const measure = () => {
+      if (!textRef.current) return;
+      setW(Math.ceil(textRef.current.getComputedTextLength()) + 2);
+    };
+    measure();
+    // fontSize is often inherited from an ancestor heading (a clamp()/vw
+    // value), and the width also needs re-checking once the real font (vs.
+    // a fallback) is active — neither changes the *bug* we're avoiding, just
+    // keeps the measured width accurate.
+    window.addEventListener("resize", measure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [children, fontSize, fontWeight, fontFamily]);
+
+  return (
+    <svg
+      width={w ?? 1} height="1em"
+      style={{ display:"inline-block", overflow:"visible", verticalAlign:"baseline", ...style }}
+      className={className} aria-label={typeof children === "string" ? children : undefined}
+    >
+      <defs>
+        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+          {stops.map((c, i) => <stop key={i} offset={`${(i/(stops.length-1))*100}%`} stopColor={c} />)}
+        </linearGradient>
+      </defs>
+      <text ref={textRef} x="0" y="0.75em" fill={`url(#${gradId})`} style={{ fontFamily, fontSize, fontWeight, opacity: w ? 1 : 0 }}>
+        {children}
+      </text>
+    </svg>
+  );
 }
 
 const DOMAIN_MAP = {
@@ -645,27 +668,13 @@ export function PageWrapper({ children, style = {} }) {
 }
 
 export function GradText({ children, style = {} }) {
-  const { dark } = useTheme();
-  // The bright neon gradient reads great on the near-black dark theme but
-  // looks washed-out/oversaturated against the light theme's cream
-  // background — same problem as the buttons below, same fix: a deeper,
-  // less saturated green for light mode instead of reusing the neon one.
-  const grad = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
-  const [fixRef, ready] = useGradClipFix();
-  return (
-    <span ref={fixRef} style={{ background:grad, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block", opacity:ready?1:0, transition:"opacity .25s", ...style }}>
-      {children}
-    </span>
-  );
+  // Deliberately no explicit fontSize/fontFamily/fontWeight here — this is
+  // almost always used inline inside a Heading (or similar), and SVG text
+  // inherits those from the surrounding element just like a normal <span>
+  // would, so it keeps matching whatever heading it's dropped into.
+  return <SvgGradText style={style}>{children}</SvgGradText>;
 }
 
-// Same fix as GradText, but as a generic element wrapper — for the
-// gradient-clipped stat numbers / icons that are built inline (usually
-// inside a .map()) rather than through the GradText component.
-export function GradClipEl({ as: Tag = "div", style = {}, children }) {
-  const [fixRef, ready] = useGradClipFix();
-  return <Tag ref={fixRef} style={{ ...style, opacity:ready?1:0, transition:"opacity .25s" }}>{children}</Tag>;
-}
 
 export function Section({ id, children, style = {} }) {
   return (
@@ -750,23 +759,22 @@ export function Particles() {
 }
 
 export function Typewriter({ words }) {
-  const { dark } = useTheme();
   const [wi, setWi]     = useState(0);
   const [text, setText] = useState("");
   const [del, setDel]   = useState(false);
-  const [fixRef, ready] = useGradClipFix();
+  const { dark } = useTheme();
   useEffect(() => {
-    if (!ready) return; // don't start typing until the font is settled, see useGradClipFix
     const word = words[wi]; let t;
     if (!del && text.length < word.length)       t = setTimeout(() => setText(word.slice(0,text.length+1)), 80);
     else if (!del && text.length === word.length) t = setTimeout(() => setDel(true), 2200);
     else if (del && text.length > 0)             t = setTimeout(() => setText(text.slice(0,-1)), 45);
     else if (del && text.length === 0)           { setDel(false); setWi((wi+1)%words.length); }
     return () => clearTimeout(t);
-  }, [text, del, wi, words, ready]);
+  }, [text, del, wi, words]);
   return (
-    <span ref={fixRef} style={{ background:dark?GG:"linear-gradient(135deg,#00A35C,#00814A)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block", opacity:ready?1:0, transition:"opacity .25s" }}>
-      {text}<span style={{ color:dark?G:"#00A35C" }}>|</span>
+    <span style={{ display:"inline-flex", alignItems:"baseline" }}>
+      <SvgGradText>{text || "\u00A0"}</SvgGradText>
+      <span style={{ color:dark?G:"#00A35C" }}>|</span>
     </span>
   );
 }

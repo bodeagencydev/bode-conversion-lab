@@ -329,6 +329,34 @@ export function MaskedHeading({ text, tag: Tag = "h2", style = {}, delay = 0, st
    Spring physics easing: heavy landing
    Usage: <SpringCounter to={70} suffix="x" />
 ═══════════════════════════════════════════════════════ */
+// Same spring physics as SpringCounter above, but exposed as a hook that
+// returns just the current number — for places that need to compose that
+// number into something other than a plain <span> (e.g. SVG <text>).
+export function useSpringCounterValue(to, { from = 0, stiffness = 100, damping = 10, start = true } = {}) {
+  const [val, setVal] = useState(from);
+  useEffect(() => {
+    if (!start) return;
+    let pos = from, vel2 = 0;
+    const target = to;
+    let raf;
+    const step = () => {
+      const force = -stiffness * (pos - target);
+      const damp  = -damping * vel2;
+      vel2 += (force + damp) * 0.016;
+      pos  += vel2 * 0.016;
+      setVal(Math.round(pos));
+      if (Math.abs(pos - target) > 0.5 || Math.abs(vel2) > 0.5) {
+        raf = requestAnimationFrame(step);
+      } else {
+        setVal(target);
+      }
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [start, to, from, stiffness, damping]);
+  return val;
+}
+
 export function SpringCounter({ to, from = 0, suffix = "", prefix = "", stiffness = 100, damping = 10, style = {} }) {
   const ref      = useRef(null);
   const [val, setVal]       = useState(from);
