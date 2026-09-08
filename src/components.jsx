@@ -6,6 +6,39 @@ import { SERVICES } from "./data.js";
 const G  = "#00ff88";
 const GG = "linear-gradient(135deg,#00ff88,#00e676,#00cc6a)";
 
+// Chrome has an intermittent bug where background-clip:text (used for all
+// gradient headline/number text on this site) fails on an element's very
+// first paint — usually tangled up with a custom web font still resolving
+// and/or the element sitting inside a clamp()-sized flex/grid layout — and
+// paints a solid rectangle instead of clipping to the letters. Nothing
+// about a later re-render (same size, same gradient) gives Chrome a reason
+// to redo that expensive mask, so it stays broken until something forces a
+// brand-new paint — which is exactly what a full remount (e.g. navigating
+// to another route and back) does. This hook reproduces that same "fresh
+// paint" nudge on the element itself, without needing a remount: it flips
+// the clip property off and back on (with a forced reflow in between so
+// nothing flashes), once shortly after mount and again after any reveal
+// animation on the element would have finished.
+export function useGradClipFix() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const nudge = () => {
+      if (!ref.current) return;
+      ref.current.style.webkitBackgroundClip = "border-box";
+      ref.current.style.backgroundClip = "border-box";
+      void ref.current.offsetHeight; // forced synchronous reflow, no visible frame
+      ref.current.style.webkitBackgroundClip = "text";
+      ref.current.style.backgroundClip = "text";
+    };
+    const raf1 = requestAnimationFrame(() => { const raf2 = requestAnimationFrame(nudge); ref._raf2 = raf2; });
+    const t = setTimeout(nudge, 1500); // catches elements still inside a delayed reveal animation
+    return () => { cancelAnimationFrame(raf1); if (ref._raf2) cancelAnimationFrame(ref._raf2); clearTimeout(t); };
+  }, []);
+  return ref;
+}
+
 const DOMAIN_MAP = {
   shopify:"shopify.com", woocommerce:"woocommerce.com", magento:"magento.com",
   bigcommerce:"bigcommerce.com", wix:"wix.com", squarespace:"squarespace.com",
@@ -622,17 +655,20 @@ export function GradText({ children, style = {} }) {
   // background — same problem as the buttons below, same fix: a deeper,
   // less saturated green for light mode instead of reusing the neon one.
   const grad = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
-  // transform:translateZ(0) forces this element onto its own compositing
-  // layer. Without it, when this sits inside a parent that's mid-animation
-  // (ScrollReveal fade-ups, TiltCard hover tilts, the hero's fade-in), Chrome
-  // can fail to recompute the background-clip text mask and paints the full
-  // gradient as a solid rectangle instead of clipping it to the letters —
-  // this is what was causing the green boxes instead of gradient text.
+  const fixRef = useGradClipFix();
   return (
-    <span style={{ background:grad, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block", ...style }}>
+    <span ref={fixRef} style={{ background:grad, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block", ...style }}>
       {children}
     </span>
   );
+}
+
+// Same fix as GradText, but as a generic element wrapper — for the
+// gradient-clipped stat numbers / icons that are built inline (usually
+// inside a .map()) rather than through the GradText component.
+export function GradClipEl({ as: Tag = "div", style = {}, children }) {
+  const fixRef = useGradClipFix();
+  return <Tag ref={fixRef} style={style}>{children}</Tag>;
 }
 
 export function Section({ id, children, style = {} }) {
@@ -730,8 +766,9 @@ export function Typewriter({ words }) {
     else if (del && text.length === 0)           { setDel(false); setWi((wi+1)%words.length); }
     return () => clearTimeout(t);
   }, [text, del, wi, words]);
+  const fixRef = useGradClipFix();
   return (
-    <span style={{ background:dark?GG:"linear-gradient(135deg,#00A35C,#00814A)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block" }}>
+    <span ref={fixRef} style={{ background:dark?GG:"linear-gradient(135deg,#00A35C,#00814A)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", transform:"translateZ(0)", display:"inline-block" }}>
       {text}<span style={{ color:dark?G:"#00A35C" }}>|</span>
     </span>
   );
@@ -981,22 +1018,22 @@ export function Footer() {
           <div style={{ flex:1, minWidth:180, maxWidth:300 }}>
             <Link to="/" style={{ textDecoration:"none", display:"inline-block", marginBottom:".7rem" }}><Logo size={36} textSize={13}/></Link>
             <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.6, marginBottom:".8rem" }}>We don't run ads. We engineer ROAS.<br/>One system. Compounding results every month.</p>
-            <a href={`https://wa.me/19454076473?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
-              target="_blank" rel="noopener noreferrer"
-              style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:13, color:"#25D366", textDecoration:"none", transition:"transform .2s" }}
-              onMouseEnter={e => e.currentTarget.style.transform="translateX(3px)"}
-              onMouseLeave={e => e.currentTarget.style.transform="none"}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              WhatsApp us
-            </a>
-            <a href="https://www.instagram.com/bodeconversionlab/"
-              target="_blank" rel="noopener noreferrer"
-              style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", textDecoration:"none", transition:"color .2s,transform .2s", marginTop:".5rem" }}
-              onMouseEnter={e => { e.currentTarget.style.color=dark?G:"#00A35C"; e.currentTarget.style.transform="translateX(3px)"; }}
-              onMouseLeave={e => { e.currentTarget.style.color="var(--muted,rgba(255,255,255,.5))"; e.currentTarget.style.transform="none"; }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37a4 4 0 1 1-7.914 1.174A4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-              @bodeconversionlab
-            </a>
+            <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+              <a href={`https://wa.me/19454076473?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
+                target="_blank" rel="noopener noreferrer" aria-label="WhatsApp us"
+                style={{ display:"flex", alignItems:"center", justifyContent:"center", color:"#25D366", transition:"transform .2s" }}
+                onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px) scale(1.08)"}
+                onMouseLeave={e => e.currentTarget.style.transform="none"}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              </a>
+              <a href="https://www.instagram.com/bodeconversionlab/"
+                target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+                style={{ display:"flex", alignItems:"center", justifyContent:"center", color:"var(--muted,rgba(255,255,255,.5))", transition:"color .2s,transform .2s" }}
+                onMouseEnter={e => { e.currentTarget.style.color=dark?G:"#00A35C"; e.currentTarget.style.transform="translateY(-2px) scale(1.08)"; }}
+                onMouseLeave={e => { e.currentTarget.style.color="var(--muted,rgba(255,255,255,.5))"; e.currentTarget.style.transform="none"; }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37a4 4 0 1 1-7.914 1.174A4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              </a>
+            </div>
           </div>
           <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-start", gap:".5rem" }}>
             <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer"

@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { G, GG } from "./data.js";
+import { useGradClipFix } from "./components.jsx";
 
 function useDark() {
   const [dark, setDark] = useState(true);
@@ -32,6 +33,8 @@ const QUICK_LINKS = [
 
 export default function NotFound() {
   const dark = useDark();
+  const fix404 = useGradClipFix();
+  const fixLine = useGradClipFix();
 
   const headingColor = dark ? "#fff" : "#0a0a0a";
   const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(0,0,0,.62)";
@@ -54,7 +57,7 @@ export default function NotFound() {
 
       {/* 404 */}
       <div style={{ position:"relative", marginBottom:"1.5rem" }}>
-        <div style={{
+        <div ref={fix404} style={{
           fontFamily:"'Space Grotesk',sans-serif",
           fontSize:"clamp(5rem,18vw,10rem)",
           fontWeight:800, lineHeight:1,
@@ -84,7 +87,7 @@ export default function NotFound() {
 
         <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1.3rem,4vw,1.7rem)", fontWeight:800, color:headingColor, marginBottom:".75rem", lineHeight:1.25 }}>
           Page missing — but your{" "}
-          <span style={{ background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+          <span ref={fixLine} style={{ background:GG, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
             revenue leaks aren't.
           </span>
         </h1>
