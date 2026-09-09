@@ -1,6 +1,6 @@
 import { useState, useEffect, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Nav, Footer, WhatsAppButton, ThemeToggle, ThemeContext, CookieConsent, hasCookieConsent } from "./components.jsx";
+import { Nav, Footer, WhatsAppButton, ThemeToggle, ThemeContext, CookieConsent } from "./components.jsx";
 import { CursorSystem, ClickRipple, ScrollProgress, NoiseOverlay } from "./AnimationSystem.jsx";
 import { usePageTracking } from "./NotificationSystem.js";
 import NotFound from "./NotFound.jsx";
@@ -62,11 +62,11 @@ export default function App() {
   }, []);
   const toggle = () => setDark(v => {
     const next = !v;
-    // Only persist the theme choice once the visitor has accepted the
-    // preference cookie — otherwise it just lives in memory for this visit.
-    if (hasCookieConsent()) {
-      try { localStorage.setItem("bcl-theme", next ? "dark" : "light"); } catch {}
-    }
+    // A light/dark preference is a functional UI setting, not tracking —
+    // it doesn't identify or profile the visitor, so it's saved right away
+    // rather than waiting on the cookie-consent banner (see CookieConsent
+    // in components.jsx, which no longer touches this key at all).
+    try { localStorage.setItem("bcl-theme", next ? "dark" : "light"); } catch {}
     return next;
   });
   return (

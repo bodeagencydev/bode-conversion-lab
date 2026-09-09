@@ -528,20 +528,14 @@ function ExitIntentPopup() {
 const COOKIE_CONSENT_KEY = "bcl_cookie_consent";
 const COOKIE_REOPEN_EVENT = "bcl-open-cookie-prefs";
 
-/* ── Read the visitor's stored cookie choice. Used to gate any
-      non-essential localStorage write (currently: theme preference)
-      so it's only persisted after an actual "Accept". ── */
-export function hasCookieConsent() {
-  try { return localStorage.getItem(COOKIE_CONSENT_KEY) === "accepted"; } catch { return false; }
-}
-
 /* ── Cookie consent banner — bottom bar with equal-weight Accept /
       Decline buttons (no dark patterns), shown once until the visitor
       chooses, remembered in localStorage. Reopenable anytime via the
       "Cookie Preferences" link in the footer, which fires
-      COOKIE_REOPEN_EVENT. Session-only popup dedupe (sessionStorage,
-      cleared when the tab closes) is treated as strictly necessary and
-      isn't gated here — only the theme-preference cookie is. ── */
+      COOKIE_REOPEN_EVENT. The theme preference (bcl-theme) and the
+      session-only popup dedupe are both treated as strictly necessary
+      functional storage and aren't gated behind this banner — this only
+      governs actual tracking/analytics-style cookies. ── */
 export function CookieConsent() {
   const { dark } = useTheme();
   const [show, setShow] = useState(false);
@@ -555,18 +549,6 @@ export function CookieConsent() {
 
   function choose(value) {
     try { localStorage.setItem(COOKIE_CONSENT_KEY, value); } catch {}
-    if (value === "declined") {
-      // withdraw immediately — don't leave a stale preference cookie behind
-      try { localStorage.removeItem("bcl-theme"); } catch {}
-    } else {
-      // Accepting cookies is also the first moment we're allowed to persist
-      // preferences — save whatever theme is showing right now, otherwise a
-      // visitor who switches to light mode *before* clicking Accept (the
-      // normal order, since the toggle is visible immediately and the
-      // banner sits there until dismissed) has their choice silently
-      // dropped and reloads back to dark every time.
-      try { localStorage.setItem("bcl-theme", dark ? "dark" : "light"); } catch {}
-    }
     setShow(false);
   }
 
