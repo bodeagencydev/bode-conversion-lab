@@ -114,7 +114,46 @@ export default function Admin() {
   const [filter,     setFilter]     = useState("all");
   const [search,     setSearch]     = useState("");
   const [snapDownloading, setSnapDownloading] = useState(false);
+  const [subscribers, setSubscribers] = useState([]);
+  const [subsLoading, setSubsLoading] = useState(false);
+  const [campaignSubject, setCampaignSubject] = useState("");
+  const [campaignBody, setCampaignBody] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sendResult, setSendResult] = useState(null);
   const snapshotRef = useRef(null);
+
+  async function loadSubscribers() {
+    setSubsLoading(true);
+    try {
+      const r = await fetch("/api/admin/emails", { headers: { "x-admin-password": loginPass } });
+      const data = await r.json();
+      setSubscribers(data.subscribers || []);
+    } catch {
+      setSubscribers([]);
+    }
+    setSubsLoading(false);
+  }
+
+  async function handleSendCampaign() {
+    if (!campaignSubject.trim() || !campaignBody.trim()) return alert("Subject and message are both required.");
+    if (!confirm(`Send this to all ${subscribers.length} subscribers now?`)) return;
+    setSending(true);
+    setSendResult(null);
+    try {
+      const r = await fetch("/api/admin/send-campaign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-password": loginPass },
+        body: JSON.stringify({ subject: campaignSubject, body: campaignBody }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Failed to send");
+      setSendResult(`Sent to ${data.sent}/${data.total} subscribers.`);
+      setCampaignSubject(""); setCampaignBody("");
+    } catch (err) {
+      setSendResult(`Failed: ${err.message}`);
+    }
+    setSending(false);
+  }
 
   async function handleSnapshotDownload() {
     setSnapDownloading(true);
@@ -146,15 +185,21 @@ export default function Admin() {
   /* Load on mount */
   useEffect(() => {
     const session = sessionStorage.getItem("bcl_admin_session");
-    if (session === "1") setAuthed(true);
+    if (session) { setAuthed(true); setLoginPass(session); }
     setCodes(loadCodes());
   }, []);
+
+  useEffect(() => { if (authed) loadSubscribers(); }, [authed]);
 
   /* Login */
   function handleLogin() {
     if (loginEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase() && loginPass === ADMIN_PASSWORD) {
       setAuthed(true);
-      sessionStorage.setItem("bcl_admin_session", "1");
+      // Storing the actual password (not just a flag) so a page refresh can
+      // still authenticate the subscriber-list/send-campaign API calls
+      // below, which need it on every request — same trust boundary as
+      // before, since this password already ships in the client bundle.
+      sessionStorage.setItem("bcl_admin_session", loginPass);
       setCodes(loadCodes());
       setLoginErr("");
     } else {
@@ -311,6 +356,66 @@ export default function Admin() {
         </div>
         <div style={{ position:"fixed", top:0, left:-99999, pointerEvents:"none" }}>
           <PricingSnapshotCard innerRef={snapshotRef} />
+        </div>
+
+        {/* Subscribers — every email captured via Subscribe/Contact/Pricing,
+            stored in Redis via /api/subscribe.js. Compose box below sends
+            an immediate campaign to all of them via Resend; there's also
+            an automatic weekly send running on its own (see
+            /api/cron/weekly-digest.js + the crons entry in vercel.json). */}
+        <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.5rem 1.8rem", marginBottom:"2rem" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.2rem", flexWrap:"wrap", gap:"1rem" }}>
+            <div>
+              <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:800, color:headingColor, marginBottom:".3rem" }}>
+                Subscribers {subscribers.length > 0 && <span style={{ color:G, fontWeight:700 }}>({subscribers.length})</span>}
+              </h3>
+              <p style={{ fontSize:12.5, color:mutedText2, lineHeight:1.6 }}>Everyone who's given us their email — newsletter, contact form, or checkout.</p>
+            </div>
+            <button onClick={loadSubscribers} disabled={subsLoading}
+              style={{ background:"transparent", border:`.5px solid ${cardBorder}`, borderRadius:8, padding:".5rem 1rem", fontSize:12, color:mutedText3, cursor:"pointer", fontFamily:"inherit" }}>
+              {subsLoading ? "Refreshing…" : "Refresh"}
+            </button>
+          </div>
+
+          {subscribers.length === 0 && !subsLoading && (
+            <p style={{ fontSize:13, color:mutedText3, padding:"1rem 0" }}>No subscribers yet — or RESEND/REDIS env vars aren't set up. See the comments at the top of /api/subscribe.js.</p>
+          )}
+
+          {subscribers.length > 0 && (
+            <div style={{ maxHeight:260, overflowY:"auto", border:`.5px solid ${cardBorder}`, borderRadius:12, marginBottom:"1.5rem" }}>
+              {subscribers.map((s, i) => (
+                <div key={i} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:12, padding:".7rem 1rem", background: i%2===0 ? rowBg : "transparent", borderBottom: i < subscribers.length-1 ? `.5px solid ${cardBorder}` : "none", flexWrap:"wrap" }}>
+                  <div>
+                    <p style={{ fontSize:13, color:headingColor, fontWeight:600 }}>{s.email}</p>
+                    <p style={{ fontSize:11, color:mutedText3 }}>{s.name && `${s.name} · `}{s.source}</p>
+                  </div>
+                  <p style={{ fontSize:11, color:mutedText3, whiteSpace:"nowrap" }}>{new Date(s.firstSeen).toLocaleDateString()}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{ borderTop:`.5px solid ${cardBorder}`, paddingTop:"1.2rem" }}>
+            <p style={{ fontSize:12.5, fontWeight:700, color:headingColor, marginBottom:".6rem" }}>Send a campaign now</p>
+            <input
+              value={campaignSubject} onChange={e => setCampaignSubject(e.target.value)}
+              placeholder="Subject line"
+              style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".7rem 1rem", color:headingColor, fontSize:13.5, fontFamily:"inherit", outline:"none", boxSizing:"border-box", marginBottom:".6rem" }}
+            />
+            <textarea
+              value={campaignBody} onChange={e => setCampaignBody(e.target.value)}
+              placeholder="Message — plain text, line breaks become paragraphs"
+              rows={5}
+              style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".7rem 1rem", color:headingColor, fontSize:13.5, fontFamily:"inherit", outline:"none", boxSizing:"border-box", resize:"vertical", marginBottom:".8rem" }}
+            />
+            <div style={{ display:"flex", alignItems:"center", gap:12, flexWrap:"wrap" }}>
+              <button onClick={handleSendCampaign} disabled={sending} className="btn-g"
+                style={{ fontFamily:"inherit", cursor:sending?"default":"pointer", opacity:sending?0.6:1 }}>
+                {sending ? "Sending…" : `Send to ${subscribers.length} subscribers →`}
+              </button>
+              {sendResult && <p style={{ fontSize:12.5, color: sendResult.startsWith("Failed") ? "#FF6B6B" : G }}>{sendResult}</p>}
+            </div>
+          </div>
         </div>
 
         {/* Stats row */}

@@ -1,6 +1,6 @@
 import { useState, useEffect, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Nav, Footer, WhatsAppButton, ThemeToggle, ThemeContext, CookieConsent } from "./components.jsx";
+import { Nav, Footer, WhatsAppButton, ChatWidget, ThemeToggle, ThemeContext, CookieConsent } from "./components.jsx";
 import { CursorSystem, ClickRipple, ScrollProgress, NoiseOverlay } from "./AnimationSystem.jsx";
 import { usePageTracking } from "./NotificationSystem.js";
 import NotFound from "./NotFound.jsx";
@@ -255,6 +255,7 @@ function AppInner({ dark }) {
       </div>
       <Footer />
       <WhatsAppButton />
+      <ChatWidget />
       <PopupSystem />
       <CookieConsent />
       <ThemeToggle />

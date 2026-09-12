@@ -209,6 +209,11 @@ export default function Pricing() {
             clientName: name, clientEmail: email, package: pkg.name, code,
           }),
         }).catch(() => {});
+        fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, name, source: `Pricing checkout (${pkg.name})` }),
+        }).catch(() => {});
         notifyAccessCode(code, name, email, pkg.name);
       },
       onClose: () => {

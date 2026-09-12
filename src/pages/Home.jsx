@@ -272,6 +272,27 @@ export default function Home() {
                   </div>
                 ))}
               </div>
+
+              {/* Floating stat badge — overlaps the card's top-right corner,
+                  same idea as the Avvi hero's stat-card-over-photo overlap:
+                  surfaces the single strongest number before anyone reads
+                  down through the row list. Built from tokens already used
+                  elsewhere in this hero (border/bg treatment, SvgGradText
+                  for the number) — nothing new introduced. */}
+              <div style={{
+                position:"absolute", top:-16, right:-10,
+                display:"flex", alignItems:"center", gap:8,
+                background: dark ? "rgba(10,10,10,.9)" : "rgba(255,253,247,.94)",
+                backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)",
+                border:`1px solid ${brandG}`, borderRadius:10,
+                padding:"7px 13px",
+                boxShadow: dark ? "0 8px 24px rgba(0,0,0,.45)" : "0 8px 24px rgba(0,0,0,.12)",
+                zIndex:2,
+              }}>
+                <SvgGradText fontFamily="'Space Grotesk',sans-serif" fontSize="1.35rem" fontWeight={800}>4x+</SvgGradText>
+                <span style={{ fontSize:9.5, color:mutedText3, lineHeight:1.25, maxWidth:58 }}>avg ROAS improvement</span>
+              </div>
+
               <p style={{ fontSize:10.5, color:mutedText3, marginTop:10, fontFamily:"'IBM Plex Mono',monospace", textAlign:"center" }}>
                 — sample output from a real store audit —
               </p>

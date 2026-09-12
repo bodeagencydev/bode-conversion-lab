@@ -38,6 +38,13 @@ export default function Subscribe() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, name, _subject: "New Newsletter Subscriber" }),
       });
+      // Also store it ourselves — Formspree above is just the notification
+      // email, this is what actually lands in the admin subscriber list.
+      fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name, source: "Subscribe page" }),
+      }).catch(() => {});
       setSubmitted(true);
     } catch (err) {
       setSubmitted(true);

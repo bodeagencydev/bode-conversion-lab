@@ -13,23 +13,27 @@ import { G } from "./data.js";
 // guarantee above.
 function LocalGradText({ children, fontSize, fontWeight, style = {} }) {
   const textRef = useRef(null);
-  const [w, setW] = useState(null);
+  const [box, setBox] = useState(null);
   useLayoutEffect(() => {
     if (!textRef.current) return;
-    const measure = () => setW(Math.ceil(textRef.current.getComputedTextLength()) + 2);
+    const measure = () => {
+      if (!textRef.current) return;
+      const bbox = textRef.current.getBBox();
+      setBox({ w: Math.ceil(bbox.width) + 2, h: Math.ceil(bbox.height) + 4, baselineY: Math.ceil(-bbox.y) + 2 });
+    };
     measure();
     window.addEventListener("resize", measure);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
     return () => window.removeEventListener("resize", measure);
   }, [children, fontSize, fontWeight]);
   return (
-    <svg width={w ?? 1} height="1em" style={{ display:"inline-block", overflow:"visible", verticalAlign:"baseline", ...style }}>
+    <svg width={box ? box.w : 1} height={box ? box.h : (fontSize || "1em")} style={{ display:"inline-block", overflow:"visible", verticalAlign:"baseline", ...style }}>
       <defs>
         <linearGradient id="notfound-grad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#00ff88"/><stop offset="50%" stopColor="#00e676"/><stop offset="100%" stopColor="#00cc6a"/>
         </linearGradient>
       </defs>
-      <text ref={textRef} x="0" y="0.75em" fill="url(#notfound-grad)" style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize, fontWeight, opacity: w ? 1 : 0 }}>
+      <text ref={textRef} x="0" y={box ? box.baselineY : "0.8em"} fill="url(#notfound-grad)" style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize, fontWeight, opacity: box ? 1 : 0 }}>
         {children}
       </text>
     </svg>

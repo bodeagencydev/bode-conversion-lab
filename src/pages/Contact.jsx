@@ -42,6 +42,15 @@ function ApplyForm() {
   const onFormSubmit = (e) => {
     const fd = new FormData(e.target);
     notifyFormSubmit(fd.get("name"), fd.get("email"), fd.get("store_url"));
+    // Also lands in the admin subscriber list, same as Subscribe.jsx.
+    const email = fd.get("email");
+    if (email) {
+      fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name: fd.get("name") || "", source: "Contact form" }),
+      }).catch(() => {});
+    }
     handleSubmit(e);
   };
 

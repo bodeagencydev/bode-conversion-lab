@@ -21,20 +21,31 @@ export function SvgGradText({ children, fontSize, fontWeight, fontFamily, colors
   const { dark } = useTheme();
   const textRef = useRef(null);
   const gradId = useId().replace(/:/g, "");
-  const [w, setW] = useState(null);
+  const [box, setBox] = useState(null); // { w, h, baselineY }
   const stops = colors || (dark ? ["#00ff88", "#00e676", "#00cc6a"] : ["#00A35C", "#00814A"]);
 
   useLayoutEffect(() => {
     if (!textRef.current) return;
     const measure = () => {
       if (!textRef.current) return;
-      setW(Math.ceil(textRef.current.getComputedTextLength()) + 2);
+      // The previous version guessed a fixed height of "1em" and assumed a
+      // typical ascent/descent split — that's what caused the numbers to
+      // visually bleed into the label text below them (see the "90 days" /
+      // "4x+" overlap): a bold display font at a large clamp() size doesn't
+      // fit that generic assumption, so the reserved box was too short and
+      // overflow:visible painted the real glyphs past it without the
+      // layout knowing to push the next element down. getBBox() asks the
+      // browser for the actual rendered extent of THESE glyphs, in THIS
+      // font/weight/size, instead of assuming — so the box is always
+      // exactly as tall as it needs to be, whatever the text is.
+      const bbox = textRef.current.getBBox();
+      setBox({
+        w: Math.ceil(bbox.width) + 2,
+        h: Math.ceil(bbox.height) + 4,
+        baselineY: Math.ceil(-bbox.y) + 2,
+      });
     };
     measure();
-    // fontSize is often inherited from an ancestor heading (a clamp()/vw
-    // value), and the width also needs re-checking once the real font (vs.
-    // a fallback) is active — neither changes the *bug* we're avoiding, just
-    // keeps the measured width accurate.
     window.addEventListener("resize", measure);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
     return () => window.removeEventListener("resize", measure);
@@ -42,7 +53,7 @@ export function SvgGradText({ children, fontSize, fontWeight, fontFamily, colors
 
   return (
     <svg
-      width={w ?? 1} height="1em"
+      width={box ? box.w : 1} height={box ? box.h : (fontSize || "1em")}
       style={{ display:"inline-block", overflow:"visible", verticalAlign:"baseline", ...style }}
       className={className} aria-label={typeof children === "string" ? children : undefined}
     >
@@ -51,7 +62,7 @@ export function SvgGradText({ children, fontSize, fontWeight, fontFamily, colors
           {stops.map((c, i) => <stop key={i} offset={`${(i/(stops.length-1))*100}%`} stopColor={c} />)}
         </linearGradient>
       </defs>
-      <text ref={textRef} x="0" y="0.75em" fill={`url(#${gradId})`} style={{ fontFamily, fontSize, fontWeight, opacity: w ? 1 : 0 }}>
+      <text ref={textRef} x="0" y={box ? box.baselineY : "0.8em"} fill={`url(#${gradId})`} style={{ fontFamily, fontSize, fontWeight, opacity: box ? 1 : 0 }}>
         {children}
       </text>
     </svg>
@@ -495,7 +506,16 @@ function ExitIntentPopup() {
             <p style={{ fontSize:14, color:"var(--muted,rgba(255,255,255,.6))", marginBottom:"1.4rem", lineHeight:1.6 }}>
               Get our free Store Leak Finder checklist — the exact 12-point framework we use on every audit. Takes 10 minutes, finds thousands in lost revenue.
             </p>
-            <form onSubmit={handleSubmit} style={{ display:"flex", flexDirection:"column", gap:".7rem" }}>
+            <form onSubmit={e => {
+              const fd = new FormData(e.target);
+              const email = fd.get("email");
+              if (email) fetch("/api/subscribe", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, source: "Exit-intent popup" }),
+              }).catch(() => {});
+              handleSubmit(e);
+            }} style={{ display:"flex", flexDirection:"column", gap:".7rem" }}>
               <input
                 type="email" name="email" required placeholder="Your email address"
                 style={{
@@ -974,6 +994,129 @@ export function WhatsAppButton() {
     </div>
   );
 }
+
+export function ChatWidget() {
+  const { dark } = useTheme();
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState([
+    { role: "assistant", content: "Hey! I'm the Bode Conversion Lab assistant — ask me anything about your store, ads, conversion, or just say hi." },
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const listRef = useRef(null);
+
+  useEffect(() => {
+    if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
+  }, [messages, open]);
+
+  const send = async () => {
+    const text = input.trim();
+    if (!text || loading) return;
+    const next = [...messages, { role: "user", content: text }];
+    setMessages(next);
+    setInput("");
+    setLoading(true);
+    setError(false);
+    try {
+      const r = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: next }),
+      });
+      const data = await r.json();
+      if (!r.ok || !data.reply) throw new Error(data.error || "failed");
+      setMessages(m => [...m, { role: "assistant", content: data.reply }]);
+    } catch {
+      setError(true);
+      setMessages(m => [...m, { role: "assistant", content: "Sorry, I couldn't respond just now — try again in a moment, or message us on WhatsApp instead." }]);
+    }
+    setLoading(false);
+  };
+
+  const bg = dark ? "#0A0A0A" : "#FFFDF7";
+  const border = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
+  const text = dark ? "rgba(255,255,255,.85)" : "rgba(26,20,8,.85)";
+
+  return (
+    <>
+      <button onClick={() => setOpen(o => !o)} aria-label="Chat with us"
+        style={{
+          position:"fixed", bottom:24, right:92, zIndex:9999,
+          width:56, height:56, borderRadius:"50%",
+          background: dark ? "#0A0A0A" : "#111",
+          border:`1.5px solid ${G}`, boxShadow:`0 4px 20px ${dark ? "rgba(0,255,136,.35)" : "rgba(0,0,0,.3)"}`,
+          display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer",
+          transition:"transform .2s",
+        }}
+        onMouseEnter={e => e.currentTarget.style.transform="scale(1.1)"}
+        onMouseLeave={e => e.currentTarget.style.transform="none"}>
+        {open ? (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        ) : (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        )}
+      </button>
+
+      {open && (
+        <div style={{
+          position:"fixed", bottom:88, right:24, zIndex:9998,
+          width:"min(360px,calc(100vw - 32px))", height:"min(480px,calc(100vh - 140px))",
+          background:bg, border:`1px solid ${border}`, borderRadius:16,
+          boxShadow:"0 16px 48px rgba(0,0,0,.35)", display:"flex", flexDirection:"column", overflow:"hidden",
+        }}>
+          <div style={{ padding:"12px 16px", borderBottom:`1px solid ${border}`, display:"flex", alignItems:"center", gap:8 }}>
+            <span style={{ width:8, height:8, borderRadius:"50%", background:G }}/>
+            <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:14, color:text }}>Bode Assistant</span>
+          </div>
+
+          <div ref={listRef} style={{ flex:1, overflowY:"auto", padding:"14px 16px", display:"flex", flexDirection:"column", gap:10 }}>
+            {messages.map((m, i) => (
+              <div key={i} style={{
+                alignSelf: m.role === "user" ? "flex-end" : "flex-start",
+                maxWidth:"85%", padding:"9px 12px", borderRadius:12,
+                fontSize:13.5, lineHeight:1.5, whiteSpace:"pre-wrap",
+                background: m.role === "user" ? (dark ? "rgba(0,255,136,.14)" : "rgba(0,163,92,.12)") : (dark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.04)"),
+                color:text,
+              }}>
+                {m.content}
+              </div>
+            ))}
+            {loading && (
+              <div style={{ alignSelf:"flex-start", padding:"9px 12px", fontSize:13.5, color: dark ? "rgba(255,255,255,.4)" : "rgba(0,0,0,.4)" }}>
+                thinking...
+              </div>
+            )}
+          </div>
+
+          <div style={{ padding:12, borderTop:`1px solid ${border}`, display:"flex", gap:8 }}>
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") send(); }}
+              placeholder="Ask something..."
+              style={{
+                flex:1, background: dark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.04)",
+                border:`1px solid ${border}`, borderRadius:100, padding:"9px 14px",
+                fontSize:13.5, color:text, outline:"none",
+              }}
+            />
+            <button onClick={send} disabled={loading || !input.trim()} aria-label="Send"
+              style={{
+                width:38, height:38, borderRadius:"50%", flexShrink:0,
+                background:G, border:"none", cursor: loading ? "default" : "pointer",
+                opacity: (loading || !input.trim()) ? .5 : 1,
+                display:"flex", alignItems:"center", justifyContent:"center",
+              }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#040608" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 
 export function Footer() {
   const { dark } = useTheme();
