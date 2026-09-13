@@ -1,4 +1,5 @@
 import { PageWrapper, Section, SectionLabel, Heading, GradText, useTheme } from "../components.jsx";
+import { CONTACT_EMAIL } from "../contact-info.js";
 
 export default function Privacy() {
   const { dark } = useTheme();
@@ -11,7 +12,7 @@ export default function Privacy() {
   const sections = [
     {
       title: "Who We Are",
-      body: "This site is operated by Bode Conversion Lab, New York, United States. For any question about how your data is handled, or to exercise any of the rights below, contact us at bodeagencyofficial@gmail.com."
+      body: `This site is operated by Bode Conversion Lab, New York, United States. For any question about how your data is handled, or to exercise any of the rights below, contact us at ${CONTACT_EMAIL}.`
     },
     {
       title: "Information We Collect",
@@ -67,7 +68,7 @@ export default function Privacy() {
     },
     {
       title: "Contact Us",
-      body: "If you have any questions about this privacy policy or how your information is handled, please reach out to us at bodeagencyofficial@gmail.com."
+      body: `If you have any questions about this privacy policy or how your information is handled, please reach out to us at ${CONTACT_EMAIL}.`
     },
   ];
 

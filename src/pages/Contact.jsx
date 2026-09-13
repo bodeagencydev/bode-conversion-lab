@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useForm, ValidationError } from "@formspree/react";
 import { notifyFormSubmit } from "../NotificationSystem.js";
 import { G, GG, QUIZ } from "../data.js";
+import { CONTACT_EMAIL } from "../contact-info.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 
 function ApplyForm() {
@@ -202,7 +203,7 @@ export default function Contact() {
               WhatsApp us →
             </a>
             <a
-              href="mailto:bodeagencyofficial@gmail.com"
+              href={`mailto:${CONTACT_EMAIL}`}
               style={{ display:"inline-block", textDecoration:"none", background:"transparent", border:`.5px solid ${glow(.3)}`, color:brandG, borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700 }}>
               Email us
             </a>

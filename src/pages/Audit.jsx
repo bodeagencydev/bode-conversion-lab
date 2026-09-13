@@ -3,12 +3,13 @@ import { Link } from "react-router-dom";
 import { G, GG } from "../data.js";
 import { PageWrapper, GradText, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 import { TiltCard } from "../AnimationSystem.jsx";
+import { CONTACT_EMAIL } from "../contact-info.js";
 /* @react-pdf/renderer is ~500kB gzipped — loaded on demand (see handleDownload)
    so it never ships in the initial Audit page bundle. */
 
 /* ─── CONFIG ─── */
 const PSI_KEY     = "AIzaSyCAnT0GIpN-3OVQkP3fPJBwhl6pTU0BN8k";
-const ADMIN_EMAIL = "bodeagencyofficial@gmail.com";
+const ADMIN_EMAIL = CONTACT_EMAIL;
 
 /* ─── HELPERS ─── */
 const clamp     = v => Math.max(0, Math.min(100, Math.round(v || 0)));

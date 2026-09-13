@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, AD_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
 import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, SvgGradText, useInView, useTheme, PageWrapper, SEO, HeroBackdrop } from "../components.jsx";
+import { CONTACT_EMAIL } from "../contact-info.js";
 import { ScrollReveal, TiltCard, Magnetic, GlowBorder, useSpringCounterValue, MaskedHeading } from "../AnimationSystem.jsx";
 
 // Same spring-counter animation as before, just composed into SVG gradient
@@ -128,7 +129,7 @@ function FreeRedesignOffer() {
         <span style={{ fontSize: 12, color: mutedText, lineHeight:1 }}>or</span>
 
         <a
-          href={`mailto:bodeagencyofficial@gmail.com?subject=${encodeURIComponent("Claim my free redesign consultation")}&body=${encodeURIComponent(`My code: ${code}`)}`}
+          href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Claim my free redesign consultation")}&body=${encodeURIComponent(`My code: ${code}`)}`}
           onClick={handleCancel}
           style={{ display:"inline-flex", alignItems:"center", lineHeight:1, fontSize: 12, color: "#fff", textDecoration: "underline", whiteSpace: "nowrap" }}
         >

@@ -1,4 +1,5 @@
 import { PageWrapper, Section, SectionLabel, Heading, GradText, useTheme } from "../components.jsx";
+import { CONTACT_EMAIL } from "../contact-info.js";
 
 export default function Terms() {
   const { dark } = useTheme();
@@ -27,7 +28,7 @@ export default function Terms() {
     },
     {
       title: "Refunds & Cancellations",
-      body: "Refund eligibility depends on the specific package and how much work has already been delivered at the time of a cancellation request. Contact us directly at bodeagencyofficial@gmail.com to discuss any refund or cancellation — we handle these on a case-by-case basis and will always respond in good faith."
+      body: `Refund eligibility depends on the specific package and how much work has already been delivered at the time of a cancellation request. Contact us directly at ${CONTACT_EMAIL} to discuss any refund or cancellation — we handle these on a case-by-case basis and will always respond in good faith.`
     },
     {
       title: "Client Responsibilities",
@@ -59,7 +60,7 @@ export default function Terms() {
     },
     {
       title: "Contact Us",
-      body: "If you have any questions about these Terms of Service, please reach out to us at bodeagencyofficial@gmail.com."
+      body: `If you have any questions about these Terms of Service, please reach out to us at ${CONTACT_EMAIL}.`
     },
   ];
 

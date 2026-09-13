@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { G, GG, FAQS } from "../data.js";
+import { CONTACT_EMAIL } from "../contact-info.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 
 import { notifyPayment, notifyAccessCode } from "../NotificationSystem.js";
@@ -300,7 +301,7 @@ export default function Pricing() {
                     Send screenshot on WhatsApp →
                   </a>
                   <a
-                    href={"mailto:bodeagencyofficial@gmail.com?subject=" + encodeURIComponent(`Payment confirmation — ${pkg?.name}`) + "&body=" + encodeURIComponent(`Hi, I just completed payment for ${pkg?.name}. Attaching my payment screenshot.`)}
+                    href={"mailto:" + CONTACT_EMAIL + "?subject=" + encodeURIComponent(`Payment confirmation — ${pkg?.name}`) + "&body=" + encodeURIComponent(`Hi, I just completed payment for ${pkg?.name}. Attaching my payment screenshot.`)}
                     style={{ display:"block", textAlign:"center", textDecoration:"none", background:"transparent", border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".75rem", fontSize:13, fontWeight:600, color:headingColor }}>
                     Or send it via email instead
                   </a>

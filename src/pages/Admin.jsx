@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { G, GG } from "../data.js";
 import { PageWrapper, useTheme } from "../components.jsx";
+import { CONTACT_EMAIL } from "../contact-info.js";
 
 /* ─── CONFIG ─── */
-const ADMIN_EMAIL    = "bodeagencyofficial@gmail.com";
+const ADMIN_EMAIL    = CONTACT_EMAIL;
 /* Password lives in Vercel Environment Variables ONLY — same pattern as
    VITE_TELEGRAM_TOKEN. Never paste your real password here; GitHub will
    flag it. In Vercel: Settings → Environment Variables → add

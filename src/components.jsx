@@ -1005,6 +1005,29 @@ export function ChatWidget() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const listRef = useRef(null);
+  const launcherRef = useRef(null);
+  const [eyeOffset, setEyeOffset] = useState({ x: 0, y: 0 });
+
+  // The robot's eyes track the cursor anywhere on the page, like Grok's
+  // mascot — only while the launcher is showing (no point tracking once
+  // it's swapped for the close "X"). Offsets are clamped to a small radius
+  // so the pupils shift within the head instead of flying off it.
+  useEffect(() => {
+    if (open) return;
+    const onMove = (e) => {
+      const el = launcherRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx, dy = e.clientY - cy;
+      const dist = Math.hypot(dx, dy) || 1;
+      const clamped = Math.min(dist, 60); // full pupil travel reached within 60px of the icon
+      const max = 1.4; // max pupil offset in SVG units, keeps them inside the head
+      setEyeOffset({ x: (dx / dist) * (clamped / 60) * max, y: (dy / dist) * (clamped / 60) * max });
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, [open]);
 
   useEffect(() => {
     if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
@@ -1040,7 +1063,7 @@ export function ChatWidget() {
 
   return (
     <>
-      <button onClick={() => setOpen(o => !o)} aria-label="Chat with us"
+      <button ref={launcherRef} onClick={() => setOpen(o => !o)} aria-label="Chat with us"
         style={{
           position:"fixed", bottom:24, right:92, zIndex:9999,
           width:56, height:56, borderRadius:"50%",
@@ -1054,7 +1077,16 @@ export function ChatWidget() {
         {open ? (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         ) : (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="4" y="8" width="16" height="12" rx="3"/>
+            <path d="M12 8V5"/>
+            <circle cx="12" cy="3.5" r="1.3" fill={G} stroke="none"/>
+            <circle cx={9 + eyeOffset.x} cy={14 + eyeOffset.y} r="1.3" fill={G} stroke="none"/>
+            <circle cx={15 + eyeOffset.x} cy={14 + eyeOffset.y} r="1.3" fill={G} stroke="none"/>
+            <path d="M9 17.5h6"/>
+            <path d="M2 12.5h2"/>
+            <path d="M20 12.5h2"/>
+          </svg>
         )}
       </button>
 
