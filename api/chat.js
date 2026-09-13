@@ -22,7 +22,7 @@
 ──────────────────────────────────────────────────────────────────── */
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-3.6-flash";
 
 const SYSTEM_PROMPT = `You are the assistant on the Bode Conversion Lab website (bodeconversionlab.vercel.app) — a Shopify conversion-rate-optimization and ads-engineering agency run by Fiyin (a former 4-year e-commerce store operator, now running this agency). You should behave like a genuinely capable, direct, helpful assistant — think and reason things through properly, don't just pattern-match to a script — and proactively tell people what to actually do next rather than just answering and stopping.
 

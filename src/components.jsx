@@ -52,9 +52,20 @@ export function SvgGradText({ children, fontSize, fontWeight, fontFamily, colors
   }, [children, fontSize, fontWeight, fontFamily]);
 
   return (
+    // CSS gives replaced elements like <svg> (same family as <img>) no real
+    // text baseline of their own, so `vertical-align: baseline` quietly
+    // falls back to aligning the element's BOTTOM edge with the sibling
+    // text's baseline — not the glyph baseline inside it. Our box's bottom
+    // edge sits (box.h - box.baselineY) below the actual glyph baseline
+    // (that gap is the descender room + padding), so without correction
+    // the whole word renders that many pixels too high next to plain text
+    // ("lab" / "partners" floating above their sentence). Passing that same
+    // gap as a negative vertical-align length lowers the box by exactly
+    // enough to put the true glyph baseline where a sibling's baseline
+    // actually is.
     <svg
       width={box ? box.w : 1} height={box ? box.h : (fontSize || "1em")}
-      style={{ display:"inline-block", overflow:"visible", verticalAlign:"baseline", ...style }}
+      style={{ display:"inline-block", overflow:"visible", verticalAlign: box ? `-${box.h - box.baselineY}px` : "baseline", ...style }}
       className={className} aria-label={typeof children === "string" ? children : undefined}
     >
       <defs>
