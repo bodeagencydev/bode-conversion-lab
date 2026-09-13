@@ -17,12 +17,39 @@ const GG = "linear-gradient(135deg,#00ff88,#00e676,#00cc6a)";
 // text-shaped mask. SVG fills aren't subject to that CSS compositing bug at
 // all, so this isn't a fix for the specific cause (still not confirmed) —
 // it's a different tool that was never exposed to that failure mode.
-export function SvgGradText({ children, fontSize, fontWeight, fontFamily, colors, style = {}, className }) {
+export function SvgGradText({ children, measureText, cursor, fontSize, fontWeight, fontFamily, colors, style = {}, className }) {
   const { dark } = useTheme();
   const textRef = useRef(null);
+  const visibleRef = useRef(null);
+  const [cursorX, setCursorX] = useState(0);
   const gradId = useId().replace(/:/g, "");
   const [box, setBox] = useState(null); // { w, h, baselineY }
   const stops = colors || (dark ? ["#00ff88", "#00e676", "#00cc6a"] : ["#00A35C", "#00814A"]);
+  // Normally the box is sized to fit exactly what's rendered. The
+  // Typewriter word is the one case where that's wrong: it changes on
+  // every single keystroke as it types/deletes, so the box was resizing
+  // dozens of times a second — which reads as the whole hero "shaking,"
+  // worse while deleting since that runs faster than typing. Passing the
+  // FULL word here (measureText) sizes the box once for the complete
+  // phrase, and the partial text just animates left-aligned inside that
+  // already-full-width box — nothing around it ever needs to move.
+  const measureTarget = measureText ?? children;
+
+  // Before the real measurement lands, guess a close width instead of
+  // starting at 1px — a fixed-size badge like the hero's "4x+" chip has no
+  // ancestor line-box to hide a 1px→full-width snap inside, so that snap
+  // was visible as the whole badge growing/settling right after load. A
+  // close estimate (average glyph width for a bold display font ≈ 0.6× the
+  // font size) means there's little or nothing left to visibly jump.
+  const estimatedWidth = (() => {
+    if (typeof measureTarget !== "string") return 40;
+    let px = 24;
+    const rem = typeof fontSize === "string" && fontSize.match(/^([\d.]+)rem$/);
+    const pxV = typeof fontSize === "string" && fontSize.match(/^([\d.]+)px$/);
+    if (rem) px = parseFloat(rem[1]) * 16;
+    else if (pxV) px = parseFloat(pxV[1]);
+    return Math.round(measureTarget.length * px * 0.62) + 4;
+  })();
 
   useLayoutEffect(() => {
     if (!textRef.current) return;
@@ -49,7 +76,17 @@ export function SvgGradText({ children, fontSize, fontWeight, fontFamily, colors
     window.addEventListener("resize", measure);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
     return () => window.removeEventListener("resize", measure);
-  }, [children, fontSize, fontWeight, fontFamily]);
+  }, [measureTarget, fontSize, fontWeight, fontFamily]);
+
+  // The cursor (Typewriter only) has to live inside this same SVG and
+  // track the CURRENTLY VISIBLE text's own width — not the stable box
+  // width above — otherwise, now that the box no longer resizes with the
+  // partial text, the cursor would just sit at the end of the full word
+  // immediately instead of following each character as it's typed.
+  useLayoutEffect(() => {
+    if (!cursor || !visibleRef.current) return;
+    setCursorX(visibleRef.current.getComputedTextLength());
+  }, [cursor, children, fontSize, fontWeight, fontFamily]);
 
   return (
     // CSS gives replaced elements like <svg> (same family as <img>) no real
@@ -64,8 +101,8 @@ export function SvgGradText({ children, fontSize, fontWeight, fontFamily, colors
     // enough to put the true glyph baseline where a sibling's baseline
     // actually is.
     <svg
-      width={box ? box.w : 1} height={box ? box.h : (fontSize || "1em")}
-      style={{ display:"inline-block", overflow:"visible", verticalAlign: box ? `-${box.h - box.baselineY}px` : "baseline", ...style }}
+      width={box ? box.w : estimatedWidth} height={box ? box.h : (fontSize || "1em")}
+      style={{ display:"inline-block", overflow:"visible", verticalAlign: box ? `-${box.h - box.baselineY}px` : "baseline", transition:"width .15s ease-out", ...style }}
       className={className} aria-label={typeof children === "string" ? children : undefined}
     >
       <defs>
@@ -73,9 +110,20 @@ export function SvgGradText({ children, fontSize, fontWeight, fontFamily, colors
           {stops.map((c, i) => <stop key={i} offset={`${(i/(stops.length-1))*100}%`} stopColor={c} />)}
         </linearGradient>
       </defs>
-      <text ref={textRef} x="0" y={box ? box.baselineY : "0.8em"} fill={`url(#${gradId})`} style={{ fontFamily, fontSize, fontWeight, opacity: box ? 1 : 0 }}>
+      {/* Hidden — exists purely so textRef measures the FULL target word,
+          not whatever partial slice is currently visible. */}
+      <text ref={textRef} x="0" y={box ? box.baselineY : "0.8em"} style={{ fontFamily, fontSize, fontWeight, opacity:0 }} aria-hidden="true">
+        {measureTarget}
+      </text>
+      {/* Visible — the actual content, sized by the box above but never
+          driving its own resize. */}
+      <text ref={visibleRef} x="0" y={box ? box.baselineY : "0.8em"} fill={`url(#${gradId})`} style={{ fontFamily, fontSize, fontWeight, opacity: box ? 1 : 0 }}>
         {children}
       </text>
+      {cursor && box && (
+        <rect x={cursorX + 2} y={box.baselineY - box.h * 0.72} width={Math.max(2, (parseFloat(fontSize) || 16) * 0.06)} height={box.h * 0.78}
+          fill={dark ? "#00ff88" : "#00A35C"} style={{ animation:"blink 1s step-end infinite" }}/>
+      )}
     </svg>
   );
 }
@@ -775,7 +823,6 @@ export function Typewriter({ words }) {
   const [wi, setWi]     = useState(0);
   const [text, setText] = useState("");
   const [del, setDel]   = useState(false);
-  const { dark } = useTheme();
   useEffect(() => {
     const word = words[wi]; let t;
     if (!del && text.length < word.length)       t = setTimeout(() => setText(word.slice(0,text.length+1)), 80);
@@ -784,18 +831,15 @@ export function Typewriter({ words }) {
     else if (del && text.length === 0)           { setDel(false); setWi((wi+1)%words.length); }
     return () => clearTimeout(t);
   }, [text, del, wi, words]);
-  return (
-    // Not display:inline-flex — flex's align-items:baseline can't find a
-    // real text baseline inside an SVG child, so it silently falls back to
-    // aligning by the SVG's bottom edge instead, which is what was dragging
-    // the cursor down away from the actual text. Plain inline flow lets
-    // SvgGradText's own verticalAlign:"baseline" (already set on itself)
-    // actually take effect, which is what fixes it.
-    <>
-      <SvgGradText>{text || "\u00A0"}</SvgGradText>
-      <span style={{ color:dark?G:"#00A35C" }}>|</span>
-    </>
-  );
+  // The cursor used to be a separate sibling <span> right after the SVG,
+  // which worked fine when the SVG's own width tracked the partial text.
+  // Now that the box is stably sized to the full word (see SvgGradText's
+  // measureText — that's what stopped the hero from shaking on every
+  // keystroke), a sibling cursor would just sit at the end of that full
+  // width immediately instead of following the typed characters. So the
+  // cursor now renders inside the same SVG, positioned by its own
+  // measurement of the visible partial text — see the `cursor` prop.
+  return <SvgGradText measureText={words[wi]} cursor>{text || "\u00A0"}</SvgGradText>;
 }
 
 export function ContinuousTicker({ items = [], speed = 30, reverse = false }) {

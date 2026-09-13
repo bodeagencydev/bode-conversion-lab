@@ -5,13 +5,12 @@ import { CONTACT_EMAIL } from "../contact-info.js";
 
 /* ─── CONFIG ─── */
 const ADMIN_EMAIL    = CONTACT_EMAIL;
-/* Password lives in Vercel Environment Variables ONLY — same pattern as
-   VITE_TELEGRAM_TOKEN. Never paste your real password here; GitHub will
-   flag it. In Vercel: Settings → Environment Variables → add
-   VITE_ADMIN_PASSWORD → your own password → redeploy. Falls back to the
-   placeholder below only if that variable isn't set, so set it before
-   relying on this. */
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "bode2026admin";
+/* The password itself is no longer here at all — it used to be
+   (VITE_ADMIN_PASSWORD, with a hardcoded fallback), which meant it shipped
+   in the public JS bundle and anyone could read it via dev tools. Login
+   now POSTs to /api/admin/login.js, which checks the real password
+   server-side only and hands back a session token instead — see that file
+   and _redis.js for the full reasoning. */
 
 /* ─── ACCESS CODE STORAGE KEY ─── */
 const STORAGE_KEY = "bcl_access_codes";
@@ -108,6 +107,7 @@ export default function Admin() {
   const [authed,     setAuthed]     = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPass,  setLoginPass]  = useState("");
+  const [sessionToken, setSessionToken] = useState("");
   const [loginErr,   setLoginErr]   = useState("");
   const [codes,      setCodes]      = useState([]);
   const [form,       setForm]       = useState({ clientName:"", clientEmail:"", tier:"fix", notes:"", customCode:"" });
@@ -126,7 +126,7 @@ export default function Admin() {
   async function loadSubscribers() {
     setSubsLoading(true);
     try {
-      const r = await fetch("/api/admin/emails", { headers: { "x-admin-password": loginPass } });
+      const r = await fetch("/api/admin/emails", { headers: { "x-admin-session": sessionToken } });
       const data = await r.json();
       setSubscribers(data.subscribers || []);
     } catch {
@@ -143,7 +143,7 @@ export default function Admin() {
     try {
       const r = await fetch("/api/admin/send-campaign", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-admin-password": loginPass },
+        headers: { "Content-Type": "application/json", "x-admin-session": sessionToken },
         body: JSON.stringify({ subject: campaignSubject, body: campaignBody }),
       });
       const data = await r.json();
@@ -183,28 +183,39 @@ export default function Admin() {
   const inputBorder  = dark ? "rgba(255,255,255,.12)"  : "rgba(26,20,8,.29)";
   const rowBg        = dark ? "rgba(255,255,255,.03)"  : "rgba(255,255,255,.35)";
 
-  /* Load on mount */
+  /* Load on mount — sessionStorage now holds the random session token
+     issued by the server, not the password itself. */
   useEffect(() => {
-    const session = sessionStorage.getItem("bcl_admin_session");
-    if (session) { setAuthed(true); setLoginPass(session); }
+    const token = sessionStorage.getItem("bcl_admin_session");
+    if (token) { setAuthed(true); setSessionToken(token); }
     setCodes(loadCodes());
   }, []);
 
   useEffect(() => { if (authed) loadSubscribers(); }, [authed]);
 
-  /* Login */
-  function handleLogin() {
-    if (loginEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase() && loginPass === ADMIN_PASSWORD) {
+  /* Login — the password now goes to the server for checking, and never
+     gets compared client-side or stored anywhere on this end. */
+  async function handleLogin() {
+    if (loginEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      setLoginErr("Invalid credentials.");
+      return;
+    }
+    try {
+      const r = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: loginPass }),
+      });
+      const data = await r.json();
+      if (!r.ok || !data.token) { setLoginErr("Invalid credentials."); return; }
       setAuthed(true);
-      // Storing the actual password (not just a flag) so a page refresh can
-      // still authenticate the subscriber-list/send-campaign API calls
-      // below, which need it on every request — same trust boundary as
-      // before, since this password already ships in the client bundle.
-      sessionStorage.setItem("bcl_admin_session", loginPass);
+      setSessionToken(data.token);
+      sessionStorage.setItem("bcl_admin_session", data.token);
+      setLoginPass(""); // no reason to keep it in memory once it's served its purpose
       setCodes(loadCodes());
       setLoginErr("");
-    } else {
-      setLoginErr("Invalid credentials.");
+    } catch {
+      setLoginErr("Couldn't reach the server — try again.");
     }
   }
 

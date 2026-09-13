@@ -22,7 +22,16 @@
 ──────────────────────────────────────────────────────────────────── */
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = "gemini-3.6-flash";
+// A fallback chain, not a single hardcoded model — pinned model IDs get
+// deprecated (that's exactly what broke this last time: gemini-2.5-flash
+// stopped being available to new keys with no warning on our end). The
+// "-latest" alias isn't a safe substitute either — it's documented as
+// drifting without notice and has itself 404'd for people. So: try the
+// current pinned model first, and if THAT specifically 404s (meaning it's
+// been deprecated again), automatically fall through to the alias rather
+// than hard-failing the whole widget until someone notices and redeploys.
+const GEMINI_MODELS = ["gemini-3.6-flash", "gemini-flash-latest"];
+const REQUEST_TIMEOUT_MS = 20000;
 
 const SYSTEM_PROMPT = `You are the assistant on the Bode Conversion Lab website (bodeconversionlab.vercel.app) — a Shopify conversion-rate-optimization and ads-engineering agency run by Fiyin (a former 4-year e-commerce store operator, now running this agency). You should behave like a genuinely capable, direct, helpful assistant — think and reason things through properly, don't just pattern-match to a script — and proactively tell people what to actually do next rather than just answering and stopping.
 
@@ -54,6 +63,29 @@ BE PROACTIVE: when someone describes a problem or situation (e.g. "my conversion
 
 For anything outside Bode's world — general questions, unrelated topics — just be a genuinely good, helpful assistant about it, the way Claude would be. Don't force an unrelated conversation back to sales. Be concise, warm, and direct. If someone wants to talk to a real person, point them to the WhatsApp link or /contact.`;
 
+async function callGemini(model, contents) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents,
+          generationConfig: { maxOutputTokens: 800 },
+        }),
+        signal: controller.signal,
+      }
+    );
+    return r;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   if (!GEMINI_API_KEY) return res.status(500).json({ error: "GEMINI_API_KEY not set — add it in Vercel env vars first" });
@@ -68,31 +100,32 @@ export default async function handler(req, res) {
     parts: [{ text: m.content }],
   }));
 
-  try {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents,
-          generationConfig: { maxOutputTokens: 600 },
-        }),
+  let lastErr = null;
+  for (const model of GEMINI_MODELS) {
+    try {
+      const r = await callGemini(model, contents);
+
+      if (r.ok) {
+        const data = await r.json();
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response.";
+        return res.status(200).json({ reply });
       }
-    );
 
-    if (!r.ok) {
       const errText = await r.text();
-      console.error("Gemini API error:", errText);
-      return res.status(502).json({ error: "Chat service unavailable right now" });
+      console.error(`Gemini API error (${model}):`, errText);
+      lastErr = errText;
+      // Only fall through to the next model on a 404 (model gone/renamed —
+      // exactly what happened last time). Other errors (bad request, rate
+      // limit, etc.) would fail identically on every model, so retrying
+      // with a different one wouldn't help — fail fast instead.
+      if (r.status !== 404) break;
+    } catch (err) {
+      console.error(`chat handler error (${model}):`, err.name === "AbortError" ? "timed out" : err.message);
+      lastErr = err.message;
+      break;
     }
-
-    const data = await r.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response.";
-    res.status(200).json({ reply });
-  } catch (err) {
-    console.error("chat handler error:", err.message);
-    res.status(500).json({ error: "Something went wrong" });
   }
+
+  res.status(502).json({ error: "Chat service unavailable right now", detail: lastErr });
 }
+

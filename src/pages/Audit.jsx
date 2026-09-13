@@ -8,7 +8,6 @@ import { CONTACT_EMAIL } from "../contact-info.js";
    so it never ships in the initial Audit page bundle. */
 
 /* ─── CONFIG ─── */
-const PSI_KEY     = "AIzaSyCAnT0GIpN-3OVQkP3fPJBwhl6pTU0BN8k";
 const ADMIN_EMAIL = CONTACT_EMAIL;
 
 /* ─── HELPERS ─── */
@@ -62,13 +61,15 @@ function Ring({ score, size=90, color="#00ff88" }) {
   );
 }
 
-/* ─── FETCH PSI ─── */
+/* ─── FETCH PSI — via our own server-side proxy now, see api/pagespeed.js.
+   The API key used to be hardcoded right here in plain sight (readable by
+   anyone who viewed source); it now lives server-side only. ─── */
 async function fetchPSI(url, strategy) {
-  const endpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=${strategy}&category=performance&category=seo&category=best-practices&category=accessibility&key=${PSI_KEY}`;
+  const endpoint = `/api/pagespeed?url=${encodeURIComponent(url)}&strategy=${strategy}`;
   const res = await fetch(endpoint, { signal:AbortSignal.timeout(45000) });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
-  if (data?.error) throw new Error(data.error.message);
+  if (data?.error) throw new Error(data.error);
   return data;
 }
 

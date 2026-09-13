@@ -1,32 +1,20 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-/* ─── CONFIG ───────────────────────────────────────────
-   Token lives in Vercel Environment Variables ONLY.
-   Never paste your token here — GitHub will kill it.
-   In Vercel: Settings → Environment Variables
-   Name: VITE_TELEGRAM_TOKEN
-   Value: your bot token
-─────────────────────────────────────────────────────── */
-const TELEGRAM_TOKEN   = import.meta.env.VITE_TELEGRAM_TOKEN || "";
-const TELEGRAM_CHAT_ID = "7016026848";
+/* ─── The Telegram token used to live here (as VITE_TELEGRAM_TOKEN) and
+   this file called Telegram's API directly from the browser — meaning the
+   full bot token shipped in the public JS bundle, readable by anyone. It
+   now goes through /api/notify.js instead, which holds the real token
+   server-side only. Nothing else about how this file is used changes. ─── */
 
-/* ─── Send to Telegram ── */
+/* ─── Send via the server-side proxy ── */
 async function sendTelegram(message) {
-  if (!TELEGRAM_TOKEN) return; // silently skip if token missing
   try {
-    await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: message,
-          parse_mode: "HTML",
-        }),
-      }
-    );
+    await fetch("/api/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
   } catch {
     // never break the site for a notification failure
   }

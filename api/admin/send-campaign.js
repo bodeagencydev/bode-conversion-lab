@@ -42,7 +42,7 @@ async function sendOne(to, subject, html) {
 }
 
 export default async function handler(req, res) {
-  if (!isAdminAuthed(req)) return res.status(401).json({ error: "Unauthorized" });
+  if (!(await isAdminAuthed(req))) return res.status(401).json({ error: "Unauthorized" });
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   if (!RESEND_API_KEY) return res.status(500).json({ error: "RESEND_API_KEY not set — add it in Vercel env vars first" });
 

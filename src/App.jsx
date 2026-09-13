@@ -138,6 +138,7 @@ function AppInner({ dark }) {
         @keyframes float2{0%,100%{transform:translateY(0) translateX(0);}50%{transform:translateY(-16px) translateX(8px);}}
         @keyframes breathe{0%,100%{transform:scale(1);opacity:.88;}50%{transform:scale(1.045);opacity:1;}}
         @keyframes pulse{0%,100%{opacity:.4;}50%{opacity:1;}}
+        @keyframes blink{0%,50%{opacity:1;}50.01%,100%{opacity:0;}}
         @keyframes glowPulse{0%,100%{box-shadow:0 0 18px rgba(0,255,136,.18),0 4px 22px rgba(0,255,136,.25);}50%{box-shadow:0 0 40px rgba(0,255,136,.48),0 8px 40px rgba(0,255,136,.48);}}
         @keyframes mobilePulse{0%,100%{box-shadow:0 0 14px rgba(0,255,136,.3);}50%{box-shadow:0 0 28px rgba(0,255,136,.6);}}
         @keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}

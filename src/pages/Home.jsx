@@ -291,7 +291,7 @@ export default function Home() {
                 zIndex:2,
               }}>
                 <SvgGradText fontFamily="'Space Grotesk',sans-serif" fontSize="1.35rem" fontWeight={800}>4x+</SvgGradText>
-                <span style={{ fontSize:9.5, color:mutedText3, lineHeight:1.25, maxWidth:58 }}>avg ROAS improvement</span>
+                <span style={{ fontSize:9.5, color:mutedText3, lineHeight:1.3, maxWidth:72 }}>avg ROAS improvement</span>
               </div>
 
               <p style={{ fontSize:10.5, color:mutedText3, marginTop:10, fontFamily:"'IBM Plex Mono',monospace", textAlign:"center" }}>
