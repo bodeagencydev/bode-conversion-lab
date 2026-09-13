@@ -171,7 +171,7 @@ export default function Home() {
       />
 
       {/* ── HERO ── */}
-      <section style={{ position:"relative", minHeight:"92vh", display:"flex", alignItems:"center", padding:"clamp(4rem,9vw,6rem) clamp(1.2rem,4vw,2rem) 3rem", overflow:"hidden" }}>
+      <section style={{ position:"relative", minHeight:"92vh", display:"flex", alignItems:"center", padding:"clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 3rem", overflow:"hidden" }}>
         <HeroBackdrop dark={dark} />
         <div style={{ maxWidth:1180, margin:"0 auto", width:"100%", display:"grid", gridTemplateColumns:"1.05fr 0.95fr", gap:"clamp(2rem,5vw,4rem)", alignItems:"center" }} className="hero-split">
 
@@ -483,7 +483,7 @@ export default function Home() {
         <ScrollReveal delay={0}>
           <div style={{ maxWidth:760, margin:"0 auto", textAlign:"center" }}>
             <GlowBorder
-              style={{ background: dark ? `linear-gradient(135deg,${glow(.08)},${glow2(.03)})` : "linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.25))", border:`.5px solid ${glow(.25)}`, borderRadius:24, padding:"clamp(2.5rem,5vw,5rem) clamp(1.5rem,4vw,3rem)" }}>
+              style={{ background: dark ? `linear-gradient(135deg,${glow(.08)},${glow2(.03)})` : "linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.25))", border:`.5px solid ${glow(.25)}`, borderRadius:24, padding:"clamp(2.5rem,5vw,4rem) clamp(1.5rem,4vw,3rem)" }}>
               <SectionLabel>Ready to scale?</SectionLabel>
               <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1.6rem,4vw,2.8rem)", fontWeight:800, letterSpacing:"-.02em", color:headingColor, lineHeight:1.2, wordBreak:"break-word", overflowWrap:"break-word" }}>
                 Stop burning money.<br /><GradText>Start compounding it.</GradText>

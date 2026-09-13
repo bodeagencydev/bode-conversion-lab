@@ -774,10 +774,16 @@ export function Typewriter({ words }) {
     return () => clearTimeout(t);
   }, [text, del, wi, words]);
   return (
-    <span style={{ display:"inline-flex", alignItems:"baseline" }}>
+    // Not display:inline-flex — flex's align-items:baseline can't find a
+    // real text baseline inside an SVG child, so it silently falls back to
+    // aligning by the SVG's bottom edge instead, which is what was dragging
+    // the cursor down away from the actual text. Plain inline flow lets
+    // SvgGradText's own verticalAlign:"baseline" (already set on itself)
+    // actually take effect, which is what fixes it.
+    <>
       <SvgGradText>{text || "\u00A0"}</SvgGradText>
       <span style={{ color:dark?G:"#00A35C" }}>|</span>
-    </span>
+    </>
   );
 }
 
@@ -1007,11 +1013,14 @@ export function ChatWidget() {
   const listRef = useRef(null);
   const launcherRef = useRef(null);
   const [eyeOffset, setEyeOffset] = useState({ x: 0, y: 0 });
+  const [headTurn, setHeadTurn] = useState({ rotate: 0, x: 0, y: 0 });
+  const [hovering, setHovering] = useState(false);
 
-  // The robot's eyes track the cursor anywhere on the page, like Grok's
-  // mascot — only while the launcher is showing (no point tracking once
-  // it's swapped for the close "X"). Offsets are clamped to a small radius
-  // so the pupils shift within the head instead of flying off it.
+  // The robot tracks the cursor anywhere on the page, like Grok's mascot —
+  // both the eyes (pupils shift within the head) AND the head itself (a
+  // small free tilt/shift toward the cursor, not just a fixed up-down
+  // bob — it actually turns to "look" at wherever you are). Only active
+  // while the launcher is showing, not once the panel's open.
   useEffect(() => {
     if (open) return;
     const onMove = (e) => {
@@ -1024,6 +1033,17 @@ export function ChatWidget() {
       const clamped = Math.min(dist, 60); // full pupil travel reached within 60px of the icon
       const max = 1.4; // max pupil offset in SVG units, keeps them inside the head
       setEyeOffset({ x: (dx / dist) * (clamped / 60) * max, y: (dy / dist) * (clamped / 60) * max });
+
+      // Head movement: a small free-form tilt + shift, proportional to
+      // cursor position rather than a fixed animation loop — genuinely
+      // follows you around instead of just bobbing on a timer.
+      const headClamped = Math.min(dist, 220);
+      const pull = headClamped / 220; // 0 (far away) → 1 (close)
+      setHeadTurn({
+        rotate: (dx / dist) * pull * 10,   // up to ±10deg turn
+        x: (dx / dist) * pull * 3,          // up to ±3px shift
+        y: (dy / dist) * pull * 3,
+      });
     };
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
@@ -1070,14 +1090,16 @@ export function ChatWidget() {
           background: dark ? "#0A0A0A" : "#111",
           border:`1.5px solid ${G}`, boxShadow:`0 4px 20px ${dark ? "rgba(0,255,136,.35)" : "rgba(0,0,0,.3)"}`,
           display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer",
+          transform: hovering ? "scale(1.1)" : "none",
           transition:"transform .2s",
         }}
-        onMouseEnter={e => e.currentTarget.style.transform="scale(1.1)"}
-        onMouseLeave={e => e.currentTarget.style.transform="none"}>
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}>
         {open ? (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         ) : (
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"
+            style={{ transform:`translate(${headTurn.x}px,${headTurn.y}px) rotate(${headTurn.rotate}deg)`, transition:"transform .15s ease-out" }}>
             <rect x="4" y="8" width="16" height="12" rx="3"/>
             <path d="M12 8V5"/>
             <circle cx="12" cy="3.5" r="1.3" fill={G} stroke="none"/>
