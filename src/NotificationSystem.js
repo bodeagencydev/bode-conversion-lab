@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import { initVisitorSession, trackPageView } from "./visitorTracking.js";
 
 /* ─── The Telegram token used to live here (as VITE_TELEGRAM_TOKEN) and
    this file called Telegram's API directly from the browser — meaning the
@@ -157,6 +158,7 @@ export async function notifyPopupCapture(email, type) {
 /* ─── React hook — fires on every route change ── */
 export function usePageTracking() {
   const location = useLocation();
+  const initialized = useRef(false);
 
   useEffect(() => {
     const pageNames = {
@@ -172,5 +174,15 @@ export function usePageTracking() {
     };
     const name = pageNames[location.pathname] || `📄 ${location.pathname}`;
     notifyVisit(name);
+
+    // First call on app load establishes/recognizes the visitor and their
+    // session; every route change after that is just a page-view event
+    // against the session already in place.
+    if (!initialized.current) {
+      initialized.current = true;
+      initVisitorSession(location.pathname);
+    } else {
+      trackPageView(location.pathname);
+    }
   }, [location.pathname]);
 }

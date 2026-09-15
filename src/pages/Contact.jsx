@@ -4,6 +4,7 @@ import { useForm, ValidationError } from "@formspree/react";
 import { notifyFormSubmit } from "../NotificationSystem.js";
 import { G, GG, QUIZ } from "../data.js";
 import { CONTACT_EMAIL } from "../contact-info.js";
+import { captureLeadContact } from "../visitorTracking.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 
 function ApplyForm() {
@@ -51,6 +52,7 @@ function ApplyForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, name: fd.get("name") || "", source: "Contact form" }),
       }).catch(() => {});
+      captureLeadContact(email, fd.get("name") || "");
     }
     handleSubmit(e);
   };

@@ -409,7 +409,7 @@ export default function Home() {
           <ScrollReveal delay={0.1}>
             <div style={{ textAlign:"center", marginTop:"1.6rem" }}>
               <Magnetic>
-                <Link to="/audit" className="btn-ghost" style={{ textDecoration:"none", display:"inline-block" }}>See the full SRS breakdown →</Link>
+                <Link to="/srs" className="btn-ghost" style={{ textDecoration:"none", display:"inline-block" }}>See the full SRS breakdown →</Link>
               </Magnetic>
             </div>
           </ScrollReveal>

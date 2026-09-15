@@ -9,6 +9,7 @@ import PopupSystem from "./PopupSystem.jsx";
 const Home            = lazy(() => import("./pages/Home.jsx"));
 const About           = lazy(() => import("./pages/About.jsx"));
 const ServiceDetail   = lazy(() => import("./pages/ServiceDetail.jsx"));
+const SRS              = lazy(() => import("./pages/SRS.jsx"));
 const PastProjects       = lazy(() => import("./pages/PastProjects.jsx").then(m => ({ default: m.PastProjects })));
 const PastProjectDetail  = lazy(() => import("./pages/PastProjects.jsx").then(m => ({ default: m.PastProjectDetail })));
 const Pricing         = lazy(() => import("./pages/Pricing.jsx"));
@@ -242,6 +243,7 @@ function AppInner({ dark }) {
             <Route path="/past-projects"     element={<PastProjects />} />
             <Route path="/past-projects/:id" element={<PastProjectDetail />} />
             <Route path="/pricing"          element={<Pricing />} />
+            <Route path="/srs"              element={<SRS />} />
             <Route path="/blog"             element={<Blog />} />
             <Route path="/blog/:id"         element={<BlogPost />} />
             <Route path="/contact"          element={<Contact />} />

@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useLayoutEffect, useRef
 import { Link, useLocation } from "react-router-dom";
 import { useForm, ValidationError } from "@formspree/react";
 import { SERVICES } from "./data.js";
+import { captureLeadContact } from "./visitorTracking.js";
 
 const G  = "#00ff88";
 const GG = "linear-gradient(135deg,#00ff88,#00e676,#00cc6a)";
@@ -573,6 +574,7 @@ function ExitIntentPopup() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, source: "Exit-intent popup" }),
               }).catch(() => {});
+              if (email) captureLeadContact(email);
               handleSubmit(e);
             }} style={{ display:"flex", flexDirection:"column", gap:".7rem" }}>
               <input
@@ -962,7 +964,7 @@ export function VideoTips({ items = [] }) {
               {playing === i
                 ? <iframe src={`https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0`} title={v.title} allow="autoplay" allowFullScreen style={{ width:"100%", height:"100%", border:"none", position:"absolute", inset:0 }}/>
                 : <>
-                    <img src={v.thumb} alt={v.title} loading="lazy" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}/>
+                    <img src={v.thumb} alt={v.title} loading="lazy" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", transform:"scale(1.18)" }}/>
                     <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", background:"rgba(0,0,0,.3)" }} onClick={() => setPlaying(i)}>
                       <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(255,0,0,.9)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M6 4L16 10L6 16Z"/></svg>
@@ -1070,6 +1072,28 @@ export function ChatWidget() {
   const [eyeOffset, setEyeOffset] = useState({ x: 0, y: 0 });
   const [headTurn, setHeadTurn] = useState({ rotate: 0, x: 0, y: 0 });
   const [hovering, setHovering] = useState(false);
+  const NUDGES = ["Confused? Ask me →", "Got a question?", "I'm here to help →"];
+  const [nudgeIndex, setNudgeIndex] = useState(0);
+  const [showNudge, setShowNudge] = useState(false);
+  const [nudgeDismissed, setNudgeDismissed] = useState(false);
+
+  // Same pattern as WhatsAppButton's nudge, offset by 15s so the two don't
+  // pop up in sync — they sit right on top of each other now that the
+  // buttons are stacked vertically.
+  useEffect(() => {
+    if (nudgeDismissed || open) return;
+    const interval = setInterval(() => {
+      setNudgeIndex(i => (i + 1) % NUDGES.length);
+      setShowNudge(true);
+      const hide = setTimeout(() => setShowNudge(false), 4500);
+      return () => clearTimeout(hide);
+    }, 30000);
+    const stagger = setTimeout(() => {
+      setShowNudge(true);
+      const hide = setTimeout(() => setShowNudge(false), 4500);
+    }, 15000);
+    return () => { clearInterval(interval); clearTimeout(stagger); };
+  }, [nudgeDismissed, open]);
 
   // The robot tracks the cursor anywhere on the page, like Grok's mascot —
   // both the eyes (pupils shift within the head) AND the head itself (a
@@ -1138,34 +1162,56 @@ export function ChatWidget() {
 
   return (
     <>
-      <button ref={launcherRef} onClick={() => setOpen(o => !o)} aria-label="Chat with us"
-        style={{
-          position:"fixed", bottom:92, right:24, zIndex:9999,
-          width:56, height:56, borderRadius:"50%",
-          background: dark ? "#0A0A0A" : "#111",
-          border:`1.5px solid ${G}`, boxShadow:`0 4px 20px ${dark ? "rgba(0,255,136,.35)" : "rgba(0,0,0,.3)"}`,
-          display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer",
-          transform: hovering ? "scale(1.1)" : "none",
-          transition:"transform .2s",
-        }}
-        onMouseEnter={() => setHovering(true)}
-        onMouseLeave={() => setHovering(false)}>
-        {open ? (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        ) : (
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"
-            style={{ transform:`translate(${headTurn.x}px,${headTurn.y}px) rotate(${headTurn.rotate}deg)`, transition:"transform .15s ease-out" }}>
-            <rect x="4" y="8" width="16" height="12" rx="3"/>
-            <path d="M12 8V5"/>
-            <circle cx="12" cy="3.5" r="1.3" fill={G} stroke="none"/>
-            <circle cx={9 + eyeOffset.x} cy={14 + eyeOffset.y} r="1.3" fill={G} stroke="none"/>
-            <circle cx={15 + eyeOffset.x} cy={14 + eyeOffset.y} r="1.3" fill={G} stroke="none"/>
-            <path d="M9 17.5h6"/>
-            <path d="M2 12.5h2"/>
+      <div style={{ position:"fixed", bottom:92, right:24, zIndex:9999, display:"flex", alignItems:"center", gap:10 }}>
+        {showNudge && !nudgeDismissed && !open && (
+          <div
+            role="button"
+            onClick={() => { setOpen(true); setShowNudge(false); }}
+            style={{
+              display:"flex", alignItems:"center", gap:8,
+              background:"var(--bg,#0B0D0C)", border:"1px solid var(--card-border,rgba(255,255,255,.12))",
+              color:"var(--fg,#f0f0f0)", fontSize:13, fontWeight:600,
+              padding:"10px 14px", borderRadius:100, whiteSpace:"nowrap", cursor:"pointer",
+              boxShadow:"0 8px 24px rgba(0,0,0,.3)",
+              animation:"waNudgeIn .35s cubic-bezier(.22,1,.36,1) both",
+            }}
+          >
+            <span>{NUDGES[nudgeIndex]}</span>
+            <button
+              onClick={e => { e.stopPropagation(); setShowNudge(false); setNudgeDismissed(true); }}
+              aria-label="Dismiss"
+              style={{ background:"none", border:"none", color:"var(--muted3,rgba(255,255,255,.35))", fontSize:15, lineHeight:1, cursor:"pointer", padding:0, marginLeft:2 }}
+            >×</button>
+          </div>
+        )}
+        <button ref={launcherRef} onClick={() => setOpen(o => !o)} aria-label="Chat with us"
+          style={{
+            width:56, height:56, borderRadius:"50%", flexShrink:0,
+            background: dark ? "#0A0A0A" : "#111",
+            border:`1.5px solid ${G}`, boxShadow:`0 4px 20px ${dark ? "rgba(0,255,136,.35)" : "rgba(0,0,0,.3)"}`,
+            display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer",
+            transform: hovering ? "scale(1.1)" : "none",
+            transition:"transform .2s",
+          }}
+          onMouseEnter={() => setHovering(true)}
+          onMouseLeave={() => setHovering(false)}>
+          {open ? (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          ) : (
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"
+              style={{ transform:`translate(${headTurn.x}px,${headTurn.y}px) rotate(${headTurn.rotate}deg)`, transition:"transform .15s ease-out" }}>
+              <rect x="4" y="8" width="16" height="12" rx="3"/>
+              <path d="M12 8V5"/>
+              <circle cx="12" cy="3.5" r="1.3" fill={G} stroke="none"/>
+              <circle cx={9 + eyeOffset.x} cy={14 + eyeOffset.y} r="1.3" fill={G} stroke="none"/>
+              <circle cx={15 + eyeOffset.x} cy={14 + eyeOffset.y} r="1.3" fill={G} stroke="none"/>
+              <path d="M9 17.5h6"/>
+              <path d="M2 12.5h2"/>
             <path d="M20 12.5h2"/>
           </svg>
         )}
-      </button>
+        </button>
+      </div>
 
       {open && (
         <div style={{
@@ -1306,6 +1352,7 @@ export function Footer() {
             <ColHead>Pages</ColHead>
             <ColLink to="/">Home</ColLink>
             <ColLink to="/about">About</ColLink>
+            <ColLink to="/srs">SRS Methodology</ColLink>
             <ColLink to="/pricing">Pricing</ColLink>
             <ColLink to="/past-projects">Past Projects</ColLink>
             <ColLink to="/blog">Blog</ColLink>

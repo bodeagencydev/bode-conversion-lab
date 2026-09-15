@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { G, GG } from "../data.js";
 import { GradText, PageWrapper, useTheme, HeroBackdrop } from "../components.jsx"; 
+import { captureLeadContact } from "../visitorTracking.js";
 
 export default function Subscribe() {
   const { dark } = useTheme();
@@ -45,6 +46,7 @@ export default function Subscribe() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, name, source: "Subscribe page" }),
       }).catch(() => {});
+      captureLeadContact(email, name);
       setSubmitted(true);
     } catch (err) {
       setSubmitted(true);

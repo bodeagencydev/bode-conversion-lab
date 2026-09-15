@@ -135,6 +135,20 @@ export default function Admin() {
     setSubsLoading(false);
   }
 
+  const [leads, setLeads] = useState([]);
+  const [leadsLoading, setLeadsLoading] = useState(false);
+  async function loadLeads() {
+    setLeadsLoading(true);
+    try {
+      const r = await fetch("/api/admin/leads", { headers: { "x-admin-session": sessionToken } });
+      const data = await r.json();
+      setLeads(data.visitors || []);
+    } catch {
+      setLeads([]);
+    }
+    setLeadsLoading(false);
+  }
+
   async function handleSendCampaign() {
     if (!campaignSubject.trim() || !campaignBody.trim()) return alert("Subject and message are both required.");
     if (!confirm(`Send this to all ${subscribers.length} subscribers now?`)) return;
@@ -191,7 +205,7 @@ export default function Admin() {
     setCodes(loadCodes());
   }, []);
 
-  useEffect(() => { if (authed) loadSubscribers(); }, [authed]);
+  useEffect(() => { if (authed) { loadSubscribers(); loadLeads(); } }, [authed]);
 
   /* Login — the password now goes to the server for checking, and never
      gets compared client-side or stored anywhere on this end. */
@@ -368,6 +382,57 @@ export default function Admin() {
         </div>
         <div style={{ position:"fixed", top:0, left:-99999, pointerEvents:"none" }}>
           <PricingSnapshotCard innerRef={snapshotRef} />
+        </div>
+
+        {/* Leads — every tracked visitor, whether or not they've given an
+            email yet. Sorted by intent score. See api/admin/leads.js and
+            the api/visitor/* + api/contact/capture.js endpoints that feed
+            it. Company guesses are free-tier IP lookups (see
+            api/_business-id.js) — low confidence by design, shown as a
+            hint, never presented as a confirmed identity. */}
+        <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.5rem 1.8rem", marginBottom:"2rem" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.2rem", flexWrap:"wrap", gap:"1rem" }}>
+            <div>
+              <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:800, color:headingColor, marginBottom:".3rem" }}>
+                Leads {leads.length > 0 && <span style={{ color:G, fontWeight:700 }}>({leads.length})</span>}
+              </h3>
+              <p style={{ fontSize:12.5, color:mutedText2, lineHeight:1.6 }}>Every tracked visitor — anonymous or identified — ranked by how engaged they look.</p>
+            </div>
+            <button onClick={loadLeads} disabled={leadsLoading}
+              style={{ background:"transparent", border:`.5px solid ${cardBorder}`, borderRadius:8, padding:".5rem 1rem", fontSize:12, color:mutedText3, cursor:"pointer", fontFamily:"inherit" }}>
+              {leadsLoading ? "Refreshing…" : "Refresh"}
+            </button>
+          </div>
+
+          {leads.length === 0 && !leadsLoading && (
+            <p style={{ fontSize:13, color:mutedText3, padding:"1rem 0" }}>No visitors tracked yet.</p>
+          )}
+
+          {leads.length > 0 && (
+            <div style={{ maxHeight:340, overflowY:"auto", border:`.5px solid ${cardBorder}`, borderRadius:12 }}>
+              {leads.map((v, i) => {
+                const statusColor = v.intentLabel === "VERY HOT" ? "#FF6B4A" : v.intentLabel === "HOT" ? "#FFA53D" : v.intentLabel === "WARM" ? G : mutedText3;
+                return (
+                  <div key={v.visitorId} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:12, padding:".7rem 1rem", background: i%2===0 ? rowBg : "transparent", borderBottom: i < leads.length-1 ? `.5px solid ${cardBorder}` : "none", flexWrap:"wrap" }}>
+                    <div style={{ minWidth:0 }}>
+                      <p style={{ fontSize:13, color:headingColor, fontWeight:600 }}>
+                        {v.contact ? v.contact.email : (v.company ? v.company.companyName : "Anonymous visitor")}
+                        {v.contact && <span style={{ fontSize:10, color:mutedText3, marginLeft:6, fontWeight:400 }}>({v.contact.emailType})</span>}
+                      </p>
+                      <p style={{ fontSize:11, color:mutedText3 }}>
+                        {v.sessionCount} visit{v.sessionCount!==1?"s":""} · {v.pagesViewed} page{v.pagesViewed!==1?"s":""} · last: {v.lastPage || "—"}
+                        {v.company && !v.contact && <span title={`${v.company.source}, confidence ${Math.round(v.company.confidence*100)}%`}> · possibly {v.company.companyName}</span>}
+                      </p>
+                    </div>
+                    <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
+                      <span style={{ fontSize:11, fontWeight:700, color:statusColor }}>{v.intentScore}/100</span>
+                      <span style={{ fontSize:9.5, fontWeight:700, color:statusColor, border:`1px solid ${statusColor}`, borderRadius:100, padding:"2px 8px" }}>{v.intentLabel}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Subscribers — every email captured via Subscribe/Contact/Pricing,

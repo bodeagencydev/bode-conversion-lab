@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { G, GG, FAQS } from "../data.js";
 import { CONTACT_EMAIL } from "../contact-info.js";
+import { captureLeadContact } from "../visitorTracking.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 
 import { notifyPayment, notifyAccessCode } from "../NotificationSystem.js";
@@ -43,6 +44,31 @@ export default function Pricing() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [pricingUnlocked, setPricingUnlocked] = useState(false);
+  const [gateEmail, setGateEmail] = useState("");
+  const [gateSubmitting, setGateSubmitting] = useState(false);
+
+  // Once unlocked (this browser, ever), stays unlocked — no reason to
+  // re-gate a visitor who already gave their email on a past visit.
+  useLayoutEffect(() => {
+    try { setPricingUnlocked(localStorage.getItem("bcl_pricing_unlocked") === "1"); }
+    catch { setPricingUnlocked(true); } // if storage is blocked, fail open rather than lock everyone out
+  }, []);
+
+  async function handleGateSubmit(e) {
+    e.preventDefault();
+    if (!gateEmail.trim()) return;
+    setGateSubmitting(true);
+    fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: gateEmail, source: "Pricing page unlock" }),
+    }).catch(() => {});
+    captureLeadContact(gateEmail);
+    try { localStorage.setItem("bcl_pricing_unlocked", "1"); } catch {}
+    setPricingUnlocked(true);
+    setGateSubmitting(false);
+  }
   const [success, setSuccess] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [issuedCode, setIssuedCode] = useState("");
@@ -215,6 +241,7 @@ export default function Pricing() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, name, source: `Pricing checkout (${pkg.name})` }),
         }).catch(() => {});
+        captureLeadContact(email, name);
         notifyAccessCode(code, name, email, pkg.name);
       },
       onClose: () => {
@@ -498,6 +525,10 @@ export default function Pricing() {
               <div style={{ position:"relative" }}>
                 <div style={{
                   display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"1rem",
+                  filter: pricingUnlocked ? "none" : "blur(14px)",
+                  pointerEvents: pricingUnlocked ? "auto" : "none",
+                  userSelect: pricingUnlocked ? "auto" : "none",
+                  transition:"filter .4s ease",
                 }} className="offer-grid">
                 {tiers.map((o, i) => (
                   <div key={i} className={`offer-card ${o.feat ? "feat" : ""}`} style={{ display:"flex", flexDirection:"column" }}>
@@ -535,6 +566,37 @@ export default function Pricing() {
                   </div>
                 ))}
                 </div>
+
+                {!pricingUnlocked && (
+                  <div style={{
+                    position:"absolute", inset:0, zIndex:5,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    background: dark ? "rgba(10,10,10,.35)" : "rgba(255,253,247,.4)",
+                    borderRadius:20,
+                  }}>
+                    <form onSubmit={handleGateSubmit} style={{
+                      background: dark ? "#0A0A0A" : "#FFFDF7",
+                      border:`1px solid ${glow(.3)}`, borderRadius:16,
+                      padding:"1.8rem 2rem", maxWidth:340, width:"calc(100% - 2rem)",
+                      textAlign:"center", boxShadow:"0 16px 48px rgba(0,0,0,.35)",
+                    }}>
+                      <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:"1.15rem", color:headingColor, marginBottom:".5rem" }}>
+                        See pricing
+                      </p>
+                      <p style={{ fontSize:13, color:mutedText3, marginBottom:"1.2rem", lineHeight:1.6 }}>
+                        Enter your email to view our packages — no spam, just the numbers.
+                      </p>
+                      <input
+                        type="email" required value={gateEmail} onChange={e => setGateEmail(e.target.value)}
+                        placeholder="you@yourstore.com"
+                        style={{ width:"100%", boxSizing:"border-box", background: dark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.04)", border:`.5px solid ${glow(.3)}`, borderRadius:10, padding:".7rem 1rem", fontSize:14, color:headingColor, outline:"none", marginBottom:".8rem", fontFamily:"inherit" }}
+                      />
+                      <button type="submit" disabled={gateSubmitting} className="btn-g" style={{ width:"100%", cursor:gateSubmitting?"default":"pointer", opacity:gateSubmitting?.6:1, fontFamily:"inherit" }}>
+                        {gateSubmitting ? "Unlocking…" : "Unlock pricing →"}
+                      </button>
+                    </form>
+                  </div>
+                )}
               </div>
 
               <div style={{ textAlign:"center", marginTop:"2.5rem" }}>
