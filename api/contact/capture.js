@@ -14,8 +14,8 @@
    Place this file at: /api/contact/capture.js
 ──────────────────────────────────────────────────────────────────── */
 
-import { getRedisClient } from "../_redis.js";
-import { classifyEmail, normalizeEmail, isValidEmail, computeIntentScore } from "../_lead.js";
+import { getRedisClient } from "../../lib/redis.js";
+import { classifyEmail, normalizeEmail, isValidEmail, computeIntentScore } from "../../lib/lead.js";
 
 const VISITOR_KEY = id => `bcl:visitor:${id}`;
 const CONTACT_KEY = email => `bcl:contact:${email}`;

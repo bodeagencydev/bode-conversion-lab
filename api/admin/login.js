@@ -4,7 +4,7 @@
    POST { password } → checks it against ADMIN_PASSWORD (server-only
    env var, never sent to the browser) and, if correct, issues a
    random session token stored in Redis for 24h. The browser holds
-   onto that token afterward, not the password — see _redis.js for
+   onto that token afterward, not the password — see lib/redis.js for
    the reasoning.
 
    ENVIRONMENT VARIABLES NEEDED:
@@ -18,7 +18,7 @@
    Place this file at: /api/admin/login.js
 ──────────────────────────────────────────────────────────────────── */
 
-import { issueAdminSession } from "../_redis.js";
+import { issueAdminSession } from "../../lib/redis.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });

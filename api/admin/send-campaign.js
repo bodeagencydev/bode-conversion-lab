@@ -25,7 +25,7 @@
    Place this file at: /api/admin/send-campaign.js
 ──────────────────────────────────────────────────────────────────── */
 
-import { getRedisClient, isAdminAuthed } from "../_redis.js";
+import { getRedisClient, isAdminAuthed } from "../../lib/redis.js";
 
 const SUBSCRIBERS_KEY = "bcl:subscribers";
 const RESEND_API_KEY  = process.env.RESEND_API_KEY;

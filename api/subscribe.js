@@ -16,7 +16,7 @@
    Place this file at: /api/subscribe.js
 ──────────────────────────────────────────────────────────────────── */
 
-import { getRedisClient } from "./_redis.js";
+import { getRedisClient } from "../lib/redis.js";
 
 const SUBSCRIBERS_KEY = "bcl:subscribers";
 

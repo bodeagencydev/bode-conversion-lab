@@ -24,7 +24,7 @@
    Schedule is set in vercel.json, not here.
 ──────────────────────────────────────────────────────────────────── */
 
-import { getRedisClient } from "../_redis.js";
+import { getRedisClient } from "../../lib/redis.js";
 
 const SUBSCRIBERS_KEY = "bcl:subscribers";
 const RESEND_API_KEY  = process.env.RESEND_API_KEY;
