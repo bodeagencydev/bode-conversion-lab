@@ -267,6 +267,7 @@ export function SEO({ title, description, path = "", article = null, faq = null,
 const NAV_LINKS = [
   { path:"/",             label:"Home" },
   { path:"/about",        label:"About" },
+  { path:"/srs",          label:"SRS" },
   { path:"/past-projects", label:"Past Projects" },
   { path:"/pricing",      label:"Pricing" },
   { path:"/blog",         label:"Blog" },
@@ -1334,6 +1335,13 @@ export function Footer() {
                 onMouseEnter={e => { e.currentTarget.style.color=dark?G:"#00A35C"; e.currentTarget.style.transform="translateY(-2px) scale(1.08)"; }}
                 onMouseLeave={e => { e.currentTarget.style.color="var(--muted,rgba(255,255,255,.5))"; e.currentTarget.style.transform="none"; }}>
                 <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M6.321 6.016c-.27-.18-1.166-.802-1.166-.802.756-1.081 1.753-1.502 3.132-1.502.975 0 1.803.327 2.394.948s.928 1.509 1.005 2.644q.492.207.905.484c1.109.745 1.719 1.86 1.719 3.137 0 2.716-2.226 5.075-6.256 5.075C4.594 16 1 13.987 1 7.994 1 2.034 4.482 0 8.044 0 9.69 0 13.55.243 15 5.036l-1.36.353C12.516 1.974 10.163 1.43 8.006 1.43c-3.565 0-5.582 2.171-5.582 6.79 0 4.143 2.254 6.343 5.63 6.343 2.777 0 4.847-1.443 4.847-3.556 0-1.438-1.208-2.127-1.27-2.127-.236 1.234-.868 3.31-3.644 3.31-1.618 0-3.013-1.118-3.013-2.582 0-2.09 1.984-2.847 3.55-2.847.586 0 1.294.04 1.663.114 0-.637-.54-1.728-1.9-1.728-1.25 0-1.566.405-1.967.868ZM8.716 8.19c-2.04 0-2.304.87-2.304 1.416 0 .878 1.043 1.168 1.6 1.168 1.02 0 2.067-.282 2.232-2.423a6.2 6.2 0 0 0-1.528-.161"/></svg>
+              </a>
+              <a href="https://www.facebook.com/bodeconversionlab"
+                target="_blank" rel="noopener noreferrer" aria-label="Facebook"
+                style={{ display:"flex", alignItems:"center", justifyContent:"center", color:"var(--muted,rgba(255,255,255,.5))", transition:"color .2s,transform .2s" }}
+                onMouseEnter={e => { e.currentTarget.style.color=dark?G:"#00A35C"; e.currentTarget.style.transform="translateY(-2px) scale(1.08)"; }}
+                onMouseLeave={e => { e.currentTarget.style.color="var(--muted,rgba(255,255,255,.5))"; e.currentTarget.style.transform="none"; }}>
+                <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"/></svg>
               </a>
             </div>
           </div>
