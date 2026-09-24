@@ -1,7 +1,8 @@
 /* ────────────────────────────────────────────────────────────────
    WhatsApp Cloud API Webhook — Bode Conversion Lab
-   Two-flow version (free, no AI cost — uses Redis to remember
-   where each person is in the flow across separate webhook calls)
+   Two-flow lead intake (button/list driven, no AI) PLUS AI answers for
+   follow-up questions once the intake is done. Uses Redis to remember
+   where each person is in the flow across separate webhook calls.
 
    Place this file at:  /api/whatsapp-webhook.js  (project root)
 
@@ -12,6 +13,7 @@
    - TELEGRAM_TOKEN            → your Telegram bot token
    - TELEGRAM_CHAT_ID          → 7016026848
    - REDIS_URL                 → auto-added by your Redis store
+   - GEMINI_API_KEY            → optional here; enables AI follow-up answers
 
    TWO FLOWS:
    - "short" flow (Pricing page links only — payment confirmation /
@@ -31,6 +33,7 @@
 ──────────────────────────────────────────────────────────────────── */
 
 import { createClient } from "redis";
+import { askGemini, BODE_SYSTEM_PROMPT, WHATSAPP_ADDENDUM } from "../lib/gemini.js";
 
 const WHATSAPP_TOKEN   = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID  = process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -40,6 +43,42 @@ const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "7016026848";
 const REDIS_URL        = process.env.REDIS_URL;
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 14; // sessions auto-expire after 14 days
+
+/* ─── AI follow-up settings ─── */
+const AI_HISTORY_LIMIT   = 8;      // rolling window of messages kept per person
+const AI_MAX_TURNS       = 30;     // per session, protects the free Gemini quota from spam
+const AI_BUDGET_MS       = 8000;   // total time allowed for the AI call (serverless time limit)
+const AI_MAX_INPUT_CHARS = 1000;   // longer messages are trimmed before going to the model
+
+/* Telegram uses HTML parse mode: escape anything a visitor typed so a stray "<" can't break the alert. */
+function esc(s) {
+  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/* WhatsApp does not render markdown headings or **double asterisks**: tidy the model's output. */
+function toWhatsAppText(text) {
+  return String(text)
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/\*\*(.+?)\*\*/g, "*$1*")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+    .slice(0, 3800);
+}
+
+/* What the AI is told about the person, so it never re-asks intake questions. */
+function leadContext(session) {
+  const bits = [
+    session.name && `Name: ${session.name}`,
+    session.choiceLabel && `Asked about: ${session.choiceLabel}`,
+    session.storeLink && `Store: ${session.storeLink}`,
+    session.storeAge && `Store age: ${esc(session.storeAge)}`,
+    session.targetMarket && `Target market: ${esc(session.targetMarket)}`,
+    session.salesGoal && `Monthly sales goal: ${esc(session.salesGoal)}`,
+    session.marketing && `Current marketing: ${esc(session.marketing)}`,
+    session.budget && `Monthly budget: ${esc(session.budget)}`,
+  ].filter(Boolean);
+  return bits.length ? `\n\nWHAT THIS PERSON ALREADY TOLD US (do not ask again):\n${bits.join("\n")}` : "";
+}
 
 /* ─── Matches the Pricing page's two pre-filled WhatsApp texts exactly ─── */
 const SHORT_FLOW_TRIGGER = /I just completed payment for|I have a question about the .+ package before paying/i;
@@ -216,7 +255,7 @@ async function handleIncomingMessage({ from, contactName, message }) {
       session.step = "done";
       await saveSession(from, session);
       await sendText(from, `Got it, ${session.name} — I'll connect you with Fiyin directly, they'll be with you shortly. You'll get a real, personalized response, not a bot. 🙌`);
-      await notifyTelegram(`🚨 <b>New WhatsApp lead — wants Fiyin directly</b>\n👤 ${session.name}\n📱 ${from}`);
+      await notifyTelegram(`🚨 <b>New WhatsApp lead — wants Fiyin directly</b>\n👤 ${esc(session.name)}\n📱 ${from}`);
       return;
     }
 
@@ -290,7 +329,7 @@ async function handleIncomingMessage({ from, contactName, message }) {
       session.handedOff = true;
       await saveSession(from, session);
       await sendText(from, `Perfect — I've let Fiyin know! They'll jump into this chat directly, shortly. 🙌`);
-      await notifyTelegram(`🚨 <b>${session.name} wants to talk directly</b>\n📱 ${from}\n\nReply on WhatsApp now.`);
+      await notifyTelegram(`🚨 <b>${esc(session.name)} wants to talk directly</b>\n📱 ${from}\n\nReply on WhatsApp now.`);
       return;
     }
     if (buttonReplyId === "new_request") {
@@ -300,9 +339,52 @@ async function handleIncomingMessage({ from, contactName, message }) {
       return;
     }
 
+    /* ── Free-text follow-up after intake ── */
+    const canUseAI =
+      !session.handedOff &&
+      !!typedText &&
+      !!process.env.GEMINI_API_KEY &&
+      (session.aiTurns || 0) < AI_MAX_TURNS;
+
+    if (canUseAI) {
+      const history = Array.isArray(session.aiHistory) ? session.aiHistory : [];
+      const question = typedText.slice(0, AI_MAX_INPUT_CHARS);
+      const result = await askGemini(
+        [...history, { role: "user", content: question }],
+        {
+          system: BODE_SYSTEM_PROMPT + WHATSAPP_ADDENDUM + leadContext(session),
+          maxOutputTokens: 400,
+          budgetMs: AI_BUDGET_MS,
+        }
+      );
+
+      if (result.ok) {
+        const reply = toWhatsAppText(result.reply);
+        session.aiTurns = (session.aiTurns || 0) + 1;
+        session.aiHistory = [...history, { role: "user", content: question }, { role: "assistant", content: reply }].slice(-AI_HISTORY_LIMIT);
+        await saveSession(from, session);
+        await sendText(from, reply);
+
+        // First AI answer of the session: remind them a human is one tap away.
+        if (session.aiTurns === 1) {
+          await sendButtons(from, `Anything else? Or would you like to speak with Fiyin directly?`, [
+            { id: "talk_fiyin",  title: "Talk to Fiyin" },
+            { id: "new_request", title: "New Request" },
+          ]);
+        }
+
+        await notifyTelegram(
+          `💬 <b>Follow-up from ${esc(session.name || contactName)}</b>\n📱 ${from}\n📝 ${esc(question)}\n\n🤖 <b>AI replied:</b> ${esc(reply.slice(0, 500))}`
+        );
+        return;
+      }
+      console.error("WHATSAPP AI FOLLOW-UP FAILED:", result.error);
+      // fall through to the button prompt below so the person is never left in silence
+    }
+
     await notifyTelegram(
-      `💬 <b>Follow-up message from ${session.name || contactName}</b>\n` +
-      `📱 ${from}\n📝 ${typedText || "(non-text message)"}`
+      `💬 <b>Follow-up message from ${esc(session.name || contactName)}</b>\n` +
+      `📱 ${from}\n📝 ${esc(typedText || "(non-text message)")}`
     );
 
     if (!session.handedOff) {
@@ -327,18 +409,18 @@ async function wrapUp(from, session) {
 
   let summary =
     `🚨 <b>New WhatsApp lead (${session.flow} flow)</b>\n` +
-    `👤 Name: ${session.name}\n` +
+    `👤 Name: ${esc(session.name)}\n` +
     `📱 Phone: ${from}\n` +
-    `🙋 Needs help with: ${session.choiceLabel}\n` +
-    `🔗 Store: ${session.storeLink}`;
+    `🙋 Needs help with: ${esc(session.choiceLabel)}\n` +
+    `🔗 Store: ${esc(session.storeLink)}`;
 
   if (session.flow === "deep") {
     summary +=
-      `\n📅 Store age: ${session.storeAge}` +
-      `\n🌍 Target market: ${session.targetMarket}` +
-      `\n🎯 Sales goal: ${session.salesGoal}` +
-      `\n📣 Current marketing: ${session.marketing}` +
-      `\n💰 Budget: ${session.budget}`;
+      `\n📅 Store age: ${esc(session.storeAge)}` +
+      `\n🌍 Target market: ${esc(session.targetMarket)}` +
+      `\n🎯 Sales goal: ${esc(session.salesGoal)}` +
+      `\n📣 Current marketing: ${esc(session.marketing)}` +
+      `\n💰 Budget: ${esc(session.budget)}`;
   }
 
   await notifyTelegram(summary);
@@ -370,6 +452,18 @@ export default async function handler(req, res) {
 
       const from        = message.from;
       const contactName = value?.contacts?.[0]?.profile?.name || "Unknown";
+
+      // Meta re-delivers a webhook if it thinks we were slow. Without this, a retry would
+      // advance the flow twice or send a second AI reply. Remember each message id for an hour.
+      if (message.id) {
+        try {
+          const r = await getRedis();
+          const first = await r.set(`wa_seen:${message.id}`, "1", { NX: true, EX: 3600 });
+          if (!first) return res.status(200).send("OK — duplicate ignored");
+        } catch (err) {
+          console.error("DEDUPE CHECK FAILED (continuing):", err.message);
+        }
+      }
 
       await handleIncomingMessage({ from, contactName, message });
       return res.status(200).send("OK");
