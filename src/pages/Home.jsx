@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, AD_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
+import { Link, useNavigate } from "react-router-dom";
+import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
 import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, SvgGradText, useInView, useTheme, PageWrapper, SEO, HeroBackdrop } from "../components.jsx";
+import { PROOF_RESULTS, HOME_STEPS, HOME_SRS_PHASES } from "../site-content.js";
 import { CONTACT_EMAIL } from "../contact-info.js";
 import { ScrollReveal, TiltCard, Magnetic, GlowBorder, useSpringCounterValue, MaskedHeading } from "../AnimationSystem.jsx";
 
@@ -118,7 +119,7 @@ function FreeRedesignOffer() {
         </span>
 
         <a
-          href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi! I'd like to claim my free redesign consultation. My code: ${code}`)}
+          href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi! I'd like to claim my free redesign consultation. My code: ${code}`)}
           target="_blank" rel="noopener noreferrer"
           onClick={handleCancel}
           style={{ display:"inline-flex", alignItems:"center", lineHeight:1, padding: "8px 16px", borderRadius: 8, background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 12, textDecoration: "none", whiteSpace: "nowrap" }}
@@ -153,6 +154,9 @@ export default function Home() {
   const brandG = dark ? G : "#00A35C";
   const brandGG = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
   const [statsRef, statsInView] = useInView(0.2);
+  const navigate = useNavigate();
+  const [scanUrl, setScanUrl] = useState("");
+  const goScan = e => { e.preventDefault(); const v = scanUrl.trim(); navigate(v ? `/audit?url=${encodeURIComponent(v)}` : "/audit"); };
 
   const mutedText    = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.6)";
   const mutedText2   = dark ? "rgba(255,255,255,.4)"  : "rgba(26,20,8,.62)";
@@ -192,7 +196,7 @@ export default function Home() {
 
             <div style={{ marginBottom:"1.2rem" }}>
               <MaskedHeading
-                text="We turn your store into a"
+                text="We turn your store into"
                 tag="h1"
                 className="hero-t"
                 delay={0.1}
@@ -200,7 +204,7 @@ export default function Home() {
                 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,4.6vw,3.3rem)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:headingColor, wordBreak:"break-word", textAlign:"left", justifyContent:"flex-start" }}
               />
               <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,4.6vw,3.3rem)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:brandG, animation:"heroFadeUp .8s .5s ease both", animationFillMode:"forwards", opacity:0, textAlign:"left" }}>
-                <Typewriter words={["revenue machine.", "conversion engine.", "ROAS multiplier.", "scaling system."]} />
+                <Typewriter words={["a revenue machine.", "a conversion engine.", "a ROAS multiplier.", "a scaling system."]} />
               </div>
             </div>
 
@@ -211,36 +215,31 @@ export default function Home() {
             </ScrollReveal>
 
             <ScrollReveal delay={0.4}>
-              <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-start", gap:14, marginBottom:"2.8rem" }}>
-                <Magnetic>
-                  <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer" className="btn-g" data-cursor="Apply">
-                    Apply for a free strategy call →
+              <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-start", gap:12, marginBottom:"2rem", maxWidth:480 }}>
+                <form onSubmit={goScan} style={{ display:"flex", gap:8, width:"100%", flexWrap:"wrap" }}>
+                  <input
+                    type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false}
+                    value={scanUrl} onChange={e => setScanUrl(e.target.value)}
+                    placeholder="yourstore.com" aria-label="Your store URL"
+                    style={{ flex:"1 1 200px", minWidth:0, padding:"14px 16px", borderRadius:10, fontSize:15, fontFamily:"'IBM Plex Mono',monospace",
+                      border:`1px solid ${dark ? "rgba(239,236,230,.22)" : "rgba(23,20,15,.32)"}`,
+                      background: dark ? "rgba(239,236,230,.05)" : "rgba(255,255,255,.7)", color:headingColor, outline:"none" }}
+                  />
+                  <button type="submit" className="btn-g" style={{ flex:"0 0 auto", cursor:"pointer", whiteSpace:"nowrap" }}>Scan my store free →</button>
+                </form>
+                <div style={{ display:"flex", flexWrap:"wrap", alignItems:"center", gap:"6px 18px" }}>
+                  <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer"
+                    style={{ fontSize:13, color:brandG, textDecoration:"none", fontWeight:600 }}>
+                    Or book a free strategy call →
                   </a>
-                </Magnetic>
-                <Link
-                  to="/past-projects"
-                  style={{ fontSize:13, color:mutedText2, textDecoration:"none", borderBottom:`.5px solid ${mutedText3}`, paddingBottom:1, transition:"color .2s" }}
-                  onMouseEnter={e => e.currentTarget.style.color = brandG}
-                  onMouseLeave={e => e.currentTarget.style.color = mutedText2}>
-                  See our past work →
-                </Link>
+                  <Link to="/past-projects"
+                    style={{ fontSize:13, color:mutedText2, textDecoration:"underline", textUnderlineOffset:4, textDecorationThickness:"1px", display:"inline-block" }}>
+                    See our past work
+                  </Link>
+                </div>
               </div>
             </ScrollReveal>
 
-            <ScrollReveal delay={0.5}>
-              <div className="hero-cards" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, maxWidth:460 }}>
-                {[
-                  { n:"70x", l:"Revenue growth\nin 90 days" },
-                  { n:"4x+", l:"Average ROAS\nimprovement" },
-                  { n:"$0",  l:"Extra ad spend\nrequired" },
-                ].map((c, i) => (
-                  <div key={i} style={{ borderLeft:`2px solid ${brandG}`, paddingLeft:10 }}>
-                    <div style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:"clamp(1.2rem,3vw,1.5rem)", fontWeight:600, color:headingColor, lineHeight:1.1, marginBottom:4 }}>{c.n}</div>
-                    <div style={{ fontSize:10.5, color:mutedText3, lineHeight:1.4, whiteSpace:"pre-line" }}>{c.l}</div>
-                  </div>
-                ))}
-              </div>
-            </ScrollReveal>
           </div>
 
           {/* ── RIGHT: signature element — annotated store-scan readout ── */}
@@ -281,7 +280,7 @@ export default function Home() {
                   elsewhere in this hero (border/bg treatment, SvgGradText
                   for the number) — nothing new introduced. */}
               <div style={{
-                position:"absolute", top:-16, right:-10,
+                position:"absolute", top:-34, right:14,
                 display:"flex", alignItems:"center", gap:8,
                 background: dark ? "rgba(10,10,10,.9)" : "rgba(255,253,247,.94)",
                 backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)",
@@ -304,18 +303,37 @@ export default function Home() {
       </section>
 
       <style>{`
-        @media(max-width:900px){ .hero-split{grid-template-columns:1fr!important;} .hero-scan-wrap{order:-1;max-width:460px;margin:0 auto 1rem;} }
+        @media(max-width:900px){ .hero-split{grid-template-columns:1fr!important;} .hero-scan-wrap{order:2;max-width:460px;margin:2.6rem auto 0;} }
       `}</style>
 
 
-      {/* ── TICKERS ── */}
-      <div style={{ borderTop:`.5px solid ${borderCol}`, borderBottom:`.5px solid ${borderCol}`, background:tickerBg, padding:"1rem 0" }}>
-        <p style={{ textAlign:"center", fontSize:11, color:mutedText3, letterSpacing:".1em", textTransform:"uppercase", marginBottom:".8rem" }}>Trusted by stores on</p>
+      {/* ── NAMED PROOF STRIP ── */}
+      <section style={{ padding:"0 clamp(1rem,4vw,2rem)", marginTop:"-1rem", position:"relative", zIndex:2 }}>
+        <div style={{ maxWidth:1000, margin:"0 auto" }}>
+          <p style={{ textAlign:"center", fontSize:11, color:mutedText3, letterSpacing:".1em", textTransform:"uppercase", marginBottom:"1rem" }}>Real client results</p>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(250px,1fr))", gap:"1rem" }}>
+            {PROOF_RESULTS.map((c, i) => (
+              <Link key={i} to="/past-projects" style={{ display:"flex", flexDirection:"column", gap:4, padding:"16px 18px", borderRadius:14, textDecoration:"none", borderLeft:`3px solid ${brandG}`,
+                border:`1px solid ${dark ? "rgba(239,236,230,.12)" : "rgba(23,20,15,.24)"}`,
+                background: dark ? "rgba(239,236,230,.03)" : "rgba(255,255,255,.5)", transition:"transform .2s, border-color .2s" }}
+                onMouseEnter={e => { e.currentTarget.style.transform="translateY(-3px)"; e.currentTarget.style.borderColor=brandG; }}
+                onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor=dark ? "rgba(239,236,230,.12)" : "rgba(23,20,15,.24)"; }}>
+                <div style={{ minWidth:0 }}>
+                  <div style={{ fontSize:13, color:headingColor, fontWeight:600, marginBottom:4 }}>{c.name}</div>
+                  <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.5rem", fontWeight:700, color:brandG, lineHeight:1.1 }}>{c.result}</div>
+                  <div style={{ fontSize:12, color:mutedText2 }}>{c.sub}</div>
+                  <div style={{ fontSize:11.5, color:brandG, marginTop:8, fontWeight:600 }}>View the proof →</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PLATFORMS ── */}
+      <div style={{ marginTop:"2.5rem", borderTop:`.5px solid ${borderCol}`, borderBottom:`.5px solid ${borderCol}`, background:tickerBg, padding:"1rem 0" }}>
+        <p style={{ textAlign:"center", fontSize:11, color:mutedText3, letterSpacing:".1em", textTransform:"uppercase", marginBottom:".8rem" }}>Works with stores on</p>
         <ContinuousTicker items={ECOM_PLATFORMS} speed={30} />
-      </div>
-      <div style={{ borderBottom:`.5px solid ${borderCol}`, background:tickerBg, padding:"1rem 0" }}>
-        <p style={{ textAlign:"center", fontSize:11, color:mutedText3, letterSpacing:".1em", textTransform:"uppercase", marginBottom:".8rem" }}>We run ads on</p>
-        <ContinuousTicker items={AD_PLATFORMS} speed={25} reverse={true} />
       </div>
 
       {/* ── STATS ── */}
@@ -356,12 +374,7 @@ export default function Home() {
             </div>
           </ScrollReveal>
           <div className="how-grid" style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"1.5rem" }}>
-            {[
-              { n:"01", t:"Deep-dive audit",         d:"We dissect your store, ads, and full funnel. Every leak, every friction point, every missed dollar — mapped in 48 hours." },
-              { n:"02", t:"Conversion architecture", d:"We rebuild your pages with one goal: turning browsers into buyers using the traffic you already have." },
-              { n:"03", t:"Ad engineering",          d:"Precision creatives, copy and targeting built around your customer's real pain points. Every ad compounds." },
-              { n:"04", t:"Scale & compound",        d:"Once ROAS target is hit, we scale. Same efficiency, more budget. $1k/mo becomes $70k/mo." },
-            ].map((item, i) => (
+            {HOME_STEPS.map((item, i) => (
               <ScrollReveal key={i} delay={i * 0.1}>
                 <TiltCard className="glass" style={{ padding:"2.5rem", height:"100%" }}>
                   <SvgGradText colors={[glow(.55), glow(.15)]} fontFamily="'Space Grotesk',sans-serif" fontSize="1.8rem" fontWeight={800} style={{ marginBottom:".75rem" }}>{item.n}</SvgGradText>
@@ -390,12 +403,7 @@ export default function Home() {
           </ScrollReveal>
 
           <div className="how-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"1rem" }}>
-            {[
-              { phase:"01", t:"Foundation Fix",   d:"Fix leaks & trust signals first." },
-              { phase:"02", t:"Traffic Ignition", d:"Controlled ad tests find winners." },
-              { phase:"03", t:"Scale & Compound", d:"Double down on what's proven." },
-              { phase:"04", t:"Systemize",        d:"Document it so it runs itself." },
-            ].map((item, i) => (
+            {HOME_SRS_PHASES.map((item, i) => (
               <ScrollReveal key={i} delay={i * 0.08}>
                 <TiltCard className="glass" style={{ padding:"1.4rem 1.2rem", height:"100%" }}>
                   <p style={{ fontSize:10, fontWeight:700, color:brandG, letterSpacing:".06em", marginBottom:".4rem" }}>PHASE {item.phase}</p>

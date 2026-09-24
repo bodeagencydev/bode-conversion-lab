@@ -320,7 +320,7 @@ export default function Pricing() {
 
                 <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                   <a
-                    href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi Bode Conversion Lab 👋 I just completed payment for ${pkg?.name}. Here's my payment screenshot:`)}
+                    href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi Bode Conversion Lab 👋 I just completed payment for ${pkg?.name}. Here's my payment screenshot:`)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-g"
@@ -434,7 +434,7 @@ export default function Pricing() {
                   <p style={{ fontSize:12, color:mutedText3 }}>
                     Have a question first?{" "}
                     <a
-                      href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi, I have a question about the ${pkg?.name} package before paying.`)}
+                      href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi, I have a question about the ${pkg?.name} package before paying.`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color:brandG, textDecoration:"none", fontWeight:600 }}>

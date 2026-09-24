@@ -749,7 +749,7 @@ export default function Audit() {
       path="/audit"
     />
   );
-  const [url,        setUrl]        = useState("");
+  const [url,        setUrl]        = useState(() => { try { return new URLSearchParams(window.location.search).get("url") || ""; } catch { return ""; } });
   const [email,      setEmail]      = useState("");
   const [loading,    setLoading]    = useState(false);
   const [stageIdx,   setStageIdx]   = useState(0);
@@ -951,7 +951,7 @@ export default function Audit() {
             <button onClick={verifyAccess} className="btn-g" style={{ width:"100%", fontFamily:"inherit", cursor:"pointer", marginBottom:"1rem" }}>Unlock →</button>
             <p style={{ fontSize:12, color:mutedText3, textAlign:"center" }}>
               No code?{" "}
-              <a href={"https://wa.me/19454076473?text="+encodeURIComponent("Hi, I need my audit access code.")} target="_blank" rel="noopener noreferrer" style={{ color:brandG, textDecoration:"none", fontWeight:600 }}>WhatsApp us</a>
+              <a href={"https://wa.me/2349064885280?text="+encodeURIComponent("Hi, I need my audit access code.")} target="_blank" rel="noopener noreferrer" style={{ color:brandG, textDecoration:"none", fontWeight:600 }}>WhatsApp us</a>
             </p>
           </div>
         </div>
@@ -1269,7 +1269,7 @@ export default function Audit() {
               Follow the full plan and don't see measurable movement in 90 days? We keep working with you free until you do.
             </p>
             <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
-              <a href={"https://wa.me/19454076473?text="+encodeURIComponent(`Hi Bode Conversion Lab 👋 I just ran the free audit for ${url}. My store scored ${analysis?.overall}/100 and I want to fix these issues. Can we talk?`)} target="_blank" rel="noopener noreferrer" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>
+              <a href={"https://wa.me/2349064885280?text="+encodeURIComponent(`Hi Bode Conversion Lab 👋 I just ran the free audit for ${url}. My store scored ${analysis?.overall}/100 and I want to fix these issues. Can we talk?`)} target="_blank" rel="noopener noreferrer" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>
                 Apply for professional audit →
               </a>
               <button onClick={() => { setAnalysis(null); setSolution(null); setUrl(""); setEmail(""); setRevealed(false); setAccessTier(null); }} className="btn-ghost" style={{ fontFamily:"inherit", cursor:"pointer" }}>
