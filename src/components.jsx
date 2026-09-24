@@ -456,7 +456,7 @@ function HelpMenuPopup() {
   const options = [
     { label: "See what a free audit finds", to: "/audit" },
     { label: "Check pricing & packages", to: "/pricing" },
-    { label: "Talk to a human on WhatsApp", href: "https://wa.me/19454076473?text=" + encodeURIComponent("Hi, I have a question before getting started.") },
+    { label: "Talk to a human on WhatsApp", href: "https://wa.me/2349064885280?text=" + encodeURIComponent("Hi, I have a question before getting started.") },
     { label: "Just browsing for now", dismiss: true },
   ];
 
@@ -642,12 +642,13 @@ export function CookieConsent() {
   const declineBorder = dark ? "rgba(255,255,255,.22)" : "rgba(26,20,8,.45)";
 
   return (
-    <div style={{
+    <div className="cookie-wrap" style={{
       position:"fixed", left:0, right:0, bottom:0, zIndex:9500,
       display:"flex", justifyContent:"center", padding:"14px",
       pointerEvents:"none",
     }}>
-      <div style={{
+      <style>{`@media(max-width:600px){.cookie-wrap{padding:8px!important;z-index:2147483000!important}.cookie-bar{padding:10px 12px!important;gap:.55rem!important;border-radius:12px!important}.cookie-bar p{font-size:11.5px!important;line-height:1.45!important;flex:1 1 100%!important}.cookie-btns{width:100%}.cookie-btns button{flex:1;padding:8px 12px!important}}`}</style>
+      <div className="cookie-bar" style={{
         pointerEvents:"auto",
         display:"flex", flexWrap:"wrap", gap:"1rem", alignItems:"center",
         justifyContent:"space-between", width:"100%", maxWidth:920,
@@ -659,7 +660,7 @@ export function CookieConsent() {
           <span>We use cookies to enhance your browsing experience and remember your preferences. By clicking "Accept", you consent to our use of cookies. Read our{" "}
           <a href="/privacy" style={{ color:dark?G:"#00A35C", fontWeight:600, textDecoration:"none" }}>Privacy Policy</a> to learn more.</span>
         </p>
-        <div style={{ display:"flex", gap:".6rem", flexShrink:0 }}>
+        <div className="cookie-btns" style={{ display:"flex", gap:".6rem", flexShrink:0 }}>
           <button
             onClick={() => choose("declined")}
             style={{
@@ -1003,7 +1004,7 @@ export function PartnerCard({ partner }) {
 
 export function WhatsAppButton() {
   const msg = encodeURIComponent("Hi! I'd love to work with you.");
-  const href = `https://wa.me/19454076473?text=${msg}`;
+  const href = `https://wa.me/2349064885280?text=${msg}`;
   const NUDGES = ["Message us now →", "Got a question? Chat with us", "We reply in minutes →"];
   const [nudgeIndex, setNudgeIndex] = useState(0);
   const [showNudge, setShowNudge] = useState(false);
@@ -1305,7 +1306,7 @@ export function Footer() {
             <Link to="/" style={{ textDecoration:"none", display:"inline-block", marginBottom:".7rem" }}><Logo size={36} textSize={13}/></Link>
             <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.6, marginBottom:".8rem" }}>We don't run ads. We engineer ROAS.<br/>One system. Compounding results every month.</p>
             <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-              <a href={`https://wa.me/19454076473?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
+              <a href={`https://wa.me/2349064885280?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
                 target="_blank" rel="noopener noreferrer" aria-label="WhatsApp us"
                 style={{ display:"flex", alignItems:"center", justifyContent:"center", color:"#25D366", transition:"transform .2s" }}
                 onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px) scale(1.08)"}
