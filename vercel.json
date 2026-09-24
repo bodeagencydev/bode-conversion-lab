@@ -1,15 +1,62 @@
 {
   "redirects": [
-    { "source": "/case-studies", "destination": "/past-projects", "permanent": true },
-    { "source": "/case-studies/:id", "destination": "/past-projects/:id", "permanent": true }
+    {
+      "source": "/case-studies",
+      "destination": "/past-projects",
+      "permanent": true
+    },
+    {
+      "source": "/case-studies/:id",
+      "destination": "/past-projects/:id",
+      "permanent": true
+    }
   ],
   "rewrites": [
+    {
+      "source": "/about",
+      "destination": "/about/index.html"
+    },
+    {
+      "source": "/srs",
+      "destination": "/srs/index.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing/index.html"
+    },
+    {
+      "source": "/past-projects",
+      "destination": "/past-projects/index.html"
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog/index.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact/index.html"
+    },
+    {
+      "source": "/audit",
+      "destination": "/audit/index.html"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
   "crons": [
-    { "path": "/api/cron/weekly-digest", "schedule": "0 14 * * 1" }
-  ]
+    {
+      "path": "/api/cron/weekly-digest",
+      "schedule": "0 14 * * 1"
+    }
+  ],
+  "functions": {
+    "api/whatsapp-webhook.js": {
+      "maxDuration": 30
+    },
+    "api/chat.js": {
+      "maxDuration": 30
+    }
+  }
 }
