@@ -114,11 +114,13 @@ export default async function handler(req, res) {
       const errText = await r.text();
       console.error(`Gemini API error (${model}):`, errText);
       lastErr = errText;
-      // Only fall through to the next model on a 404 (model gone/renamed —
-      // exactly what happened last time). Other errors (bad request, rate
-      // limit, etc.) would fail identically on every model, so retrying
-      // with a different one wouldn't help — fail fast instead.
-      if (r.status !== 404) break;
+      // Fall through to the next model on 404 (model gone/renamed) OR 503/429
+      // (model temporarily overloaded/rate-limited) — that last case is
+      // exactly what actually happened in production: gemini-3.6-flash
+      // returned "currently experiencing high demand," a per-model issue
+      // where a different model genuinely can help. A 400 (bad request)
+      // would fail identically everywhere, so that one still fails fast.
+      if (![404, 503, 429].includes(r.status)) break;
     } catch (err) {
       console.error(`chat handler error (${model}):`, err.name === "AbortError" ? "timed out" : err.message);
       lastErr = err.message;
