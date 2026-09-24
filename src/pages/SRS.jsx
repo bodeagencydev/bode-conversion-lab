@@ -180,6 +180,32 @@ export default function SRS() {
         </div>
       </Section>
 
+      {/* ── SRS IN ACTION → PAST PROJECTS ── */}
+      <Section>
+        <div style={{ maxWidth:900, margin:"0 auto", textAlign:"center" }}>
+          <SectionLabel>SRS in action</SectionLabel>
+          <Heading size="1.8rem">See the system <GradText>on real stores</GradText></Heading>
+          <p style={{ fontSize:14.5, color:mutedText, lineHeight:1.8, margin:"1rem auto 1.8rem", maxWidth:580 }}>
+            Every store below went through the same process: fix the leaks first, then scale the traffic. These are actual client campaigns, not mockups.
+          </p>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:"1rem", marginBottom:"2rem" }}>
+            {[
+              { name:"Stream Ride Store", result:"$36k in sales" },
+              { name:"Novi Good Store", result:"4.3x ROAS, $57k in sales" },
+              { name:"Robin and Roobaby", result:"$77k in sales" },
+            ].map((p, i) => (
+              <div key={i} style={{ padding:"1.2rem", borderRadius:14, border:`1px solid ${borderCol}`, background:cardBg }}>
+                <p style={{ fontSize:14, fontWeight:700, color:headingColor, margin:"0 0 .35rem" }}>{p.name}</p>
+                <p style={{ fontSize:13, fontWeight:600, color:G, margin:0 }}>{p.result}</p>
+              </div>
+            ))}
+          </div>
+          <Link to="/past-projects" style={{ display:"inline-block", padding:"14px 32px", borderRadius:10, border:`1px solid ${borderCol}`, color:headingColor, fontWeight:600, fontSize:14, textDecoration:"none" }}>
+            View all past projects →
+          </Link>
+        </div>
+      </Section>
+
       {/* ── FAQ ── */}
       <Section>
         <div style={{ maxWidth:700, margin:"0 auto" }}>
