@@ -59,7 +59,7 @@
       "maxDuration": 30
     },
     "api/store-scan.js": {
-      "maxDuration": 45
+      "maxDuration": 60
     },
     "api/pagespeed.js": {
       "maxDuration": 25
