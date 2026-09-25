@@ -154,15 +154,21 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
   const redirectWasteMs  = parseFloat(aud["redirects"]?.numericValue || 0);
   const thirdPartyMs     = parseFloat(aud["bootup-time"]?.details?.summary?.wastedMs || 0);
 
+  // clarityScore comes from an optional AI read of the homepage copy (see api/store-scan.js).
+  // It's the only score here based on what the page actually SAYS rather than a technical metric,
+  // so it only enters the weighted average when the AI call actually succeeded — a missing/failed
+  // AI read should never silently drag the overall score down.
+  const clarityScore = scan?.ai?.clarityScore ?? null;
   const weights = [
-    { score:mobileScore,  w:0.22 },
-    { score:vitScore,     w:0.20 },
-    { score:desktopScore, w:0.12 },
-    { score:seoScore,     w:0.14 },
-    { score:imageScore,   w:0.10 },
-    { score:techScore,    w:0.10 },
-    { score:accessScore,  w:0.07 },
-    { score:bestScore,    w:0.05 },
+    { score:mobileScore,  w: clarityScore != null ? 0.20 : 0.22 },
+    { score:vitScore,     w: clarityScore != null ? 0.18 : 0.20 },
+    { score:desktopScore, w: clarityScore != null ? 0.11 : 0.12 },
+    { score:seoScore,     w: clarityScore != null ? 0.13 : 0.14 },
+    { score:imageScore,   w: clarityScore != null ? 0.09 : 0.10 },
+    { score:techScore,    w: clarityScore != null ? 0.09 : 0.10 },
+    { score:accessScore,  w: clarityScore != null ? 0.06 : 0.07 },
+    { score:bestScore,    w: clarityScore != null ? 0.05 : 0.05 },
+    ...(clarityScore != null ? [{ score:clarityScore, w:0.09 }] : []),
   ];
   const overall = clamp(weights.reduce((acc, w) => acc + w.score * w.w, 0));
 
@@ -418,6 +424,12 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
         `Loses hesitant buyers at the final decision point`,
         `Add a WhatsApp button or a chat widget (Tidio, Crisp, Gorgias) so hesitant buyers have somewhere to ask before abandoning.`);
 
+    if (!scan.hasTwitterCard)
+      add("trust-twitter","low","Trust Signals",`Missing Twitter/X card tags`,
+        `No twitter:card meta tag was found. Links shared on X (formerly Twitter) fall back to a plain text preview instead of showing your product image and name.`,
+        `Reduced click-through when your store is shared or linked on X`,
+        `Add a twitter:card meta tag (summary_large_image is the usual choice) alongside your existing Open Graph tags.`);
+
     if (!scan.hasOG)
       add("trust-og","low","Trust Signals",`Missing social share preview tags`,
         `No Open Graph tags were found. When your store link is shared or pasted into WhatsApp, Instagram, or Facebook, it shows a blank or broken preview instead of your product image and name — quietly hurting click-through from every share.`,
@@ -441,6 +453,15 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
         `Out of ${scan.linksChecked} links checked on your homepage, ${scan.brokenLinks.length} returned an error (${scan.brokenLinks.map(b => `${b.status}`).join(", ")}). A broken link a visitor clicks on — especially in navigation or a product link — is an immediate dead end that erodes trust and can send them straight to a competitor.`,
         `Direct traffic loss on every broken link clicked`,
         `Check and fix each broken link: ${scan.brokenLinks.map(b => b.url).slice(0,5).join(", ")}${scan.brokenLinks.length > 5 ? ", and others" : ""}.`);
+
+    /* Positioning — the only AI-read section. Optional: if the read failed or
+       GEMINI_API_KEY isn't set on the server, scan.ai is null and nothing here fires. */
+    if (scan.ai) {
+      (scan.ai.findings || []).forEach((f, i) =>
+        add(`pos-${i}`, f.severity || "medium", "Positioning", f.title,
+          f.finding, "Visitors who can't quickly tell what you sell or what to do next tend to leave rather than dig for it.",
+          f.fix));
+    }
   }
 
   /* Sort */
@@ -475,6 +496,9 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
       missingPolicyCount: Object.values(scan?.policies || {}).filter(p => !p).length,
       hasReviews: !!scan?.hasReviews,
       hasLiveChat: !!scan?.hasLiveChat,
+      clarityScore: scan?.ai?.clarityScore ?? null,
+      headlineVerdict: scan?.ai?.headlineVerdict || null,
+      ctaVerdict: scan?.ai?.ctaVerdict || null,
     },
     metrics: {
       mobile:  { score:mobileScore,  label:"Mobile Performance" },
@@ -485,7 +509,10 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
       tech:    { score:techScore,    label:"Technical Health" },
       access:  { score:accessScore,  label:"Accessibility" },
       best:    { score:bestScore,    label:"Best Practices" },
+      ...(clarityScore != null ? { positioning: { score:clarityScore, label:"Positioning & Clarity" } } : {}),
     },
+    headlineVerdict: scan?.ai?.headlineVerdict || null,
+    ctaVerdict: scan?.ai?.ctaVerdict || null,
     vitals: {
       lcp: { value:ms(lcpMs),              status:lcpMs<2500?"good":lcpMs<4000?"warn":"fail", label:"LCP" },
       cls: { value:clsVal.toFixed(3),      status:clsVal<0.1?"good":clsVal<0.25?"warn":"fail", label:"CLS" },
@@ -951,7 +978,7 @@ export default function Audit() {
             <button onClick={verifyAccess} className="btn-g" style={{ width:"100%", fontFamily:"inherit", cursor:"pointer", marginBottom:"1rem" }}>Unlock →</button>
             <p style={{ fontSize:12, color:mutedText3, textAlign:"center" }}>
               No code?{" "}
-              <a href={"https://wa.me/2349064885280?text="+encodeURIComponent("Hi, I need my audit access code.")} target="_blank" rel="noopener noreferrer" style={{ color:brandG, textDecoration:"none", fontWeight:600 }}>WhatsApp us</a>
+              <a href={"https://wa.me/19454076473?text="+encodeURIComponent("Hi, I need my audit access code.")} target="_blank" rel="noopener noreferrer" style={{ color:brandG, textDecoration:"none", fontWeight:600 }}>WhatsApp us</a>
             </p>
           </div>
         </div>
@@ -1269,7 +1296,7 @@ export default function Audit() {
               Follow the full plan and don't see measurable movement in 90 days? We keep working with you free until you do.
             </p>
             <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
-              <a href={"https://wa.me/2349064885280?text="+encodeURIComponent(`Hi Bode Conversion Lab 👋 I just ran the free audit for ${url}. My store scored ${analysis?.overall}/100 and I want to fix these issues. Can we talk?`)} target="_blank" rel="noopener noreferrer" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>
+              <a href={"https://wa.me/19454076473?text="+encodeURIComponent(`Hi Bode Conversion Lab 👋 I just ran the free audit for ${url}. My store scored ${analysis?.overall}/100 and I want to fix these issues. Can we talk?`)} target="_blank" rel="noopener noreferrer" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>
                 Apply for professional audit →
               </a>
               <button onClick={() => { setAnalysis(null); setSolution(null); setUrl(""); setEmail(""); setRevealed(false); setAccessTier(null); }} className="btn-ghost" style={{ fontFamily:"inherit", cursor:"pointer" }}>

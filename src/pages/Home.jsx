@@ -119,7 +119,7 @@ function FreeRedesignOffer() {
         </span>
 
         <a
-          href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi! I'd like to claim my free redesign consultation. My code: ${code}`)}
+          href={"https://wa.me/19454076473?text=" + encodeURIComponent(`Hi! I'd like to claim my free redesign consultation. My code: ${code}`)}
           target="_blank" rel="noopener noreferrer"
           onClick={handleCancel}
           style={{ display:"inline-flex", alignItems:"center", lineHeight:1, padding: "8px 16px", borderRadius: 8, background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 12, textDecoration: "none", whiteSpace: "nowrap" }}

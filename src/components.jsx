@@ -456,7 +456,7 @@ function HelpMenuPopup() {
   const options = [
     { label: "See what a free audit finds", to: "/audit" },
     { label: "Check pricing & packages", to: "/pricing" },
-    { label: "Talk to a human on WhatsApp", href: "https://wa.me/2349064885280?text=" + encodeURIComponent("Hi, I have a question before getting started.") },
+    { label: "Talk to a human on WhatsApp", href: "https://wa.me/19454076473?text=" + encodeURIComponent("Hi, I have a question before getting started.") },
     { label: "Just browsing for now", dismiss: true },
   ];
 
@@ -1060,6 +1060,34 @@ export function WhatsAppButton() {
   );
 }
 
+
+/* The chat widget renders plain text (see {m.content} below), but the AI's
+   system prompt sometimes still emits basic markdown out of habit (**bold**,
+   [text](url), ## headers). Without this, people see literal asterisks and
+   bracket links instead of formatting. Handles just the three patterns
+   above — enough for the widget's tone, not a full markdown renderer. */
+function renderChatText(raw) {
+  const text = String(raw).replace(/^#{1,6}\s+/gm, "");
+  const nodes = [];
+  const re = /\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)]+)\)/g;
+  let last = 0, m, key = 0;
+  while ((m = re.exec(text))) {
+    if (m.index > last) nodes.push(text.slice(last, m.index));
+    if (m[1] !== undefined) {
+      nodes.push(<strong key={key++}>{m[1]}</strong>);
+    } else {
+      nodes.push(
+        <a key={key++} href={m[3]} target="_blank" rel="noopener noreferrer" style={{ color:"inherit", textDecoration:"underline" }}>
+          {m[2]}
+        </a>
+      );
+    }
+    last = re.lastIndex;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
+}
+
 export function ChatWidget() {
   const { dark } = useTheme();
   const [open, setOpen] = useState(false);
@@ -1236,7 +1264,7 @@ export function ChatWidget() {
                 background: m.role === "user" ? (dark ? "rgba(0,255,136,.14)" : "rgba(0,163,92,.12)") : (dark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.04)"),
                 color:text,
               }}>
-                {m.content}
+                {m.role === "assistant" ? renderChatText(m.content) : m.content}
               </div>
             ))}
             {loading && (
@@ -1306,7 +1334,7 @@ export function Footer() {
             <Link to="/" style={{ textDecoration:"none", display:"inline-block", marginBottom:".7rem" }}><Logo size={36} textSize={13}/></Link>
             <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.6, marginBottom:".8rem" }}>We don't run ads. We engineer ROAS.<br/>One system. Compounding results every month.</p>
             <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-              <a href={`https://wa.me/2349064885280?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
+              <a href={`https://wa.me/19454076473?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
                 target="_blank" rel="noopener noreferrer" aria-label="WhatsApp us"
                 style={{ display:"flex", alignItems:"center", justifyContent:"center", color:"#25D366", transition:"transform .2s" }}
                 onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px) scale(1.08)"}
