@@ -83,26 +83,58 @@ async function scoreClarity(signals) {
 }
 
 
-/* ── Visual audit: real screenshot + AI vision read ──────────────────────
+/* ── Visual audit: real screenshots + AI vision read ─────────────────────
    Microlink (api.microlink.io) renders the page in a real browser and hosts
-   the finished PNG — unlike some free screenshot services it does not stream
-   a loading placeholder, so we always get the actual page, not a spinner.
-   Free tier: 50 screenshots/day, no signup. If that's outgrown, add
+   the finished image — unlike some free screenshot services it does not
+   stream a loading placeholder, so we always get the actual page, not a
+   spinner. Free tier: 50 screenshots/day, no signup. If that's outgrown, add
    MICROLINK_API_KEY as an env var — the code below picks it up automatically.
-   Fails soft at every step: no screenshot or a failed vision read just means
-   `visual` comes back null and the rest of the audit is unaffected. */
+
+   Captures the FULL scrollable page (fullPage:true), not just what's visible
+   without scrolling, and does this for up to two pages: the homepage, plus
+   one deeper page (a product or collection page) when one can be found in
+   the homepage's own links — a second real page, not just a taller crop of
+   the same one. Each screenshot gets its own AI vision pass that's told to
+   read the image as multiple sections top to bottom (hero, main content,
+   further down, footer) so the findings are specific to what's actually in
+   that section rather than one generic comment about "the page".
+
+   Fails soft at every step: no screenshot, a failed vision read, or no
+   secondary page found just means fewer/emptier entries — the rest of the
+   audit is always unaffected. ── */
+
+const SECONDARY_PAGE_PATTERNS = [
+  { label: "Product Page",    re: /\/(products?|item)\// },
+  { label: "Collection Page", re: /\/(collections?|shop|store|catalog)(\/|$)/ },
+];
+
+/* Picks ONE other page worth screenshotting, preferring an actual product
+   page over a generic collection/shop listing. Returns null if nothing
+   matching was found among the homepage's own links — never guesses at a
+   URL that wasn't actually linked from the page. */
+function findSecondaryPageUrl(hrefMatches, origin, homepageUrl) {
+  for (const { re } of SECONDARY_PAGE_PATTERNS) {
+    const hit = hrefMatches.find((href) => re.test(href) && (href.startsWith("/") || href.startsWith(origin)));
+    if (hit) {
+      const abs = hit.startsWith("/") ? origin + hit : hit;
+      if (abs !== homepageUrl) return abs;
+    }
+  }
+  return null;
+}
+
 async function captureScreenshot(targetUrl) {
   const key = process.env.MICROLINK_API_KEY ? `&apiKey=${process.env.MICROLINK_API_KEY}` : "";
-  const api = `https://api.microlink.io/?url=${encodeURIComponent(targetUrl)}&screenshot=true&meta=false&waitUntil=networkidle2${key}`;
+  const api = `https://api.microlink.io/?url=${encodeURIComponent(targetUrl)}&screenshot.fullPage=true&screenshot.type=jpeg&meta=false&waitUntil=networkidle2${key}`;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
+  const timer = setTimeout(() => controller.abort(), 18000); // full-page renders take longer than a viewport shot
   try {
     const r = await fetch(api, { signal: controller.signal });
     if (!r.ok) { console.error("MICROLINK REQUEST FAILED:", r.status, await r.text().catch(() => "")); return null; }
     const data = await r.json();
     const shot = data?.data?.screenshot;
     if (!shot?.url) { console.error("MICROLINK: no screenshot in response:", JSON.stringify(data).slice(0, 300)); return null; }
-    return shot.url; // hosted PNG on Microlink's CDN — safe to hand straight to the browser
+    return shot.url; // hosted image on Microlink's CDN — safe to hand straight to the browser (and to the PDF)
   } catch (err) {
     console.error("MICROLINK CALL FAILED:", err.name === "AbortError" ? "timed out" : err.message);
     return null;
@@ -118,8 +150,8 @@ async function fetchAsBase64(imageUrl) {
     const r = await fetch(imageUrl, { signal: controller.signal });
     if (!r.ok) return null;
     const buf = Buffer.from(await r.arrayBuffer());
-    if (buf.length > 8 * 1024 * 1024) return null; // keep the vision request small
-    const mimeType = r.headers.get("content-type")?.split(";")[0] || "image/png";
+    if (buf.length > 8 * 1024 * 1024) return null; // keep the vision request a sane size
+    const mimeType = r.headers.get("content-type")?.split(";")[0] || "image/jpeg";
     return { base64: buf.toString("base64"), mimeType };
   } catch (err) {
     console.error("SCREENSHOT FETCH FAILED:", err.name === "AbortError" ? "timed out" : err.message);
@@ -129,46 +161,63 @@ async function fetchAsBase64(imageUrl) {
   }
 }
 
-const VISUAL_PROMPT = `You are a blunt conversion-rate consultant looking at a screenshot of a store's homepage, taken from the top of the page. Judge ONLY what is visible in the image.
+function visualPrompt(pageLabel) {
+  return `You are a blunt conversion-rate consultant looking at a FULL-PAGE screenshot of a store's ${pageLabel} — the entire scrollable page from top to bottom, not just what's visible without scrolling. Judge ONLY what is visible in the image.
 
-Look for real, specific visual problems: cluttered or busy layout competing for attention, a call-to-action button that's hard to spot (low contrast, wrong size, buried below more prominent elements), unclear visual hierarchy (unclear what to look at first), no visible trust signals (reviews, badges, guarantees) above the fold, poor spacing/crowding, text that's hard to read against its background, imagery that looks low-quality or generic/stocky, or a layout that doesn't clearly signal what's being sold.
+Read it top to bottom as distinct sections (hero/top of page, main content area, further down the page, footer) and give findings specific to what you actually see in each part — not one generic comment about "the page". Look for real, specific visual problems in any section: cluttered or busy layout, a call-to-action that's hard to spot (low contrast, wrong size, buried under something more prominent), unclear visual hierarchy, no visible trust signals (reviews, badges, guarantees), poor spacing/crowding, text that's hard to read against its background, imagery that looks low-quality or generic/stocky, dead space, or a section that doesn't clearly signal what it's for.
 
 Respond with ONLY a JSON object, no markdown fences, no commentary, in exactly this shape:
-{"visualScore": <0-100 integer>, "summary": "<one sentence overall impression>", "findings": [{"severity": "critical|high|medium", "title": "<short title>", "finding": "<1-2 sentences, specific to what you actually see in THIS image>", "fix": "<1 sentence, concrete>"}]}
+{"visualScore": <0-100 integer>, "summary": "<one sentence overall impression of this specific page>", "findings": [{"severity": "critical|high|medium", "title": "<short title>", "finding": "<1-2 sentences — name WHERE on the page this is (e.g. \"in the hero\", \"further down near the product grid\", \"in the footer\") and what's actually wrong there>", "fix": "<1 sentence, concrete>"}]}
 
-Rules: findings array has 0-4 items — only real, specific problems visible in the image, never generic advice. If the page looks clean and clear, return an empty findings array and a high visualScore. Keep everything short.`;
+Rules: findings array has 0-4 items — only real, specific problems, never generic advice, and never invent a section that isn't in the image. If the page looks clean and clear throughout, return an empty findings array and a high visualScore. Keep everything short — this feeds a report, not an essay.`;
+}
 
-async function scoreVisual(targetUrl) {
-  const screenshotUrl = await captureScreenshot(targetUrl);
+/* Screenshots + AI-scores ONE page. Returns null if the screenshot itself
+   couldn't be captured; returns a scoreless entry (still with the screenshot
+   URL, so the report can at least show the image) if only the AI read failed. */
+async function scoreVisualForPage(pageUrl, label) {
+  const screenshotUrl = await captureScreenshot(pageUrl);
   if (!screenshotUrl) return null;
-  if (!process.env.GEMINI_API_KEY) return { screenshotUrl, visualScore: null, summary: null, findings: [] };
+
+  const base = { label, url: pageUrl, screenshotUrl, visualScore: null, summary: null, findings: [] };
+  if (!process.env.GEMINI_API_KEY) return base;
 
   const image = await fetchAsBase64(screenshotUrl);
-  if (!image) return { screenshotUrl, visualScore: null, summary: null, findings: [] };
+  if (!image) return base;
 
   const result = await askGeminiVision({
     imageBase64: image.base64,
     mimeType: image.mimeType,
-    prompt: "Here is the homepage screenshot. Return the JSON as instructed.",
-    system: VISUAL_PROMPT,
-    maxOutputTokens: 500,
+    prompt: `Here is the full-page ${label} screenshot. Return the JSON as instructed.`,
+    system: visualPrompt(label),
+    maxOutputTokens: 600,
     budgetMs: 10000,
   });
-  if (!result.ok) { console.error("VISUAL SCORE FAILED:", result.error); return { screenshotUrl, visualScore: null, summary: null, findings: [] }; }
+  if (!result.ok) { console.error(`VISUAL SCORE FAILED (${label}):`, result.error); return base; }
 
   try {
     const cleaned = result.reply.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
     const parsed = JSON.parse(cleaned);
     return {
-      screenshotUrl,
+      ...base,
       visualScore: typeof parsed.visualScore === "number" ? Math.max(0, Math.min(100, Math.round(parsed.visualScore))) : null,
       summary: parsed.summary || null,
       findings: Array.isArray(parsed.findings) ? parsed.findings.slice(0, 4) : [],
     };
   } catch (err) {
-    console.error("VISUAL SCORE: could not parse model output:", err.message, "|", result.reply?.slice(0, 200));
-    return { screenshotUrl, visualScore: null, summary: null, findings: [] };
+    console.error(`VISUAL SCORE: could not parse model output (${label}):`, err.message, "|", result.reply?.slice(0, 200));
+    return base;
   }
+}
+
+/* Runs the homepage screenshot and (when one was found) the secondary-page
+   screenshot CONCURRENTLY — two independent Microlink + Gemini pipelines,
+   so total time is set by the slower of the two, not their sum. */
+async function scoreVisual(homepageUrl, secondaryPageUrl) {
+  const jobs = [scoreVisualForPage(homepageUrl, "Homepage")];
+  if (secondaryPageUrl) jobs.push(scoreVisualForPage(secondaryPageUrl, SECONDARY_PAGE_PATTERNS.find(p => p.re.test(secondaryPageUrl))?.label || "Other Page"));
+  const results = (await Promise.all(jobs)).filter(Boolean);
+  return results.length ? { pages: results } : null;
 }
 
 export default async function handler(req, res) {
@@ -216,11 +265,23 @@ export default async function handler(req, res) {
     const hasSchema = hasLink('application/ld+json');
 
     const pageSignals = extractPageSignals(html);
-    // Clarity (text) and the visual (screenshot) read both call Gemini independently and
-    // don't depend on each other or on the broken-link check below, so all three run
+
+    /* ── Internal links (shared by the broken-link check below AND the secondary-page
+         screenshot: the visual audit looks at the homepage plus, when one is findable,
+         one deeper page like a product listing — that's a second real page, not just a
+         taller crop of the same one). ── */
+    const origin = new URL(target).origin;
+    const hrefMatches = [...html.matchAll(/href=["']([^"'#][^"']*)["']/gi)]
+      .map(m => m[1])
+      .filter(href => href.startsWith("/") || href.startsWith(origin))
+      .map(href => href.startsWith("/") ? origin + href : href);
+    const uniqueLinks = [...new Set(hrefMatches)].slice(0, 15);
+    const secondaryPageUrl = findSecondaryPageUrl(hrefMatches, origin, target);
+
+    // Clarity (text), the visual read(s), and the broken-link check below all run
     // concurrently — total added time is set by the slowest of the three, not their sum.
     const aiPromise     = scoreClarity(pageSignals).catch((err) => { console.error("CLARITY SCORE THREW:", err.message); return null; });
-    const visualPromise = scoreVisual(target).catch((err) => { console.error("VISUAL SCAN THREW:", err.message); return null; });
+    const visualPromise = scoreVisual(target, secondaryPageUrl).catch((err) => { console.error("VISUAL SCAN THREW:", err.message); return null; });
 
     /* ── Payment methods detected ── */
     const paymentSignatures = {
@@ -243,13 +304,6 @@ export default async function handler(req, res) {
     const forcesAccountCreation = hasLink("create an account to checkout", "you must be logged in to checkout", "sign in to checkout");
 
     /* ── Broken internal links (checks first 15 found on the homepage) ── */
-    const origin = new URL(target).origin;
-    const hrefMatches = [...html.matchAll(/href=["']([^"'#][^"']*)["']/gi)]
-      .map(m => m[1])
-      .filter(href => href.startsWith("/") || href.startsWith(origin))
-      .map(href => href.startsWith("/") ? origin + href : href);
-    const uniqueLinks = [...new Set(hrefMatches)].slice(0, 15);
-
     const brokenLinks = [];
     await Promise.all(uniqueLinks.map(async (link) => {
       try {
