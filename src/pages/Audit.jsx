@@ -159,16 +159,23 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
   // so it only enters the weighted average when the AI call actually succeeded — a missing/failed
   // AI read should never silently drag the overall score down.
   const clarityScore = scan?.ai?.clarityScore ?? null;
+  const visualScore   = scan?.visual?.visualScore ?? null;
+  const extraBuckets = (clarityScore != null ? 1 : 0) + (visualScore != null ? 1 : 0);
+  // Each optional AI bucket (Positioning, Visual Design) takes 0.08 off the mechanical
+  // scores, proportionally, and only when that bucket actually has a score — a failed
+  // or skipped AI read never changes how the rest of the audit is weighted.
+  const trim = extraBuckets * 0.08 / 8;
   const weights = [
-    { score:mobileScore,  w: clarityScore != null ? 0.20 : 0.22 },
-    { score:vitScore,     w: clarityScore != null ? 0.18 : 0.20 },
-    { score:desktopScore, w: clarityScore != null ? 0.11 : 0.12 },
-    { score:seoScore,     w: clarityScore != null ? 0.13 : 0.14 },
-    { score:imageScore,   w: clarityScore != null ? 0.09 : 0.10 },
-    { score:techScore,    w: clarityScore != null ? 0.09 : 0.10 },
-    { score:accessScore,  w: clarityScore != null ? 0.06 : 0.07 },
-    { score:bestScore,    w: clarityScore != null ? 0.05 : 0.05 },
-    ...(clarityScore != null ? [{ score:clarityScore, w:0.09 }] : []),
+    { score:mobileScore,  w: 0.22 - trim },
+    { score:vitScore,     w: 0.20 - trim },
+    { score:desktopScore, w: 0.12 - trim },
+    { score:seoScore,     w: 0.14 - trim },
+    { score:imageScore,   w: 0.10 - trim },
+    { score:techScore,    w: 0.10 - trim },
+    { score:accessScore,  w: 0.07 - trim },
+    { score:bestScore,    w: 0.05 - trim },
+    ...(clarityScore != null ? [{ score:clarityScore, w:0.08 }] : []),
+    ...(visualScore != null  ? [{ score:visualScore,  w:0.08 }] : []),
   ];
   const overall = clamp(weights.reduce((acc, w) => acc + w.score * w.w, 0));
 
@@ -462,6 +469,14 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
           f.finding, "Visitors who can't quickly tell what you sell or what to do next tend to leave rather than dig for it.",
           f.fix));
     }
+
+    /* Visual Design — from an AI read of an actual screenshot, not the HTML. */
+    if (scan.visual) {
+      (scan.visual.findings || []).forEach((f, i) =>
+        add(`vis-${i}`, f.severity || "medium", "Visual Design", f.title,
+          f.finding, "A confusing or cluttered first impression makes visitors bounce before they ever read your copy.",
+          f.fix));
+    }
   }
 
   /* Sort */
@@ -510,9 +525,12 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
       access:  { score:accessScore,  label:"Accessibility" },
       best:    { score:bestScore,    label:"Best Practices" },
       ...(clarityScore != null ? { positioning: { score:clarityScore, label:"Positioning & Clarity" } } : {}),
+      ...(visualScore != null  ? { visual: { score:visualScore, label:"Visual Design" } } : {}),
     },
     headlineVerdict: scan?.ai?.headlineVerdict || null,
     ctaVerdict: scan?.ai?.ctaVerdict || null,
+    screenshotUrl: scan?.visual?.screenshotUrl || null,
+    visualSummary: scan?.visual?.summary || null,
     vitals: {
       lcp: { value:ms(lcpMs),              status:lcpMs<2500?"good":lcpMs<4000?"warn":"fail", label:"LCP" },
       cls: { value:clsVal.toFixed(3),      status:clsVal<0.1?"good":clsVal<0.25?"warn":"fail", label:"CLS" },
@@ -1111,6 +1129,31 @@ export default function Audit() {
               </div>
             ))}
           </div>
+
+          {/* Visual snapshot — an actual screenshot with AI-spotted issues, when available */}
+          {analysis.screenshotUrl && (
+            <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:16, padding:"1.2rem 1.5rem", marginBottom:"1.5rem" }}>
+              <p style={{ fontSize:11, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:"1rem" }}>
+                Visual snapshot — what a first-time visitor sees
+              </p>
+              <div style={{ display:"flex", gap:"1.2rem", flexWrap:"wrap", alignItems:"flex-start" }}>
+                <img
+                  src={analysis.screenshotUrl}
+                  alt={`Homepage screenshot of ${analysis.domain}`}
+                  loading="lazy"
+                  style={{ width:220, maxWidth:"100%", borderRadius:10, border:`.5px solid ${cardBorder}`, display:"block", flexShrink:0 }}
+                />
+                <div style={{ flex:"1 1 260px", minWidth:220 }}>
+                  {analysis.visualSummary && (
+                    <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:".9rem" }}>{analysis.visualSummary}</p>
+                  )}
+                  {analysis.findings.filter(f => f.category === "Visual Design").length === 0 && (
+                    <p style={{ fontSize:12.5, color:mutedText2, lineHeight:1.7 }}>No major visual issues spotted in the screenshot above the fold.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Severity summary */}
           <div style={{ display:"flex", gap:10, marginBottom:"1.5rem", flexWrap:"wrap" }}>
