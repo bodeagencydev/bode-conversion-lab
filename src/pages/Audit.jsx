@@ -159,7 +159,11 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
   // so it only enters the weighted average when the AI call actually succeeded — a missing/failed
   // AI read should never silently drag the overall score down.
   const clarityScore = scan?.ai?.clarityScore ?? null;
-  const visualScore   = scan?.visual?.visualScore ?? null;
+  const visualPages   = scan?.visual?.pages || [];
+  const scoredVisualPages = visualPages.filter(p => p.visualScore != null);
+  const visualScore   = scoredVisualPages.length
+    ? Math.round(scoredVisualPages.reduce((a, p) => a + p.visualScore, 0) / scoredVisualPages.length)
+    : null;
   const extraBuckets = (clarityScore != null ? 1 : 0) + (visualScore != null ? 1 : 0);
   // Each optional AI bucket (Positioning, Visual Design) takes 0.08 off the mechanical
   // scores, proportionally, and only when that bucket actually has a score — a failed
@@ -470,13 +474,14 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
           f.fix));
     }
 
-    /* Visual Design — from an AI read of an actual screenshot, not the HTML. */
-    if (scan.visual) {
-      (scan.visual.findings || []).forEach((f, i) =>
-        add(`vis-${i}`, f.severity || "medium", "Visual Design", f.title,
-          f.finding, "A confusing or cluttered first impression makes visitors bounce before they ever read your copy.",
+    /* Visual Design — from an AI read of actual screenshots, not the HTML.
+       One pass per page (homepage, plus a product/collection page when one was found). */
+    visualPages.forEach((page, pi) => {
+      (page.findings || []).forEach((f, i) =>
+        add(`vis-${pi}-${i}`, f.severity || "medium", "Visual Design", `${page.label}: ${f.title}`,
+          f.finding, "A confusing or cluttered impression makes visitors bounce before they ever read your copy.",
           f.fix));
-    }
+    });
   }
 
   /* Sort */
@@ -529,8 +534,9 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
     },
     headlineVerdict: scan?.ai?.headlineVerdict || null,
     ctaVerdict: scan?.ai?.ctaVerdict || null,
-    screenshotUrl: scan?.visual?.screenshotUrl || null,
-    visualSummary: scan?.visual?.summary || null,
+    visualPages,
+    screenshotUrl: visualPages[0]?.screenshotUrl || null,
+    visualSummary: visualPages[0]?.summary || null,
     vitals: {
       lcp: { value:ms(lcpMs),              status:lcpMs<2500?"good":lcpMs<4000?"warn":"fail", label:"LCP" },
       cls: { value:clsVal.toFixed(3),      status:clsVal<0.1?"good":clsVal<0.25?"warn":"fail", label:"CLS" },
@@ -1130,28 +1136,37 @@ export default function Audit() {
             ))}
           </div>
 
-          {/* Visual snapshot — an actual screenshot with AI-spotted issues, when available */}
-          {analysis.screenshotUrl && (
+          {/* Visual snapshot — real screenshots (homepage + a deeper page when found), each
+              with its own AI-spotted issues, called out by where they sit on the page. */}
+          {analysis.visualPages?.length > 0 && (
             <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:16, padding:"1.2rem 1.5rem", marginBottom:"1.5rem" }}>
               <p style={{ fontSize:11, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:"1rem" }}>
-                Visual snapshot — what a first-time visitor sees
+                Visual snapshot — what visitors actually see
               </p>
-              <div style={{ display:"flex", gap:"1.2rem", flexWrap:"wrap", alignItems:"flex-start" }}>
-                <img
-                  src={analysis.screenshotUrl}
-                  alt={`Homepage screenshot of ${analysis.domain}`}
-                  loading="lazy"
-                  style={{ width:220, maxWidth:"100%", borderRadius:10, border:`.5px solid ${cardBorder}`, display:"block", flexShrink:0 }}
-                />
-                <div style={{ flex:"1 1 260px", minWidth:220 }}>
-                  {analysis.visualSummary && (
-                    <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:".9rem" }}>{analysis.visualSummary}</p>
-                  )}
-                  {analysis.findings.filter(f => f.category === "Visual Design").length === 0 && (
-                    <p style={{ fontSize:12.5, color:mutedText2, lineHeight:1.7 }}>No major visual issues spotted in the screenshot above the fold.</p>
-                  )}
+              {analysis.visualPages.map((page, pi) => (
+                <div key={pi} style={{ display:"flex", gap:"1.2rem", flexWrap:"wrap", alignItems:"flex-start", paddingTop: pi>0?"1.2rem":0, marginTop: pi>0?"1.2rem":0, borderTop: pi>0?`.5px solid ${cardBorder}`:"none" }}>
+                  <img
+                    src={page.screenshotUrl}
+                    alt={`${page.label} screenshot of ${analysis.domain}`}
+                    loading="lazy"
+                    style={{ width:180, maxHeight:340, objectFit:"cover", objectPosition:"top", borderRadius:10, border:`.5px solid ${cardBorder}`, display:"block", flexShrink:0 }}
+                  />
+                  <div style={{ flex:"1 1 260px", minWidth:220 }}>
+                    <p style={{ fontSize:12, fontWeight:700, color:headingColor, marginBottom:".4rem" }}>{page.label}</p>
+                    {page.summary && (
+                      <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:".7rem" }}>{page.summary}</p>
+                    )}
+                    {(page.findings || []).length === 0 && page.visualScore != null && (
+                      <p style={{ fontSize:12.5, color:mutedText2, lineHeight:1.7 }}>No major visual issues spotted on this page.</p>
+                    )}
+                    {(page.findings || []).map((f, i) => (
+                      <p key={i} style={{ fontSize:12.5, color:mutedText, lineHeight:1.65, margin:"0 0 .5rem" }}>
+                        <strong style={{ color:headingColor }}>{f.title}:</strong> {f.finding}
+                      </p>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           )}
 

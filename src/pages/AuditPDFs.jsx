@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, Font, Svg, Path, Circle } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Font, Svg, Path, Circle, Image } from "@react-pdf/renderer";
 
 /* ─────────────────────────────────────────────────────────
    BCL AUDIT PDF REPORTS — v2
@@ -268,6 +268,23 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
             <Text style={s.summaryLabel}>Total Issues</Text>
           </View>
         </View>
+
+        {analysis.visualPages?.length > 0 && (
+          <View wrap={false} style={{ marginBottom: 14 }}>
+            <Text style={s.sectionTitle}>Visual Snapshot</Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
+              {analysis.visualPages.map((page, pi) => (
+                <View key={pi} style={{ width: "48%", border: `1px solid #EEE7D8`, borderRadius: 10, padding: 8 }}>
+                  {page.screenshotUrl && (
+                    <Image src={page.screenshotUrl} style={{ width: "100%", height: 130, objectFit: "cover", objectPosition: "top", borderRadius: 6, marginBottom: 6 }} />
+                  )}
+                  <Text style={{ fontSize: 8.5, fontWeight: 800, color: INK, marginBottom: 2 }}>{page.label}</Text>
+                  {page.summary && <Text style={{ fontSize: 7.5, color: MUTED, lineHeight: 1.4 }}>{page.summary}</Text>}
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
 
         <Text style={s.sectionTitle}>Category Scores</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 6 }}>
