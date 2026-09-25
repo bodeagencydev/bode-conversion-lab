@@ -57,6 +57,12 @@
     },
     "api/chat.js": {
       "maxDuration": 30
+    },
+    "api/store-scan.js": {
+      "maxDuration": 25
+    },
+    "api/pagespeed.js": {
+      "maxDuration": 25
     }
   }
 }
