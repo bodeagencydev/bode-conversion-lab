@@ -21,7 +21,7 @@
    ENVIRONMENT VARIABLES: GEMINI_API_KEY (optional — enables the "ai" field)
 ──────────────────────────────────────────────────────────────────── */
 
-import { askGemini } from "../lib/gemini.js";
+import { askGemini, askGeminiVision } from "../lib/gemini.js";
 
 /* Very rough "visible text" extraction — no DOM, just regex. Good enough to
    give the model a sense of the page; not meant to be exact. Strips script/
@@ -82,6 +82,95 @@ async function scoreClarity(signals) {
   }
 }
 
+
+/* ── Visual audit: real screenshot + AI vision read ──────────────────────
+   Microlink (api.microlink.io) renders the page in a real browser and hosts
+   the finished PNG — unlike some free screenshot services it does not stream
+   a loading placeholder, so we always get the actual page, not a spinner.
+   Free tier: 50 screenshots/day, no signup. If that's outgrown, add
+   MICROLINK_API_KEY as an env var — the code below picks it up automatically.
+   Fails soft at every step: no screenshot or a failed vision read just means
+   `visual` comes back null and the rest of the audit is unaffected. */
+async function captureScreenshot(targetUrl) {
+  const key = process.env.MICROLINK_API_KEY ? `&apiKey=${process.env.MICROLINK_API_KEY}` : "";
+  const api = `https://api.microlink.io/?url=${encodeURIComponent(targetUrl)}&screenshot=true&meta=false&waitUntil=networkidle2${key}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const r = await fetch(api, { signal: controller.signal });
+    if (!r.ok) { console.error("MICROLINK REQUEST FAILED:", r.status, await r.text().catch(() => "")); return null; }
+    const data = await r.json();
+    const shot = data?.data?.screenshot;
+    if (!shot?.url) { console.error("MICROLINK: no screenshot in response:", JSON.stringify(data).slice(0, 300)); return null; }
+    return shot.url; // hosted PNG on Microlink's CDN — safe to hand straight to the browser
+  } catch (err) {
+    console.error("MICROLINK CALL FAILED:", err.name === "AbortError" ? "timed out" : err.message);
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchAsBase64(imageUrl) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const r = await fetch(imageUrl, { signal: controller.signal });
+    if (!r.ok) return null;
+    const buf = Buffer.from(await r.arrayBuffer());
+    if (buf.length > 8 * 1024 * 1024) return null; // keep the vision request small
+    const mimeType = r.headers.get("content-type")?.split(";")[0] || "image/png";
+    return { base64: buf.toString("base64"), mimeType };
+  } catch (err) {
+    console.error("SCREENSHOT FETCH FAILED:", err.name === "AbortError" ? "timed out" : err.message);
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const VISUAL_PROMPT = `You are a blunt conversion-rate consultant looking at a screenshot of a store's homepage, taken from the top of the page. Judge ONLY what is visible in the image.
+
+Look for real, specific visual problems: cluttered or busy layout competing for attention, a call-to-action button that's hard to spot (low contrast, wrong size, buried below more prominent elements), unclear visual hierarchy (unclear what to look at first), no visible trust signals (reviews, badges, guarantees) above the fold, poor spacing/crowding, text that's hard to read against its background, imagery that looks low-quality or generic/stocky, or a layout that doesn't clearly signal what's being sold.
+
+Respond with ONLY a JSON object, no markdown fences, no commentary, in exactly this shape:
+{"visualScore": <0-100 integer>, "summary": "<one sentence overall impression>", "findings": [{"severity": "critical|high|medium", "title": "<short title>", "finding": "<1-2 sentences, specific to what you actually see in THIS image>", "fix": "<1 sentence, concrete>"}]}
+
+Rules: findings array has 0-4 items — only real, specific problems visible in the image, never generic advice. If the page looks clean and clear, return an empty findings array and a high visualScore. Keep everything short.`;
+
+async function scoreVisual(targetUrl) {
+  const screenshotUrl = await captureScreenshot(targetUrl);
+  if (!screenshotUrl) return null;
+  if (!process.env.GEMINI_API_KEY) return { screenshotUrl, visualScore: null, summary: null, findings: [] };
+
+  const image = await fetchAsBase64(screenshotUrl);
+  if (!image) return { screenshotUrl, visualScore: null, summary: null, findings: [] };
+
+  const result = await askGeminiVision({
+    imageBase64: image.base64,
+    mimeType: image.mimeType,
+    prompt: "Here is the homepage screenshot. Return the JSON as instructed.",
+    system: VISUAL_PROMPT,
+    maxOutputTokens: 500,
+    budgetMs: 10000,
+  });
+  if (!result.ok) { console.error("VISUAL SCORE FAILED:", result.error); return { screenshotUrl, visualScore: null, summary: null, findings: [] }; }
+
+  try {
+    const cleaned = result.reply.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+    const parsed = JSON.parse(cleaned);
+    return {
+      screenshotUrl,
+      visualScore: typeof parsed.visualScore === "number" ? Math.max(0, Math.min(100, Math.round(parsed.visualScore))) : null,
+      summary: parsed.summary || null,
+      findings: Array.isArray(parsed.findings) ? parsed.findings.slice(0, 4) : [],
+    };
+  } catch (err) {
+    console.error("VISUAL SCORE: could not parse model output:", err.message, "|", result.reply?.slice(0, 200));
+    return { screenshotUrl, visualScore: null, summary: null, findings: [] };
+  }
+}
+
 export default async function handler(req, res) {
   const target = req.query.url;
   if (!target) return res.status(400).json({ error: "Missing url" });
@@ -127,7 +216,11 @@ export default async function handler(req, res) {
     const hasSchema = hasLink('application/ld+json');
 
     const pageSignals = extractPageSignals(html);
-    const ai = await scoreClarity(pageSignals).catch((err) => { console.error("CLARITY SCORE THREW:", err.message); return null; });
+    // Clarity (text) and the visual (screenshot) read both call Gemini independently and
+    // don't depend on each other or on the broken-link check below, so all three run
+    // concurrently — total added time is set by the slowest of the three, not their sum.
+    const aiPromise     = scoreClarity(pageSignals).catch((err) => { console.error("CLARITY SCORE THREW:", err.message); return null; });
+    const visualPromise = scoreVisual(target).catch((err) => { console.error("VISUAL SCAN THREW:", err.message); return null; });
 
     /* ── Payment methods detected ── */
     const paymentSignatures = {
@@ -172,6 +265,8 @@ export default async function handler(req, res) {
       }
     }));
 
+    const [ai, visual] = await Promise.all([aiPromise, visualPromise]);
+
     res.status(200).json({
       ok: true,
       passwordProtected,
@@ -182,6 +277,7 @@ export default async function handler(req, res) {
       hasTwitterCard,
       hasSchema,
       ai,
+      visual,
       paymentMethods,
       checkout: { hasGuestCheckout, forcesAccountCreation },
       brokenLinks,

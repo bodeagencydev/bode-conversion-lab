@@ -215,6 +215,25 @@ async function handleIncomingMessage({ from, contactName, message }) {
   const buttonReplyId = message.type === "interactive" && message.interactive?.type === "button_reply"
     ? message.interactive.button_reply.id : null;
 
+
+/* Answers a free-text aside BEFORE the structured intake is done — e.g. someone
+   asks "how's it going?" right when the bot is expecting them to tap a menu option.
+   Sends nothing if AI is unavailable/exhausted/fails; the caller always re-shows
+   the expected prompt afterward regardless, so the flow never gets stuck either way. */
+async function maybeAnswerAside(from, session, typedText) {
+  if (!typedText || !process.env.GEMINI_API_KEY) return;
+  if ((session.aiTurns || 0) >= AI_MAX_TURNS) return;
+  const question = typedText.slice(0, AI_MAX_INPUT_CHARS);
+  const result = await askGemini(
+    [{ role: "user", content: question }],
+    { system: BODE_SYSTEM_PROMPT + WHATSAPP_ADDENDUM + leadContext(session), maxOutputTokens: 300, budgetMs: 7000 }
+  );
+  if (!result.ok) { console.error("WHATSAPP ASIDE AI FAILED:", result.error); return; }
+  session.aiTurns = (session.aiTurns || 0) + 1;
+  await saveSession(from, session);
+  await sendText(from, toWhatsAppText(result.reply));
+}
+
   /* ── New conversation — decide which flow based on the pre-filled text ── */
   if (!session) {
     const flow = typedText && SHORT_FLOW_TRIGGER.test(typedText) ? "short" : "deep";
@@ -244,6 +263,7 @@ async function handleIncomingMessage({ from, contactName, message }) {
   if (session.step === "awaiting_choice") {
     const labels = labelsFor(session.flow);
     if (!listReplyId || !labels[listReplyId]) {
+      await maybeAnswerAside(from, session, typedText);
       await sendHelpList(from, `Just tap one of the options below 👇`, optionsFor(session.flow));
       return;
     }
