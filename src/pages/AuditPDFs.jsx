@@ -1,5 +1,20 @@
 import { Document, Page, Text, View, StyleSheet, Font, Svg, Path, Circle, Image } from "@react-pdf/renderer";
 
+function gradeFor(score) {
+  if (score == null) return null;
+  if (score >= 90) return "A";  if (score >= 85) return "A-";
+  if (score >= 80) return "B+"; if (score >= 75) return "B";  if (score >= 70) return "B-";
+  if (score >= 65) return "C+"; if (score >= 60) return "C";  if (score >= 55) return "C-";
+  if (score >= 50) return "D+"; if (score >= 45) return "D";  if (score >= 40) return "D-";
+  return "F";
+}
+function gradeBg(score) {
+  if (score == null) return "#999";
+  if (score >= 75) return "#00C853";
+  if (score >= 55) return "#E6A700";
+  return "#FF3B30";
+}
+
 /* ─────────────────────────────────────────────────────────
    BCL AUDIT PDF REPORTS — v2
    Modeled directly on the Ahrefs/SEOptimer report language:
@@ -276,9 +291,27 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
               {analysis.visualPages.map((page, pi) => (
                 <View key={pi} style={{ width: "48%", border: `1px solid #EEE7D8`, borderRadius: 10, padding: 8 }}>
                   {page.screenshotUrl && (
-                    <Image src={page.screenshotUrl} style={{ width: "100%", height: 130, objectFit: "cover", objectPosition: "top", borderRadius: 6, marginBottom: 6 }} />
+                    <View style={{ position: "relative", width: "100%", height: 130, borderRadius: 6, marginBottom: 6, overflow: "hidden" }}>
+                      <Image src={page.screenshotUrl} style={{ width: "100%", height: 130, objectFit: "cover", objectPosition: "top" }} />
+                      {(page.findings || []).map((f, fi) => f.y == null ? null : (
+                        <View key={fi} style={{
+                          position: "absolute", left: "50%", top: `${Math.max(2, Math.min(98, f.y))}%`,
+                          width: 12, height: 12, borderRadius: 6, backgroundColor: AMBER,
+                          alignItems: "center", justifyContent: "center", marginLeft: -6, marginTop: -6,
+                        }}>
+                          <Text style={{ fontSize: 6.5, fontWeight: 800, color: "#000" }}>{fi + 1}</Text>
+                        </View>
+                      ))}
+                    </View>
                   )}
-                  <Text style={{ fontSize: 8.5, fontWeight: 800, color: INK, marginBottom: 2 }}>{page.label}</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 2 }}>
+                    <Text style={{ fontSize: 8.5, fontWeight: 800, color: INK }}>{page.label}</Text>
+                    {page.visualScore != null && (
+                      <Text style={{ fontSize: 6.5, fontWeight: 800, color: "#fff", backgroundColor: gradeBg(page.visualScore), borderRadius: 4, paddingHorizontal: 4, paddingVertical: 1, marginLeft: 5 }}>
+                        {gradeFor(page.visualScore)}
+                      </Text>
+                    )}
+                  </View>
                   {page.summary && <Text style={{ fontSize: 7.5, color: MUTED, lineHeight: 1.4 }}>{page.summary}</Text>}
                 </View>
               ))}
@@ -293,6 +326,9 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
               <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 2 }}>
                 <Dot color={v.score > 74 ? GREEN : v.score > 49 ? AMBER : RED} />
                 <Text style={{ fontSize: 13, fontWeight: 800, marginLeft: 5 }}>{v.score}</Text>
+                <Text style={{ fontSize: 6.5, fontWeight: 800, color: "#fff", backgroundColor: gradeBg(v.score), borderRadius: 4, paddingHorizontal: 4, paddingVertical: 1, marginLeft: 5 }}>
+                  {gradeFor(v.score)}
+                </Text>
               </View>
               <Text style={{ fontSize: 7.5, color: FAINT }}>{v.label}</Text>
             </View>
@@ -311,13 +347,31 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
               <Text style={s.catCount}>{items.length} issue{items.length !== 1 ? "s" : ""}</Text>
             </View>
             {items.map((f, i) => (
-              <View key={i} style={s.row} wrap={false}>
-                <View style={s.thStatus}><Dot color={SEV[f.severity]} /></View>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.rowTitle}>{f.title}</Text>
-                  <Text style={s.rowDesc}>{f.finding}</Text>
+              <View key={i} style={{ ...s.row, flexDirection: "column", alignItems: "stretch" }} wrap={false}>
+                <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 3 }}>
+                  <Dot color={SEV[f.severity]} />
+                  {f.pin != null && (
+                    <Text style={{ fontSize: 6.5, fontWeight: 800, color: "#000", backgroundColor: AMBER, borderRadius: 6, width: 10, height: 10, textAlign: "center", marginLeft: 5 }}>{f.pin}</Text>
+                  )}
+                  <Text style={{ ...s.rowTitle, marginLeft: 5, flex: 1 }}>{f.title}</Text>
+                  <Text style={{ color: SEV[f.severity], fontSize: 7, fontWeight: 800, textTransform: "uppercase" }}>{f.severity}</Text>
                 </View>
-                <Text style={{ ...s.rowSide, color: SEV[f.severity], fontSize: 7.5, textTransform: "uppercase" }}>{f.severity}</Text>
+                <Text style={{ fontSize: 6.5, fontWeight: 800, color: FAINT, textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 1 }}>What we see</Text>
+                <Text style={s.rowDesc}>{f.finding}</Text>
+                <Text style={{ fontSize: 6.5, fontWeight: 800, color: FAINT, textTransform: "uppercase", letterSpacing: 0.4, marginTop: 3, marginBottom: 1 }}>Why does it cost you money?</Text>
+                <Text style={s.rowDesc}>{f.impact}</Text>
+                {f.tags?.length > 0 && (
+                  <View style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 3 }}>
+                    {f.tags.map((t, ti) => (
+                      <Text key={ti} style={{ fontSize: 6.5, color: GREEN, borderWidth: 0.5, borderColor: GREEN, borderRadius: 8, paddingHorizontal: 5, paddingVertical: 1, marginRight: 4, marginBottom: 2 }}>
+                        {t}
+                      </Text>
+                    ))}
+                  </View>
+                )}
+                <Text style={{ fontSize: 7, color: GREEN, marginTop: 3 }}>
+                  <Text style={{ fontWeight: 800 }}>Fix: </Text>{f.fix}
+                </Text>
               </View>
             ))}
           </View>

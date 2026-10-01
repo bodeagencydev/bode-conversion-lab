@@ -16,6 +16,55 @@ const pct       = v => v != null ? clamp(v * 100) : null;
 const ms        = v => v != null ? (v / 1000).toFixed(1) + "s" : "—";
 const sevColor  = s => s==="critical"?"#FF3B3B":s==="high"?"#FF9900":s==="medium"?"#FFD700":"#00ff88";
 
+// Standard letter-grade scale (matches how the score gauges/badges read elsewhere in this report).
+function gradeFor(score) {
+  if (score == null) return null;
+  if (score >= 90) return "A";  if (score >= 85) return "A-";
+  if (score >= 80) return "B+"; if (score >= 75) return "B";  if (score >= 70) return "B-";
+  if (score >= 65) return "C+"; if (score >= 60) return "C";  if (score >= 55) return "C-";
+  if (score >= 50) return "D+"; if (score >= 45) return "D";  if (score >= 40) return "D-";
+  return "F";
+}
+function gradeColor(score) {
+  if (score == null) return "#888";
+  if (score >= 75) return "#00C853";
+  if (score >= 55) return "#FF9900";
+  return "#FF3B30";
+}
+
+/* Small inline radar chart summarizing category scores — pure SVG, no library,
+   so it draws the same way in every browser without adding bundle weight. */
+function RadarChart({ metrics, size = 220, color = "#00ff88", gridColor = "rgba(255,255,255,.14)", labelColor = "rgba(255,255,255,.6)" }) {
+  const entries = Object.values(metrics);
+  const n = entries.length;
+  if (n < 3) return null;
+  const cx = size / 2, cy = size / 2, r = size * 0.34;
+  const angle = i => -Math.PI / 2 + (i * 2 * Math.PI) / n;
+  const pt = (i, frac) => [cx + Math.cos(angle(i)) * r * frac, cy + Math.sin(angle(i)) * r * frac];
+  const ring = frac => entries.map((_, i) => pt(i, frac).join(",")).join(" ");
+  const dataPoints = entries.map((m, i) => pt(i, Math.max(0.04, (m.score || 0) / 100)).join(",")).join(" ");
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {[0.25, 0.5, 0.75, 1].map(f => (
+        <polygon key={f} points={ring(f)} fill="none" stroke={gridColor} strokeWidth={1} />
+      ))}
+      {entries.map((_, i) => {
+        const [x, y] = pt(i, 1);
+        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke={gridColor} strokeWidth={1} />;
+      })}
+      <polygon points={dataPoints} fill={color} fillOpacity={0.22} stroke={color} strokeWidth={2} />
+      {entries.map((m, i) => {
+        const [x, y] = pt(i, 1.22);
+        return (
+          <text key={i} x={x} y={y} fontSize={10} fill={labelColor} textAnchor="middle" dominantBaseline="middle">
+            {m.label.split(" ")[0]}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
+
 /* Simple line-style lock icons — replaces emoji glyphs for a cleaner, tool-grade look */
 function LockIcon({ size = 32, color = "currentColor" }) {
   return (
@@ -185,8 +234,8 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
 
   /* ─── FINDINGS ─── */
   const findings = [];
-  const add = (id, severity, category, title, finding, impact, fix) =>
-    findings.push({ id, severity, category, title, finding, impact, fix });
+  const add = (id, severity, category, title, finding, impact, fix, extra) =>
+    findings.push({ id, severity, category, title, finding, impact, fix, tags: extra?.tags || [], y: extra?.y ?? null, pin: extra?.pin ?? null, pinPage: extra?.pinPage ?? null });
 
   /* Mobile */
   if (mobileScore < 50)
@@ -471,7 +520,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
       (scan.ai.findings || []).forEach((f, i) =>
         add(`pos-${i}`, f.severity || "medium", "Positioning", f.title,
           f.finding, "Visitors who can't quickly tell what you sell or what to do next tend to leave rather than dig for it.",
-          f.fix));
+          f.fix, { tags: f.tags }));
     }
 
     /* Visual Design — from an AI read of actual screenshots, not the HTML.
@@ -480,7 +529,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
       (page.findings || []).forEach((f, i) =>
         add(`vis-${pi}-${i}`, f.severity || "medium", "Visual Design", `${page.label}: ${f.title}`,
           f.finding, "A confusing or cluttered impression makes visitors bounce before they ever read your copy.",
-          f.fix));
+          f.fix, { tags: f.tags, y: f.y, pin: i + 1, pinPage: page.label }));
     });
   }
 
@@ -489,7 +538,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
   findings.sort((a, b) => sevOrder[a.severity] - sevOrder[b.severity]);
 
   const leak = overall < 40 ? "50-70% of potential revenue" : overall < 55 ? "30-50%" : overall < 70 ? "15-30%" : overall < 85 ? "5-15%" : "Under 5%";
-  const grade = overall >= 90 ? "A" : overall >= 78 ? "B" : overall >= 63 ? "C" : overall >= 45 ? "D" : "F";
+  
   const verdictMap = {
     F: "Critically broken. Every visitor — paid or organic — is experiencing a degraded journey. This is a rebuilding problem, not a tweaking problem.",
     D: "Significant revenue leaks across multiple areas. Functional but underperforming in ways that compound daily. These are fixable problems.",
@@ -498,9 +547,11 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
     A: "Strong technical foundation. Focus should shift to conversion optimization and growth rather than technical repair.",
   };
 
+  const grade = gradeFor(overall); // fine-grained (A-/B+/C-/etc) so it matches every per-category badge in this report
   return {
     overall, grade, leak,
-    verdict: verdictMap[grade],
+    verdict: verdictMap[grade[0]], // verdictMap only has base letters -- drop any +/-
+    baseGrade: grade[0],
     isCritical: overall < 50 || mobileScore < 45 || vitScore < 35 || scan?.passwordProtected,
     domain: storeUrl.replace(/https?:\/\//,"").split("/")[0].split("?")[0],
     /* Structured (non-prose) leak data for the Client Snapshot graphic —
@@ -818,6 +869,7 @@ export default function Audit() {
   const [snapLoading,  setSnapLoading]  = useState(false);
   const snapshotRef = useRef(null);
   const [snapReady, setSnapReady] = useState(null); // holds computed props once ready to render+capture
+  const [earlyScan, setEarlyScan] = useState(null); // trust-signal results, shown as soon as they're ready instead of waiting on PageSpeed too
 
   const headingColor = dark?"#fff":"#1A1408";
   const mutedText    = dark?"rgba(255,255,255,.5)":"rgba(26,20,8,.65)";
@@ -834,7 +886,7 @@ export default function Audit() {
     if (!url.trim()) return setError("Please enter your store URL.");
     if (!email.trim() || !email.includes("@")) return setError("Please enter your email address.");
     setError(""); setLoading(true); setStageIdx(0);
-    setAnalysis(null); setSolution(null); setRevealed(false);
+    setAnalysis(null); setSolution(null); setRevealed(false); setEarlyScan(null);
     if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) setAccessTier("admin");
 
     let stage = 0;
@@ -845,10 +897,17 @@ export default function Audit() {
 
     try {
       const storeUrl = url.trim().startsWith("http") ? url.trim() : `https://${url.trim()}`;
+      // The trust-signal scan is usually much faster than the two PageSpeed calls —
+      // paint it the moment it lands instead of making the visitor stare at a spinner
+      // for the full 30-60s. The PSI calls keep running in parallel either way.
+      const scanPromise = fetch(`/api/store-scan?url=${encodeURIComponent(storeUrl)}`)
+        .then(r => r.json())
+        .then(data => { setEarlyScan(data); return data; })
+        .catch(() => null);
       const [desktop, mobile, scan] = await Promise.all([
         fetchPSI(storeUrl,"desktop").catch(() => null),
         fetchPSI(storeUrl,"mobile").catch(() => null),
-        fetch(`/api/store-scan?url=${encodeURIComponent(storeUrl)}`).then(r => r.json()).catch(() => null),
+        scanPromise,
       ]);
       clearInterval(interval);
       if (!desktop && !mobile) throw new Error("Could not reach store");
@@ -856,6 +915,13 @@ export default function Audit() {
       const plan   = buildSolutionPlan(result);
       setAnalysis(result); setSolution(plan); setLoading(false);
       setTimeout(() => setRevealed(true), 100);
+      // Lets the chat widget talk about THIS store instead of generic CRO advice,
+      // if the same visitor opens it later in this browser (see ChatWidget's send()).
+      try {
+        localStorage.setItem("bcl_last_audit", JSON.stringify({
+          url: storeUrl, grade: result.grade, overall: result.overall, topIssues: result.topIssues,
+        }));
+      } catch {}
     } catch {
       clearInterval(interval); setLoading(false);
       setError("Could not analyse that URL. Please check it's correct and publicly accessible.");
@@ -1073,6 +1139,26 @@ export default function Audit() {
                 </div>
               ))}
             </div>
+            {earlyScan?.ok && (
+              <div style={{ marginTop:"2rem", textAlign:"left", background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:14, padding:"1.1rem 1.3rem" }}>
+                <p style={{ fontSize:10.5, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".06em", marginBottom:".7rem" }}>
+                  Already found — while the speed test keeps running
+                </p>
+                <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                  {[
+                    { ok: Object.values(earlyScan.policies||{}).every(Boolean), label:"Store policies in place" },
+                    { ok: !!earlyScan.hasReviews, label:"Customer reviews visible" },
+                    { ok: !!earlyScan.hasLiveChat, label:"Live chat or support available" },
+                    { ok: (earlyScan.brokenLinks||[]).length === 0, label:`No broken links${earlyScan.brokenLinks?.length ? ` (${earlyScan.brokenLinks.length} found)` : ""}` },
+                  ].map((row, i) => (
+                    <div key={i} style={{ display:"flex", alignItems:"center", gap:8, fontSize:12.5, color:mutedText }}>
+                      <span style={{ color: row.ok ? brandG : "#FF9900", fontWeight:800, width:14 }}>{row.ok ? "✓" : "!"}</span>
+                      {row.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -1132,9 +1218,17 @@ export default function Audit() {
                 <span style={{ display:"inline-block", width:10, height:10, borderRadius:"50%", background:v.score>74?brandG:v.score>49?"#FF9900":"#FF3B3B" }} />
                 <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.4rem", fontWeight:800, color:v.score>74?brandG:v.score>49?"#FF9900":"#FF3B3B", margin:"4px 0 2px" }}>{v.score}</p>
                 <p style={{ fontSize:10, color:mutedText3, lineHeight:1.3 }}>{v.label}</p>
+                <span style={{ display:"inline-block", marginTop:6, fontSize:10, fontWeight:800, color:"#fff", background:gradeColor(v.score), borderRadius:5, padding:"1px 7px" }}>{gradeFor(v.score)}</span>
               </div>
             ))}
           </div>
+
+          {/* Radar overview — same category scores, shaped so you can see the weak side of the store at a glance */}
+          {Object.keys(analysis.metrics).length >= 3 && (
+            <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:16, padding:"1.2rem 1.5rem", marginBottom:"1.5rem", display:"flex", justifyContent:"center" }}>
+              <RadarChart metrics={analysis.metrics} color={brandG} gridColor={dark?"rgba(255,255,255,.14)":"rgba(0,0,0,.12)"} labelColor={dark?"rgba(255,255,255,.55)":"rgba(0,0,0,.55)"} />
+            </div>
+          )}
 
           {/* Visual snapshot — real screenshots (homepage + a deeper page when found), each
               with its own AI-spotted issues, called out by where they sit on the page. */}
@@ -1145,14 +1239,27 @@ export default function Audit() {
               </p>
               {analysis.visualPages.map((page, pi) => (
                 <div key={pi} style={{ display:"flex", gap:"1.2rem", flexWrap:"wrap", alignItems:"flex-start", paddingTop: pi>0?"1.2rem":0, marginTop: pi>0?"1.2rem":0, borderTop: pi>0?`.5px solid ${cardBorder}`:"none" }}>
-                  <img
-                    src={page.screenshotUrl}
-                    alt={`${page.label} screenshot of ${analysis.domain}`}
-                    loading="lazy"
-                    style={{ width:180, maxHeight:340, objectFit:"cover", objectPosition:"top", borderRadius:10, border:`.5px solid ${cardBorder}`, display:"block", flexShrink:0 }}
-                  />
+                  <div style={{ position:"relative", width:180, maxHeight:340, flexShrink:0, borderRadius:10, overflow:"hidden", border:`.5px solid ${cardBorder}` }}>
+                    <img
+                      src={page.screenshotUrl}
+                      alt={`${page.label} screenshot of ${analysis.domain}`}
+                      loading="lazy"
+                      style={{ width:180, maxHeight:340, objectFit:"cover", objectPosition:"top", display:"block" }}
+                    />
+                    {(page.findings || []).map((f, i) => f.y == null ? null : (
+                      <span key={i} title={f.title} style={{
+                        position:"absolute", left:"50%", top:`${Math.max(2,Math.min(98,f.y))}%`, transform:"translate(-50%,-50%)",
+                        width:20, height:20, borderRadius:"50%", background:"#FF9900", color:"#000", fontSize:11, fontWeight:800,
+                        display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 0 0 2px rgba(0,0,0,.5)",
+                      }}>{i+1}</span>
+                    ))}
+                  </div>
                   <div style={{ flex:"1 1 260px", minWidth:220 }}>
-                    <p style={{ fontSize:12, fontWeight:700, color:headingColor, marginBottom:".4rem" }}>{page.label}</p>
+                    <p style={{ fontSize:12, fontWeight:700, color:headingColor, marginBottom:".4rem" }}>
+                      {page.label}{page.visualScore != null && (
+                        <span style={{ marginLeft:8, fontSize:10, fontWeight:800, color:"#fff", background:gradeColor(page.visualScore), borderRadius:5, padding:"1px 7px" }}>{gradeFor(page.visualScore)}</span>
+                      )}
+                    </p>
                     {page.summary && (
                       <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:".7rem" }}>{page.summary}</p>
                     )}
@@ -1160,9 +1267,14 @@ export default function Audit() {
                       <p style={{ fontSize:12.5, color:mutedText2, lineHeight:1.7 }}>No major visual issues spotted on this page.</p>
                     )}
                     {(page.findings || []).map((f, i) => (
-                      <p key={i} style={{ fontSize:12.5, color:mutedText, lineHeight:1.65, margin:"0 0 .5rem" }}>
-                        <strong style={{ color:headingColor }}>{f.title}:</strong> {f.finding}
-                      </p>
+                      <div key={i} style={{ display:"flex", gap:8, marginBottom:".5rem" }}>
+                        {f.y != null && (
+                          <span style={{ flexShrink:0, marginTop:1, width:16, height:16, borderRadius:"50%", background:"#FF9900", color:"#000", fontSize:9.5, fontWeight:800, display:"inline-flex", alignItems:"center", justifyContent:"center" }}>{i+1}</span>
+                        )}
+                        <p style={{ fontSize:12.5, color:mutedText, lineHeight:1.65, margin:0 }}>
+                          <strong style={{ color:headingColor }}>{f.title}:</strong> {f.finding}
+                        </p>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -1196,9 +1308,23 @@ export default function Audit() {
                   <span style={{ background:`${sevColor(f.severity)}22`, border:`.5px solid ${sevColor(f.severity)}55`, borderRadius:6, padding:"2px 8px", fontSize:10, fontWeight:700, color:sevColor(f.severity), textTransform:"uppercase" }}>{f.severity}</span>
                   <span style={{ fontSize:11, color:mutedText3 }}>{f.category}</span>
                 </div>
-                <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:800, color:headingColor, marginBottom:".5rem" }}>{f.title}</h3>
+                <div style={{ display:"flex", alignItems:"baseline", gap:8, marginBottom:".5rem" }}>
+                  {f.pin != null && (
+                    <span style={{ flexShrink:0, width:20, height:20, borderRadius:"50%", background:"#FF9900", color:"#000", fontSize:11, fontWeight:800, display:"inline-flex", alignItems:"center", justifyContent:"center" }}>{f.pin}</span>
+                  )}
+                  <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:800, color:headingColor, margin:0 }}>{f.title}</h3>
+                </div>
+                <p style={{ fontSize:10, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".06em", marginBottom:2 }}>What we see</p>
                 <p style={{ fontSize:13, color:mutedText, lineHeight:1.75, marginBottom:".6rem" }}>{f.finding}</p>
-                <p style={{ fontSize:12, color:mutedText3, fontStyle:"italic", marginBottom:".75rem" }}>Revenue impact: {f.impact}</p>
+                <p style={{ fontSize:10, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".06em", marginBottom:2 }}>Why does it cost you money?</p>
+                <p style={{ fontSize:12.5, color:mutedText, lineHeight:1.7, marginBottom:".75rem" }}>{f.impact}</p>
+                {f.tags?.length > 0 && (
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginBottom:".75rem" }}>
+                    {f.tags.map((t,ti) => (
+                      <span key={ti} style={{ fontSize:10.5, color:brandG, background:`${glow(.1)}`, border:`.5px solid ${glow(.28)}`, borderRadius:20, padding:"2px 9px" }}>✦ {t}</span>
+                    ))}
+                  </div>
+                )}
                 <div style={{ background:dark?`${glow(.04)}`:`${glow(.06)}`, border:`.5px solid ${glow(.18)}`, borderRadius:8, padding:".75rem 1rem" }}>
                   <span style={{ fontSize:11, color:brandG, fontWeight:700 }}>→ Fix: </span>
                   <span style={{ fontSize:13, color:mutedText, lineHeight:1.7 }}>{f.fix}</span>
@@ -1357,6 +1483,9 @@ export default function Audit() {
               <a href={"https://wa.me/19454076473?text="+encodeURIComponent(`Hi Bode Conversion Lab 👋 I just ran the free audit for ${url}. My store scored ${analysis?.overall}/100 and I want to fix these issues. Can we talk?`)} target="_blank" rel="noopener noreferrer" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>
                 Apply for professional audit →
               </a>
+              <Link to={`/contact?url=${encodeURIComponent(url)}&grade=${encodeURIComponent(analysis?.grade || "")}`} className="btn-ghost" style={{ display:"inline-block", textDecoration:"none" }}>
+                Continue to application form
+              </Link>
               <button onClick={() => { setAnalysis(null); setSolution(null); setUrl(""); setEmail(""); setRevealed(false); setAccessTier(null); }} className="btn-ghost" style={{ fontFamily:"inherit", cursor:"pointer" }}>
                 Scan another store
               </button>

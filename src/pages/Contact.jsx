@@ -23,6 +23,13 @@ function ApplyForm() {
   const [answers, setAnswers] = useState({});
   const [done, setDone] = useState(false);
 
+  // Someone arriving from the audit report (?url=&grade=) already told us
+  // the one thing every cold visitor makes us ask for -- their store -- so
+  // don't make them retype it.
+  const params = (() => { try { return new URLSearchParams(window.location.search); } catch { return null; } })();
+  const prefillUrl = params?.get("url") || "";
+  const prefillGrade = params?.get("grade") || "";
+
   const headingColor  = dark ? "#fff"                : "#1A1408";
   const mutedText     = dark ? "rgba(255,255,255,.45)" : "rgba(26,20,8,.62)";
   const mutedText2    = dark ? "rgba(255,255,255,.3)"  : "rgba(26,20,8,.62)";
@@ -69,14 +76,30 @@ function ApplyForm() {
       <div style={{ width:64, height:64, borderRadius:"50%", background:`${glow(.15)}`, border:`.5px solid ${glow(.4)}`, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.5rem" }}>
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 8" stroke={brandG} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
       </div>
-      <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.6rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>Application received!</h3>
-      <p style={{ fontSize:15, color:mutedText, lineHeight:1.7 }}>We've got your details. Expect a personalised response within 24 hours.</p>
+      <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.6rem", fontWeight:800, color:headingColor, marginBottom:".75rem" }}>We have it. Reply within 24 hours.</h3>
+      <p style={{ fontSize:15, color:mutedText, lineHeight:1.7, marginBottom:"1.6rem" }}>No need to wait around for that reply.</p>
+      <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
+        {!prefillUrl && (
+          <Link to="/audit" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>
+            Run a free scan while you wait →
+          </Link>
+        )}
+        <a href={"https://wa.me/19454076473?text="+encodeURIComponent("Hi, I just applied on the site" + (prefillUrl ? ` for ${prefillUrl}` : "") + " — wanted to say hi while I wait to hear back.")}
+          target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display:"inline-block", textDecoration:"none" }}>
+          Message us on WhatsApp
+        </a>
+      </div>
     </div>
   );
 
   return (
     <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderTop:`.5px solid ${cardBorderTop}`, borderRadius:20, padding:"2.5rem", position:"relative", overflow:"hidden" }}>
       <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:dark?"linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent)":"linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent)" }}/>
+      {prefillUrl && (
+        <div style={{ background:`${glow(.08)}`, border:`.5px solid ${glow(.3)}`, borderRadius:12, padding:"12px 16px", marginBottom:"1.2rem", fontSize:13, color:mutedText, lineHeight:1.6 }}>
+          Picking up from your audit of <strong style={{ color:brandG }}>{prefillUrl}</strong>{prefillGrade ? ` (scored ${prefillGrade})` : ""} — your store URL is already filled in below.
+        </div>
+      )}
       {!done ? (
         <>
           <div style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
@@ -118,11 +141,11 @@ function ApplyForm() {
             {[
               { name:"name",      placeholder:"Your full name *",                              type:"text",  required:true },
               { name:"email",     placeholder:"Email address *",                               type:"email", required:true },
-              { name:"store_url", placeholder:"Your store URL (e.g. mystore.com)",             type:"text" },
+              { name:"store_url", placeholder:"Your store URL (e.g. mystore.com)",             type:"text", defaultValue:prefillUrl },
               { name:"phone",     placeholder:"WhatsApp / phone number (optional)",            type:"text" },
             ].map(f => (
               <div key={f.name}>
-                <input name={f.name} type={f.type} placeholder={f.placeholder} required={f.required}
+                <input name={f.name} type={f.type} placeholder={f.placeholder} required={f.required} defaultValue={f.defaultValue}
                   style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".8rem 1rem", color:inputColor, fontSize:14, fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
                   onFocus={e => e.target.style.borderColor=`${glow(.5)}`}
                   onBlur={e => e.target.style.borderColor=inputBorder}/>
