@@ -2,10 +2,12 @@ import { createContext, useContext, useState, useEffect, useLayoutEffect, useRef
 import { Link, useLocation } from "react-router-dom";
 import { useForm, ValidationError } from "@formspree/react";
 import { SERVICES } from "./data.js";
-import { captureLeadContact } from "./visitorTracking.js";
+import { captureLeadContact, getKnownName } from "./visitorTracking.js";
 
 const G  = "#00ff88";
 const GG = "linear-gradient(135deg,#00ff88,#00e676,#00cc6a)";
+
+const UPWORK_URL = "https://www.upwork.com/freelancers/~0196f7c832332b77c8";
 
 // Every previous attempt here (translateZ(0), a fresh <link> for the font,
 // a forced reflow, toggling background-clip after mount, gating render
@@ -436,9 +438,19 @@ export function ThemeToggle() {
 /* ── Sitewide "what do you need" popup: fires once per session, ~7s
       after landing. A quick router to the right page instead of making
       people hunt the nav — dismiss and it won't reappear this session. ── */
+
+/* A stored name might be a full name someone typed into a form ("Fiyin
+   Ajibode") — popups read better with just the first word. */
+function firstNameOf(fullName) {
+  if (!fullName) return null;
+  const first = fullName.trim().split(/\s+/)[0];
+  return first || null;
+}
+
 function HelpMenuPopup() {
   const [show, setShow] = useState(false);
   const location = useLocation();
+  const knownName = firstNameOf(getKnownName());
 
   useEffect(() => {
     if (sessionStorage.getItem("bcl_help_popup_shown")) return;
@@ -480,7 +492,7 @@ function HelpMenuPopup() {
         >×</button>
 
         <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.15rem", fontWeight:700, color:"var(--fg,#fff)", marginBottom:"1.2rem" }}>
-          What do you need help with?
+          {knownName ? `Hi ${knownName} — what do you need help with?` : "What do you need help with?"}
         </p>
 
         <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
@@ -513,6 +525,7 @@ function ExitIntentPopup() {
   const { dark } = useTheme();
   const [show, setShow] = useState(false);
   const [state, handleSubmit] = useForm("xaqadyal");
+  const knownName = firstNameOf(getKnownName());
 
   useEffect(() => {
     if (sessionStorage.getItem("bcl_exit_popup_shown")) return;
@@ -562,7 +575,7 @@ function ExitIntentPopup() {
         ) : (
           <>
             <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.4rem", fontWeight:800, color:"var(--fg,#fff)", marginBottom:".6rem", lineHeight:1.25 }}>
-              Before you go — is your store leaking money?
+              {knownName ? `Before you go, ${knownName} — is your store leaking money?` : "Before you go — is your store leaking money?"}
             </p>
             <p style={{ fontSize:14, color:"var(--muted,rgba(255,255,255,.6))", marginBottom:"1.4rem", lineHeight:1.6 }}>
               Get our free Store Leak Finder checklist — the exact 12-point framework we use on every audit. Takes 10 minutes, finds thousands in lost revenue.
@@ -900,45 +913,32 @@ export function TestimonialTicker({ items = [] }) {
         width:"max-content"
       }}>
         {doubled.map((t, i) => (
-          <a key={i} href={t.storeUrl||"#"} target={t.storeUrl?"_blank":"_self"} rel="noopener noreferrer"
+          <Link key={i} to="/past-projects"
             style={{
-              width:310, flexShrink:0,
+              width:280, flexShrink:0,
               background:"var(--card-bg,rgba(255,255,255,.06))",
               border:`.5px solid rgba(${tint},.25)`,
               borderTop:`.5px solid rgba(${tint},.4)`,
-              borderRadius:16, padding:"1.2rem",
+              borderRadius:16, overflow:"hidden",
               textDecoration:"none", display:"block",
               transition:"transform .3s,border-color .3s,box-shadow .3s",
-              position:"relative", overflow:"hidden"
+              position:"relative"
             }}
             onMouseEnter={e => { e.currentTarget.style.transform="translateY(-5px) scale(1.01)"; e.currentTarget.style.borderColor=`rgba(${tint},.6)`; e.currentTarget.style.boxShadow=`0 16px 40px rgba(${tint},.15)`; }}
             onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor=`rgba(${tint},.25)`; e.currentTarget.style.boxShadow="none"; }}>
-            <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:`linear-gradient(90deg,transparent,rgba(${tint},.5),transparent)`, pointerEvents:"none" }}/>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:".75rem" }}>
-              <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                {t.storeLogo && <img src={t.storeLogo} alt={t.storeName} width="20" height="20" loading="lazy" style={{ borderRadius:4, objectFit:"contain", background:"#fff", padding:"2px", flexShrink:0 }} onError={e => e.target.style.display="none"}/>}
-                <span style={{ fontSize:11, color:"var(--muted2,rgba(255,255,255,.4))", fontWeight:500 }}>{t.storeName}</span>
+            <div style={{ position:"relative", width:"100%", aspectRatio:"16/10", background:"#000" }}>
+              <img src={t.thumb} alt={`Real Shopify analytics from ${t.storeName}`} loading="lazy" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}/>
+              <span style={{ position:"absolute", top:8, left:8, background:"rgba(0,0,0,.75)", border:`.5px solid rgba(${tint},.5)`, borderRadius:100, padding:"3px 10px", fontSize:10, color:solidG, fontWeight:800 }}>{t.result}</span>
+              <span style={{ position:"absolute", bottom:8, right:8, background:"rgba(0,0,0,.75)", borderRadius:6, padding:"2px 7px", fontSize:9, color:"rgba(255,255,255,.7)", fontWeight:600, letterSpacing:".03em" }}>REAL DASHBOARD, NOT A MOCKUP</span>
+            </div>
+            <div style={{ padding:"1rem 1.2rem 1.2rem" }}>
+              <div style={{ display:"flex", gap:2, marginBottom:".6rem" }}>
+                {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize:13, color:starColor }}>★</span>)}
               </div>
-              <span style={{ background:`rgba(${tint},.15)`, border:`.5px solid rgba(${tint},.5)`, borderRadius:100, padding:"3px 10px", fontSize:10, color:solidG, fontWeight:800 }}>{t.result}</span>
+              <p style={{ fontSize:13, fontWeight:700, color:"var(--fg,#f0f0f0)", margin:0 }}>{t.storeName}</p>
+              <p style={{ fontSize:11, color:"var(--muted3,rgba(255,255,255,.3))", margin:"2px 0 0" }}>Verified client — see the full case →</p>
             </div>
-            <div style={{ display:"flex", gap:2, marginBottom:".75rem" }}>
-              {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize:13, color:starColor }}>★</span>)}
-            </div>
-            <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.7, marginBottom:".9rem", fontStyle:"italic" }}>"{t.text}"</p>
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                {t.avatar
-                  ? <img src={t.avatar} alt={t.name} width="32" height="32" loading="lazy" style={{ borderRadius:"50%", objectFit:"cover", border:`.5px solid rgba(${tint},.4)`, flexShrink:0 }} onError={e => e.target.style.display="none"}/>
-                  : <div style={{ width:32, height:32, borderRadius:"50%", background:`rgba(${tint},.15)`, border:`.5px solid rgba(${tint},.4)`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:solidG, flexShrink:0 }}>{t.init||t.name?.[0]}</div>
-                }
-                <div>
-                  <p style={{ fontSize:12, fontWeight:700, color:"var(--fg,#f0f0f0)", margin:0 }}>{t.name}</p>
-                  <p style={{ fontSize:10, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>{t.storeCategory||t.role}</p>
-                </div>
-              </div>
-              {t.storeUrl && <span style={{ fontSize:10, color:solidG, fontWeight:700 }}>Visit store →</span>}
-            </div>
-          </a>
+          </Link>
         ))}
       </div>
     </div>
@@ -1092,7 +1092,12 @@ export function ChatWidget() {
   const { dark } = useTheme();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hey! I'm the Bode Conversion Lab assistant — ask me anything about your store, ads, conversion, or just say hi." },
+    { role: "assistant", content: (() => {
+        const n = firstNameOf(getKnownName());
+        return n
+          ? `Hey ${n}! I'm the Bode Conversion Lab assistant — ask me anything about your store, ads, conversion, or just say hi.`
+          : "Hey! I'm the Bode Conversion Lab assistant — ask me anything about your store, ads, conversion, or just say hi.";
+      })() },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -1171,10 +1176,15 @@ export function ChatWidget() {
     setLoading(true);
     setError(false);
     try {
+      let auditSummary = null;
+      try {
+        const saved = localStorage.getItem("bcl_last_audit");
+        if (saved) auditSummary = JSON.parse(saved);
+      } catch {}
       const r = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify({ messages: next, page: window.location.pathname, auditSummary }),
       });
       const data = await r.json();
       if (!r.ok || !data.reply) throw new Error(data.error || "failed");
@@ -1334,13 +1344,6 @@ export function Footer() {
             <Link to="/" style={{ textDecoration:"none", display:"inline-block", marginBottom:".7rem" }}><Logo size={36} textSize={13}/></Link>
             <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.6, marginBottom:".8rem" }}>We don't run ads. We engineer ROAS.<br/>One system. Compounding results every month.</p>
             <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-              <a href={`https://wa.me/19454076473?text=${encodeURIComponent("Hi! I'd love to work with you.")}`}
-                target="_blank" rel="noopener noreferrer" aria-label="WhatsApp us"
-                style={{ display:"flex", alignItems:"center", justifyContent:"center", color:"#25D366", transition:"transform .2s" }}
-                onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px) scale(1.08)"}
-                onMouseLeave={e => e.currentTarget.style.transform="none"}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              </a>
               <a href="https://www.instagram.com/bodeconversionlab/"
                 target="_blank" rel="noopener noreferrer" aria-label="Instagram"
                 style={{ display:"flex", alignItems:"center", justifyContent:"center", transition:"transform .2s" }}
@@ -1371,6 +1374,27 @@ export function Footer() {
                 onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px) scale(1.08)"; }}
                 onMouseLeave={e => { e.currentTarget.style.transform="none"; }}>
                 <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"/></svg>
+              </a>
+              <a href="https://t.me/bodeconversionlab"
+                target="_blank" rel="noopener noreferrer" aria-label="Telegram"
+                style={{ display:"flex", alignItems:"center", justifyContent:"center", color:"#26A5E4", transition:"transform .2s" }}
+                onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px) scale(1.08)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform="none"; }}>
+                <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l.696 3.483 1.049-2.104-1.745-1.379Zm.83-1.229 4.71-6.972-8.75 5.55 4.04 1.422Z"/></svg>
+              </a>
+              <a href="https://www.linkedin.com/in/ajibode-fiyinfoluwa-54146743b"
+                target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"
+                style={{ display:"flex", alignItems:"center", justifyContent:"center", color:"#0A66C2", transition:"transform .2s" }}
+                onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px) scale(1.08)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform="none"; }}>
+                <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/></svg>
+              </a>
+              <a href={UPWORK_URL}
+                target="_blank" rel="noopener noreferrer" aria-label="Upwork"
+                style={{ display:"flex", alignItems:"center", justifyContent:"center", color:"#14A800", transition:"transform .2s" }}
+                onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px) scale(1.08)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform="none"; }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-2.539 0-4.51 1.649-5.31 4.366-1.22-1.834-2.148-4.036-2.687-5.892H7.828v7.112c-.002 1.406-1.141 2.546-2.547 2.546-1.405 0-2.543-1.14-2.546-2.546V3.492H0v7.112c0 2.914 2.37 5.303 5.281 5.303 2.913 0 5.283-2.389 5.283-5.303v-1.19c.529 1.107 1.182 2.229 1.974 3.221l-1.673 7.873h2.797l1.213-5.71c1.063.679 2.285 1.109 3.686 1.109 3 0 5.439-2.452 5.439-5.45 0-3.001-2.439-5.439-5.439-5.439z"/></svg>
               </a>
             </div>
           </div>

@@ -20,41 +20,22 @@ export const BADGES = [
 ];
 
 export const TESTIMONIALS = [
+  // Real clients only. Each thumb is an actual frame pulled from that store's
+  // own proof video (real Shopify analytics dashboard, their real numbers) —
+  // not a stock photo, not a borrowed brand logo. No quote text here because
+  // none of these have given Bode a written review yet; showing one would be
+  // the same problem this replaced. See /past-projects for the full videos.
   {
-    init:"MT", name:"Marcus T.", role:"Shopify Store Owner", result:"$1.2k → $38k/mo", rating:5,
-    text:"A colleague kept telling me about their SRS strategy, so I finally gave it a shot. I'd been running ads for 2 years with nothing to show for it. Three months into the Sales Recovery System, my ROAS went from 0.8x to 6.2x. The store rebuild alone doubled my conversion rate.",
-    avatar:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=faces&auto=format",
-    storeName:"MyProtein", storeUrl:"https://www.myprotein.com", storeLogo:"https://www.google.com/s2/favicons?domain=myprotein.com&sz=64", storeCategory:"Fitness & Supplements",
+    storeName: "Novi Good Store", result: "4.3x ROAS, $57k in sales",
+    thumb: "/proof/thumbs/novigood.jpg", proofVideo: "/proof/Videoproof2.mp4",
   },
   {
-    init:"PS", name:"Priya S.", role:"DTC Brand Founder", result:"1.1% → 4.8% CVR", rating:4,
-    text:"They found 11 things wrong with my checkout in the first audit. I had no idea I was losing that many customers. Best investment I've made in the business.",
-    avatar:"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces&auto=format",
-    storeName:"LookFantastic", storeUrl:"https://www.lookfantastic.com", storeLogo:"https://www.google.com/s2/favicons?domain=lookfantastic.com&sz=64", storeCategory:"Beauty & Skincare",
+    storeName: "Robin and Roobaby", result: "$77k in sales",
+    thumb: "/proof/thumbs/robinroobaby.jpg", proofVideo: "/proof/Videoproof5.mp4",
   },
   {
-    init:"JO", name:"James O.", role:"E-commerce Entrepreneur", result:"ROAS 0.6x → 5.4x", rating:4.5,
-    text:"Went from burning money on ads to finally being profitable in week 6. The system they built just keeps compounding. I wish I found them sooner.",
-    avatar:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces&auto=format",
-    storeName:"Zavvi", storeUrl:"https://www.zavvi.com", storeLogo:"https://www.google.com/s2/favicons?domain=zavvi.com&sz=64", storeCategory:"Tech & Entertainment",
-  },
-  {
-    init:"AL", name:"Aisha L.", role:"Beauty Brand Owner", result:"$800 → $22k/mo", rating:5,
-    text:"Within 45 days they rebuilt my product page, rewrote my ad copy and my cost per purchase dropped by 60%. Insane results for a small brand.",
-    avatar:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=80&h=80&fit=crop&crop=faces&auto=format",
-    storeName:"Cult Beauty", storeUrl:"https://www.cultbeauty.com", storeLogo:"https://www.google.com/s2/favicons?domain=cultbeauty.com&sz=64", storeCategory:"Luxury Beauty",
-  },
-  {
-    init:"RK", name:"Ryan K.", role:"Fitness Supplements", result:"CPA $42 → $11", rating:4,
-    text:"The audit alone was worth 10x the price. They identified a checkout friction point killing 40% of my sales. Fixed in a week, results were immediate.",
-    avatar:"https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=faces&auto=format",
-    storeName:"Bulk", storeUrl:"https://www.bulk.com", storeLogo:"https://www.google.com/s2/favicons?domain=bulk.com&sz=64", storeCategory:"Sports Nutrition",
-  },
-  {
-    init:"TN", name:"Tunde N.", role:"Fashion E-commerce", result:"$3k → $41k/mo", rating:4.5,
-    text:"We were spending $5k/mo on ads and getting almost nothing back. Bode found the issue in 3 days. Now every dollar we spend returns four.",
-    avatar:"https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=80&h=80&fit=crop&crop=faces&auto=format",
-    storeName:"Boohoo", storeUrl:"https://www.boohoo.com", storeLogo:"https://www.google.com/s2/favicons?domain=boohoo.com&sz=64", storeCategory:"Fashion & Apparel",
+    storeName: "Stream Ride Store", result: "$36k in sales",
+    thumb: "/proof/thumbs/streamride.jpg", proofVideo: "/proof/Videoproof1.mp4",
   },
 ];
 

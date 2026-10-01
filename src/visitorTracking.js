@@ -33,6 +33,20 @@ function getUTM() {
   } catch { return {}; }
 }
 
+/* Picks a name up from the URL itself (?name=Fiyin), so a personalized link
+   Fiyin sends out -- an email follow-up, a WhatsApp message, a DM -- can land
+   someone on the site already greeted by name, with no form involved. This is
+   the ONLY honest way to know a visitor's name before they've told the site
+   themselves: it only works when Fiyin puts it in the link, never guessed or
+   looked up. Safe to call on every page load; does nothing if the param isn't
+   there, and never overwrites a name the site already captured some other way. */
+export function captureNameFromUrl() {
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get("name");
+    if (fromUrl && !getKnownName()) storeKnownName(fromUrl);
+  } catch {}
+}
+
 export async function initVisitorSession(page) {
   try {
     const { utmSource, utmMedium, utmCampaign } = getUTM();
@@ -57,8 +71,26 @@ export function trackPageView(page) {
   }).catch(() => {});
 }
 
+const KNOWN_NAME_KEY = "bcl_known_name";
+
+/* Once someone gives their name anywhere on the site (Contact, Pricing gate,
+   the newsletter form), remember it in THIS browser so any later popup or
+   the chat widget can greet them by name instead of a generic line. Never
+   sent anywhere new by this file -- captureLeadContact already sends it to
+   the server; this just keeps a local copy for the UI to read back. */
+export function storeKnownName(name) {
+  const trimmed = (name || "").trim();
+  if (!trimmed) return;
+  try { localStorage.setItem(KNOWN_NAME_KEY, trimmed.slice(0, 60)); } catch {}
+}
+
+export function getKnownName() {
+  try { return localStorage.getItem(KNOWN_NAME_KEY) || null; } catch { return null; }
+}
+
 export function captureLeadContact(email, name) {
   const visitorId = getVisitorId();
+  storeKnownName(name);
   fetch("/api/contact/capture", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { initVisitorSession, trackPageView } from "./visitorTracking.js";
+import { initVisitorSession, trackPageView, captureNameFromUrl } from "./visitorTracking.js";
 
 /* ─── The Telegram token used to live here (as VITE_TELEGRAM_TOKEN) and
    this file called Telegram's API directly from the browser — meaning the
@@ -180,6 +180,7 @@ export function usePageTracking() {
     // against the session already in place.
     if (!initialized.current) {
       initialized.current = true;
+      captureNameFromUrl(); // picks up ?name= from a personalized link, before anything else runs
       initVisitorSession(location.pathname);
     } else {
       trackPageView(location.pathname);

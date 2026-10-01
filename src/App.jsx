@@ -82,15 +82,34 @@ export default function App() {
 function AppInner({ dark }) {
   usePageTracking();
 
+  // Cursor glow, click ripples, and the noise overlay are pure decoration —
+  // never worth competing with real content for the first paint, and never
+  // worth running at all for someone who asked for less motion or is on a
+  // touch device where a mouse cursor effect does nothing anyway.
+  const [decorChrome, setDecorChrome] = useState(false);
+  useEffect(() => {
+    try {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (window.matchMedia("(pointer:coarse)").matches) return;
+    } catch { return; }
+    const ric = window.requestIdleCallback || (cb => setTimeout(cb, 1500));
+    const id = ric(() => setDecorChrome(true));
+    return () => (window.cancelIdleCallback || clearTimeout)(id);
+  }, []);
+
   return (
     <div
       data-theme={dark ? "dark" : "light"}
       style={{ fontFamily:"'IBM Plex Sans','Helvetica Neue',sans-serif", background:"var(--bg)", color:"var(--fg)", overflowX:"hidden", minHeight:"100vh", transition:"background .4s,color .4s", position:"relative" }}>
 
-      <CursorSystem />
-      <ClickRipple />
+      {decorChrome && (
+        <>
+          <CursorSystem />
+          <ClickRipple />
+          <NoiseOverlay opacity={dark ? 0.02 : 0.012} />
+        </>
+      )}
       <ScrollProgress />
-      <NoiseOverlay opacity={dark ? 0.02 : 0.012} />
 
       <style>{`
         :root {
