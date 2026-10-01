@@ -87,7 +87,7 @@ const SHORT_FLOW_TRIGGER = /I just completed payment for|I have a question about
 const SHORT_HELP_OPTIONS = [
   { id: "audit",   title: "Free Store Audit",  description: "See what's costing you sales" },
   { id: "pricing", title: "Pricing & Packages", description: "See what a project would cost" },
-  { id: "cgo",     title: "Full CGO Setup",     description: "Fix, test, and scale — the whole system" },
+  { id: "cgo",     title: "Full SRS System",     description: "Fix, test, and scale — the whole system" },
   { id: "ads",     title: "Ad Management Only", description: "Just need help running ads" },
   { id: "other",   title: "Something Else",     description: "Talk to Fiyin directly" },
 ];
@@ -96,7 +96,7 @@ const DEEP_HELP_OPTIONS = [
   { id: "audit",   title: "Free Store Audit",          description: "See exactly what's costing you sales" },
   { id: "fixes",   title: "Store & Checkout Fixes",     description: "Conversion leaks, slow pages, payment gateway issues" },
   { id: "ads",     title: "Ad Management & Scaling",    description: "Running, fixing, or scaling paid ads" },
-  { id: "cgo",     title: "Full CGO Setup",             description: "The complete fix + ads + scale system" },
+  { id: "cgo",     title: "Full SRS System",             description: "Our full Sales Recovery System — fix, test, scale" },
   { id: "unsure",  title: "Not Sure Yet",               description: "Just exploring, want an expert take" },
   { id: "fiyin",   title: "Talk to Fiyin Directly",     description: "Skip the questions, connect me now" },
 ];
@@ -215,25 +215,6 @@ async function handleIncomingMessage({ from, contactName, message }) {
   const buttonReplyId = message.type === "interactive" && message.interactive?.type === "button_reply"
     ? message.interactive.button_reply.id : null;
 
-
-/* Answers a free-text aside BEFORE the structured intake is done — e.g. someone
-   asks "how's it going?" right when the bot is expecting them to tap a menu option.
-   Sends nothing if AI is unavailable/exhausted/fails; the caller always re-shows
-   the expected prompt afterward regardless, so the flow never gets stuck either way. */
-async function maybeAnswerAside(from, session, typedText) {
-  if (!typedText || !process.env.GEMINI_API_KEY) return;
-  if ((session.aiTurns || 0) >= AI_MAX_TURNS) return;
-  const question = typedText.slice(0, AI_MAX_INPUT_CHARS);
-  const result = await askGemini(
-    [{ role: "user", content: question }],
-    { system: BODE_SYSTEM_PROMPT + WHATSAPP_ADDENDUM + leadContext(session), maxOutputTokens: 300, budgetMs: 7000 }
-  );
-  if (!result.ok) { console.error("WHATSAPP ASIDE AI FAILED:", result.error); return; }
-  session.aiTurns = (session.aiTurns || 0) + 1;
-  await saveSession(from, session);
-  await sendText(from, toWhatsAppText(result.reply));
-}
-
   /* ── New conversation — decide which flow based on the pre-filled text ── */
   if (!session) {
     const flow = typedText && SHORT_FLOW_TRIGGER.test(typedText) ? "short" : "deep";
@@ -249,102 +230,26 @@ async function maybeAnswerAside(from, session, typedText) {
   /* ── Step: waiting for their name ── */
   if (session.step === "awaiting_name") {
     session.name = extractName(typedText);
-    session.step = "awaiting_choice";
+    session.step = "chatting";
     await saveSession(from, session);
-    await sendHelpList(
-      from,
-      `Thanks, ${session.name}! To point you in the right direction — what are you looking for help with today?`,
-      optionsFor(session.flow)
-    );
+    await sendText(from, `Thanks, ${session.name}! Ask me anything about your store, ads, or how Bode works — I'm here to help. 🙌`);
+    await sendButtons(from, `Or, if you'd rather browse:`, [
+      { id: "see_options", title: "See options" },
+      { id: "talk_fiyin",  title: "Talk to Fiyin" },
+    ]);
     return;
   }
 
-  /* ── Step: waiting for them to pick a help option ── */
-  if (session.step === "awaiting_choice") {
-    const labels = labelsFor(session.flow);
-    if (!listReplyId || !labels[listReplyId]) {
-      await maybeAnswerAside(from, session, typedText);
-      await sendHelpList(from, `Just tap one of the options below 👇`, optionsFor(session.flow));
-      return;
-    }
-    session.choiceId    = listReplyId;
-    session.choiceLabel = labels[listReplyId];
-
-    // Deep flow only: "Talk to Fiyin Directly" skips everything else
-    if (session.flow === "deep" && listReplyId === "fiyin") {
-      session.step = "done";
-      await saveSession(from, session);
-      await sendText(from, `Got it, ${session.name} — I'll connect you with Fiyin directly, they'll be with you shortly. You'll get a real, personalized response, not a bot. 🙌`);
-      await notifyTelegram(`🚨 <b>New WhatsApp lead — wants Fiyin directly</b>\n👤 ${esc(session.name)}\n📱 ${from}`);
-      return;
-    }
-
-    session.step = "awaiting_store_link";
-    await saveSession(from, session);
-    await sendText(from, `Got it. Could you share your store link? We'll use it to take a proper look. 🔗`);
-    return;
-  }
-
-  /* ── Step: waiting for their store link ── */
-  if (session.step === "awaiting_store_link") {
-    session.storeLink = typedText || "(not provided)";
-
-    if (session.flow === "short") {
-      session.step = "done";
-      await saveSession(from, session);
-      await wrapUp(from, session);
-      return;
-    }
-
-    session.step = "awaiting_store_age";
-    await saveSession(from, session);
-    await sendText(from, `How long has your store/domain been up and running?`);
-    return;
-  }
-
-  /* ── Deep flow only, from here on ── */
-  if (session.step === "awaiting_store_age") {
-    session.storeAge = typedText || "(not provided)";
-    session.step = "awaiting_target_market";
-    await saveSession(from, session);
-    await sendText(from, `Which country or region is your target market?`);
-    return;
-  }
-
-  if (session.step === "awaiting_target_market") {
-    session.targetMarket = typedText || "(not provided)";
-    session.step = "awaiting_sales_goal";
-    await saveSession(from, session);
-    await sendText(from, `What's your monthly sales goal you're aiming for?`);
-    return;
-  }
-
-  if (session.step === "awaiting_sales_goal") {
-    session.salesGoal = typedText || "(not provided)";
-    session.step = "awaiting_marketing";
-    await saveSession(from, session);
-    await sendText(from, `How are you currently driving traffic — paid ads, organic/social, influencers, or nothing yet?`);
-    return;
-  }
-
-  if (session.step === "awaiting_marketing") {
-    session.marketing = typedText || "(not provided)";
-    session.step = "awaiting_budget";
-    await saveSession(from, session);
-    await sendText(from, `Last one — what's a realistic monthly budget you can commit to reach that goal?`);
-    return;
-  }
-
-  if (session.step === "awaiting_budget") {
-    session.budget = typedText || "(not provided)";
-    session.step = "done";
-    await saveSession(from, session);
-    await wrapUp(from, session);
-    return;
-  }
-
-  /* ── Done — reply with a follow-up prompt instead of going silent ── */
-  if (session.step === "done") {
+  /* ── Step: free-flowing AI conversation, like the website's chat widget ──
+     No forced multi-question intake. Every message -- typed, or a tap on the
+     optional menu -- gets a genuine AI reply drawing on the full Bode system
+     prompt (SRS methodology, positioning, tone). The old rigid step-by-step
+     questions (store link, store age, target market, sales goal, marketing,
+     budget) are gone: Fiyin sees the full conversation in Telegram as it
+     happens, in real time, rather than a structured summary at the very end,
+     and the AI asks for details naturally when it's actually relevant rather
+     than forcing a fixed order on every single person. */
+  if (session.step === "chatting") {
     if (buttonReplyId === "talk_fiyin") {
       session.handedOff = true;
       await saveSession(from, session);
@@ -352,100 +257,76 @@ async function maybeAnswerAside(from, session, typedText) {
       await notifyTelegram(`🚨 <b>${esc(session.name)} wants to talk directly</b>\n📱 ${from}\n\nReply on WhatsApp now.`);
       return;
     }
-    if (buttonReplyId === "new_request") {
-      session.step = "awaiting_choice";
-      await saveSession(from, session);
-      await sendHelpList(from, `Sure thing, ${session.name} — what else can I help with?`, optionsFor(session.flow));
+
+    if (session.handedOff) {
+      // A human already took over this conversation -- just relay it, no more AI replies.
+      await notifyTelegram(`💬 <b>Message from ${esc(session.name || contactName)}</b>\n📱 ${from}\n📝 ${esc(typedText || "(non-text message)")}`);
       return;
     }
 
-    /* ── Free-text follow-up after intake ── */
-    const canUseAI =
-      !session.handedOff &&
-      !!typedText &&
-      !!process.env.GEMINI_API_KEY &&
-      (session.aiTurns || 0) < AI_MAX_TURNS;
-
-    if (canUseAI) {
-      const history = Array.isArray(session.aiHistory) ? session.aiHistory : [];
-      const question = typedText.slice(0, AI_MAX_INPUT_CHARS);
-      const result = await askGemini(
-        [...history, { role: "user", content: question }],
-        {
-          system: BODE_SYSTEM_PROMPT + WHATSAPP_ADDENDUM + leadContext(session),
-          maxOutputTokens: 400,
-          budgetMs: AI_BUDGET_MS,
-        }
-      );
-
-      if (result.ok) {
-        const reply = toWhatsAppText(result.reply);
-        session.aiTurns = (session.aiTurns || 0) + 1;
-        session.aiHistory = [...history, { role: "user", content: question }, { role: "assistant", content: reply }].slice(-AI_HISTORY_LIMIT);
-        await saveSession(from, session);
-        await sendText(from, reply);
-
-        // First AI answer of the session: remind them a human is one tap away.
-        if (session.aiTurns === 1) {
-          await sendButtons(from, `Anything else? Or would you like to speak with Fiyin directly?`, [
-            { id: "talk_fiyin",  title: "Talk to Fiyin" },
-            { id: "new_request", title: "New Request" },
-          ]);
-        }
-
-        await notifyTelegram(
-          `💬 <b>Follow-up from ${esc(session.name || contactName)}</b>\n📱 ${from}\n📝 ${esc(question)}\n\n🤖 <b>AI replied:</b> ${esc(reply.slice(0, 500))}`
-        );
-        return;
-      }
-      console.error("WHATSAPP AI FOLLOW-UP FAILED:", result.error);
-      // fall through to the button prompt below so the person is never left in silence
+    if (buttonReplyId === "see_options") {
+      await sendHelpList(from, `Here's what we help with most — tap one, or just tell me what's on your mind. 👇`, optionsFor(session.flow));
+      return;
     }
 
-    await notifyTelegram(
-      `💬 <b>Follow-up message from ${esc(session.name || contactName)}</b>\n` +
-      `📱 ${from}\n📝 ${esc(typedText || "(non-text message)")}`
+    // A menu tap becomes "their message" too, so it flows through the same AI
+    // reply path as anything typed -- no separate rigid sub-flow per option.
+    const labels = labelsFor(session.flow);
+    const incomingMessage = (listReplyId && labels[listReplyId]) ? labels[listReplyId] : typedText;
+
+    if (!incomingMessage) {
+      await sendText(from, `I can only read text messages right now — mind typing that out? Or tap below if it's easier to show Fiyin directly.`);
+      await sendButtons(from, ` `, [{ id: "talk_fiyin", title: "Talk to Fiyin" }]);
+      return;
+    }
+
+    if (listReplyId) { session.choiceId = listReplyId; session.choiceLabel = labels[listReplyId]; }
+
+    const aiAvailable = !!process.env.GEMINI_API_KEY && (session.aiTurns || 0) < AI_MAX_TURNS;
+    if (!aiAvailable) {
+      await notifyTelegram(`💬 <b>Message from ${esc(session.name || contactName)}</b>\n📱 ${from}\n📝 ${esc(incomingMessage)}`);
+      await sendButtons(from, `Fiyin will pick this up personally shortly. Want to flag it as urgent?`, [
+        { id: "talk_fiyin",  title: "Talk to Fiyin" },
+        { id: "see_options", title: "See options" },
+      ]);
+      return;
+    }
+
+    const history = Array.isArray(session.aiHistory) ? session.aiHistory : [];
+    const question = incomingMessage.slice(0, AI_MAX_INPUT_CHARS);
+    const result = await askGemini(
+      [...history, { role: "user", content: question }],
+      { system: BODE_SYSTEM_PROMPT + WHATSAPP_ADDENDUM + leadContext(session), maxOutputTokens: 400, budgetMs: AI_BUDGET_MS }
     );
 
-    if (!session.handedOff) {
-      await sendButtons(
-        from,
-        `Hi ${session.name}! 👋 What else can I do for you? Or would you like to speak with Fiyin directly?`,
-        [
+    if (result.ok) {
+      const reply = toWhatsAppText(result.reply);
+      session.aiTurns = (session.aiTurns || 0) + 1;
+      session.aiHistory = [...history, { role: "user", content: question }, { role: "assistant", content: reply }].slice(-AI_HISTORY_LIMIT);
+      await saveSession(from, session);
+      await sendText(from, reply);
+
+      // Every so often, remind them a real human is one tap away -- never forced.
+      if (session.aiTurns === 1 || session.aiTurns % 6 === 0) {
+        await sendButtons(from, `Want to talk to Fiyin directly, or keep going?`, [
           { id: "talk_fiyin",  title: "Talk to Fiyin" },
-          { id: "new_request", title: "New Request" },
-        ]
+          { id: "see_options", title: "See options" },
+        ]);
+      }
+
+      await notifyTelegram(
+        `💬 <b>${esc(session.name || contactName)}</b>\n📱 ${from}\n📝 ${esc(question)}\n\n🤖 <b>AI replied:</b> ${esc(reply.slice(0, 500))}`
       );
+      return;
     }
+
+    console.error("WHATSAPP CHAT AI FAILED:", result.error);
+    await notifyTelegram(`💬 <b>Message from ${esc(session.name || contactName)} (AI failed to reply)</b>\n📱 ${from}\n📝 ${esc(incomingMessage)}`);
+    await sendText(from, `Having a little trouble replying right now — Fiyin will follow up personally.`);
+    await sendButtons(from, ` `, [{ id: "talk_fiyin", title: "Talk to Fiyin" }]);
     return;
   }
 }
-
-async function wrapUp(from, session) {
-  await sendText(
-    from,
-    `Thank you, ${session.name} — I've got everything I need. You'll get a personalized response directly from Fiyin, not a bot, shortly. 🙌`
-  );
-
-  let summary =
-    `🚨 <b>New WhatsApp lead (${session.flow} flow)</b>\n` +
-    `👤 Name: ${esc(session.name)}\n` +
-    `📱 Phone: ${from}\n` +
-    `🙋 Needs help with: ${esc(session.choiceLabel)}\n` +
-    `🔗 Store: ${esc(session.storeLink)}`;
-
-  if (session.flow === "deep") {
-    summary +=
-      `\n📅 Store age: ${esc(session.storeAge)}` +
-      `\n🌍 Target market: ${esc(session.targetMarket)}` +
-      `\n🎯 Sales goal: ${esc(session.salesGoal)}` +
-      `\n📣 Current marketing: ${esc(session.marketing)}` +
-      `\n💰 Budget: ${esc(session.budget)}`;
-  }
-
-  await notifyTelegram(summary);
-}
-
 /* ─── Main handler ─── */
 export default async function handler(req, res) {
   if (req.method === "GET") {

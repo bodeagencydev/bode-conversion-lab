@@ -54,7 +54,7 @@ const CLARITY_PROMPT = `You are a blunt conversion-rate consultant reviewing a s
 You will be given the page title, meta description, H1, a rough text sample of the visible homepage copy, and the first call-to-action text found (may be empty if not detected).
 
 Respond with ONLY a JSON object, no markdown fences, no commentary, in exactly this shape:
-{"clarityScore": <0-100 integer>, "headlineVerdict": "<one sentence>", "ctaVerdict": "<one sentence>", "findings": [{"severity": "critical|high|medium", "title": "<short title>", "finding": "<1-2 sentences, specific to what you were given, not generic advice>", "fix": "<1 sentence, concrete>"}]}
+{"clarityScore": <0-100 integer>, "headlineVerdict": "<one sentence>", "ctaVerdict": "<one sentence>", "findings": [{"severity": "critical|high|medium", "title": "<short title>", "finding": "<1-2 sentences, specific to what you were given, not generic advice>", "fix": "<1 sentence, concrete>", "tags": ["<0-2 tags from: Value Proposition, Zero risk, Social proof, Herd effect, Voice of authority, Anchor price, Urgency, Clarity>"]}]}
 
 Rules: findings array has 0-3 items — only include a finding if there's a real, specific problem with THIS page's copy (vague headline, no clear offer, buried or generic CTA like "Learn More", mismatched title/H1, etc). If the copy is genuinely clear, return an empty findings array and a high clarityScore. Never invent details not implied by the given text. Keep everything short — this feeds a report, not an essay.`;
 
@@ -166,8 +166,10 @@ function visualPrompt(pageLabel) {
 
 Read it top to bottom as distinct sections (hero/top of page, main content area, further down the page, footer) and give findings specific to what you actually see in each part — not one generic comment about "the page". Look for real, specific visual problems in any section: cluttered or busy layout, a call-to-action that's hard to spot (low contrast, wrong size, buried under something more prominent), unclear visual hierarchy, no visible trust signals (reviews, badges, guarantees), poor spacing/crowding, text that's hard to read against its background, imagery that looks low-quality or generic/stocky, dead space, or a section that doesn't clearly signal what it's for.
 
+Also estimate WHERE each finding sits on the page, as a percentage from the very top (0) to the very bottom (100) of this full-page image — e.g. a hero issue is roughly y:5, a footer issue is roughly y:95. This is a rough estimate for placing a marker on the screenshot, not a precise measurement — give your best guess rather than skipping it.
+
 Respond with ONLY a JSON object, no markdown fences, no commentary, in exactly this shape:
-{"visualScore": <0-100 integer>, "summary": "<one sentence overall impression of this specific page>", "findings": [{"severity": "critical|high|medium", "title": "<short title>", "finding": "<1-2 sentences — name WHERE on the page this is (e.g. \"in the hero\", \"further down near the product grid\", \"in the footer\") and what's actually wrong there>", "fix": "<1 sentence, concrete>"}]}
+{"visualScore": <0-100 integer>, "summary": "<one sentence overall impression of this specific page>", "findings": [{"severity": "critical|high|medium", "title": "<short title>", "finding": "<1-2 sentences — name WHERE on the page this is (e.g. \"in the hero\", \"further down near the product grid\", \"in the footer\") and what's actually wrong there>", "fix": "<1 sentence, concrete>", "y": <0-100 integer, vertical position on the full page>, "tags": ["<0-2 tags from: Value Proposition, Zero risk, Social proof, Herd effect, Voice of authority, Anchor price, Urgency, Clarity>"]}]}
 
 Rules: findings array has 0-4 items — only real, specific problems, never generic advice, and never invent a section that isn't in the image. If the page looks clean and clear throughout, return an empty findings array and a high visualScore. Keep everything short — this feeds a report, not an essay.`;
 }
