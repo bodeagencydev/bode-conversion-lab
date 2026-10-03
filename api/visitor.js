@@ -92,9 +92,29 @@ async function handleEvent(req, res) {
   }
 }
 
+async function handleAudit(req, res) {
+  const { visitorId, url, grade, overall, topIssues } = req.body || {};
+  if (!visitorId || !url) return res.status(400).json({ error: "visitorId and url are required" });
+
+  try {
+    const redis = await getRedisClient();
+    const raw = await redis.get(VISITOR_KEY(visitorId));
+    if (!raw) return res.status(200).json({ ok: false });
+
+    const visitor = JSON.parse(raw);
+    visitor.lastAudit = { url, grade: grade || null, overall: overall ?? null, topIssues: Array.isArray(topIssues) ? topIssues.slice(0, 5) : [], at: new Date().toISOString() };
+    await redis.set(VISITOR_KEY(visitorId), JSON.stringify(visitor));
+    res.status(200).json({ ok: true });
+  } catch (err) {
+    console.error("visitor audit error:", err.message);
+    res.status(200).json({ ok: false });
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const { type } = req.body || {};
   if (type === "event") return handleEvent(req, res);
+  if (type === "audit") return handleAudit(req, res);
   return handleSession(req, res);
 }
