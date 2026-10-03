@@ -468,7 +468,7 @@ function HelpMenuPopup() {
   const options = [
     { label: "See what a free audit finds", to: "/audit" },
     { label: "Check pricing & packages", to: "/pricing" },
-    { label: "Talk to a human on WhatsApp", href: "https://wa.me/19454076473?text=" + encodeURIComponent("Hi, I have a question before getting started.") },
+    { label: "Talk to a human on WhatsApp", href: "https://wa.me/2349064885280?text=" + encodeURIComponent("Hi, I have a question before getting started.") },
     { label: "Just browsing for now", dismiss: true },
   ];
 
@@ -1336,7 +1336,7 @@ export function Footer() {
         .footer-cols{display:grid;grid-template-columns:1.1fr 1.4fr 1fr;gap:.8rem 2rem;margin-bottom:1.4rem;}
         .footer-legal{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
         @media(max-width:700px){.footer-cols{grid-template-columns:1fr;gap:1.6rem;}.footer-brand{flex-direction:column;gap:1rem;}}
-        @media(max-width:480px){.footer-services-grid{grid-template-columns:1fr!important;}}
+        @media(max-width:480px){.footer-services-grid{grid-template-columns:1fr 1fr!important;gap:0 .7rem!important;}}
       `}</style>
       <div className="footer-inner">
         <div className="footer-brand">
