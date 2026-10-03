@@ -137,6 +137,27 @@ export default function Admin() {
 
   const [leads, setLeads] = useState([]);
   const [leadsLoading, setLeadsLoading] = useState(false);
+  const [drafting,   setDrafting]   = useState(null); // visitorId currently generating
+  const [drafts,     setDrafts]     = useState({});   // visitorId -> drafted text
+  const [draftErr,   setDraftErr]   = useState({});   // visitorId -> error message
+
+  async function draftFollowUp(v) {
+    setDrafting(v.visitorId); setDraftErr(e => ({ ...e, [v.visitorId]: null }));
+    try {
+      const r = await fetch("/api/admin/dashboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-session": sessionToken },
+        body: JSON.stringify({ name: v.contact?.name, email: v.contact?.email, lastAudit: v.lastAudit, lastPage: v.lastPage, intentLabel: v.intentLabel }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Failed");
+      setDrafts(d => ({ ...d, [v.visitorId]: data.draft }));
+    } catch (err) {
+      setDraftErr(e => ({ ...e, [v.visitorId]: err.message || "Could not draft a reply" }));
+    } finally {
+      setDrafting(null);
+    }
+  }
   async function loadLeads() {
     setLeadsLoading(true);
     try {
@@ -412,22 +433,46 @@ export default function Admin() {
             <div style={{ maxHeight:340, overflowY:"auto", border:`.5px solid ${cardBorder}`, borderRadius:12 }}>
               {leads.map((v, i) => {
                 const statusColor = v.intentLabel === "VERY HOT" ? "#FF6B4A" : v.intentLabel === "HOT" ? "#FFA53D" : v.intentLabel === "WARM" ? G : mutedText3;
+                const canDraft = !!(v.contact?.email || v.lastAudit?.url);
                 return (
-                  <div key={v.visitorId} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:12, padding:".7rem 1rem", background: i%2===0 ? rowBg : "transparent", borderBottom: i < leads.length-1 ? `.5px solid ${cardBorder}` : "none", flexWrap:"wrap" }}>
-                    <div style={{ minWidth:0 }}>
-                      <p style={{ fontSize:13, color:headingColor, fontWeight:600 }}>
-                        {v.contact ? v.contact.email : (v.company ? v.company.companyName : "Anonymous visitor")}
-                        {v.contact && <span style={{ fontSize:10, color:mutedText3, marginLeft:6, fontWeight:400 }}>({v.contact.emailType})</span>}
-                      </p>
-                      <p style={{ fontSize:11, color:mutedText3 }}>
-                        {v.sessionCount} visit{v.sessionCount!==1?"s":""} · {v.pagesViewed} page{v.pagesViewed!==1?"s":""} · last: {v.lastPage || "—"}
-                        {v.company && !v.contact && <span title={`${v.company.source}, confidence ${Math.round(v.company.confidence*100)}%`}> · possibly {v.company.companyName}</span>}
-                      </p>
+                  <div key={v.visitorId} style={{ padding:".7rem 1rem", background: i%2===0 ? rowBg : "transparent", borderBottom: i < leads.length-1 ? `.5px solid ${cardBorder}` : "none" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:12, flexWrap:"wrap" }}>
+                      <div style={{ minWidth:0 }}>
+                        <p style={{ fontSize:13, color:headingColor, fontWeight:600 }}>
+                          {v.contact ? v.contact.email : (v.company ? v.company.companyName : "Anonymous visitor")}
+                          {v.contact && <span style={{ fontSize:10, color:mutedText3, marginLeft:6, fontWeight:400 }}>({v.contact.emailType})</span>}
+                        </p>
+                        <p style={{ fontSize:11, color:mutedText3 }}>
+                          {v.sessionCount} visit{v.sessionCount!==1?"s":""} · {v.pagesViewed} page{v.pagesViewed!==1?"s":""} · last: {v.lastPage || "—"}
+                          {v.company && !v.contact && <span title={`${v.company.source}, confidence ${Math.round(v.company.confidence*100)}%`}> · possibly {v.company.companyName}</span>}
+                          {v.lastAudit?.url && <span style={{ color:G }}> · audited {v.lastAudit.url} ({v.lastAudit.grade || "?"})</span>}
+                        </p>
+                      </div>
+                      <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
+                        <span style={{ fontSize:11, fontWeight:700, color:statusColor }}>{v.intentScore}/100</span>
+                        <span style={{ fontSize:9.5, fontWeight:700, color:statusColor, border:`1px solid ${statusColor}`, borderRadius:100, padding:"2px 8px" }}>{v.intentLabel}</span>
+                        {canDraft && (
+                          <button onClick={() => draftFollowUp(v)} disabled={drafting===v.visitorId}
+                            style={{ fontSize:10.5, fontWeight:700, color:G, background:"transparent", border:`1px solid ${G}`, borderRadius:100, padding:"3px 10px", cursor: drafting===v.visitorId ? "default" : "pointer", opacity: drafting===v.visitorId ? .6 : 1, fontFamily:"inherit" }}>
+                            {drafting===v.visitorId ? "Drafting…" : "Draft follow-up"}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
-                      <span style={{ fontSize:11, fontWeight:700, color:statusColor }}>{v.intentScore}/100</span>
-                      <span style={{ fontSize:9.5, fontWeight:700, color:statusColor, border:`1px solid ${statusColor}`, borderRadius:100, padding:"2px 8px" }}>{v.intentLabel}</span>
-                    </div>
+                    {draftErr[v.visitorId] && (
+                      <p style={{ fontSize:11, color:"#FF6B4A", marginTop:8 }}>{draftErr[v.visitorId]}</p>
+                    )}
+                    {drafts[v.visitorId] && (
+                      <div style={{ marginTop:10, background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:10, padding:"10px 12px" }}>
+                        <textarea readOnly value={drafts[v.visitorId]} rows={4}
+                          style={{ width:"100%", background:"transparent", border:"none", color:headingColor, fontSize:12.5, lineHeight:1.6, fontFamily:"inherit", resize:"vertical", outline:"none", boxSizing:"border-box" }}
+                          onClick={e => e.target.select()} />
+                        <button onClick={() => navigator.clipboard?.writeText(drafts[v.visitorId])}
+                          style={{ fontSize:10.5, fontWeight:700, color:G, background:"transparent", border:"none", cursor:"pointer", fontFamily:"inherit", padding:0, marginTop:4 }}>
+                          Copy
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
