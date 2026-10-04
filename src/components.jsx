@@ -465,11 +465,11 @@ function HelpMenuPopup() {
 
   if (!show) return null;
 
-  const options = [
-    { label: "See what a free audit finds", to: "/audit" },
-    { label: "Check pricing & packages", to: "/pricing" },
-    { label: "Talk to a human on WhatsApp", href: "https://wa.me/2349064885280?text=" + encodeURIComponent("Hi, I have a question before getting started.") },
-    { label: "Just browsing for now", dismiss: true },
+  const goals = [
+    { label: "Get traffic and awareness", ask: "I want to get more traffic and awareness for my store. Where should I start?" },
+    { label: "Get more sales", ask: "I want to get more sales from my store. What should I fix first?" },
+    { label: "Build an audience list", ask: "I want to build an audience list of emails and SMS subscribers. How do I start?" },
+    { label: "Lower my ad costs, raise my ROAS", ask: "My ads cost too much for the sales they bring. How do I improve my ROAS?" },
   ];
 
   return (
@@ -491,26 +491,25 @@ function HelpMenuPopup() {
           aria-label="Close"
         >×</button>
 
-        <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.15rem", fontWeight:700, color:"var(--fg,#fff)", marginBottom:"1.2rem" }}>
-          {knownName ? `Hi ${knownName} — what do you need help with?` : "What do you need help with?"}
+        <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.15rem", fontWeight:700, color:"var(--fg,#fff)", margin:"0 0 .35rem", paddingRight:24 }}>
+          {knownName ? `Hi ${knownName}, what do you want to achieve?` : "What do you want to achieve?"}
         </p>
+        <p style={{ fontSize:12.5, color:"var(--muted,rgba(255,255,255,.5))", margin:"0 0 1.1rem", lineHeight:1.5 }}>Pick one and our assistant replies right away.</p>
 
         <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-          {options.map((opt, i) => {
-            const shared = {
-              key: i,
-              style: {
-                display:"flex", alignItems:"center", justifyContent:"space-between",
-                padding:"12px 14px", borderRadius:9, textDecoration:"none",
+          {goals.map((g, i) => (
+            <button key={i} type="button"
+              onClick={() => { setShow(false); window.dispatchEvent(new CustomEvent("bcl-chat-ask", { detail: { text: g.ask } })); }}
+              style={{
+                display:"flex", alignItems:"center", justifyContent:"space-between", textAlign:"left",
+                padding:"12px 14px", borderRadius:9, fontFamily:"inherit",
                 border:"1px solid var(--card-border,rgba(255,255,255,.1))",
                 background:"var(--card-bg,rgba(255,255,255,.04))",
                 color:"var(--fg,#fff)", fontSize:13.5, fontWeight:500, cursor:"pointer",
-              },
-            };
-            if (opt.dismiss) return <button {...shared} onClick={() => setShow(false)}>{opt.label}</button>;
-            if (opt.href)    return <a {...shared} href={opt.href} target="_blank" rel="noopener noreferrer" onClick={() => setShow(false)}>{opt.label} <span style={{ color:G }}>→</span></a>;
-            return <Link {...shared} to={opt.to} onClick={() => setShow(false)}>{opt.label} <span style={{ color:G }}>→</span></Link>;
-          })}
+              }}>
+              {g.label} <span style={{ color:G }}>→</span>
+            </button>
+          ))}
         </div>
       </div>
     </div>
@@ -611,7 +610,7 @@ function ExitIntentPopup() {
               </button>
             </form>
             <p style={{ fontSize:11, color:"var(--muted3,rgba(255,255,255,.35))", marginTop:".8rem", textAlign:"center" }}>
-              No spam. Unsubscribe anytime.
+              Unsubscribe anytime.
             </p>
           </>
         )}
@@ -861,7 +860,24 @@ export function Typewriter({ words }) {
 
 export function ContinuousTicker({ items = [], speed = 30, reverse = false }) {
   const [paused, setPaused] = useState(false);
-  const doubled = [...items, ...items];
+  // Phones and tablets have no hover, so an auto-scrolling strip can't be
+  // paused there. On touch devices the cards sit in a normal swipeable row
+  // instead; desktops keep the auto-scroll that pauses on hover.
+  const detectTouch = () => {
+    try {
+      return window.matchMedia("(hover: none), (pointer: coarse)").matches
+        || (navigator.maxTouchPoints > 0 && window.innerWidth <= 900);
+    } catch { return false; }
+  };
+  const [touch, setTouch] = useState(detectTouch);
+  useEffect(() => {
+    let mq;
+    try { mq = window.matchMedia("(hover: none), (pointer: coarse)"); } catch { return; }
+    const on = () => setTouch(detectTouch());
+    mq.addEventListener ? mq.addEventListener("change", on) : mq.addListener(on);
+    return () => { mq.removeEventListener ? mq.removeEventListener("change", on) : mq.removeListener(on); };
+  }, []);
+  const doubled = touch ? items : [...items, ...items];
   return (
     <div style={{ overflow:"hidden", position:"relative", padding:".5rem 0" }}
       onMouseEnter={() => setPaused(true)}
@@ -894,7 +910,24 @@ export function ContinuousTicker({ items = [], speed = 30, reverse = false }) {
 export function TestimonialTicker({ items = [] }) {
   const { dark } = useTheme();
   const [paused, setPaused] = useState(false);
-  const doubled = [...items, ...items];
+  // Phones and tablets have no hover, so an auto-scrolling strip can't be
+  // paused there. On touch devices the cards sit in a normal swipeable row
+  // instead; desktops keep the auto-scroll that pauses on hover.
+  const detectTouch = () => {
+    try {
+      return window.matchMedia("(hover: none), (pointer: coarse)").matches
+        || (navigator.maxTouchPoints > 0 && window.innerWidth <= 900);
+    } catch { return false; }
+  };
+  const [touch, setTouch] = useState(detectTouch);
+  useEffect(() => {
+    let mq;
+    try { mq = window.matchMedia("(hover: none), (pointer: coarse)"); } catch { return; }
+    const on = () => setTouch(detectTouch());
+    mq.addEventListener ? mq.addEventListener("change", on) : mq.addListener(on);
+    return () => { mq.removeEventListener ? mq.removeEventListener("change", on) : mq.removeListener(on); };
+  }, []);
+  const doubled = touch ? items : [...items, ...items];
   // Same story as everywhere else: this card's green tint and gold stars
   // were built once for the near-black dark theme and never given a light
   // counterpart, so on a cream background they render as pale mint and
@@ -903,10 +936,16 @@ export function TestimonialTicker({ items = [] }) {
   const solidG    = dark ? "#00ff88"   : "#00A35C";
   const starColor = dark ? "#FFD700"   : "#96650A";
   return (
-    <div style={{ overflow:"hidden" }}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}>
-      <div style={{
+    <div>
+    <p style={{ fontSize:13, color:"var(--muted3,rgba(255,255,255,.4))", textAlign:"center", margin:"0 0 1.2rem" }}>
+      {touch ? "Swipe to see more" : "Hover to pause"}
+    </p>
+    <div style={touch ? { overflowX:"auto", scrollSnapType:"x mandatory", WebkitOverflowScrolling:"touch", scrollbarWidth:"none", padding:"0 1rem .5rem" } : { overflow:"hidden" }}
+      onMouseEnter={() => { if (!touch) setPaused(true); }}
+      onMouseLeave={() => { if (!touch) setPaused(false); }}>
+      <div style={touch ? {
+        display:"flex", gap:"1rem", width:"max-content"
+      } : {
         display:"flex", gap:"1.5rem",
         animation:"ticker 40s linear infinite",
         animationPlayState:paused?"paused":"running",
@@ -915,7 +954,7 @@ export function TestimonialTicker({ items = [] }) {
         {doubled.map((t, i) => (
           <Link key={i} to="/past-projects"
             style={{
-              width:280, flexShrink:0,
+              width:280, flexShrink:0, scrollSnapAlign:"start",
               background:"var(--card-bg,rgba(255,255,255,.06))",
               border:`.5px solid rgba(${tint},.25)`,
               borderTop:`.5px solid rgba(${tint},.4)`,
@@ -929,7 +968,7 @@ export function TestimonialTicker({ items = [] }) {
             <div style={{ position:"relative", width:"100%", aspectRatio:"16/10", background:"#000" }}>
               <img src={t.thumb} alt={`Real Shopify analytics from ${t.storeName}`} loading="lazy" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}/>
               <span style={{ position:"absolute", top:8, left:8, background:"rgba(0,0,0,.75)", border:`.5px solid rgba(${tint},.5)`, borderRadius:100, padding:"3px 10px", fontSize:10, color:solidG, fontWeight:800 }}>{t.result}</span>
-              <span style={{ position:"absolute", bottom:8, right:8, background:"rgba(0,0,0,.75)", borderRadius:6, padding:"2px 7px", fontSize:9, color:"rgba(255,255,255,.7)", fontWeight:600, letterSpacing:".03em" }}>REAL DASHBOARD, NOT A MOCKUP</span>
+              <span style={{ position:"absolute", bottom:8, right:8, background:"rgba(0,0,0,.75)", borderRadius:6, padding:"2px 7px", fontSize:9, color:"rgba(255,255,255,.7)", fontWeight:600, letterSpacing:".03em" }}>LIVE FROM THE STORE DASHBOARD</span>
             </div>
             <div style={{ padding:"1rem 1.2rem 1.2rem" }}>
               <div style={{ display:"flex", gap:2, marginBottom:".6rem" }}>
@@ -941,6 +980,7 @@ export function TestimonialTicker({ items = [] }) {
           </Link>
         ))}
       </div>
+    </div>
     </div>
   );
 }
@@ -1167,10 +1207,17 @@ export function ChatWidget() {
     if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
   }, [messages, open]);
 
-  const send = async () => {
-    const text = input.trim();
-    if (!text || loading) return;
-    const next = [...messages, { role: "user", content: text }];
+  const messagesRef = useRef(messages);
+  const loadingRef = useRef(false);
+  messagesRef.current = messages;
+  loadingRef.current = loading;
+
+  const send = async (textArg) => {
+    const text = (typeof textArg === "string" ? textArg : input).trim();
+    if (!text || loadingRef.current) return;
+    const next = [...messagesRef.current, { role: "user", content: text }];
+    messagesRef.current = next;
+    loadingRef.current = true;
     setMessages(next);
     setInput("");
     setLoading(true);
@@ -1195,6 +1242,23 @@ export function ChatWidget() {
     }
     setLoading(false);
   };
+
+  // Lets other parts of the site (the goal popup) open the chat and ask
+  // something on the visitor's behalf, so they get a reply immediately.
+  const sendRef = useRef(null);
+  sendRef.current = send;
+  useEffect(() => {
+    const onAsk = (e) => {
+      const text = e?.detail?.text;
+      if (!text) return;
+      setOpen(true);
+      setShowNudge(false);
+      setNudgeDismissed(true);
+      sendRef.current && sendRef.current(text);
+    };
+    window.addEventListener("bcl-chat-ask", onAsk);
+    return () => window.removeEventListener("bcl-chat-ask", onAsk);
+  }, []);
 
   const bg = dark ? "#0A0A0A" : "#FFFDF7";
   const border = dark ? "rgba(255,255,255,.12)" : "rgba(26,20,8,.18)";
@@ -1296,7 +1360,7 @@ export function ChatWidget() {
                 fontSize:13.5, color:text, outline:"none",
               }}
             />
-            <button onClick={send} disabled={loading || !input.trim()} aria-label="Send"
+            <button onClick={() => send()} disabled={loading || !input.trim()} aria-label="Send"
               style={{
                 width:38, height:38, borderRadius:"50%", flexShrink:0,
                 background:G, border:"none", cursor: loading ? "default" : "pointer",
@@ -1334,8 +1398,21 @@ export function Footer() {
         .footer-inner{max-width:1100px;margin:0 auto;}
         .footer-brand{display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.6rem;padding-bottom:1.4rem;border-bottom:.5px solid var(--divider,rgba(255,255,255,.06));}
         .footer-cols{display:grid;grid-template-columns:1.1fr 1.4fr 1fr;gap:.8rem 2rem;margin-bottom:1.4rem;}
-        .footer-legal{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
-        @media(max-width:700px){.footer-cols{grid-template-columns:1fr;gap:1.6rem;}.footer-brand{flex-direction:column;gap:1rem;}}
+        .footer-bottom{border-top:.5px solid var(--divider,rgba(255,255,255,.06));padding-top:1.1rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem 2rem;flex-wrap:wrap;}
+        .footer-copy{display:flex;flex-direction:column;gap:.25rem;}
+        .footer-copy p{margin:0;font-size:11.5px;line-height:1.5;color:var(--muted3,rgba(255,255,255,.3));}
+        .footer-legal{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem 0;}
+        .footer-legal > a,.footer-legal > button{font-size:12px;color:var(--muted,rgba(255,255,255,.5));text-decoration:none;background:none;border:none;padding:.25rem 0;cursor:pointer;font-family:inherit;line-height:1.4;transition:color .2s;}
+        .footer-legal > * + *{margin-left:1rem;padding-left:1rem;border-left:.5px solid var(--divider,rgba(255,255,255,.18));}
+        .footer-legal > a:hover,.footer-legal > button:hover{color:#00ff88;}
+        @media(max-width:700px){
+          .footer-cols{grid-template-columns:1fr 1fr;gap:1.6rem 1.2rem;}
+          .footer-col-services{grid-column:1 / -1;order:3;}
+          .footer-col-pages{order:1;}
+          .footer-col-start{order:2;}
+          .footer-brand{flex-direction:column;gap:1rem;}
+          .footer-bottom{flex-direction:column;gap:.9rem;padding-bottom:5.5rem;}
+        }
         @media(max-width:480px){.footer-services-grid{grid-template-columns:1fr 1fr!important;gap:0 .7rem!important;}}
       `}</style>
       <div className="footer-inner">
@@ -1409,7 +1486,7 @@ export function Footer() {
           </div>
         </div>
         <div className="footer-cols">
-          <div>
+          <div className="footer-col-pages">
             <ColHead>Pages</ColHead>
             <ColLink to="/">Home</ColLink>
             <ColLink to="/about">About</ColLink>
@@ -1419,14 +1496,14 @@ export function Footer() {
             <ColLink to="/blog">Blog</ColLink>
             <ColLink to="/contact">Contact</ColLink>
           </div>
-          <div>
+          <div className="footer-col-services">
             <ColHead>Services</ColHead>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 1.2rem" }} className="footer-services-grid">
               <div>{SERVICES.slice(0,5).map(s => <ColLink key={s.id} to={`/services/${s.id}`}>{s.title}</ColLink>)}</div>
               <div>{SERVICES.slice(5).map(s => <ColLink key={s.id} to={`/services/${s.id}`}>{s.title}</ColLink>)}</div>
             </div>
           </div>
-          <div>
+          <div className="footer-col-start">
             <ColHead>Get Started</ColHead>
             <ColLink to="/audit">Free Store Audit</ColLink>
             <ColLink to="/subscribe">Newsletter</ColLink>
@@ -1438,35 +1515,16 @@ export function Footer() {
             </a>
           </div>
         </div>
-        <div style={{ borderTop:".5px solid var(--divider,rgba(255,255,255,.06))", paddingTop:"1rem", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:".8rem" }}>
-          <div style={{ display:"flex", flexWrap:"wrap", alignItems:"center", gap:".5rem" }}>
-            <p style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>© 2026 Bode Conversion Lab. All rights reserved.</p>
-            <span style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))" }}>·</span>
-            <p style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", margin:0 }}>Built to convert. Engineered to scale.</p>
+        <div className="footer-bottom">
+          <div className="footer-copy">
+            <p>© 2026 Bode Conversion Lab. All rights reserved.</p>
+            <p>Built to convert. Engineered to scale.</p>
           </div>
-          <div className="footer-legal">
-            <Link to="/privacy"
-              style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", textDecoration:"none", transition:"color .2s" }}
-              onMouseEnter={e => e.currentTarget.style.color=G}
-              onMouseLeave={e => e.currentTarget.style.color="var(--muted3,rgba(255,255,255,.3))"}>
-              Privacy Policy
-            </Link>
-            <span style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))" }}>·</span>
-            <Link to="/terms"
-              style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", textDecoration:"none", transition:"color .2s" }}
-              onMouseEnter={e => e.currentTarget.style.color=G}
-              onMouseLeave={e => e.currentTarget.style.color="var(--muted3,rgba(255,255,255,.3))"}>
-              Terms of Service
-            </Link>
-            <span style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))" }}>·</span>
-            <button
-              onClick={() => window.dispatchEvent(new Event("bcl-open-cookie-prefs"))}
-              style={{ fontSize:11.5, color:"var(--muted3,rgba(255,255,255,.3))", textDecoration:"none", transition:"color .2s", background:"none", border:"none", padding:0, cursor:"pointer", fontFamily:"inherit" }}
-              onMouseEnter={e => e.currentTarget.style.color=G}
-              onMouseLeave={e => e.currentTarget.style.color="var(--muted3,rgba(255,255,255,.3))"}>
-              Cookie Preferences
-            </button>
-          </div>
+          <nav className="footer-legal" aria-label="Legal">
+            <Link to="/privacy">Privacy Policy</Link>
+            <Link to="/terms">Terms of Service</Link>
+            <button type="button" onClick={() => window.dispatchEvent(new Event("bcl-open-cookie-prefs"))}>Cookie Preferences</button>
+          </nav>
         </div>
       </div>
     </footer>
