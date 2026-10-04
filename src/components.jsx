@@ -1379,6 +1379,31 @@ export function ChatWidget() {
 
 export function Footer() {
   const { dark } = useTheme();
+
+  /* Follow-us nudge: a small speech bubble pops out above the social icons the
+     first time they scroll into view in a visit, and the icons hop one by one.
+     Closes by itself after a while or when dismissed, and stays closed for the
+     rest of the session. Icons stay still for people who prefer reduced motion. */
+  const socialsRef = useRef(null);
+  const [nudge, setNudge] = useState(false);
+  useEffect(() => {
+    let seen = false;
+    try { seen = sessionStorage.getItem("bcl_social_nudge") === "1"; } catch {}
+    const el = socialsRef.current;
+    if (seen || !el || typeof IntersectionObserver === "undefined") return;
+    let showT, hideT;
+    const io = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      io.disconnect();
+      showT = setTimeout(() => {
+        setNudge(true);
+        try { sessionStorage.setItem("bcl_social_nudge", "1"); } catch {}
+        hideT = setTimeout(() => setNudge(false), 14000);
+      }, 500);
+    }, { threshold: 0.9 });
+    io.observe(el);
+    return () => { io.disconnect(); clearTimeout(showT); clearTimeout(hideT); };
+  }, []);
   const ColLink = ({ to, children }) => (
     <Link to={to}
       style={{ display:"block", fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", textDecoration:"none", marginBottom:".35rem", lineHeight:1.4, transition:"color .2s,transform .15s", minHeight:28 }}
@@ -1401,17 +1426,33 @@ export function Footer() {
         .footer-bottom{border-top:.5px solid var(--divider,rgba(255,255,255,.06));padding-top:1.1rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem 2rem;flex-wrap:wrap;}
         .footer-copy{display:flex;flex-direction:column;gap:.25rem;}
         .footer-copy p{margin:0;font-size:11.5px;line-height:1.5;color:var(--muted3,rgba(255,255,255,.3));}
-        .footer-legal{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem 0;}
-        .footer-legal > a,.footer-legal > button{font-size:12px;color:var(--muted,rgba(255,255,255,.5));text-decoration:none;background:none;border:none;padding:.25rem 0;cursor:pointer;font-family:inherit;line-height:1.4;transition:color .2s;}
-        .footer-legal > * + *{margin-left:1rem;padding-left:1rem;border-left:.5px solid var(--divider,rgba(255,255,255,.18));}
-        .footer-legal > a:hover,.footer-legal > button:hover{color:#00ff88;}
+        .footer-legal{display:flex;align-items:center;flex-wrap:wrap;gap:.2rem 0;}
+        .footer-legal .fl-item{appearance:none;-webkit-appearance:none;display:inline-flex;align-items:center;height:30px;margin:0;padding:0;background:none;border:0;border-radius:0;font-family:inherit;font-size:12.5px;font-weight:400;line-height:1;letter-spacing:0;text-decoration:none;color:var(--muted,rgba(255,255,255,.5));cursor:pointer;white-space:nowrap;transition:color .2s;}
+        .footer-legal .fl-item{min-height:0;min-width:0;}
+        .footer-legal .fl-item + .fl-item{margin-left:1rem;padding-left:1rem;border-left:1px solid rgba(128,128,128,.35);border-radius:0;height:14px;}
+        .footer-legal .fl-item:hover{color:#00ff88;}
+        :root[data-theme="light"] .footer-legal .fl-item:hover,[data-theme="light"] .footer-legal .fl-item:hover{color:#00A35C;}
+        .social-nudge{position:absolute;bottom:calc(100% + 14px);left:0;width:max-content;max-width:min(260px,calc(100vw - 3rem));padding:.7rem .9rem .75rem;border-radius:12px;z-index:5;transform-origin:22px 100%;animation:nudgePop .55s cubic-bezier(.2,1.5,.4,1) both;}
+        .social-nudge-caret{position:absolute;left:18px;bottom:-6px;width:10px;height:10px;transform:rotate(45deg);border-style:solid;border-width:0 1px 1px 0;}
+        .footer-social-row.is-nudging a{animation:socialHop 1.1s ease-in-out 3;}
+        .footer-social-row.is-nudging a:nth-child(2){animation-delay:.12s}
+        .footer-social-row.is-nudging a:nth-child(3){animation-delay:.24s}
+        .footer-social-row.is-nudging a:nth-child(4){animation-delay:.36s}
+        .footer-social-row.is-nudging a:nth-child(5){animation-delay:.48s}
+        .footer-social-row.is-nudging a:nth-child(6){animation-delay:.6s}
+        @keyframes nudgePop{0%{opacity:0;transform:translateY(10px) scale(.6)}100%{opacity:1;transform:none}}
+        @keyframes socialHop{0%,60%,100%{transform:translateY(0) scale(1)}25%{transform:translateY(-8px) scale(1.18)}}
+        @media (prefers-reduced-motion:reduce){.social-nudge{animation:none}.footer-social-row.is-nudging a{animation:none}}
         @media(max-width:700px){
           .footer-cols{grid-template-columns:1fr 1fr;gap:1.6rem 1.2rem;}
           .footer-col-services{grid-column:1 / -1;order:3;}
           .footer-col-pages{order:1;}
           .footer-col-start{order:2;}
           .footer-brand{flex-direction:column;gap:1rem;}
-          .footer-bottom{flex-direction:column;gap:.9rem;padding-bottom:5.5rem;}
+          .footer-bottom{flex-direction:column;gap:.9rem;padding-bottom:6.5rem;}
+          /* Stacked on phones: the chat and WhatsApp buttons float over the right edge, so a single row ran underneath them. */
+          .footer-legal{flex-direction:column;align-items:flex-start;gap:0;}
+          .footer-legal .fl-item,.footer-legal .fl-item + .fl-item{height:34px;margin:0;padding:0;border-left:0;}
         }
         @media(max-width:480px){.footer-services-grid{grid-template-columns:1fr 1fr!important;gap:0 .7rem!important;}}
       `}</style>
@@ -1420,7 +1461,18 @@ export function Footer() {
           <div style={{ flex:1, minWidth:180, maxWidth:300 }}>
             <Link to="/" style={{ textDecoration:"none", display:"inline-block", marginBottom:".7rem" }}><Logo size={36} textSize={13}/></Link>
             <p style={{ fontSize:13, color:"var(--muted,rgba(255,255,255,.5))", lineHeight:1.6, marginBottom:".8rem" }}>We don't run ads. We engineer ROAS.<br/>One system. Compounding results every month.</p>
-            <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+            <div ref={socialsRef} className="footer-socials" style={{ position:"relative" }}>
+              {nudge && (
+                <div className="social-nudge" role="status"
+                  style={{ background:dark?"#0c1c14":"#FFFDF7", color:dark?"#fff":"#1A1408", border:`1px solid ${dark?"rgba(0,255,136,.45)":"rgba(0,130,74,.5)"}`, boxShadow:dark?"0 10px 30px rgba(0,0,0,.55),0 0 22px rgba(0,255,136,.18)":"0 10px 30px rgba(26,20,8,.18)" }}>
+                  <button type="button" aria-label="Close" onClick={() => setNudge(false)}
+                    style={{ position:"absolute", top:4, right:6, background:"none", border:"none", color:"inherit", opacity:.55, fontSize:16, lineHeight:1, cursor:"pointer", padding:2 }}>×</button>
+                  <strong style={{ display:"block", fontSize:13, marginBottom:3, paddingRight:14 }}>Follow us for something extra</strong>
+                  <span style={{ fontSize:12, lineHeight:1.5, opacity:.8 }}>Exclusive growth tips and special offers go to our followers first.</span>
+                  <span className="social-nudge-caret" style={{ background:dark?"#0c1c14":"#FFFDF7", borderColor:dark?"rgba(0,255,136,.45)":"rgba(0,130,74,.5)" }} />
+                </div>
+              )}
+            <div className={"footer-social-row" + (nudge ? " is-nudging" : "")} style={{ display:"flex", alignItems:"center", gap:14 }}>
               <a href="https://www.instagram.com/bodeconversionlab/"
                 target="_blank" rel="noopener noreferrer" aria-label="Instagram"
                 style={{ display:"flex", alignItems:"center", justifyContent:"center", transition:"transform .2s" }}
@@ -1474,6 +1526,7 @@ export function Footer() {
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-2.539 0-4.51 1.649-5.31 4.366-1.22-1.834-2.148-4.036-2.687-5.892H7.828v7.112c-.002 1.406-1.141 2.546-2.547 2.546-1.405 0-2.543-1.14-2.546-2.546V3.492H0v7.112c0 2.914 2.37 5.303 5.281 5.303 2.913 0 5.283-2.389 5.283-5.303v-1.19c.529 1.107 1.182 2.229 1.974 3.221l-1.673 7.873h2.797l1.213-5.71c1.063.679 2.285 1.109 3.686 1.109 3 0 5.439-2.452 5.439-5.45 0-3.001-2.439-5.439-5.439-5.439z"/></svg>
               </a>
             </div>
+            </div>
           </div>
           <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-start", gap:".5rem" }}>
             <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer"
@@ -1521,9 +1574,9 @@ export function Footer() {
             <p>Built to convert. Engineered to scale.</p>
           </div>
           <nav className="footer-legal" aria-label="Legal">
-            <Link to="/privacy">Privacy Policy</Link>
-            <Link to="/terms">Terms of Service</Link>
-            <button type="button" onClick={() => window.dispatchEvent(new Event("bcl-open-cookie-prefs"))}>Cookie Preferences</button>
+            <Link className="fl-item" to="/privacy">Privacy Policy</Link>
+            <Link className="fl-item" to="/terms">Terms of Service</Link>
+            <button type="button" className="fl-item" onClick={() => window.dispatchEvent(new Event(COOKIE_REOPEN_EVENT))}>Cookie Preferences</button>
           </nav>
         </div>
       </div>

@@ -74,18 +74,11 @@ export const PROOF_RESULTS = [
   { name: "Stream Ride Store", result: "$36k",      sub: "in sales",      line: "$36k in sales" },
 ];
 
-// Homepage "The system" cards.
-export const HOME_STEPS = [
-  { n:"01", t:"Deep-dive audit",         d:"We dissect your store, ads, and full funnel. Every leak, every friction point, every missed dollar — mapped in 48 hours." },
-  { n:"02", t:"Conversion architecture", d:"We rebuild your pages with one goal: turning browsers into buyers using the traffic you already have." },
-  { n:"03", t:"Ad engineering",          d:"Precision creatives, copy and targeting built around your customer's real pain points. Every ad compounds." },
-  { n:"04", t:"Scale & compound",        d:"Once ROAS target is hit, we scale. Same efficiency, more budget. $1k/mo becomes $70k/mo." },
-];
-
-// Homepage compact SRS cards.
-export const HOME_SRS_PHASES = [
-  { phase:"01", t:"Foundation Fix",   d:"Fix leaks & trust signals first." },
-  { phase:"02", t:"Traffic Ignition", d:"Controlled ad tests find winners." },
-  { phase:"03", t:"Scale & Compound", d:"Double down on what's proven." },
-  { phase:"04", t:"Systemize",        d:"Document it so it runs itself." },
+// Homepage "how it works": the four SRS phases, one story (this replaces the
+// separate "how it works" steps and the compact "What is SRS?" cards).
+export const HOME_SYSTEM = [
+  { n:"01", t:"Foundation Fix",   d:"We audit your store, ads, and full funnel, then fix the leaks and trust signals first. Every friction point mapped in 48 hours, and your pages rebuilt to turn browsers into buyers." },
+  { n:"02", t:"Traffic Ignition", d:"Precision creatives, copy and targeting built around your customer's real pain points. Small, controlled tests find the winners." },
+  { n:"03", t:"Scale & Compound", d:"Once the ROAS target is hit, we scale. Same efficiency, more budget. $1k/mo becomes $70k/mo." },
+  { n:"04", t:"Systemize",        d:"We document what works so it runs itself and keeps compounding every month." },
 ];
