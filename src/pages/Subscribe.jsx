@@ -78,7 +78,7 @@ export default function Subscribe() {
                   Get the tactics that<br /><GradText>scale stores to $70k/mo</GradText>
                 </h1>
                 <p style={{ fontSize: 15, color: mutedText, lineHeight: 1.7 }}>
-                  Every week: one actionable tip from inside our client work. CRO wins, ad strategies, email flows that print money. No fluff. No recycled advice.
+                  Every week: one actionable tip from inside our client work. CRO wins, ad strategies, email flows that print money. Original ideas every week.
                 </p>
               </div>
 
@@ -126,7 +126,7 @@ export default function Subscribe() {
                   {loading ? "Subscribing..." : "Subscribe — it's free →"}
                 </button>
                 <p style={{ fontSize: 11, color: mutedText3, textAlign: "center", marginTop: "1rem" }}>
-                  No spam. Unsubscribe anytime. Read by 1,000+ store owners.
+                  Unsubscribe anytime. Read by 1,000+ store owners.
                 </p>
               </form>
             </div>

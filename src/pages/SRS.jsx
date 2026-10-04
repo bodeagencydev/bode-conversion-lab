@@ -121,7 +121,7 @@ export default function SRS() {
           <SectionLabel>SRS in action</SectionLabel>
           <Heading size="1.8rem">See the system <GradText>on real stores</GradText></Heading>
           <p style={{ fontSize:14.5, color:mutedText, lineHeight:1.8, margin:"1rem auto 1.8rem", maxWidth:580 }}>
-            Every store below went through the same process: fix the leaks first, then scale the traffic. These are actual client campaigns, not mockups.
+            Every store below went through the same process: fix the leaks first, then scale the traffic. These are actual client campaigns.
           </p>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:"1rem", marginBottom:"2rem" }}>
             {PROOF_RESULTS.map((p, i) => (

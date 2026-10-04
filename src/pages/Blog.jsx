@@ -55,7 +55,7 @@ export function Blog() {
     <PageWrapper>
       <SEO
         title="Blog — E-commerce Conversion & Ads Tips"
-        description="Operator-tested tactics on ROAS, checkout optimization, ad strategy, and email flows — no fluff, no recycled advice. From the team behind the SRS methodology."
+        description="Operator-tested tactics on ROAS, checkout optimization, ad strategy, and email flows. Original, operator-tested advice from the team behind the SRS methodology."
         path="/blog"
       />
 
@@ -78,7 +78,7 @@ export function Blog() {
             The Conversion<br /><GradText>Lab Blog</GradText>
           </h1>
           <p style={{ fontSize:"clamp(0.95rem,2vw,1.1rem)", color:mutedText2, lineHeight:1.8, maxWidth:520, margin:"0 auto" }}>
-            No fluff. No recycled advice. Operator-tested tactics, frameworks, and systems we use to grow stores worldwide.
+            Original, operator-tested tactics, frameworks, and systems we use to grow stores worldwide.
           </p>
         </div>
       </section>

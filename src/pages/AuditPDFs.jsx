@@ -49,6 +49,9 @@ const MUTED = "#5B5B5B";
 const FAINT = "#8C8C8C";
 const LINE  = "#E4E4E4";
 const CARD  = "#F7F8F7";
+const DEEP_RED = "#B42318";
+const PALE_RED = "#FEF3F2";
+const RED_LINE = "#FECDCA";
 const SEV   = { critical: RED, high: AMBER, medium: "#9A8600", low: GREEN };
 const STATUS = { good: GREEN, warn: AMBER, fail: RED };
 
@@ -107,9 +110,9 @@ function Dot({ color }) {
   return <View style={{ ...s.dot, backgroundColor: color }} />;
 }
 
-function Header({ label }) {
+function Header({ label, accent }) {
   return (
-    <View style={s.headerRow} fixed>
+    <View style={accent ? { ...s.headerRow, borderBottom: `2 solid ${accent}` } : s.headerRow} fixed>
       <View><Text style={s.brand}>BODE CONVERSION LAB</Text><Text style={s.brandTag}>We don't run ads. We engineer ROAS.</Text></View>
       <Text style={s.brandTag}>{label}</Text>
     </View>
@@ -173,6 +176,30 @@ function Cover({ kicker, title, domain, date, overall, grade, verdict }) {
   );
 }
 
+function ProblemsCover({ domain, date, overall, grade, verdict }) {
+  return (
+    <Page size="A4" style={{ ...s.coverPage, backgroundColor: DEEP_RED }}>
+      <View>
+        <Text style={{ fontSize: 10.5, fontWeight: 800, marginBottom: 46, color: "#FFFFFF" }}>BODE CONVERSION LAB</Text>
+        <Text style={{ ...s.kicker, color: "#FFD7D3" }}>Problem Report</Text>
+        <Text style={{ ...s.h1, color: "#FFFFFF" }}>Where Your Store Is Losing Sales</Text>
+        <Text style={{ ...s.sub, color: "#FFD7D3" }}>{domain}  ·  Generated {date}</Text>
+      </View>
+
+      <View style={{ alignItems: "center" }}>
+        <View style={{ backgroundColor: "#FFFFFF", borderRadius: 16, padding: 22 }}>
+          <ScoreGauge score={overall} grade={grade} />
+        </View>
+        {verdict && <Text style={{ ...s.sub, color: "#FFFFFF", marginTop: 16, maxWidth: 320, textAlign: "center" }}>{verdict}</Text>}
+      </View>
+
+      <Text style={{ fontSize: 7.5, color: "#FFD7D3", lineHeight: 1.6 }}>
+        Confidential, prepared for the store owner named above. Figures are estimates from automated technical analysis and are not a guarantee of results.
+      </Text>
+    </Page>
+  );
+}
+
 function GrowthCover({ kicker, title, domain, date, growth, marketing }) {
   const totalPhases = (growth?.phases?.length || 0) + (marketing?.phases?.length || 0);
   const totalItems = [...(growth?.phases || []), ...(marketing?.phases || [])]
@@ -187,7 +214,7 @@ function GrowthCover({ kicker, title, domain, date, growth, marketing }) {
         <Text style={s.sub}>{domain}  ·  Generated {date}</Text>
 
         <Text style={s.coverIntro}>
-          A complete, sequenced plan to fix what's costing {domain} sales today, then build the traffic and marketing system to grow consistently — no guesswork, no generic advice.
+          A complete, sequenced plan to fix what's costing {domain} sales today, then build the traffic and marketing system to grow consistently. Every step is specific to your store.
         </Text>
 
         <View style={{ ...s.coverStatRow, marginTop: 28 }}>
@@ -269,12 +296,12 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
 
   return (
     <Document title={`BCL Problem Report — ${domain}`}>
-      <Cover kicker="Store Diagnosis" title="What's Actually Wrong With Your Store" domain={domain} date={date} overall={analysis.overall} grade={analysis.grade} verdict={analysis.verdict} />
+      <ProblemsCover domain={domain} date={date} overall={analysis.overall} grade={analysis.grade} verdict={analysis.verdict} />
 
       <Page size="A4" style={s.page}>
-        <Header label="Problem Report" />
+        <Header label="Problem Report" accent={DEEP_RED} />
 
-        <View style={s.summaryStrip}>
+        <View style={{ ...s.summaryStrip, backgroundColor: PALE_RED, border: `1 solid ${RED_LINE}` }}>
           <CountCell n={counts.critical} label="Critical" color={RED} />
           <CountCell n={counts.high} label="High" color={AMBER} />
           <CountCell n={counts.medium} label="Medium" color="#9A8600" />
@@ -286,10 +313,10 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
 
         {analysis.visualPages?.length > 0 && (
           <View wrap={false} style={{ marginBottom: 14 }}>
-            <Text style={s.sectionTitle}>Visual Snapshot</Text>
+            <Text style={{ ...s.sectionTitle, color: DEEP_RED }}>Visual Snapshot</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
               {analysis.visualPages.map((page, pi) => (
-                <View key={pi} style={{ width: "48%", border: `1px solid #EEE7D8`, borderRadius: 10, padding: 8 }}>
+                <View key={pi} style={{ width: "48%", border: `1px solid ${RED_LINE}`, borderRadius: 10, padding: 8 }}>
                   {page.screenshotUrl && (
                     <View style={{ position: "relative", width: "100%", height: 130, borderRadius: 6, marginBottom: 6, overflow: "hidden" }}>
                       <Image src={page.screenshotUrl} style={{ width: "100%", height: 130, objectFit: "cover", objectPosition: "top" }} />
@@ -319,7 +346,7 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
           </View>
         )}
 
-        <Text style={s.sectionTitle}>Category Scores</Text>
+        <Text style={{ ...s.sectionTitle, color: DEEP_RED }}>Category Scores</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 6 }}>
           {Object.values(analysis.metrics).map((v, i) => (
             <View key={i} style={{ width: "25%", marginBottom: 10, paddingRight: 8 }}>
@@ -335,19 +362,19 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
           ))}
         </View>
 
-        <Text style={s.sectionTitle}>Core Web Vitals</Text>
+        <Text style={{ ...s.sectionTitle, color: DEEP_RED }}>Core Web Vitals</Text>
         <VitalsTable vitals={analysis.vitals} />
 
-        <Text style={s.sectionTitle}>{analysis.findings.length} Problems Found, By Category</Text>
+        <Text style={{ ...s.sectionTitle, color: DEEP_RED }}>{analysis.findings.length} Problems Found, By Category</Text>
 
         {Object.entries(byCategory).map(([cat, items], ci) => (
           <View key={ci}>
-            <View style={s.catHeader}>
-              <Text style={s.catTitle}>{cat}</Text>
-              <Text style={s.catCount}>{items.length} issue{items.length !== 1 ? "s" : ""}</Text>
+            <View style={{ ...s.catHeader, backgroundColor: DEEP_RED }}>
+              <Text style={{ ...s.catTitle, color: "#FFFFFF" }}>{cat}</Text>
+              <Text style={{ ...s.catCount, color: "#FFD7D3" }}>{items.length} issue{items.length !== 1 ? "s" : ""}</Text>
             </View>
             {items.map((f, i) => (
-              <View key={i} style={{ ...s.row, flexDirection: "column", alignItems: "stretch" }} wrap={false}>
+              <View key={i} style={{ ...s.row, borderBottom: `0.5 solid ${RED_LINE}`, flexDirection: "column", alignItems: "stretch" }} wrap={false}>
                 <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 3 }}>
                   <Dot color={SEV[f.severity]} />
                   {f.pin != null && (
@@ -363,13 +390,13 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
                 {f.tags?.length > 0 && (
                   <View style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 3 }}>
                     {f.tags.map((t, ti) => (
-                      <Text key={ti} style={{ fontSize: 6.5, color: GREEN, borderWidth: 0.5, borderColor: GREEN, borderRadius: 8, paddingHorizontal: 5, paddingVertical: 1, marginRight: 4, marginBottom: 2 }}>
+                      <Text key={ti} style={{ fontSize: 6.5, color: DEEP_RED, borderWidth: 0.5, borderColor: DEEP_RED, borderRadius: 8, paddingHorizontal: 5, paddingVertical: 1, marginRight: 4, marginBottom: 2 }}>
                         {t}
                       </Text>
                     ))}
                   </View>
                 )}
-                <Text style={{ fontSize: 7, color: GREEN, marginTop: 3 }}>
+                <Text style={{ fontSize: 7, color: DEEP_RED, marginTop: 3 }}>
                   <Text style={{ fontWeight: 800 }}>Fix: </Text>{f.fix}
                 </Text>
               </View>
@@ -377,10 +404,10 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
           </View>
         ))}
 
-        <View style={s.lockCard} wrap={false}>
-          <Text style={{ fontSize: 10.5, fontWeight: 800, color: GREEN, marginBottom: 4 }}>This report shows you what's broken — not how to fix it</Text>
+        <View style={{ ...s.lockCard, backgroundColor: PALE_RED, border: `1 solid ${DEEP_RED}` }} wrap={false}>
+          <Text style={{ fontSize: 10.5, fontWeight: 800, color: DEEP_RED, marginBottom: 4 }}>This report shows what is broken. The fixes are in your Fixes Report.</Text>
           <Text style={{ fontSize: 8.7, color: MUTED, lineHeight: 1.55 }}>
-            The exact fix for each issue above, in priority order with implementation detail, is in the separate Fixes Report.
+            The exact fix for each issue above, in priority order with implementation detail, is in the Fixes Report.
             The plan to turn this into consistent traffic and revenue is in the Growth & Marketing Report. Both unlock with a paid package.
           </Text>
         </View>

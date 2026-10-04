@@ -101,6 +101,17 @@ function loadCodes() {
 function saveCodes(codes) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(codes));
 }
+/* Best effort: also register a code on the server so the client can use it
+   on their own device. Failure never blocks the admin's local copy. */
+function syncCodeToServer(entry) {
+  const token = sessionStorage.getItem("bcl_admin_session");
+  if (!token) return;
+  fetch("/api/subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-admin-session": token },
+    body: JSON.stringify({ action: "register-code", code: entry.code, tier: entry.tier, clientName: entry.clientName, clientEmail: entry.clientEmail, active: entry.active }),
+  }).catch(() => {});
+}
 
 export default function Admin() {
   const { dark } = useTheme();
@@ -278,6 +289,7 @@ export default function Admin() {
     const updated = [newEntry, ...codes];
     setCodes(updated);
     saveCodes(updated);
+    syncCodeToServer(newEntry);
     setForm({ clientName:"", clientEmail:"", tier:"fix", notes:"", customCode:"" });
   }
 
@@ -303,6 +315,7 @@ export default function Admin() {
     const updated = codes.map(c => c.code === code ? { ...c, active:false } : c);
     setCodes(updated);
     saveCodes(updated);
+    const entry = updated.find(c => c.code === code); if (entry) syncCodeToServer(entry);
   }
 
   /* Reactivate */
@@ -310,6 +323,7 @@ export default function Admin() {
     const updated = codes.map(c => c.code === code ? { ...c, active:true } : c);
     setCodes(updated);
     saveCodes(updated);
+    const entry = updated.find(c => c.code === code); if (entry) syncCodeToServer(entry);
   }
 
   /* Mark as used */

@@ -79,7 +79,7 @@ export default function About() {
               { n:"70x",  label:"Best revenue result",   sub:"$1k → $70k in 90 days" },
               { n:"60%",  label:"Avg CPA reduction",     sub:"Across all active clients" },
               { n:"48h",  label:"Audit turnaround",      sub:"Full report in 2 business days" },
-              { n:"100%", label:"Client retention",      sub:"Month-to-month, no contracts" },
+              { n:"100%", label:"Client retention",      sub:"Month-to-month terms" },
             ].map((s, i) => (
               <div key={i} className="glass card3d" style={{ padding:"1.4rem 1.6rem", display:"flex", alignItems:"center", gap:"1.5rem" }}>
                 <SvgGradText fontFamily="'Space Grotesk',sans-serif" fontSize="1.8rem" fontWeight={800} style={{ minWidth:70 }}>{s.n}</SvgGradText>

@@ -5,6 +5,7 @@ import { captureLeadContact } from "../visitorTracking.js";
 import { Section, SectionLabel, Heading, GradText, PageWrapper, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 
 import { notifyPayment, notifyAccessCode } from "../NotificationSystem.js";
+import { PACKAGES, packageIdFromName } from "../../lib/pricing.js";
 
 const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_KEY || "pk_test_469a79a7423df47Xb9e51cf45da2bbd640187dcd";
 
@@ -72,6 +73,8 @@ export default function Pricing() {
   const [success, setSuccess] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [issuedCode, setIssuedCode] = useState("");
+  const [verifying, setVerifying] = useState(false);   // Paystack closed with a payment; server is confirming it
+  const [verifyFail, setVerifyFail] = useState("");    // reference of a payment we could not confirm
   const [codeCopied, setCodeCopied] = useState(false);
 
   const headingColor = dark ? "#fff"                 : "#1A1408";
@@ -91,7 +94,7 @@ export default function Pricing() {
       tier: "Entry",
       name: "Store Diagnosis",
       price: 175,
-      nairaPrice: 28000000, // in kobo — update to current FX rate periodically
+      nairaPrice: PACKAGES.diagnosis.kobo, // in kobo, set in lib/pricing.js
       kickoffNote: "We'll email your findings and roadmap within 24 hours. No call required unless you want to talk it through.",
       cycle: "per engagement",
       tagline: "Find out exactly where your store is losing money, before you spend another dollar on ads.",
@@ -110,7 +113,7 @@ export default function Pricing() {
       tier: "Growth",
       name: "Conversion Fix",
       price: 497,
-      nairaPrice: 79520000, // in kobo — update to current FX rate periodically
+      nairaPrice: PACKAGES.fix.kobo, // in kobo, set in lib/pricing.js
       kickoffNote: "We schedule your strategy call and start implementing your top 3 fixes within 7 days.",
       cycle: "per project",
       tagline: "We don't just tell you what's broken, we fix the three things costing you the most sales.",
@@ -129,7 +132,7 @@ export default function Pricing() {
       tier: "Most Popular",
       name: "The Lab",
       price: 997,
-      nairaPrice: 159520000, // in kobo — update to current FX rate periodically
+      nairaPrice: PACKAGES.lab.kobo, // in kobo, set in lib/pricing.js
       kickoffNote: "We set up your direct Slack access and kick off your first optimization cycle right away.",
       cycle: "per cycle",
       tagline: "One system running your ads and your store, compounding results every cycle.",
@@ -139,7 +142,7 @@ export default function Pricing() {
         "Your Meta and TikTok ads managed from top to bottom, full funnel",
         "Creative strategy and copy built for each platform",
         "Cart recovery, upsells, and bundle strategy, so results keep compounding",
-        "Ongoing testing and performance monitoring, not a one-time fix",
+        "Ongoing testing and performance monitoring",
         "A performance report every week, so you're never guessing",
         "Direct Slack access with a 4-hour response time",
       ],
@@ -150,11 +153,11 @@ export default function Pricing() {
       tier: "Elite",
       name: "Full Stack",
       price: 1997,
-      nairaPrice: 319520000, // in kobo — update to current FX rate periodically
+      nairaPrice: PACKAGES.fullstack.kobo, // in kobo, set in lib/pricing.js
       kickoffNote: "We schedule your first weekly strategy call and assign your dedicated growth strategist.",
       cycle: "per cycle",
       tagline: "Your entire growth engine, built and run for you.",
-      desc: "For stores that want a real team behind them, not just a service. Ads, landing pages, email, and content, all handled, so you can focus on the product while we handle the revenue.",
+      desc: "For stores that want a real team behind them. Ads, landing pages, email, and content, all handled, so you can focus on the product while we handle the revenue.",
       items: [
         "Everything from The Lab",
         "Landing pages built and shipped for you",
@@ -176,12 +179,48 @@ export default function Pricing() {
     setActiveModal(i);
     setEmail(""); setName("");
     setError(""); setSuccess(false);
-    setAgreed(false);
+    setAgreed(false); setVerifying(false); setVerifyFail(""); setIssuedCode("");
   }
 
   function closeModal() {
+    if (verifying) return; // never drop the window while the payment is being confirmed
     setActiveModal(null);
-    setError(""); setSuccess(false);
+    setError(""); setSuccess(false); setVerifyFail("");
+  }
+
+  /* The browser only reports "the Paystack window says paid". Nothing is
+     unlocked until the server has asked Paystack and confirmed the amount,
+     currency and customer, and only then is the access code issued. */
+  async function confirmPayment(reference, label) {
+    setVerifying(true); setVerifyFail("");
+    let result = null;
+    try {
+      const r = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "verify-payment", reference, packageId: packageIdFromName(pkg.name), email, name }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok && d.code) result = d;
+    } catch {}
+    setVerifying(false);
+
+    if (!result) { setVerifyFail(reference); return; }
+
+    setSuccess(true);
+    setIssuedCode(result.code);
+    fetch("https://formspree.io/f/xaqadyal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ _subject: `New Access Code: ${pkg.name}`, clientName: name, clientEmail: email, package: pkg.name, code: result.code, reference }),
+    }).catch(() => {});
+    fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, name, source: `Pricing checkout (${pkg.name})` }),
+    }).catch(() => {});
+    captureLeadContact(email, name);
+    notifyAccessCode(result.code, name, email, pkg.name);
   }
 
   async function handlePay() {
@@ -209,40 +248,8 @@ export default function Pricing() {
           { display_name: "Package",      variable_name: "package", value: label },
         ],
       },
-      callback: () => {
-        setSuccess(true);
-
-        // Auto-issue an access code the moment payment clears — no more
-        // manually opening /admin to generate one. Saved into the same
-        // localStorage key Admin.jsx and Audit.jsx already read, shown to
-        // the client immediately, and pushed to your email (Formspree) +
-        // Telegram so you have a record even without opening the site.
-        const code = generateAccessCode();
-        setIssuedCode(code);
-        try {
-          const existing = JSON.parse(localStorage.getItem("bcl_access_codes") || "[]");
-          const entry = {
-            code, clientName: name, clientEmail: email, tier: pkg.name,
-            notes: "Auto-generated at checkout", createdAt: new Date().toISOString(),
-            used: false, active: true,
-          };
-          localStorage.setItem("bcl_access_codes", JSON.stringify([entry, ...existing]));
-        } catch {}
-        fetch("https://formspree.io/f/xaqadyal", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            _subject: `New Access Code — ${pkg.name}`,
-            clientName: name, clientEmail: email, package: pkg.name, code,
-          }),
-        }).catch(() => {});
-        fetch("/api/subscribe", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, name, source: `Pricing checkout (${pkg.name})` }),
-        }).catch(() => {});
-        captureLeadContact(email, name);
-        notifyAccessCode(code, name, email, pkg.name);
+      callback: (response) => {
+        confirmPayment(response?.reference || "", label);
       },
       onClose: () => {
         setError("Payment window closed. Try again when ready.");
@@ -277,7 +284,29 @@ export default function Pricing() {
               ×
             </button>
 
-            {success ? (
+            {verifying ? (
+              /* ── CONFIRMING WITH PAYSTACK ── */
+              <div style={{ padding:"2.4rem 0", textAlign:"center" }}>
+                <div style={{ width:44, height:44, margin:"0 auto 1.2rem", borderRadius:"50%", border:`3px solid ${glow(.2)}`, borderTopColor:brandG, animation:"bclspin .9s linear infinite" }} />
+                <style>{`@keyframes bclspin{to{transform:rotate(360deg)}}`}</style>
+                <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.3rem", fontWeight:800, color:headingColor, marginBottom:".5rem" }}>Confirming your payment</h3>
+                <p style={{ fontSize:13, color:mutedText, lineHeight:1.7 }}>This takes a few seconds. Please keep this window open.</p>
+              </div>
+            ) : verifyFail ? (
+              /* ── COULD NOT CONFIRM YET ── */
+              <div style={{ padding:"1.5rem 0", textAlign:"center" }}>
+                <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.3rem", fontWeight:800, color:headingColor, marginBottom:".6rem" }}>We could not confirm your payment yet</h3>
+                <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:"1rem" }}>
+                  If money left your account, your payment is safe and we will match it manually. Send us your reference and we will get your access code to you.
+                </p>
+                <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:700, color:brandG, letterSpacing:".04em", wordBreak:"break-all", margin:"0 0 1.2rem" }}>{verifyFail}</p>
+                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                  <button type="button" className="btn-g" style={{ fontFamily:"inherit", cursor:"pointer" }} onClick={() => confirmPayment(verifyFail, "")}>Try confirming again</button>
+                  <a href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi Bode Conversion Lab, I paid for ${pkg?.name} but my access code did not appear. My payment reference is ${verifyFail}.`)}
+                    target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display:"block", textAlign:"center", textDecoration:"none" }}>Send my reference on WhatsApp →</a>
+                </div>
+              </div>
+            ) : success ? (
               /* ── SUCCESS STATE — START YOUR PROJECT ── */
               <div style={{ padding:"0.5rem 0" }}>
                 <div style={{ textAlign:"center", marginBottom:"1.8rem" }}>
@@ -475,7 +504,7 @@ export default function Pricing() {
             <span style={{ color: dark ? "rgba(255,255,255,.15)" : "rgba(26,20,8,.32)" }}>|</span>
             <span>48HR AUDIT TURNAROUND</span>
             <span style={{ color: dark ? "rgba(255,255,255,.15)" : "rgba(26,20,8,.32)" }}>|</span>
-            <span style={{ color:brandG }}>NO LOCK-IN CONTRACTS</span>
+            <span style={{ color:brandG }}>MONTH-TO-MONTH TERMS</span>
           </div>
         </div>
       </section>
@@ -492,9 +521,9 @@ export default function Pricing() {
           <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"1rem" }} className="how-grid">
             {[
               { icon:"→", title:"48-hour audit delivery",  desc:"Every engagement starts with a full store and ads audit delivered within 48 business hours." },
-              { icon:"→", title:"No fluff reporting",      desc:"Weekly reports focused on revenue, ROAS, and CPA. Nothing else. We don't hide behind vanity metrics." },
-              { icon:"→", title:"Cycle-to-cycle terms",    desc:"No lock-in. Stay because the results compound. Leave if they don't. We're that confident." },
-              { icon:"→", title:"Direct access",           desc:"Slack access to your dedicated strategist. Real responses within 4 business hours — not a ticket system." },
+              { icon:"→", title:"Focused reporting",       desc:"Weekly reports built around revenue, ROAS, and CPA, the numbers that pay your bills." },
+              { icon:"→", title:"Cycle-to-cycle terms",    desc:"Month-to-month. You stay because the results compound." },
+              { icon:"→", title:"Direct access",           desc:"Slack access to your dedicated strategist. Real responses from a real person within 4 business hours." },
             ].map((item, i) => (
               <div key={i} className="glass" style={{ padding:"1.5rem" }}>
                 <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
@@ -584,7 +613,7 @@ export default function Pricing() {
                         See pricing
                       </p>
                       <p style={{ fontSize:13, color:mutedText3, marginBottom:"1.2rem", lineHeight:1.6 }}>
-                        Enter your email to view our packages — no spam, just the numbers.
+                        Enter your email to view our packages and the numbers behind them.
                       </p>
                       <input
                         type="email" required value={gateEmail} onChange={e => setGateEmail(e.target.value)}
@@ -601,8 +630,8 @@ export default function Pricing() {
 
               <div style={{ textAlign:"center", marginTop:"2.5rem" }}>
                 <p style={{ fontSize:13, color:mutedText3, lineHeight:1.8 }}>
-                  All engagements are cycle-to-cycle. No lock-in. No contracts.<br />
-                  <span style={{ color:brandG, fontWeight:600 }}>Every tier starts with a store audit.</span> We don't run blind.
+                  All engagements are month-to-month.<br />
+                  <span style={{ color:brandG, fontWeight:600 }}>Every tier starts with a store audit.</span> Every decision starts from your data.
                 </p>
               </div>
             </div>

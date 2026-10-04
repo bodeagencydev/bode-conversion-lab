@@ -304,6 +304,10 @@ export default function Home() {
 
       <style>{`
         @media(max-width:900px){ .hero-split{grid-template-columns:1fr!important;} .hero-scan-wrap{order:2;max-width:460px;margin:2.6rem auto 0;} }
+        .callout-pin{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:'Space Grotesk',sans-serif;background:#00ff88;color:#04140c;box-shadow:0 0 0 5px rgba(0,255,136,.25),0 4px 14px rgba(0,0,0,.45);}
+        .callout-pin-static{position:static;transform:none;flex-shrink:0;box-shadow:none;margin-top:1px;}
+        :root[data-theme="light"] .callout-pin{background:#00A35C;color:#fff;box-shadow:0 0 0 5px rgba(0,163,92,.22),0 4px 14px rgba(0,0,0,.3);}
+        @media(max-width:860px){ .sample-grid{grid-template-columns:1fr!important;} .callout-pin:not(.callout-pin-static){width:18px;height:18px;font-size:10px;box-shadow:0 0 0 3px rgba(0,255,136,.25),0 2px 8px rgba(0,0,0,.45);} }
       `}</style>
 
 
@@ -358,6 +362,54 @@ export default function Home() {
                 </div>
               </ScrollReveal>
             ))}
+          </div>
+        </div>
+      </Section>
+
+      <hr className="divider" />
+
+      {/* ── SAMPLE REPORT: screenshot with CSS-positioned callouts ── */}
+      <Section id="sample-report">
+        <div style={{ maxWidth:1100, margin:"0 auto" }}>
+          <div className="sample-grid" style={{ display:"grid", gridTemplateColumns:"1.15fr 1fr", gap:"clamp(1.5rem,4vw,3.5rem)", alignItems:"center" }}>
+            <ScrollReveal delay={0}>
+              <div style={{ position:"relative", borderRadius:16, overflow:"hidden", border:`.5px solid ${glow(.28)}`, boxShadow:`0 24px 60px ${glow(.1)}` }}>
+                <img src="/sample-report.jpg" width="1049" height="849" loading="lazy" decoding="async"
+                  alt="Sample audit report for yourstore.com showing an F grade, 34 out of 100, the issue counts and one critical finding"
+                  style={{ display:"block", width:"100%", height:"auto" }} />
+                <span style={{ position:"absolute", top:10, right:10, fontSize:10.5, fontWeight:700, letterSpacing:".08em", textTransform:"uppercase", background:"rgba(0,0,0,.72)", color:"#fff", padding:"4px 9px", borderRadius:999 }}>Sample report</span>
+                {[
+                  { n:1, x:"15%", y:"8%" },
+                  { n:2, x:"85%",   y:"38.6%" },
+                  { n:3, x:"40%", y:"71.3%" },
+                ].map(c => (
+                  <span key={c.n} aria-hidden="true" className="callout-pin" style={{ left:c.x, top:c.y }}>{c.n}</span>
+                ))}
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.12}>
+              <div>
+                <SectionLabel>Your free audit</SectionLabel>
+                <Heading size="2.2rem" style={{ textAlign:"left" }}>See exactly where your store <GradText>loses sales.</GradText></Heading>
+                <p style={{ fontSize:14.5, color:mutedText, lineHeight:1.75, margin:"1rem 0 1.5rem" }}>
+                  This is a sample report. Yours is built from your own store in about a minute.
+                </p>
+                <ol style={{ listStyle:"none", padding:0, margin:"0 0 1.75rem", display:"flex", flexDirection:"column", gap:"1rem" }}>
+                  {[
+                    ["A clear grade", "One letter and a score show how healthy your store is today."],
+                    ["Every issue, ranked", "Critical, high and medium problems are counted, so you know where to start."],
+                    ["Plain English, with the price tag", "Each finding explains what we see and why it costs you money, then gives the fix."],
+                  ].map(([t, d], i) => (
+                    <li key={i} style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
+                      <span className="callout-pin callout-pin-static">{i + 1}</span>
+                      <span style={{ fontSize:14, lineHeight:1.65, color:mutedText }}><strong style={{ color:headingColor, fontWeight:700 }}>{t}.</strong> {d}</span>
+                    </li>
+                  ))}
+                </ol>
+                <Link to="/audit" className="btn-g" style={{ textDecoration:"none", display:"inline-block" }}>Scan my store free →</Link>
+              </div>
+            </ScrollReveal>
           </div>
         </div>
       </Section>
@@ -433,7 +485,6 @@ export default function Home() {
             <div style={{ textAlign:"center", marginBottom:"3rem" }}>
               <SectionLabel>Client results</SectionLabel>
               <Heading size="2.4rem">Real stores. <GradText>Real numbers.</GradText></Heading>
-              <p style={{ fontSize:13, color:mutedText3, marginTop:".75rem" }}>Hover to pause · scroll to see more</p>
             </div>
           </ScrollReveal>
           <TestimonialTicker items={TESTIMONIALS} />
@@ -497,7 +548,7 @@ export default function Home() {
                 Stop burning money.<br /><GradText>Start compounding it.</GradText>
               </h2>
               <p style={{ fontSize:"clamp(0.9rem,2vw,1rem)", color:mutedText, lineHeight:1.7, margin:"1.5rem auto", maxWidth:480 }}>
-                Join stores that went from struggling to scaling. Get your free store audit today — no commitment needed.
+                Join stores that went from struggling to scaling. Get your free store audit today.
               </p>
               <Magnetic>
                 <Link to="/audit" className="btn-g" style={{ display:"inline-block" }} data-cursor="Apply">

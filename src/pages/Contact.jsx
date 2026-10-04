@@ -163,7 +163,7 @@ function ApplyForm() {
             style={{ width:"100%", background:brandGG, color:"#040608", border:"none", borderRadius:10, padding:".9rem", fontSize:15, fontWeight:700, cursor:state.submitting?"not-allowed":"pointer", fontFamily:"inherit", opacity:state.submitting?0.7:1 }}>
             {state.submitting ? "Sending..." : "Submit my application →"}
           </button>
-          <p style={{ fontSize:11, color:mutedText4, textAlign:"center", marginTop:"1rem" }}>No spam. No commitment. We respond within 24 hours.</p>
+          <p style={{ fontSize:11, color:mutedText4, textAlign:"center", marginTop:"1rem" }}>Free to start. We respond within 24 hours.</p>
         </form>
       )}
     </div>
@@ -263,7 +263,7 @@ export default function Contact() {
                 "Shopify Partner — ID 4385075",
                 "Operator-built — 4 years running a real store",
                 "Worldwide clients — remote-first",
-                "Month-to-month — no contracts ever",
+                "Month-to-month terms, always",
               ].map((t, i) => (
                 <div key={i} style={{ display:"flex", alignItems:"center", gap:8 }}>
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke={brandG} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>

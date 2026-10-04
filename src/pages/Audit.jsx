@@ -4,7 +4,8 @@ import { G, GG } from "../data.js";
 import { PageWrapper, GradText, useTheme, SEO, HeroBackdrop } from "../components.jsx"; 
 import { TiltCard } from "../AnimationSystem.jsx";
 import { CONTACT_EMAIL } from "../contact-info.js";
-import { getVisitorId } from "../visitorTracking.js";
+import { getVisitorId, captureLeadContact } from "../visitorTracking.js";
+import { notifyPopupCapture } from "../NotificationSystem.js";
 /* @react-pdf/renderer is ~500kB gzipped — loaded on demand (see handleDownload)
    so it never ships in the initial Audit page bundle. */
 
@@ -89,8 +90,9 @@ function getAccessCodes() {
   try {
     const stored = JSON.parse(localStorage.getItem("bcl_access_codes") || "[]");
     const map = {};
+    const ids = { "Store Diagnosis":"diagnosis", "Conversion Fix":"fix", "The Lab":"lab", "Full Stack":"fullstack" };
     stored.forEach(entry => {
-      if (entry.active) map[entry.code] = { tier:entry.tier, client:entry.clientName };
+      if (entry.active) map[entry.code] = { tier: ids[entry.tier] || entry.tier, client:entry.clientName };
     });
     return map;
   } catch { return {}; }
@@ -863,6 +865,12 @@ export default function Audit() {
   const [accessCode, setAccessCode] = useState("");
   const [accessTier, setAccessTier] = useState(null);
   const [accessErr,  setAccessErr]  = useState("");
+  // Email gate: the scan only needs a URL. Grade, radar and the top 3 issues are
+  // free; the rest of the report opens once the visitor leaves an email (remembered
+  // in this browser so a returning visitor isn't asked twice).
+  const [emailUnlocked, setEmailUnlocked] = useState(() => { try { return !!localStorage.getItem("bcl_audit_email"); } catch { return false; } });
+  const [emailErr,      setEmailErr]      = useState("");
+  const [unlocking,     setUnlocking]     = useState(false);
   const [showModal,  setShowModal]  = useState(false);
   const [downloading,setDownloading]= useState(null);
   const [snapVisitors, setSnapVisitors] = useState(5000);
@@ -885,10 +893,8 @@ export default function Audit() {
 
   async function handleScan() {
     if (!url.trim()) return setError("Please enter your store URL.");
-    if (!email.trim() || !email.includes("@")) return setError("Please enter your email address.");
     setError(""); setLoading(true); setStageIdx(0);
     setAnalysis(null); setSolution(null); setRevealed(false); setEarlyScan(null);
-    if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) setAccessTier("admin");
 
     let stage = 0;
     const interval = setInterval(() => {
@@ -935,13 +941,44 @@ export default function Audit() {
     }
   }
 
-  function verifyAccess() {
+  const unlockedEmail = emailUnlocked || !!accessTier;
+
+  function unlockWithEmail() {
+    const clean = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(clean)) return setEmailErr("Please enter a valid email address.");
+    setEmailErr(""); setUnlocking(true);
+    if (clean === ADMIN_EMAIL.toLowerCase()) setAccessTier("admin");
+    const tag = analysis ? `Audit unlock: ${analysis.domain} (${analysis.grade}, ${analysis.overall}/100)` : "Audit unlock";
+    fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: clean, name: "", source: tag }),
+    }).catch(() => {});
+    captureLeadContact(clean, "");
+    notifyPopupCapture(clean, analysis ? `audit unlock for ${analysis.domain} (${analysis.grade})` : "audit unlock");
+    try { localStorage.setItem("bcl_audit_email", clean); } catch {}
+    setEmailUnlocked(true); setUnlocking(false);
+  }
+
+  async function verifyAccess() {
     const code  = accessCode.trim().toUpperCase();
     if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
       setAccessTier("admin"); setShowModal(false); return;
     }
-    const codes = getAccessCodes();
-    const entry = codes[code];
+    // Codes are checked on the server, so a code works on any device and
+    // cannot be invented by editing browser storage. Codes created before
+    // this change still work on the browser that holds them.
+    try {
+      const r = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "check-code", code }),
+      });
+      if (r.status === 429) return setAccessErr("Too many attempts. Please try again in an hour or WhatsApp us.");
+      const d = await r.json().catch(() => ({}));
+      if (d.ok && d.tier) { setAccessTier(d.tier); setShowModal(false); setAccessErr(""); return; }
+    } catch {}
+    const entry = getAccessCodes()[code];
     if (entry) { setAccessTier(entry.tier); setShowModal(false); setAccessErr(""); }
     else        setAccessErr("Invalid code. Check your payment confirmation or WhatsApp us.");
   }
@@ -1027,7 +1064,9 @@ export default function Audit() {
   }
 
   async function handleDownload(type) {
-    if (!accessTier) { setShowModal(true); return; }
+    if (type === "problems") {
+      if (!unlockedEmail) return;
+    } else if (!accessTier) { setShowModal(true); return; }
     if (type !== "problems" && accessTier === "diagnosis") {
       alert("Your Store Diagnosis package includes the Problem Report only. Upgrade to Conversion Fix or higher to unlock the Fixes and Growth & Marketing reports.");
       return;
@@ -1113,13 +1152,10 @@ export default function Audit() {
                 <input type="url" placeholder="Your store URL (e.g. mystore.com)" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key==="Enter" && handleScan()}
                   style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".85rem 1.1rem", color:headingColor, fontSize:15, fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
                   onFocus={e => e.target.style.borderColor=`${glow(.5)}`} onBlur={e => e.target.style.borderColor=inputBorder}/>
-                <input type="email" placeholder="Your email address" value={email} onChange={e => setEmail(e.target.value)}
-                  style={{ width:"100%", background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".85rem 1.1rem", color:headingColor, fontSize:15, fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
-                  onFocus={e => e.target.style.borderColor=`${glow(.5)}`} onBlur={e => e.target.style.borderColor=inputBorder}/>
               </div>
               {error && <p style={{ fontSize:13, color:"#FF6B6B", marginBottom:"1rem", padding:".75rem", background:"rgba(255,107,107,.08)", border:".5px solid rgba(255,107,107,.25)", borderRadius:8 }}>{error}</p>}
               <button onClick={handleScan} className="btn-g" style={{ width:"100%", fontFamily:"inherit", cursor:"pointer" }}>Scan my store now →</button>
-              <p style={{ fontSize:11, color:mutedText3, textAlign:"center", marginTop:".75rem" }}>Automatic scan — no questionnaire. Takes 30-60 seconds. Free.</p>
+              <p style={{ fontSize:11, color:mutedText3, textAlign:"center", marginTop:".75rem" }}>Automatic scan, no questionnaire. Takes 30-60 seconds. Free.</p>
             </div>
           </div>
         </section>
@@ -1204,6 +1240,7 @@ export default function Audit() {
             </div>
           </div>
 
+          {unlockedEmail && (<>
           {/* Core Web Vitals */}
           <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:16, padding:"1.2rem 1.5rem", marginBottom:"1.5rem" }}>
             <p style={{ fontSize:11, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:"1rem" }}>Core Web Vitals</p>
@@ -1230,6 +1267,8 @@ export default function Audit() {
             ))}
           </div>
 
+          </>)}
+
           {/* Radar overview — same category scores, shaped so you can see the weak side of the store at a glance */}
           {Object.keys(analysis.metrics).length >= 3 && (
             <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:16, padding:"1.2rem 1.5rem", marginBottom:"1.5rem", display:"flex", justifyContent:"center" }}>
@@ -1237,6 +1276,7 @@ export default function Audit() {
             </div>
           )}
 
+          {unlockedEmail && (<>
           {/* Visual snapshot — real screenshots (homepage + a deeper page when found), each
               with its own AI-spotted issues, called out by where they sit on the page. */}
           {analysis.visualPages?.length > 0 && (
@@ -1289,6 +1329,8 @@ export default function Audit() {
             </div>
           )}
 
+          </>)}
+
           {/* Severity summary */}
           <div style={{ display:"flex", gap:10, marginBottom:"1.5rem", flexWrap:"wrap" }}>
             {["critical","high","medium"].map(sev => {
@@ -1309,7 +1351,7 @@ export default function Audit() {
 
           {/* All findings */}
           <div style={{ display:"flex", flexDirection:"column", gap:"0.9rem", marginBottom:"2rem" }}>
-            {analysis.findings.map((f,i) => (
+            {(unlockedEmail ? analysis.findings : analysis.findings.slice(0, 3)).map((f,i) => (
               <div key={i} style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderLeft:`3px solid ${sevColor(f.severity)}`, borderRadius:"0 14px 14px 0", padding:"1.2rem 1.5rem" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:".5rem", flexWrap:"wrap" }}>
                   <span style={{ background:`${sevColor(f.severity)}22`, border:`.5px solid ${sevColor(f.severity)}55`, borderRadius:6, padding:"2px 8px", fontSize:10, fontWeight:700, color:sevColor(f.severity), textTransform:"uppercase" }}>{f.severity}</span>
@@ -1339,6 +1381,25 @@ export default function Audit() {
               </div>
             ))}
           </div>
+
+          {/* Email gate: opens the rest of the report */}
+          {!unlockedEmail && (
+            <div style={{ background:`linear-gradient(135deg,${glow(.08)},${glow2(.03)})`, border:`.5px solid ${glow(.3)}`, borderRadius:20, padding:"clamp(1.4rem,4vw,2rem)", marginBottom:"2rem", textAlign:"center" }}>
+              <div style={{ display:"flex", justifyContent:"center", marginBottom:".6rem" }}><LockIcon size={26} color={brandG} /></div>
+              <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.15rem", fontWeight:800, color:headingColor, margin:"0 0 .5rem" }}>Unlock your full report</h3>
+              <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, maxWidth:440, margin:"0 auto 1.1rem" }}>
+                {analysis.findings.length > 3 ? `${analysis.findings.length - 3} more issues, ` : ""}your Core Web Vitals, the screenshot with every problem pinned, and the PDF Problem Report open as soon as you enter your email.
+              </p>
+              <div style={{ display:"flex", gap:10, maxWidth:460, margin:"0 auto", flexWrap:"wrap" }}>
+                <input type="email" inputMode="email" autoComplete="email" placeholder="Your email address" value={email}
+                  onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key==="Enter" && unlockWithEmail()}
+                  style={{ flex:"1 1 220px", minWidth:0, background:inputBg, border:`.5px solid ${inputBorder}`, borderRadius:10, padding:".8rem 1rem", color:headingColor, fontSize:15, fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}/>
+                <button onClick={unlockWithEmail} disabled={unlocking} className="btn-g" style={{ fontFamily:"inherit", cursor:"pointer", flex:"1 1 160px" }}>Unlock my report</button>
+              </div>
+              {emailErr && <p style={{ fontSize:12.5, color:"#FF6B6B", margin:".75rem 0 0" }}>{emailErr}</p>}
+              <p style={{ fontSize:11, color:mutedText3, margin:".8rem 0 0" }}>Opens instantly. Unsubscribe from our emails anytime.</p>
+            </div>
+          )}
 
           {/* Access tier indicator */}
           {accessTier && (
@@ -1424,6 +1485,7 @@ export default function Audit() {
           )}
 
           {/* Downloads */}
+          {unlockedEmail && (
           <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:20, padding:"1.8rem", marginBottom:"2rem" }}>
             <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.1rem", fontWeight:800, color:headingColor, marginBottom:".4rem" }}>Download Your Reports</h3>
             <p style={{ fontSize:13, color:mutedText2, lineHeight:1.6, marginBottom:"1.2rem" }}>
@@ -1450,6 +1512,7 @@ export default function Audit() {
               })}
             </div>
           </div>
+          )}
 
           {/* Solution teaser — blurred */}
           <div style={{ position:"relative", marginBottom:"2rem" }}>
@@ -1493,7 +1556,7 @@ export default function Audit() {
               <Link to={`/contact?url=${encodeURIComponent(url)}&grade=${encodeURIComponent(analysis?.grade || "")}`} className="btn-ghost" style={{ display:"inline-block", textDecoration:"none" }}>
                 Continue to application form
               </Link>
-              <button onClick={() => { setAnalysis(null); setSolution(null); setUrl(""); setEmail(""); setRevealed(false); setAccessTier(null); }} className="btn-ghost" style={{ fontFamily:"inherit", cursor:"pointer" }}>
+              <button onClick={() => { setAnalysis(null); setSolution(null); setUrl(""); setRevealed(false); setAccessTier(null); }} className="btn-ghost" style={{ fontFamily:"inherit", cursor:"pointer" }}>
                 Scan another store
               </button>
             </div>

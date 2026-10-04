@@ -348,7 +348,7 @@ export function PastProjects() {
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
             <SectionLabel>Client campaign clips</SectionLabel>
-            <Heading size="2rem">Not stock footage.<br /><GradText>Actual client campaigns.</GradText></Heading>
+            <Heading size="2rem">Footage from<br /><GradText>our own client campaigns.</GradText></Heading>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.2rem" }} className="how-grid">
