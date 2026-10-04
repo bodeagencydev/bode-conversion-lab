@@ -119,7 +119,7 @@ export default function SRS() {
       <Section>
         <div style={{ maxWidth:900, margin:"0 auto", textAlign:"center" }}>
           <SectionLabel>SRS in action</SectionLabel>
-          <Heading size="1.8rem">See the system <GradText>on real stores</GradText></Heading>
+          <Heading size="1.8rem">See the system on real stores</Heading>
           <p style={{ fontSize:14.5, color:mutedText, lineHeight:1.8, margin:"1rem auto 1.8rem", maxWidth:580 }}>
             Every store below went through the same process: fix the leaks first, then scale the traffic. These are actual client campaigns.
           </p>

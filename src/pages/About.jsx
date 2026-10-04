@@ -100,7 +100,7 @@ export default function About() {
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:"3rem" }}>
             <SectionLabel>What we do</SectionLabel>
-            <Heading size="2.4rem">Our <GradText>services</GradText></Heading>
+            <Heading size="2.4rem">Our services</Heading>
             <p style={{ fontSize:14, color:mutedText3, marginTop:".75rem" }}>Tap any service to see what's included</p>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:"1rem" }}>
@@ -157,7 +157,7 @@ export default function About() {
         <div style={{ maxWidth:960, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:"3rem" }}>
             <SectionLabel>What we believe</SectionLabel>
-            <Heading>Our <GradText>values</GradText></Heading>
+            <Heading>Our values</Heading>
           </div>
           <div className="how-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1rem" }}>
             {[

@@ -248,7 +248,7 @@ export function PastProjects() {
             Real work.<br /><GradText>Real experience.</GradText>
           </h1>
           <p style={{ fontSize: "clamp(0.95rem,2vw,1.1rem)", color: mutedText2, lineHeight: 1.8, maxWidth: 520, margin: "0 auto 2rem" }}>
-            What I've actually built and run — no invented numbers, no placeholder clients. Just the work, the tools, and how it went.
+            What we've built and run for our clients: the work, the tools, and how it went.
           </p>
 
           {realProjects.length > 0 && (
@@ -313,7 +313,7 @@ export function PastProjects() {
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.6rem" }} className="about-grid">
                   <div>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: headingColor, textTransform: "uppercase", letterSpacing: ".05em", marginBottom: ".6rem" }}>What I did</p>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: headingColor, textTransform: "uppercase", letterSpacing: ".05em", marginBottom: ".6rem" }}>What we did</p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       {p.whatIDid && p.whatIDid.map((w, i) => (
                         <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
@@ -348,7 +348,7 @@ export function PastProjects() {
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
             <SectionLabel>Client campaign clips</SectionLabel>
-            <Heading size="2rem">Footage from<br /><GradText>our own client campaigns.</GradText></Heading>
+            <Heading size="2rem">Footage from<br />our own client campaigns.</Heading>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.2rem" }} className="how-grid">
@@ -416,7 +416,7 @@ export function PastProjectDetail() {
         <div style={{ maxWidth: 700, margin: "0 auto" }}>
           <p style={{ fontSize: 16, color: mutedText, lineHeight: 1.9, marginBottom: "2.5rem" }}>{p.summary}</p>
 
-          <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize: "1.1rem", color: headingColor, marginBottom: "1rem" }}>What I did</h2>
+          <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize: "1.1rem", color: headingColor, marginBottom: "1rem" }}>What we did</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: "2.5rem" }}>
             {p.whatIDid && p.whatIDid.map((w, i) => (
               <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
 import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, SvgGradText, useInView, useTheme, PageWrapper, SEO, HeroBackdrop } from "../components.jsx";
-import { PROOF_RESULTS, HOME_STEPS, HOME_SRS_PHASES } from "../site-content.js";
+import { PROOF_RESULTS, HOME_SYSTEM } from "../site-content.js";
 import { CONTACT_EMAIL } from "../contact-info.js";
 import { ScrollReveal, TiltCard, Magnetic, GlowBorder, useSpringCounterValue, MaskedHeading } from "../AnimationSystem.jsx";
 
@@ -307,6 +307,14 @@ export default function Home() {
         .callout-pin{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:'Space Grotesk',sans-serif;background:#00ff88;color:#04140c;box-shadow:0 0 0 5px rgba(0,255,136,.25),0 4px 14px rgba(0,0,0,.45);}
         .callout-pin-static{position:static;transform:none;flex-shrink:0;box-shadow:none;margin-top:1px;}
         :root[data-theme="light"] .callout-pin{background:#00A35C;color:#fff;box-shadow:0 0 0 5px rgba(0,163,92,.22),0 4px 14px rgba(0,0,0,.3);}
+        .sys-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(2rem,5vw,4.5rem);align-items:start;}
+        .sys-sticky{position:sticky;top:110px;}
+        .sys-list{position:relative;list-style:none;margin:0;padding:0;}
+        .sys-list::before{content:"";position:absolute;left:19px;top:20px;bottom:2.2rem;width:1px;background:linear-gradient(to bottom,rgba(0,255,136,.45),rgba(128,128,128,.18));}
+        .sys-item{position:relative;padding:0 0 2.2rem 62px;}
+        .sys-node{position:absolute;left:0;top:0;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:800;background:var(--bg,#040608);border:1px solid rgba(128,128,128,.4);color:var(--fg,#fff);}
+        .sys-phase{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted3,rgba(255,255,255,.4));margin:0 0 .3rem;padding-top:2px;}
+        @media(max-width:860px){ .sys-grid{grid-template-columns:1fr;gap:2rem;} .sys-sticky{position:static;} }
         @media(max-width:860px){ .sample-grid{grid-template-columns:1fr!important;} .callout-pin:not(.callout-pin-static){width:18px;height:18px;font-size:10px;box-shadow:0 0 0 3px rgba(0,255,136,.25),0 2px 8px rgba(0,0,0,.45);} }
       `}</style>
 
@@ -391,7 +399,7 @@ export default function Home() {
             <ScrollReveal delay={0.12}>
               <div>
                 <SectionLabel>Your free audit</SectionLabel>
-                <Heading size="2.2rem" style={{ textAlign:"left" }}>See exactly where your store <GradText>loses sales.</GradText></Heading>
+                <Heading size="2.2rem" style={{ textAlign:"left" }}>See exactly where your store loses sales.</Heading>
                 <p style={{ fontSize:14.5, color:mutedText, lineHeight:1.75, margin:"1rem 0 1.5rem" }}>
                   This is a sample report. Yours is built from your own store in about a minute.
                 </p>
@@ -416,63 +424,36 @@ export default function Home() {
 
       <hr className="divider" />
 
-      {/* ── HOW IT WORKS ── */}
+      {/* ── THE SYSTEM: how it works + SRS, one section ── */}
       <Section id="how">
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
-          <ScrollReveal delay={0}>
-            <div style={{ textAlign:"center", marginBottom:"3.5rem" }}>
-              <SectionLabel>The system</SectionLabel>
-              <Heading size="2.4rem">We don't run ads.<br /><GradText>We engineer ROAS.</GradText></Heading>
-            </div>
-          </ScrollReveal>
-          <div className="how-grid" style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"1.5rem" }}>
-            {HOME_STEPS.map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.1}>
-                <TiltCard className="glass" style={{ padding:"2.5rem", height:"100%" }}>
-                  <SvgGradText colors={[glow(.55), glow(.15)]} fontFamily="'Space Grotesk',sans-serif" fontSize="1.8rem" fontWeight={800} style={{ marginBottom:".75rem" }}>{item.n}</SvgGradText>
-                  <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.15rem", fontWeight:700, marginBottom:".6rem", color:headingColor }}>{item.t}</h3>
-                  <p style={{ fontSize:14, color:mutedText, lineHeight:1.75 }}>{item.d}</p>
-                </TiltCard>
-              </ScrollReveal>
-            ))}
+          <div className="sys-grid">
+            <ScrollReveal delay={0}>
+              <div className="sys-sticky">
+                <SectionLabel>The system</SectionLabel>
+                <Heading size="2.4rem" style={{ textAlign:"left" }}>We don't run ads.<br /><GradText>We engineer ROAS.</GradText></Heading>
+                <p style={{ fontSize:14.5, color:mutedText, lineHeight:1.8, margin:"1rem 0 1.6rem", maxWidth:440 }}>
+                  <strong style={{ color:headingColor }}>SRS, our Sales Recovery System,</strong> is the system behind everything we do. Most agencies run ads first. We fix the store first, because sending traffic to a leaky funnel just burns your budget.
+                </p>
+                <Magnetic>
+                  <Link to="/srs" className="btn-ghost" style={{ textDecoration:"none", display:"inline-block" }}>See the full SRS breakdown →</Link>
+                </Magnetic>
+              </div>
+            </ScrollReveal>
+
+            <ol className="sys-list">
+              {HOME_SYSTEM.map((item, i) => (
+                <ScrollReveal key={i} delay={i * 0.08}>
+                  <li className="sys-item">
+                    <span className="sys-node">{item.n}</span>
+                    <p className="sys-phase">Phase {item.n}</p>
+                    <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.2rem", fontWeight:700, margin:"0 0 .45rem", color:headingColor }}>{item.t}</h3>
+                    <p style={{ fontSize:14, color:mutedText, lineHeight:1.75, margin:0 }}>{item.d}</p>
+                  </li>
+                </ScrollReveal>
+              ))}
+            </ol>
           </div>
-        </div>
-      </Section>
-
-      <hr className="divider" />
-
-      {/* ── SRS STRATEGY (compact) ── */}
-      <Section id="cgo">
-        <div style={{ maxWidth:980, margin:"0 auto" }}>
-          <ScrollReveal delay={0}>
-            <div style={{ textAlign:"center", marginBottom:"2rem" }}>
-              <SectionLabel>The Methodology</SectionLabel>
-              <Heading size="2rem">What is <GradText>SRS?</GradText></Heading>
-              <p style={{ fontSize:14.5, color:mutedText, maxWidth:640, margin:"1rem auto 0", lineHeight:1.8 }}>
-                <strong style={{ color:headingColor }}>SRS — Sales Recovery System</strong> is the system behind everything we do. Most agencies run ads first. We fix the store first — because sending traffic to a leaky funnel just burns your budget faster. SRS fixes what's broken, proves what works, then scales only what's earned it.
-              </p>
-            </div>
-          </ScrollReveal>
-
-          <div className="how-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"1rem" }}>
-            {HOME_SRS_PHASES.map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.08}>
-                <TiltCard className="glass" style={{ padding:"1.4rem 1.2rem", height:"100%" }}>
-                  <p style={{ fontSize:10, fontWeight:700, color:brandG, letterSpacing:".06em", marginBottom:".4rem" }}>PHASE {item.phase}</p>
-                  <h4 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:14, fontWeight:700, marginBottom:".35rem", color:headingColor }}>{item.t}</h4>
-                  <p style={{ fontSize:12, color:mutedText, lineHeight:1.6 }}>{item.d}</p>
-                </TiltCard>
-              </ScrollReveal>
-            ))}
-          </div>
-
-          <ScrollReveal delay={0.1}>
-            <div style={{ textAlign:"center", marginTop:"1.6rem" }}>
-              <Magnetic>
-                <Link to="/srs" className="btn-ghost" style={{ textDecoration:"none", display:"inline-block" }}>See the full SRS breakdown →</Link>
-              </Magnetic>
-            </div>
-          </ScrollReveal>
         </div>
       </Section>
 
@@ -484,7 +465,7 @@ export default function Home() {
           <ScrollReveal delay={0}>
             <div style={{ textAlign:"center", marginBottom:"3rem" }}>
               <SectionLabel>Client results</SectionLabel>
-              <Heading size="2.4rem">Real stores. <GradText>Real numbers.</GradText></Heading>
+              <Heading size="2.4rem">Real stores. Real numbers.</Heading>
             </div>
           </ScrollReveal>
           <TestimonialTicker items={TESTIMONIALS} />
@@ -506,7 +487,7 @@ export default function Home() {
           <ScrollReveal delay={0}>
             <div style={{ textAlign:"center", marginBottom:"3rem" }}>
               <SectionLabel>Free tips & insights</SectionLabel>
-              <Heading size="2.4rem">Learn from the <GradText>lab</GradText></Heading>
+              <Heading size="2.4rem">Learn from the lab</Heading>
               <p style={{ fontSize:14, color:mutedText2, marginTop:".75rem" }}>Scroll through for free tips and insights from the lab.</p>
             </div>
           </ScrollReveal>
@@ -522,7 +503,7 @@ export default function Home() {
           <ScrollReveal delay={0}>
             <div style={{ textAlign:"center", marginBottom:"3rem" }}>
               <SectionLabel>Official partnerships</SectionLabel>
-              <Heading size="2.2rem">Platform <GradText>partners</GradText></Heading>
+              <Heading size="2.2rem">Platform partners</Heading>
             </div>
           </ScrollReveal>
           <div className="partner-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1rem" }}>

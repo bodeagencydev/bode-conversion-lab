@@ -240,7 +240,7 @@ export default function Contact() {
         <div style={{ maxWidth:960, margin:"0 auto", display:"grid", gridTemplateColumns:"1fr 1.4fr", gap:"4rem", alignItems:"flex-start" }} className="about-grid">
           <div>
             <SectionLabel>What happens next</SectionLabel>
-            <Heading size="1.8rem">Three steps to<br /><GradText>your first results</GradText></Heading>
+            <Heading size="1.8rem">Three steps to<br />your first results</Heading>
             <div style={{ marginTop:"2rem", display:"flex", flexDirection:"column", gap:"1.5rem" }}>
               {[
                 { n:"01", t:"You apply",       d:"Fill out the form. Takes 2 minutes. We read every application personally — no bots, no auto-responses." },

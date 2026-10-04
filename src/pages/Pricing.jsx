@@ -516,7 +516,7 @@ export default function Pricing() {
         <div style={{ maxWidth:760, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:"3rem" }}>
             <SectionLabel>Our commitment</SectionLabel>
-            <Heading>What you get when you<br /><GradText>work with us</GradText></Heading>
+            <Heading>What you get when you<br />work with us</Heading>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"1rem" }} className="how-grid">
             {[
@@ -547,7 +547,7 @@ export default function Pricing() {
             <div>
               <div style={{ textAlign:"center", marginBottom:"3rem" }}>
                 <SectionLabel>Four ways to work together</SectionLabel>
-                <Heading>Pick your <GradText>entry point</GradText></Heading>
+                <Heading>Pick your entry point</Heading>
                 <p style={{ fontSize:14, color:mutedText3, marginTop:".75rem" }}>Start anywhere. Every tier is designed to compound into the next.</p>
               </div>
 

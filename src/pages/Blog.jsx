@@ -235,7 +235,7 @@ export function Blog() {
           }}>
             <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:`linear-gradient(90deg,transparent,${glow(.5)},transparent)`, pointerEvents:"none" }}/>
             <SectionLabel>Want results, not just reading?</SectionLabel>
-            <Heading size="2rem">Apply these tactics<br /><GradText>with our help</GradText></Heading>
+            <Heading size="2rem">Apply these tactics<br />with our help</Heading>
             <p style={{ fontSize:15, color:mutedText2, lineHeight:1.75, margin:"1.5rem auto 2rem", maxWidth:420 }}>
               The fastest way to implement what you've read is with an operator who's done it 40+ times across real stores.
             </p>
