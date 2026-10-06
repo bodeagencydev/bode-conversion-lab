@@ -40,13 +40,14 @@ function RadarChart({ metrics, size = 220, color = "#00ff88", gridColor = "rgba(
   const entries = Object.values(metrics);
   const n = entries.length;
   if (n < 3) return null;
-  const cx = size / 2, cy = size / 2, r = size * 0.34;
+  const cx = size / 2, cy = size / 2, r = size * 0.30;
+  const pad = 46; // room for the longest label ("Accessibility") on the left
   const angle = i => -Math.PI / 2 + (i * 2 * Math.PI) / n;
   const pt = (i, frac) => [cx + Math.cos(angle(i)) * r * frac, cy + Math.sin(angle(i)) * r * frac];
   const ring = frac => entries.map((_, i) => pt(i, frac).join(",")).join(" ");
   const dataPoints = entries.map((m, i) => pt(i, Math.max(0.04, (m.score || 0) / 100)).join(",")).join(" ");
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <svg width={size + pad * 2} height={size} viewBox={`${-pad} 0 ${size + pad * 2} ${size}`} style={{ maxWidth:"100%", height:"auto", overflow:"visible" }}>
       {[0.25, 0.5, 0.75, 1].map(f => (
         <polygon key={f} points={ring(f)} fill="none" stroke={gridColor} strokeWidth={1} />
       ))}
@@ -56,9 +57,10 @@ function RadarChart({ metrics, size = 220, color = "#00ff88", gridColor = "rgba(
       })}
       <polygon points={dataPoints} fill={color} fillOpacity={0.22} stroke={color} strokeWidth={2} />
       {entries.map((m, i) => {
-        const [x, y] = pt(i, 1.22);
+        const [x, y] = pt(i, 1.2);
+        const anchor = x < cx - 6 ? "end" : x > cx + 6 ? "start" : "middle";
         return (
-          <text key={i} x={x} y={y} fontSize={10} fill={labelColor} textAnchor="middle" dominantBaseline="middle">
+          <text key={i} x={x} y={y} fontSize={10} fill={labelColor} textAnchor={anchor} dominantBaseline="middle">
             {m.label.split(" ")[0]}
           </text>
         );
@@ -1374,10 +1376,17 @@ export default function Audit() {
                     ))}
                   </div>
                 )}
-                <div style={{ background:dark?`${glow(.04)}`:`${glow(.06)}`, border:`.5px solid ${glow(.18)}`, borderRadius:8, padding:".75rem 1rem" }}>
-                  <span style={{ fontSize:11, color:brandG, fontWeight:700 }}>→ Fix: </span>
-                  <span style={{ fontSize:13, color:mutedText, lineHeight:1.7 }}>{f.fix}</span>
-                </div>
+                {["fix","lab","fullstack","admin"].includes(accessTier) ? (
+                  <div style={{ background:dark?`${glow(.04)}`:`${glow(.06)}`, border:`.5px solid ${glow(.18)}`, borderRadius:8, padding:".75rem 1rem" }}>
+                    <span style={{ fontSize:11, color:brandG, fontWeight:700 }}>→ Fix: </span>
+                    <span style={{ fontSize:13, color:mutedText, lineHeight:1.7 }}>{f.fix}</span>
+                  </div>
+                ) : (
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, flexWrap:"wrap", border:`.5px dashed ${glow(.28)}`, borderRadius:8, padding:".7rem 1rem" }}>
+                    <span style={{ fontSize:12.5, color:mutedText3, lineHeight:1.6 }}>The exact fix for this is in your Fixes Report.</span>
+                    <button type="button" onClick={() => setShowModal(true)} style={{ background:"none", border:"none", color:brandG, fontWeight:700, fontSize:12.5, cursor:"pointer", fontFamily:"inherit", padding:0 }}>Enter access code →</button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

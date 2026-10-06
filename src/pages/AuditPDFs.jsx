@@ -30,6 +30,9 @@ Font.register({
     { src: "/fonts/IBMPlexSans-Regular.ttf", fontWeight: 400 },
     { src: "/fonts/IBMPlexSans-SemiBold.ttf", fontWeight: 600 },
     { src: "/fonts/IBMPlexSans-Bold.ttf", fontWeight: 700 },
+    // The styles below ask for weight 800 in many places. Only 400/600/700 were
+    // registered, so react-pdf silently swapped those labels to Helvetica-Bold.
+    { src: "/fonts/IBMPlexSans-Bold.ttf", fontWeight: 800 },
   ],
 });
 
@@ -37,7 +40,9 @@ Font.register({
   family: "Space Grotesk",
   fonts: [
     { src: "/fonts/SpaceGrotesk-Medium.ttf", fontWeight: 500 },
+    { src: "/fonts/SpaceGrotesk-Bold.ttf", fontWeight: 600 },
     { src: "/fonts/SpaceGrotesk-Bold.ttf", fontWeight: 700 },
+    { src: "/fonts/SpaceGrotesk-Bold.ttf", fontWeight: 800 },
   ],
 });
 
@@ -142,8 +147,8 @@ function ScoreGauge({ score, grade, size = 150 }) {
           strokeDasharray={`${dash} ${c}`} strokeLinecap="round"
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
-        <Text x={size / 2} y={size / 2 - 2} style={{ fontSize: 34, fontWeight: 800 }} textAnchor="middle">{score}</Text>
-        <Text x={size / 2} y={size / 2 + 18} style={{ fontSize: 9, fill: "#8C8C8C" }} textAnchor="middle">/ 100</Text>
+        <Text x={size / 2} y={size / 2 - 2} style={{ fontFamily: "Space Grotesk", fontSize: 34, fontWeight: 700 }} textAnchor="middle">{score}</Text>
+        <Text x={size / 2} y={size / 2 + 18} style={{ fontFamily: "IBM Plex Sans", fontSize: 9, fill: "#8C8C8C" }} textAnchor="middle">/ 100</Text>
       </Svg>
       <View style={{ backgroundColor: color, borderRadius: 4, paddingVertical: 3, paddingHorizontal: 12, marginTop: 6 }}>
         <Text style={{ fontSize: 10, fontWeight: 800, color: "#FFFFFF" }}>GRADE {grade}</Text>
@@ -311,6 +316,22 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
           </View>
         </View>
 
+        {(() => {
+          const rank = { critical: 0, high: 1, medium: 2, low: 3 };
+          const top = [...analysis.findings].sort((a, b) => (rank[a.severity] ?? 9) - (rank[b.severity] ?? 9)).slice(0, 3);
+          return top.length > 0 && (
+            <View wrap={false} style={{ marginBottom: 14 }}>
+              <Text style={{ ...s.sectionTitle, color: DEEP_RED, marginTop: 4 }}>Biggest Leaks First</Text>
+              {top.map((f, i) => (
+                <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", marginBottom: 5 }}>
+                  <Text style={{ width: 16, fontFamily: "Space Grotesk", fontSize: 11, fontWeight: 700, color: DEEP_RED }}>{i + 1}</Text>
+                  <Text style={{ flex: 1, fontSize: 9.5, fontWeight: 600, color: INK }}>{f.title}</Text>
+                </View>
+              ))}
+            </View>
+          );
+        })()}
+
         {analysis.visualPages?.length > 0 && (
           <View wrap={false} style={{ marginBottom: 14 }}>
             <Text style={{ ...s.sectionTitle, color: DEEP_RED }}>Visual Snapshot</Text>
@@ -369,7 +390,7 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
 
         {Object.entries(byCategory).map(([cat, items], ci) => (
           <View key={ci}>
-            <View style={{ ...s.catHeader, backgroundColor: DEEP_RED }}>
+            <View wrap={false} minPresenceAhead={140} style={{ ...s.catHeader, backgroundColor: DEEP_RED }}>
               <Text style={{ ...s.catTitle, color: "#FFFFFF" }}>{cat}</Text>
               <Text style={{ ...s.catCount, color: "#FFD7D3" }}>{items.length} issue{items.length !== 1 ? "s" : ""}</Text>
             </View>
@@ -396,9 +417,6 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
                     ))}
                   </View>
                 )}
-                <Text style={{ fontSize: 7, color: DEEP_RED, marginTop: 3 }}>
-                  <Text style={{ fontWeight: 800 }}>Fix: </Text>{f.fix}
-                </Text>
               </View>
             ))}
           </View>
