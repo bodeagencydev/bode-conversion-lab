@@ -280,7 +280,7 @@ const NAV_LINKS = [
 export function Logo({ size = 40, textSize = 14 }) {
   const { dark } = useTheme();
   return (
-    <div style={{ display:"flex", alignItems:"center", gap:9 }}>
+    <div translate="no" className="notranslate" style={{ display:"flex", alignItems:"center", gap:9 }}>
       <div style={{
         width:size, height:size, borderRadius:"30%",
         background: dark ? "linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,255,136,.02))" : "rgba(255,255,255,.9)",
@@ -1377,6 +1377,119 @@ export function ChatWidget() {
 }
 
 
+/* ─── LANGUAGE BANNER ─────────────────────────────────────────────
+   Offers to translate the site into the visitor's browser language using
+   Google's free in-page translator (every language it supports). Nothing loads
+   until the visitor says yes, so the site stays fast for English visitors, and
+   the choice is remembered so returning visitors get their language straight
+   away. "Show original" switches back. Brand names and codes are marked
+   translate="no". Admin pages never show it. */
+const LANG_KEY = "bcl_lang";            // chosen target language, e.g. "es"
+const LANG_NO_KEY = "bcl_lang_dismissed";
+let gtLoading = false;
+
+function setGoogTrans(lang) {
+  const val = lang ? `/en/${lang}` : "";
+  const host = location.hostname;
+  const exp = lang ? "" : ";expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = `googtrans=${val};path=/${exp}`;
+  document.cookie = `googtrans=${val};path=/;domain=${host}${exp}`;
+}
+
+function loadTranslator() {
+  if (gtLoading || document.getElementById("bcl-gt-script")) return;
+  gtLoading = true;
+  // React and Google's translator both edit the page. Without this guard, React
+  // can throw when it tries to remove a node the translator has wrapped.
+  if (!window.__bclDomGuard) {
+    window.__bclDomGuard = true;
+    const rc = Node.prototype.removeChild;
+    Node.prototype.removeChild = function (child) {
+      if (child.parentNode !== this) return child;
+      return rc.apply(this, arguments);
+    };
+    const ib = Node.prototype.insertBefore;
+    Node.prototype.insertBefore = function (n, ref) {
+      if (ref && ref.parentNode !== this) return n;
+      return ib.apply(this, arguments);
+    };
+  }
+  let holder = document.getElementById("google_translate_element");
+  if (!holder) {
+    holder = document.createElement("div");
+    holder.id = "google_translate_element";
+    holder.style.display = "none";
+    document.body.appendChild(holder);
+  }
+  window.bclGoogleTranslateInit = () => {
+    try { new window.google.translate.TranslateElement({ pageLanguage: "en", autoDisplay: false }, "google_translate_element"); } catch {}
+  };
+  const sc = document.createElement("script");
+  sc.id = "bcl-gt-script";
+  sc.src = "https://translate.google.com/translate_a/element.js?cb=bclGoogleTranslateInit";
+  sc.async = true;
+  sc.onerror = () => { gtLoading = false; };
+  document.body.appendChild(sc);
+}
+
+export function LanguageBanner() {
+  const { dark } = useTheme();
+  const loc = useLocation();
+  const [lang, setLang] = useState(null);      // browser language to offer, e.g. "es"
+  const [active, setActive] = useState(false); // translated right now
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    let saved = null, no = null;
+    try { saved = localStorage.getItem(LANG_KEY); no = localStorage.getItem(LANG_NO_KEY); } catch {}
+    const nav = (navigator.languages && navigator.languages[0]) || navigator.language || "en";
+    const base = nav.toLowerCase().split("-")[0];
+    const target = nav.toLowerCase() === "zh-tw" || nav.toLowerCase() === "zh-hk" ? "zh-TW" : base;
+    if (saved) { setLang(saved); setActive(true); setGoogTrans(saved); loadTranslator(); return; }
+    if (base && base !== "en" && !no) { setLang(target); setShow(true); }
+  }, []);
+
+  if (loc.pathname.startsWith("/admin") || !lang) return null;
+
+  let name = lang;
+  try { name = new Intl.DisplayNames([lang], { type: "language" }).of(lang) || lang; } catch {}
+
+  const translate = () => {
+    try { localStorage.setItem(LANG_KEY, lang); } catch {}
+    setGoogTrans(lang); setActive(true); setShow(false); loadTranslator();
+    // If the translator was already running for another language, reload so it re-reads the cookie.
+    if (document.getElementById("bcl-gt-script") && document.querySelector(".goog-te-combo")) location.reload();
+  };
+  const dismiss = () => { try { localStorage.setItem(LANG_NO_KEY, "1"); } catch {} setShow(false); };
+  const original = () => {
+    try { localStorage.removeItem(LANG_KEY); localStorage.setItem(LANG_NO_KEY, "1"); } catch {}
+    setGoogTrans(null); location.reload();
+  };
+
+  if (!show && !active) return null;
+  const bg = dark ? "#0c1c14" : "#FFFDF7", fg = dark ? "#fff" : "#1A1408";
+  const line = dark ? "rgba(0,255,136,.4)" : "rgba(0,130,74,.45)";
+
+  if (active && !show) {
+    return (
+      <button type="button" translate="no" onClick={original} className="notranslate"
+        style={{ position:"fixed", top:"calc(env(safe-area-inset-top, 0px) + 74px)", left:12, zIndex:90, background:bg, color:fg, border:`1px solid ${line}`, borderRadius:999, padding:"5px 12px", fontSize:11.5, fontFamily:"inherit", cursor:"pointer", opacity:.9 }}>
+        Show original (English)
+      </button>
+    );
+  }
+  return (
+    <div role="dialog" aria-label="Translate this site" className="notranslate" translate="no"
+      style={{ position:"fixed", top:"calc(env(safe-area-inset-top, 0px) + 74px)", left:"50%", transform:"translateX(-50%)", width:"min(92vw,440px)", zIndex:90, background:bg, color:fg, border:`1px solid ${line}`, borderRadius:14, padding:"12px 14px", boxShadow:"0 14px 40px rgba(0,0,0,.45)", display:"flex", alignItems:"center", gap:12, flexWrap:"wrap" }}>
+      <span style={{ fontSize:13.5, lineHeight:1.4, flex:"1 1 180px" }}>View this site in <strong>{name}</strong>?</span>
+      <span style={{ display:"flex", gap:8 }}>
+        <button type="button" onClick={translate} className="btn-g" style={{ fontFamily:"inherit", cursor:"pointer", padding:"8px 16px", fontSize:13 }}>Translate</button>
+        <button type="button" onClick={dismiss} style={{ background:"none", border:`1px solid ${line}`, color:fg, borderRadius:10, padding:"8px 14px", fontSize:13, fontFamily:"inherit", cursor:"pointer" }}>No thanks</button>
+      </span>
+    </div>
+  );
+}
+
 export function Footer() {
   const { dark } = useTheme();
 
@@ -1422,6 +1535,9 @@ export function Footer() {
       <style>{`
         .footer-inner{max-width:1100px;margin:0 auto;}
         .footer-brand{display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.6rem;padding-bottom:1.4rem;border-bottom:.5px solid var(--divider,rgba(255,255,255,.06));}
+        body{top:0!important;}
+        .goog-te-banner-frame,.skiptranslate>iframe,#goog-gt-tt,.goog-te-balloon-frame,.VIpgJd-ZVi9od-ORHb-OEVmcd,.VIpgJd-ZVi9od-aZ2wEe-wOHMyf{display:none!important;visibility:hidden!important;}
+        .goog-text-highlight{background:none!important;box-shadow:none!important;}
         .footer-cols{display:grid;grid-template-columns:1.1fr 1.4fr 1fr;gap:.8rem 2rem;margin-bottom:1.4rem;}
         .footer-bottom{border-top:.5px solid var(--divider,rgba(255,255,255,.06));padding-top:1.1rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem 2rem;flex-wrap:wrap;}
         .footer-copy{display:flex;flex-direction:column;gap:.25rem;}
