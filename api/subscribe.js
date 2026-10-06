@@ -60,10 +60,15 @@ async function notifyTelegram(text) {
 
 async function verifyPayment(req, res) {
   const secret = process.env.PAYSTACK_SECRET_KEY;
-  if (!secret) return res.status(503).json({ ok: false, error: "not_configured" });
 
   const { reference, packageId, email = "", name = "" } = req.body || {};
   const pkg = PACKAGES[packageId];
+  if (!secret) {
+    // Never let a paying customer vanish silently: tell the owner on Telegram
+    // with everything needed to match the payment by hand.
+    await notifyTelegram(`🚨 <b>PAYMENT MADE BUT PAYSTACK_SECRET_KEY IS MISSING</b>\n\nAdd the key in Vercel, then send this client their code manually.\n\n📦 ${pkg?.name || packageId}\n👤 ${name}\n📧 ${email}\n🔖 ${reference}`);
+    return res.status(503).json({ ok: false, error: "not_configured" });
+  }
   if (!pkg || typeof reference !== "string" || !/^[A-Za-z0-9._=-]{6,100}$/.test(reference)) {
     return res.status(400).json({ ok: false, error: "bad_request" });
   }

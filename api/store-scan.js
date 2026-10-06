@@ -21,6 +21,8 @@
    ENVIRONMENT VARIABLES: GEMINI_API_KEY (optional — enables the "ai" field)
 ──────────────────────────────────────────────────────────────────── */
 
+import { cacheGet, cacheSet, normalizeTarget } from "../lib/scancache.js";
+
 import { askGemini, askGeminiVision } from "../lib/gemini.js";
 
 /* Very rough "visible text" extraction — no DOM, just regex. Good enough to
@@ -222,7 +224,7 @@ async function scoreVisual(homepageUrl, secondaryPageUrl) {
   return results.length ? { pages: results } : null;
 }
 
-export default async function handler(req, res) {
+async function scan(req, res) {
   const target = req.query.url;
   if (!target) return res.status(400).json({ error: "Missing url" });
 
@@ -344,4 +346,25 @@ export default async function handler(req, res) {
     // PageSpeed-based audit from completing.
     res.status(200).json({ ok: false, error: err.message });
   }
+}
+
+/* Same store, same report: a finished scan is cached for 24 hours. The wrapper
+   captures what scan() would send, stores it if it succeeded, then sends it. */
+export default async function handler(req, res) {
+  const target = req.query.url;
+  if (!target) return scan(req, res);
+
+  const key = `bcl:scan:v1:${normalizeTarget(target)}`;
+  const hit = await cacheGet(key);
+  if (hit) {
+    res.setHeader("x-bcl-cache", "hit");
+    return res.status(200).json(hit);
+  }
+
+  let status = 200, payload;
+  const capture = { status(c) { status = c; return capture; }, json(o) { payload = o; return capture; } };
+  await scan(req, capture);
+  if (status === 200 && payload && payload.ok === true) await cacheSet(key, payload);
+  res.setHeader("x-bcl-cache", "miss");
+  return res.status(status).json(payload);
 }
