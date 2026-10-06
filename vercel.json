@@ -62,7 +62,7 @@
       "maxDuration": 60
     },
     "api/pagespeed.js": {
-      "maxDuration": 25
+      "maxDuration": 60
     }
   }
 }
