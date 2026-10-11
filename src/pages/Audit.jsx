@@ -13,6 +13,7 @@ import { notifyPopupCapture } from "../NotificationSystem.js";
 const ADMIN_EMAIL = CONTACT_EMAIL;
 
 /* ─── HELPERS ─── */
+const isHomeLabel = l => /home/i.test(l || "");
 const clamp     = v => Math.max(0, Math.min(100, Math.round(v || 0)));
 const pct       = v => v != null ? clamp(v * 100) : null;
 const ms        = v => v != null ? (v / 1000).toFixed(1) + "s" : "—";
@@ -240,7 +241,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
   /* ─── FINDINGS ─── */
   const findings = [];
   const add = (id, severity, category, title, finding, impact, fix, extra) =>
-    findings.push({ id, severity, category, title, finding, impact, fix, tags: extra?.tags || [], y: extra?.y ?? null, pin: extra?.pin ?? null, pinPage: extra?.pinPage ?? null });
+    findings.push({ id, severity, category, title, finding, impact, fix, tags: extra?.tags || [], y: extra?.y ?? null, x: extra?.x ?? null, pin: extra?.pin ?? null, pinPage: extra?.pinPage ?? null });
 
   /* Mobile */
   if (mobileScore < 50)
@@ -534,13 +535,77 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
       (page.findings || []).forEach((f, i) =>
         add(`vis-${pi}-${i}`, f.severity || "medium", "Visual Design", `${page.label}: ${f.title}`,
           f.finding, "A confusing or cluttered impression makes visitors bounce before they ever read your copy.",
-          f.fix, { tags: f.tags, y: f.y, pin: i + 1, pinPage: page.label }));
+          f.fix, { tags: f.tags, y: f.y, x: f.x, pin: i + 1, pinPage: page.label }));
     });
   }
 
   /* Sort */
   const sevOrder = { critical:0, high:1, medium:2, low:3 };
   findings.sort((a, b) => sevOrder[a.severity] - sevOrder[b.severity]);
+
+  /*  SECTIONS  group every finding by the part of the store it hurts, grade each
+     part, and rank them by how much revenue they typically carry. Overall score
+     above is unchanged; the grades here are for reading the report, not for maths. */
+  const isHomePage = label => /home/i.test(label || "");
+  const SECTION_DEFS = [
+    { id:"home",    label:"Homepage",                    impact:5 },
+    { id:"product", label:"Product & Collection Pages",  impact:5 },
+    { id:"trust",   label:"Trust & Checkout",            impact:4 },
+    { id:"speed",   label:"Speed & Performance",         impact:4 },
+    { id:"tech",    label:"Search & Technical Health",   impact:2 },
+  ];
+  const SPEED_TECH_IDS = new Set(["tti1","tech2","tech3","tech4","tech5","tech6","tech7","tech8","tech9","tech-3p","tech-redir"]);
+  const sectionOf = f => {
+    if (f.category === "Positioning") return "home";
+    if (f.category === "Visual Design") return isHomePage(f.pinPage) ? "home" : "product";
+    if (["Trust Signals","Checkout & Payment","Store Access"].includes(f.category)) return "trust";
+    if (["Mobile Performance","Core Web Vitals","Image Optimization"].includes(f.category)) return "speed";
+    if (f.category === "Technical" && SPEED_TECH_IDS.has(f.id)) return "speed";
+    return "tech";
+  };
+  // Plain-language reasoning tags for findings the AI didn't tag itself.
+  const TAGS_BY_CATEGORY = {
+    "Mobile Performance": ["Speed", "Friction"],
+    "Core Web Vitals": ["Speed", "Friction"],
+    "Image Optimization": ["Speed", "Visual impact"],
+    "Technical": ["Speed", "Reliability"],
+    "Technical Health": ["Reliability", "Trust"],
+    "SEO": ["Findability"],
+    "Accessibility": ["Friction", "Reach"],
+    "Mobile": ["Friction"],
+    "Trust Signals": ["Trust", "Social proof"],
+    "Checkout & Payment": ["Trust", "Friction"],
+    "Store Access": ["Friction"],
+    "Positioning": ["Clarity"],
+    "Visual Design": ["Visual impact"],
+  };
+  findings.forEach(f => {
+    f.section = sectionOf(f);
+    if (!f.tags || f.tags.length === 0) f.tags = TAGS_BY_CATEGORY[f.category] || [];
+  });
+
+  const avg = arr => { const v = arr.filter(n => typeof n === "number"); return v.length ? Math.round(v.reduce((a, n) => a + n, 0) / v.length) : null; };
+  const penalty = { critical:30, high:18, medium:9, low:4 };
+  const penaltyScore = id => clamp(100 - findings.filter(f => f.section === id).reduce((a, f) => a + (penalty[f.severity] || 0), 0));
+  const homePages = scoredVisualPages.filter(p => isHomePage(p.label));
+  const otherPages = scoredVisualPages.filter(p => !isHomePage(p.label));
+  const sectionScores = {
+    home:    avg([clarityScore, ...homePages.map(p => p.visualScore)]),
+    product: avg(otherPages.map(p => p.visualScore)),
+    trust:   scan?.ok === false || !scan ? null : penaltyScore("trust"),
+    speed:   avg([mobileScore, vitScore, desktopScore, imageScore]),
+    tech:    avg([seoScore, techScore, accessScore, bestScore]),
+  };
+  const sections = SECTION_DEFS.map(d => {
+    const score = sectionScores[d.id];
+    const items = findings.filter(f => f.section === d.id);
+    return { ...d, score, grade: score != null ? gradeFor(score) : null, count: items.length, critical: items.filter(f => f.severity === "critical").length, rank: null };
+  });
+  sections
+    .filter(sec => sec.score != null)
+    .sort((a, b) => (100 - b.score) * b.impact - (100 - a.score) * a.impact)
+    .forEach((sec, i) => { sec.rank = i + 1; });
+  sections.sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
 
   const leak = overall < 40 ? "50-70% of potential revenue" : overall < 55 ? "30-50%" : overall < 70 ? "15-30%" : overall < 85 ? "5-15%" : "Under 5%";
   
@@ -554,7 +619,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
 
   const grade = gradeFor(overall); // fine-grained (A-/B+/C-/etc) so it matches every per-category badge in this report
   return {
-    overall, grade, leak,
+    overall, grade, leak, sections,
     verdict: verdictMap[grade[0]], // verdictMap only has base letters -- drop any +/-
     baseGrade: grade[0],
     isCritical: overall < 50 || mobileScore < 45 || vitScore < 35 || scan?.passwordProtected,
@@ -873,6 +938,8 @@ export default function Audit() {
   const [emailUnlocked, setEmailUnlocked] = useState(() => { try { return !!localStorage.getItem("bcl_audit_email"); } catch { return false; } });
   const [emailErr,      setEmailErr]      = useState("");
   const [unlocking,     setUnlocking]     = useState(false);
+  const [copiedId,      setCopiedId]      = useState(null);   // finding whose text was just copied
+  const [flashPin,      setFlashPin]      = useState(null);   // "<page index>-<pin number>" being pointed at
   const [showModal,  setShowModal]  = useState(false);
   const [downloading,setDownloading]= useState(null);
   const [snapVisitors, setSnapVisitors] = useState(5000);
@@ -944,6 +1011,18 @@ export default function Audit() {
   }
 
   const unlockedEmail = emailUnlocked || !!accessTier;
+
+  function copyFinding(f) {
+    const text = `${f.title}\nWhat we see: ${f.finding}\nWhy it costs you money: ${f.impact}`;
+    try { navigator.clipboard?.writeText(text); } catch {}
+    setCopiedId(f.id); setTimeout(() => setCopiedId(null), 1600);
+  }
+  function jumpTo(id, flash) {
+    // A part of the report that is still locked has no block on the page yet, so point at the unlock card instead.
+    const target = document.getElementById(id) || (id.startsWith("sec-") ? document.getElementById("unlock-gate") : null);
+    target?.scrollIntoView({ behavior:"smooth", block:"center" });
+    if (flash) { setFlashPin(flash); setTimeout(() => setFlashPin(null), 1800); }
+  }
 
   function unlockWithEmail() {
     const clean = email.trim().toLowerCase();
@@ -1278,61 +1357,6 @@ export default function Audit() {
             </div>
           )}
 
-          {unlockedEmail && (<>
-          {/* Visual snapshot — real screenshots (homepage + a deeper page when found), each
-              with its own AI-spotted issues, called out by where they sit on the page. */}
-          {analysis.visualPages?.length > 0 && (
-            <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:16, padding:"1.2rem 1.5rem", marginBottom:"1.5rem" }}>
-              <p style={{ fontSize:11, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:"1rem" }}>
-                Visual snapshot — what visitors actually see
-              </p>
-              {analysis.visualPages.map((page, pi) => (
-                <div key={pi} style={{ display:"flex", gap:"1.2rem", flexWrap:"wrap", alignItems:"flex-start", paddingTop: pi>0?"1.2rem":0, marginTop: pi>0?"1.2rem":0, borderTop: pi>0?`.5px solid ${cardBorder}`:"none" }}>
-                  <div style={{ position:"relative", width:180, maxHeight:340, flexShrink:0, borderRadius:10, overflow:"hidden", border:`.5px solid ${cardBorder}` }}>
-                    <img
-                      src={page.screenshotUrl}
-                      alt={`${page.label} screenshot of ${analysis.domain}`}
-                      loading="lazy"
-                      style={{ width:180, maxHeight:340, objectFit:"cover", objectPosition:"top", display:"block" }}
-                    />
-                    {(page.findings || []).map((f, i) => f.y == null ? null : (
-                      <span key={i} title={f.title} style={{
-                        position:"absolute", left:"50%", top:`${Math.max(2,Math.min(98,f.y))}%`, transform:"translate(-50%,-50%)",
-                        width:20, height:20, borderRadius:"50%", background:"#FF9900", color:"#000", fontSize:11, fontWeight:800,
-                        display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 0 0 2px rgba(0,0,0,.5)",
-                      }}>{i+1}</span>
-                    ))}
-                  </div>
-                  <div style={{ flex:"1 1 260px", minWidth:220 }}>
-                    <p style={{ fontSize:12, fontWeight:700, color:headingColor, marginBottom:".4rem" }}>
-                      {page.label}{page.visualScore != null && (
-                        <span style={{ marginLeft:8, fontSize:10, fontWeight:800, color:"#fff", background:gradeColor(page.visualScore), borderRadius:5, padding:"1px 7px" }}>{gradeFor(page.visualScore)}</span>
-                      )}
-                    </p>
-                    {page.summary && (
-                      <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, marginBottom:".7rem" }}>{page.summary}</p>
-                    )}
-                    {(page.findings || []).length === 0 && page.visualScore != null && (
-                      <p style={{ fontSize:12.5, color:mutedText2, lineHeight:1.7 }}>No major visual issues spotted on this page.</p>
-                    )}
-                    {(page.findings || []).map((f, i) => (
-                      <div key={i} style={{ display:"flex", gap:8, marginBottom:".5rem" }}>
-                        {f.y != null && (
-                          <span style={{ flexShrink:0, marginTop:1, width:16, height:16, borderRadius:"50%", background:"#FF9900", color:"#000", fontSize:9.5, fontWeight:800, display:"inline-flex", alignItems:"center", justifyContent:"center" }}>{i+1}</span>
-                        )}
-                        <p style={{ fontSize:12.5, color:mutedText, lineHeight:1.65, margin:0 }}>
-                          <strong style={{ color:headingColor }}>{f.title}:</strong> {f.finding}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          </>)}
-
           {/* Severity summary */}
           <div style={{ display:"flex", gap:10, marginBottom:"1.5rem", flexWrap:"wrap" }}>
             {["critical","high","medium"].map(sev => {
@@ -1351,49 +1375,157 @@ export default function Audit() {
             </div>
           </div>
 
-          {/* All findings */}
-          <div style={{ display:"flex", flexDirection:"column", gap:"0.9rem", marginBottom:"2rem" }}>
-            {(unlockedEmail ? analysis.findings : analysis.findings.slice(0, 3)).map((f,i) => (
-              <div key={i} style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderLeft:`3px solid ${sevColor(f.severity)}`, borderRadius:"0 14px 14px 0", padding:"1.2rem 1.5rem" }}>
-                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:".5rem", flexWrap:"wrap" }}>
-                  <span style={{ background:`${sevColor(f.severity)}22`, border:`.5px solid ${sevColor(f.severity)}55`, borderRadius:6, padding:"2px 8px", fontSize:10, fontWeight:700, color:sevColor(f.severity), textTransform:"uppercase" }}>{f.severity}</span>
-                  <span style={{ fontSize:11, color:mutedText3 }}>{f.category}</span>
-                </div>
-                <div style={{ display:"flex", alignItems:"baseline", gap:8, marginBottom:".5rem" }}>
-                  {f.pin != null && (
-                    <span style={{ flexShrink:0, width:20, height:20, borderRadius:"50%", background:"#FF9900", color:"#000", fontSize:11, fontWeight:800, display:"inline-flex", alignItems:"center", justifyContent:"center" }}>{f.pin}</span>
-                  )}
-                  <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:800, color:headingColor, margin:0 }}>{f.title}</h3>
-                </div>
-                <p style={{ fontSize:10, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".06em", marginBottom:2 }}>What we see</p>
-                <p style={{ fontSize:13, color:mutedText, lineHeight:1.75, marginBottom:".6rem" }}>{f.finding}</p>
-                <p style={{ fontSize:10, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".06em", marginBottom:2 }}>Why does it cost you money?</p>
-                <p style={{ fontSize:12.5, color:mutedText, lineHeight:1.7, marginBottom:".75rem" }}>{f.impact}</p>
-                {f.tags?.length > 0 && (
-                  <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginBottom:".75rem" }}>
-                    {f.tags.map((t,ti) => (
-                      <span key={ti} style={{ fontSize:10.5, color:brandG, background:`${glow(.1)}`, border:`.5px solid ${glow(.28)}`, borderRadius:20, padding:"2px 9px" }}>✦ {t}</span>
-                    ))}
-                  </div>
-                )}
-                {["fix","lab","fullstack","admin"].includes(accessTier) ? (
-                  <div style={{ background:dark?`${glow(.04)}`:`${glow(.06)}`, border:`.5px solid ${glow(.18)}`, borderRadius:8, padding:".75rem 1rem" }}>
-                    <span style={{ fontSize:11, color:brandG, fontWeight:700 }}>→ Fix: </span>
-                    <span style={{ fontSize:13, color:mutedText, lineHeight:1.7 }}>{f.fix}</span>
-                  </div>
-                ) : (
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, flexWrap:"wrap", border:`.5px dashed ${glow(.28)}`, borderRadius:8, padding:".7rem 1rem" }}>
-                    <span style={{ fontSize:12.5, color:mutedText3, lineHeight:1.6 }}>The exact fix for this is in your Fixes Report.</span>
-                    <button type="button" onClick={() => setShowModal(true)} style={{ background:"none", border:"none", color:brandG, fontWeight:700, fontSize:12.5, cursor:"pointer", fontFamily:"inherit", padding:0 }}>Enter access code →</button>
-                  </div>
-                )}
+          {/* Where the store loses sales, ranked */}
+          {analysis.sections.some(sec => sec.score != null) && (
+            <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:16, padding:"1.2rem 1.4rem", marginBottom:"1.5rem" }}>
+              <p style={{ fontSize:11, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 .9rem" }}>Where your store loses sales, ranked</p>
+              <div style={{ display:"flex", flexDirection:"column", gap:".85rem" }}>
+                {analysis.sections.filter(sec => sec.score != null).map(sec => (
+                  <button key={sec.id} type="button" onClick={() => jumpTo(`sec-${sec.id}`)}
+                    style={{ all:"unset", cursor:"pointer", display:"block" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:5, flexWrap:"wrap" }}>
+                      <span style={{ fontSize:10, fontWeight:800, letterSpacing:".05em", textTransform:"uppercase", color: sec.rank === 1 ? "#fff" : mutedText2, background: sec.rank === 1 ? "#E5484D" : "transparent", border: sec.rank === 1 ? "none" : `.5px solid ${cardBorder}`, borderRadius:20, padding:"2px 9px" }}>
+                        {sec.rank === 1 ? "#1 money leak" : `#${sec.rank}`}
+                      </span>
+                      <span style={{ fontSize:13.5, fontWeight:700, color:headingColor, flex:"1 1 140px" }}>{sec.label}</span>
+                      <span style={{ fontSize:11.5, color:mutedText3 }}>{sec.count} issue{sec.count === 1 ? "" : "s"}</span>
+                      <span style={{ fontSize:11, fontWeight:800, color:"#fff", background:gradeColor(sec.score), borderRadius:5, padding:"1px 8px" }}>{sec.grade} · {sec.score}</span>
+                    </div>
+                    <div style={{ height:6, borderRadius:4, background:dark?"rgba(255,255,255,.08)":"rgba(0,0,0,.08)", overflow:"hidden" }}>
+                      <div style={{ width:`${Math.max(3, sec.score)}%`, height:"100%", background:gradeColor(sec.score), borderRadius:4 }} />
+                    </div>
+                  </button>
+                ))}
               </div>
-            ))}
+              <p style={{ fontSize:11, color:mutedText3, margin:".9rem 0 0", lineHeight:1.6 }}>Ranked by each part's grade and by how much revenue that part of a store usually carries. Tap one to jump to it.</p>
+            </div>
+          )}
+
+          {/* Findings, grouped by the part of the store they hurt */}
+          <div style={{ display:"flex", flexDirection:"column", gap:"1.6rem", marginBottom:"2rem" }}>
+            {analysis.sections.map(sec => {
+              const shown = (unlockedEmail ? analysis.findings : analysis.findings.slice(0, 3)).filter(f => f.section === sec.id);
+              const pages = unlockedEmail
+                ? analysis.visualPages.map((pg, pi) => ({ ...pg, pi })).filter(pg => sec.id === "home" ? isHomeLabel(pg.label) : sec.id === "product" ? !isHomeLabel(pg.label) : false)
+                : [];
+              if (!shown.length && !pages.length) return null;
+              const hidden = sec.count - shown.length;
+              return (
+                <div key={sec.id} id={`sec-${sec.id}`} style={{ scrollMarginTop:90 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap", marginBottom:".8rem" }}>
+                    {sec.rank != null && (
+                      <span style={{ fontSize:10, fontWeight:800, letterSpacing:".05em", textTransform:"uppercase", color: sec.rank === 1 ? "#fff" : mutedText2, background: sec.rank === 1 ? "#E5484D" : "transparent", border: sec.rank === 1 ? "none" : `.5px solid ${cardBorder}`, borderRadius:20, padding:"2px 9px" }}>
+                        {sec.rank === 1 ? "Your #1 money leak" : `Money leak #${sec.rank}`}
+                      </span>
+                    )}
+                    <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.15rem", fontWeight:800, color:headingColor, margin:0, flex:"1 1 160px" }}>{sec.label}</h3>
+                    {sec.score != null && (
+                      <span style={{ fontSize:12, fontWeight:800, color:"#fff", background:gradeColor(sec.score), borderRadius:6, padding:"2px 10px" }}>{sec.grade} · {sec.score}</span>
+                    )}
+                  </div>
+
+                  {pages.map(pg => {
+                    const pins = (pg.findings || []).map((f, i) => ({ f, i })).filter(({ f }) => f.y != null);
+                    const loose = (pg.findings || []).map((f, i) => ({ f, i })).filter(({ f }) => f.y == null);
+                    return (
+                      <div key={pg.pi} id={`shot-${pg.pi}`} style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:16, padding:"1rem", marginBottom:"1rem", display:"flex", gap:"1.1rem", flexWrap:"wrap", alignItems:"flex-start" }}>
+                        <div style={{ width:"min(100%,290px)", flexShrink:0, margin:"0 auto" }}>
+                          <div style={{ background:"#111", border:"6px solid #111", borderRadius:26, overflow:"hidden", boxShadow:"0 10px 30px rgba(0,0,0,.35)" }}>
+                            <div style={{ maxHeight:520, overflowY:"auto", WebkitOverflowScrolling:"touch", background:"#fff", borderRadius:18 }}>
+                              <div style={{ position:"relative" }}>
+                                <img src={pg.screenshotUrl} alt={`${pg.label} screenshot of ${analysis.domain}`} loading="lazy" style={{ display:"block", width:"100%", height:"auto" }} />
+                                {pins.map(({ f, i }) => (
+                                  <button key={i} type="button" id={`pin-${pg.pi}-${i + 1}`} title={f.title}
+                                    onClick={() => jumpTo(`f-vis-${pg.pi}-${i}`)}
+                                    style={{ position:"absolute", left:`${f.x ?? 50}%`, top:`${Math.max(2, Math.min(98, f.y))}%`, transform:`translate(-50%,-50%) scale(${flashPin === `${pg.pi}-${i + 1}` ? 1.35 : 1})`, transition:"transform .25s",
+                                      width:24, height:24, borderRadius:"50%", border:"2px solid #fff", background:sevColor(f.severity === "critical" ? "critical" : "high"), color:"#fff", fontSize:11.5, fontWeight:800, cursor:"pointer", padding:0, display:"flex", alignItems:"center", justifyContent:"center",
+                                      boxShadow: flashPin === `${pg.pi}-${i + 1}` ? "0 0 0 6px rgba(229,72,77,.35)" : "0 2px 8px rgba(0,0,0,.45)" }}>{i + 1}</button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <p style={{ fontSize:11, color:mutedText3, textAlign:"center", margin:".6rem 0 0", lineHeight:1.5 }}>Scroll the screen to see the whole page. Tap a number to jump to its finding.</p>
+                          {loose.length > 0 && (
+                            <div style={{ marginTop:".7rem", textAlign:"center" }}>
+                              <p style={{ fontSize:10, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 5px" }}>Other findings</p>
+                              <div style={{ display:"flex", gap:6, justifyContent:"center", flexWrap:"wrap" }}>
+                                {loose.map(({ f, i }) => (
+                                  <button key={i} type="button" onClick={() => jumpTo(`f-vis-${pg.pi}-${i}`)} title={f.title}
+                                    style={{ width:22, height:22, borderRadius:"50%", border:"none", background:sevColor(f.severity === "critical" ? "critical" : "high"), color:"#fff", fontSize:11, fontWeight:800, cursor:"pointer", padding:0 }}>{i + 1}</button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ flex:"1 1 220px", minWidth:200 }}>
+                          <p style={{ fontSize:12, fontWeight:700, color:headingColor, margin:"0 0 .4rem" }}>
+                            {pg.label}
+                            {pg.visualScore != null && <span style={{ marginLeft:8, fontSize:10, fontWeight:800, color:"#fff", background:gradeColor(pg.visualScore), borderRadius:5, padding:"1px 7px" }}>{gradeFor(pg.visualScore)}</span>}
+                          </p>
+                          {pg.summary && <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, margin:0 }}>{pg.summary}</p>}
+                          {(pg.findings || []).length === 0 && pg.visualScore != null && <p style={{ fontSize:12.5, color:mutedText2, lineHeight:1.7, margin:0 }}>No major visual issues spotted on this page.</p>}
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  <div style={{ display:"flex", flexDirection:"column", gap:"0.9rem" }}>
+                    {shown.map((f) => {
+                      const pi = f.pinPage != null ? analysis.visualPages.findIndex(pg => pg.label === f.pinPage) : -1;
+                      const canSee = unlockedEmail && f.pin != null && f.y != null && pi >= 0;
+                      return (
+                        <div key={f.id} id={`f-${f.id}`} style={{ scrollMarginTop:90, background:cardBg, border:`.5px solid ${cardBorder}`, borderLeft:`3px solid ${sevColor(f.severity)}`, borderRadius:"0 14px 14px 0", padding:"1.2rem 1.5rem" }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:".5rem", flexWrap:"wrap" }}>
+                            <span style={{ background:`${sevColor(f.severity)}22`, border:`.5px solid ${sevColor(f.severity)}55`, borderRadius:6, padding:"2px 8px", fontSize:10, fontWeight:700, color:sevColor(f.severity), textTransform:"uppercase" }}>{f.severity}</span>
+                            <span style={{ fontSize:11, color:mutedText3 }}>{f.category}</span>
+                          </div>
+                          <div style={{ display:"flex", alignItems:"baseline", gap:8, marginBottom:".5rem" }}>
+                            {f.pin != null && (
+                              <span style={{ flexShrink:0, width:20, height:20, borderRadius:"50%", background:sevColor(f.severity === "critical" ? "critical" : "high"), color:"#fff", fontSize:11, fontWeight:800, display:"inline-flex", alignItems:"center", justifyContent:"center" }}>{f.pin}</span>
+                            )}
+                            <h4 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:800, color:headingColor, margin:0 }}>{f.title}</h4>
+                          </div>
+                          <p style={{ fontSize:10, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".06em", margin:"0 0 2px" }}>What we see</p>
+                          <p style={{ fontSize:13, color:mutedText, lineHeight:1.75, margin:"0 0 .6rem" }}>{f.finding}</p>
+                          <p style={{ fontSize:10, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".06em", margin:"0 0 2px" }}>Why does it cost you money?</p>
+                          <p style={{ fontSize:12.5, color:mutedText, lineHeight:1.7, margin:"0 0 .75rem" }}>{f.impact}</p>
+                          <div style={{ display:"flex", flexWrap:"wrap", alignItems:"center", gap:6, marginBottom:".75rem" }}>
+                            <button type="button" onClick={() => copyFinding(f)}
+                              style={{ fontSize:11, color:mutedText2, background:"transparent", border:`.5px solid ${cardBorder}`, borderRadius:6, padding:"3px 10px", cursor:"pointer", fontFamily:"inherit" }}>{copiedId === f.id ? "Copied" : "Copy"}</button>
+                            {(f.tags || []).map((t, ti) => (
+                              <span key={ti} style={{ fontSize:10.5, color:brandG, background:`${glow(.1)}`, border:`.5px solid ${glow(.28)}`, borderRadius:20, padding:"2px 9px" }}>{t}</span>
+                            ))}
+                            {canSee && (
+                              <button type="button" onClick={() => jumpTo(`pin-${pi}-${f.pin}`, `${pi}-${f.pin}`)}
+                                style={{ marginLeft:"auto", fontSize:11, fontWeight:700, color:brandG, background:"transparent", border:"none", cursor:"pointer", fontFamily:"inherit", padding:0 }}>See in the screenshot ↑</button>
+                            )}
+                          </div>
+                          {["fix","lab","fullstack","admin"].includes(accessTier) ? (
+                            <div style={{ background:dark?`${glow(.04)}`:`${glow(.06)}`, border:`.5px solid ${glow(.18)}`, borderRadius:8, padding:".75rem 1rem" }}>
+                              <span style={{ fontSize:11, color:brandG, fontWeight:700 }}>→ Fix: </span>
+                              <span style={{ fontSize:13, color:mutedText, lineHeight:1.7 }}>{f.fix}</span>
+                            </div>
+                          ) : (
+                            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, flexWrap:"wrap", border:`.5px dashed ${glow(.28)}`, borderRadius:8, padding:".7rem 1rem" }}>
+                              <span style={{ fontSize:12.5, color:mutedText3, lineHeight:1.6 }}>The exact fix for this is in your Fixes Report.</span>
+                              <button type="button" onClick={() => setShowModal(true)} style={{ background:"none", border:"none", color:brandG, fontWeight:700, fontSize:12.5, cursor:"pointer", fontFamily:"inherit", padding:0 }}>Enter access code →</button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {!unlockedEmail && hidden > 0 && (
+                      <p style={{ fontSize:12, color:mutedText3, margin:"0 0 0 .2rem" }}>{hidden} more {hidden === 1 ? "issue" : "issues"} in this part open with your email.</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {/* Email gate: opens the rest of the report */}
           {!unlockedEmail && (
-            <div style={{ background:`linear-gradient(135deg,${glow(.08)},${glow2(.03)})`, border:`.5px solid ${glow(.3)}`, borderRadius:20, padding:"clamp(1.4rem,4vw,2rem)", marginBottom:"2rem", textAlign:"center" }}>
+            <div id="unlock-gate" style={{ background:`linear-gradient(135deg,${glow(.08)},${glow2(.03)})`, border:`.5px solid ${glow(.3)}`, borderRadius:20, padding:"clamp(1.4rem,4vw,2rem)", marginBottom:"2rem", textAlign:"center" }}>
               <div style={{ display:"flex", justifyContent:"center", marginBottom:".6rem" }}><LockIcon size={26} color={brandG} /></div>
               <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.15rem", fontWeight:800, color:headingColor, margin:"0 0 .5rem" }}>Unlock your full report</h3>
               <p style={{ fontSize:13, color:mutedText, lineHeight:1.7, maxWidth:440, margin:"0 auto 1.1rem" }}>

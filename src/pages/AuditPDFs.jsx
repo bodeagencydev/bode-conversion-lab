@@ -294,10 +294,17 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
   const counts = { critical: 0, high: 0, medium: 0, low: 0 };
   analysis.findings.forEach(f => { counts[f.severity] = (counts[f.severity] || 0) + 1; });
 
+  const ranked = (analysis.sections || []).filter(sec => sec.score != null);
+  const sectionList = (analysis.sections || []).slice().sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
   const byCategory = {};
-  analysis.findings.forEach(f => {
-    (byCategory[f.category] ||= []).push(f);
-  });
+  if (sectionList.length) {
+    sectionList.forEach(sec => {
+      const items = analysis.findings.filter(f => f.section === sec.id);
+      if (items.length) byCategory[sec.rank === 1 ? `${sec.label}  |  YOUR #1 MONEY LEAK` : sec.rank != null ? `${sec.label}  |  MONEY LEAK #${sec.rank}` : sec.label] = items;
+    });
+  } else {
+    analysis.findings.forEach(f => { (byCategory[f.category] ||= []).push(f); });
+  }
 
   return (
     <Document title={`BCL Problem Report — ${domain}`}>
@@ -321,7 +328,7 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
           const top = [...analysis.findings].sort((a, b) => (rank[a.severity] ?? 9) - (rank[b.severity] ?? 9)).slice(0, 3);
           return top.length > 0 && (
             <View wrap={false} style={{ marginBottom: 14 }}>
-              <Text style={{ ...s.sectionTitle, color: DEEP_RED, marginTop: 4 }}>Biggest Leaks First</Text>
+              <Text style={{ ...s.sectionTitle, color: DEEP_RED, marginTop: 4 }}>Most Severe Problems</Text>
               {top.map((f, i) => (
                 <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", marginBottom: 5 }}>
                   <Text style={{ width: 16, fontFamily: "Space Grotesk", fontSize: 11, fontWeight: 700, color: DEEP_RED }}>{i + 1}</Text>
@@ -331,6 +338,22 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
             </View>
           );
         })()}
+
+        {ranked.length > 0 && (
+          <View wrap={false} style={{ marginBottom: 14 }}>
+            <Text style={{ ...s.sectionTitle, color: DEEP_RED, marginTop: 4 }}>Where Your Store Loses Sales</Text>
+            {ranked.slice().sort((a, b) => a.rank - b.rank).map((sec, i) => (
+              <View key={i} style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
+                <Text style={{ width: 22, fontFamily: "Space Grotesk", fontSize: 10, fontWeight: 700, color: sec.rank === 1 ? DEEP_RED : MUTED }}>#{sec.rank}</Text>
+                <Text style={{ width: 150, fontSize: 9, fontWeight: 600, color: INK }}>{sec.label}</Text>
+                <View style={{ flex: 1, height: 6, backgroundColor: "#F1E4E2", borderRadius: 3, marginRight: 8 }}>
+                  <View style={{ width: `${Math.max(3, sec.score)}%`, height: 6, backgroundColor: DEEP_RED, borderRadius: 3 }} />
+                </View>
+                <Text style={{ width: 52, fontSize: 8.5, fontWeight: 700, color: INK, textAlign: "right" }}>{sec.grade} · {sec.score}</Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         {analysis.visualPages?.length > 0 && (
           <View wrap={false} style={{ marginBottom: 14 }}>
@@ -367,10 +390,11 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
           </View>
         )}
 
+        <View wrap={false}>
         <Text style={{ ...s.sectionTitle, color: DEEP_RED }}>Category Scores</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 6 }}>
           {Object.values(analysis.metrics).map((v, i) => (
-            <View key={i} style={{ width: "25%", marginBottom: 10, paddingRight: 8 }}>
+            <View key={i} wrap={false} style={{ width: "25%", marginBottom: 10, paddingRight: 8 }}>
               <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 2 }}>
                 <Dot color={v.score > 74 ? GREEN : v.score > 49 ? AMBER : RED} />
                 <Text style={{ fontSize: 13, fontWeight: 800, marginLeft: 5 }}>{v.score}</Text>
@@ -382,11 +406,14 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
             </View>
           ))}
         </View>
+        </View>
 
+        <View wrap={false}>
         <Text style={{ ...s.sectionTitle, color: DEEP_RED }}>Core Web Vitals</Text>
         <VitalsTable vitals={analysis.vitals} />
+        </View>
 
-        <Text style={{ ...s.sectionTitle, color: DEEP_RED }}>{analysis.findings.length} Problems Found, By Category</Text>
+        <Text style={{ ...s.sectionTitle, color: DEEP_RED }}>{analysis.findings.length} Problems Found, Ranked by Revenue Impact</Text>
 
         {Object.entries(byCategory).map(([cat, items], ci) => (
           <View key={ci}>
