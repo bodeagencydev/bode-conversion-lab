@@ -181,13 +181,13 @@ function Cover({ kicker, title, domain, date, overall, grade, verdict }) {
   );
 }
 
-function ProblemsCover({ domain, date, overall, grade, verdict }) {
+function ProblemsCover({ domain, date, overall, grade, verdict, siteType }) {
   return (
     <Page size="A4" style={{ ...s.coverPage, backgroundColor: DEEP_RED }}>
       <View>
         <Text style={{ fontSize: 10.5, fontWeight: 800, marginBottom: 46, color: "#FFFFFF" }}>BODE CONVERSION LAB</Text>
         <Text style={{ ...s.kicker, color: "#FFD7D3" }}>Problem Report</Text>
-        <Text style={{ ...s.h1, color: "#FFFFFF" }}>Where Your Store Is Losing Sales</Text>
+        <Text style={{ ...s.h1, color: "#FFFFFF" }}>{siteType === "other" ? "Where Your Website Is Losing Enquiries" : "Where Your Store Is Losing Sales"}</Text>
         <Text style={{ ...s.sub, color: "#FFD7D3" }}>{domain}  ·  Generated {date}</Text>
       </View>
 
@@ -308,7 +308,7 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
 
   return (
     <Document title={`BCL Problem Report — ${domain}`}>
-      <ProblemsCover domain={domain} date={date} overall={analysis.overall} grade={analysis.grade} verdict={analysis.verdict} />
+      <ProblemsCover siteType={analysis.siteType} domain={domain} date={date} overall={analysis.overall} grade={analysis.grade} verdict={analysis.verdict} />
 
       <Page size="A4" style={s.page}>
         <Header label="Problem Report" accent={DEEP_RED} />
@@ -341,7 +341,7 @@ export function ProblemsPDF({ storeUrl, analysis, date }) {
 
         {ranked.length > 0 && (
           <View wrap={false} style={{ marginBottom: 14 }}>
-            <Text style={{ ...s.sectionTitle, color: DEEP_RED, marginTop: 4 }}>Where Your Store Loses Sales</Text>
+            <Text style={{ ...s.sectionTitle, color: DEEP_RED, marginTop: 4 }}>{analysis.siteType === "other" ? "Where Your Website Loses Enquiries" : "Where Your Store Loses Sales"}</Text>
             {ranked.slice().sort((a, b) => a.rank - b.rank).map((sec, i) => (
               <View key={i} style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
                 <Text style={{ width: 22, fontFamily: "Space Grotesk", fontSize: 10, fontWeight: 700, color: sec.rank === 1 ? DEEP_RED : MUTED }}>#{sec.rank}</Text>

@@ -16,7 +16,7 @@ export default function SRS() {
   return (
     <PageWrapper>
       <SEO
-        title="SRS — The Sales Recovery System"
+        title="SRS | The Sales Recovery System"
         description="SRS (Sales Recovery System) is Bode Conversion Lab's 4-phase methodology for fixing an e-commerce store's checkout, trust signals, and site speed before scaling ad spend. Foundation Fix, Traffic Ignition, Scale & Compound, Systemize."
         path="/srs"
         service={{ name: "Sales Recovery System (SRS)", description: "A 4-phase methodology that fixes store conversion leaks before scaling ad spend, so every dollar of traffic converts better." }}

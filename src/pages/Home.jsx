@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { G, GG, TESTIMONIALS, ECOM_PLATFORMS, PARTNERS, VIDEO_TIPS } from "../data.js";
 import { Typewriter, ContinuousTicker, TestimonialTicker, VideoTips, PartnerCard, Section, SectionLabel, Heading, GradText, SvgGradText, useInView, useTheme, PageWrapper, SEO, HeroBackdrop } from "../components.jsx";
-import { PROOF_RESULTS, HOME_SYSTEM } from "../site-content.js";
+import { PROOF_RESULTS, HOME_SYSTEM, SITE_TYPES } from "../site-content.js";
 import { CONTACT_EMAIL } from "../contact-info.js";
 import { ScrollReveal, TiltCard, Magnetic, GlowBorder, useSpringCounterValue, MaskedHeading } from "../AnimationSystem.jsx";
 
@@ -119,7 +119,7 @@ function FreeRedesignOffer() {
         </span>
 
         <a
-          href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi! I'd like to claim my free redesign consultation. My code: ${code}`)}
+          href={"https://wa.me/2348051481850?text=" + encodeURIComponent(`Hi! I'd like to claim my free redesign consultation. My code: ${code}`)}
           target="_blank" rel="noopener noreferrer"
           onClick={handleCancel}
           style={{ display:"inline-flex", alignItems:"center", lineHeight:1, padding: "8px 16px", borderRadius: 8, background: "#00FF88", color: "#0A0A0A", fontWeight: 700, fontSize: 12, textDecoration: "none", whiteSpace: "nowrap" }}
@@ -141,6 +141,81 @@ function FreeRedesignOffer() {
   );
 }
 
+
+/* Pick-your-site-type panel: every kind of site has one job, and we show the
+   fixes and the traffic for that job. Buttons form a proper tablist. */
+function WhoWeHelp({ dark }) {
+  const [active, setActive] = useState(SITE_TYPES[0].id);
+  const t = SITE_TYPES.find(x => x.id === active) || SITE_TYPES[0];
+  const glow = a => dark ? `rgba(0,255,136,${a})` : `rgba(0,130,74,${a})`;
+  const heading = dark ? "#fff" : "#1A1408";
+  const muted = dark ? "rgba(255,255,255,.55)" : "rgba(26,20,8,.62)";
+  const line = dark ? "rgba(255,255,255,.1)" : "rgba(26,20,8,.18)";
+  return (
+    <Section id="who-we-help">
+      <div style={{ maxWidth:1100, margin:"0 auto" }}>
+        <div style={{ maxWidth:680, marginBottom:"2rem" }}>
+          <SectionLabel>Industries we serve</SectionLabel>
+          <Heading size="2.2rem" style={{ textAlign:"left" }}>One method. Every industry.</Heading>
+          <p style={{ fontSize:14.5, color:muted, lineHeight:1.75, margin:"1rem 0 0" }}>
+            Whatever you sell or offer, your website has one job: turn visitors into the action that pays you, whether that is a sale, a lead, a booking, a sign-up or a donation. We find where visitors drop out, fix it, then send the right traffic. Audit, conversion optimization, paid media, SEO, email and SMS, tracking and site builds all sit under one roof.</p>
+        </div>
+
+        <div className="wwh-grid">
+          <div role="tablist" aria-label="Choose your industry" className="wwh-tabs">
+            {SITE_TYPES.map(x => (
+              <button key={x.id} role="tab" type="button" aria-selected={x.id === active} onClick={() => setActive(x.id)}
+                className={"wwh-tab" + (x.id === active ? " is-on" : "")}>
+                <span className="wwh-tab-label">{x.label}</span>
+                <span className="wwh-tab-goal">{x.goal}</span>
+              </button>
+            ))}
+          </div>
+
+          <div role="tabpanel" className="wwh-panel" style={{ border:`.5px solid ${line}`, background: dark ? "rgba(255,255,255,.03)" : "rgba(255,255,255,.7)" }}>
+            <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1.25rem", fontWeight:700, color:heading, margin:"0 0 .4rem", lineHeight:1.3 }}>{t.job}</p>
+            <p style={{ fontSize:12.5, color:muted, margin:"0 0 1.4rem", lineHeight:1.6 }}>Includes {t.examples}.</p>
+            <div className="wwh-cols">
+              <div>
+                <p className="wwh-h" style={{ color:muted }}>What we fix</p>
+                <ul className="wwh-list">{t.fix.map((f, i) => <li key={i} style={{ color:muted }}>{f}</li>)}</ul>
+              </div>
+              <div>
+                <p className="wwh-h" style={{ color:muted }}>What we run</p>
+                <ul className="wwh-list">{t.run.map((f, i) => <li key={i} style={{ color:muted }}>{f}</li>)}</ul>
+              </div>
+            </div>
+            <div style={{ display:"flex", gap:12, flexWrap:"wrap", marginTop:"1.5rem", alignItems:"center" }}>
+              <Link to="/audit" className="btn-g" style={{ textDecoration:"none", display:"inline-block" }}>Scan my website free →</Link>
+              <Link to="/contact" className="btn-ghost" style={{ textDecoration:"none", display:"inline-block" }}>Talk to our team</Link>
+            </div>
+          </div>
+        </div>
+        <p style={{ fontSize:12.5, color:muted, margin:"1.4rem 0 0" }}>Your industry is not listed? The method works the same way. Tell us what your site needs to achieve and we will map it for you.</p>
+      </div>
+      <style>{`
+        .wwh-grid{display:grid;grid-template-columns:260px 1fr;gap:1.4rem;align-items:start;}
+        .wwh-tabs{display:flex;flex-direction:column;gap:8px;}
+        .wwh-tab{appearance:none;text-align:left;cursor:pointer;font-family:inherit;padding:12px 14px;border-radius:12px;border:.5px solid ${line};background:transparent;color:${heading};display:flex;flex-direction:column;gap:2px;transition:border-color .2s,background .2s;}
+        .wwh-tab:hover{border-color:${glow(.45)};}
+        .wwh-tab.is-on{border-color:${glow(.6)};background:${glow(.08)};}
+        .wwh-tab-label{font-size:13.5px;font-weight:700;line-height:1.3;}
+        .wwh-tab-goal{font-size:11.5px;color:${muted};}
+        .wwh-tab.is-on .wwh-tab-goal{color:${dark ? "#00ff88" : "#00814A"};}
+        .wwh-panel{border-radius:16px;padding:clamp(1.2rem,3vw,1.9rem);}
+        .wwh-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;}
+        .wwh-h{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin:0 0 .6rem;}
+        .wwh-list{margin:0;padding:0 0 0 1.05rem;display:flex;flex-direction:column;gap:.5rem;font-size:13.5px;line-height:1.6;}
+        @media(max-width:860px){
+          .wwh-grid{grid-template-columns:1fr;}
+          .wwh-tabs{flex-direction:row;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;scroll-snap-type:x proximity;}
+          .wwh-tab{flex:0 0 auto;min-width:150px;scroll-snap-align:start;}
+          .wwh-cols{grid-template-columns:1fr;gap:1.2rem;}
+        }
+      `}</style>
+    </Section>
+  );
+}
 
 export default function Home() {
   const { dark } = useTheme();
@@ -169,8 +244,8 @@ export default function Home() {
     <PageWrapper>
       <FreeRedesignOffer />
       <SEO
-        title="Shopify Conversion Rate Optimization & Ad Management Agency"
-        description="Bode Conversion Lab fixes store leaks, engineers ROAS-positive ad campaigns, and scales e-commerce brands using the SRS (Sales Recovery System) methodology. Free store audit available."
+        title="Conversion Rate Optimization & Performance Marketing Agency"
+        description="Bode Conversion Lab is a full-service conversion rate optimization and performance marketing agency. We audit, fix and scale websites and online stores across every industry using the SRS (Sales Recovery System) methodology. Free website audit available."
         path="/"
       />
 
@@ -196,7 +271,7 @@ export default function Home() {
 
             <div style={{ marginBottom:"1.2rem" }}>
               <MaskedHeading
-                text="We turn your store into"
+                text="We turn your website into"
                 tag="h1"
                 className="hero-t"
                 delay={0.1}
@@ -210,8 +285,7 @@ export default function Home() {
 
             <ScrollReveal delay={0.3}>
               <p style={{ fontSize:"clamp(0.9rem,1.6vw,1.02rem)", color:mutedText, lineHeight:1.75, maxWidth:460, margin:"0 0 2rem" }}>
-                We don't run ads. We engineer ROAS — auditing every leak in your store, ads, and checkout, then fixing it as one compounding system.
-              </p>
+                We don't run ads. We engineer ROAS, finding every leak between your visitors and the action that pays you (a sale, a call, a booking or a donation), then fixing it as one compounding system.</p>
             </ScrollReveal>
 
             <ScrollReveal delay={0.4}>
@@ -252,7 +326,7 @@ export default function Home() {
                 padding:"1.1rem 1.2rem", fontFamily:"'IBM Plex Mono',monospace",
               }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem", paddingBottom:"0.8rem", borderBottom:`1px solid ${dark ? "rgba(239,236,230,.1)" : "rgba(23,20,15,.16)"}` }}>
-                  <span style={{ fontSize:11, color:mutedText3, letterSpacing:".04em" }}>SCAN://your-store.myshopify.com</span>
+                  <span style={{ fontSize:11, color:mutedText3, letterSpacing:".04em" }}>SCAN://your-website.com</span>
                   <span style={{ fontSize:10, color:brandG }}>● LIVE</span>
                 </div>
 
@@ -347,6 +421,11 @@ export default function Home() {
         <p style={{ textAlign:"center", fontSize:11, color:mutedText3, letterSpacing:".1em", textTransform:"uppercase", marginBottom:".8rem" }}>Works with stores on</p>
         <ContinuousTicker items={ECOM_PLATFORMS} speed={30} />
       </div>
+
+      {/* ── WHO WE HELP: pick your kind of site ── */}
+      <WhoWeHelp dark={dark} />
+
+      <hr className="divider" />
 
       {/* ── STATS ── */}
       <Section id="results">

@@ -262,7 +262,7 @@ export default function Pricing() {
   return (
     <PageWrapper>
       <SEO
-        title="Pricing - Shopify CRO & Ad Management Packages"
+        title="Pricing | Conversion Optimization & Marketing Packages"
         description="Transparent pricing for e-commerce conversion optimization and ad management. From a $497 store audit to full-stack growth packages built on the SRS methodology."
         path="/pricing"
         faq={FAQS}
@@ -302,7 +302,7 @@ export default function Pricing() {
                 <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"1rem", fontWeight:700, color:brandG, letterSpacing:".04em", wordBreak:"break-all", margin:"0 0 1.2rem" }}>{verifyFail}</p>
                 <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                   <button type="button" className="btn-g" style={{ fontFamily:"inherit", cursor:"pointer" }} onClick={() => confirmPayment(verifyFail, "")}>Try confirming again</button>
-                  <a href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi Bode Conversion Lab, I paid for ${pkg?.name} but my access code did not appear. My payment reference is ${verifyFail}.`)}
+                  <a href={"https://wa.me/2348051481850?text=" + encodeURIComponent(`Hi Bode Conversion Lab, I paid for ${pkg?.name} but my access code did not appear. My payment reference is ${verifyFail}.`)}
                     target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display:"block", textAlign:"center", textDecoration:"none" }}>Send my reference on WhatsApp →</a>
                 </div>
               </div>
@@ -349,7 +349,7 @@ export default function Pricing() {
 
                 <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                   <a
-                    href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi Bode Conversion Lab 👋 I just completed payment for ${pkg?.name}. Here's my payment screenshot:`)}
+                    href={"https://wa.me/2348051481850?text=" + encodeURIComponent(`Hi Bode Conversion Lab 👋 I just completed payment for ${pkg?.name}. Here's my payment screenshot:`)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-g"
@@ -463,7 +463,7 @@ export default function Pricing() {
                   <p style={{ fontSize:12, color:mutedText3 }}>
                     Have a question first?{" "}
                     <a
-                      href={"https://wa.me/2349064885280?text=" + encodeURIComponent(`Hi, I have a question about the ${pkg?.name} package before paying.`)}
+                      href={"https://wa.me/2348051481850?text=" + encodeURIComponent(`Hi, I have a question about the ${pkg?.name} package before paying.`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color:brandG, textDecoration:"none", fontWeight:600 }}>

@@ -130,6 +130,12 @@ async function fetchPSI(url, strategy) {
 
 /* ─── BUILD ANALYSIS ─── */
 function buildAnalysis(desktop, mobile, storeUrl, scan) {
+  // What kind of site is this? A store is judged by purchases; any other site by
+  // its own goal (calls, quotes, bookings, donations, leads). Unknown counts as a store.
+  const isStore = scan?.siteType !== "other";
+  const plat = scan?.platform || null;
+  const siteWord = isStore ? "store" : "website";
+  const forShopify = txt => (plat === "Shopify" ? " " + txt : "");
   const lh   = mobile?.lighthouseResult;
   const lhD  = desktop?.lighthouseResult;
   const aud  = lh?.audits  || {};
@@ -240,8 +246,29 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
 
   /* ─── FINDINGS ─── */
   const findings = [];
+  // Wording written for online stores, rewritten for sites whose goal is a call,
+  // an enquiry, a booking or a donation. Order matters: longer phrases first.
+  const NON_STORE_WORDING = [
+    [/Most e-commerce traffic is mobile/g, "Most web traffic is mobile"],
+    [/buyers are bouncing before they even see your product/g, "visitors are bouncing before they even see what you offer"],
+    [/When a buyer is about to click ["\u201c]Add to Cart["\u201d] and the button shifts position, they either mis-click or abandon entirely\./g, "When a visitor is about to tap your call or contact button and it shifts position, they either mis-tap or leave."],
+    [/clicks do nothing, Add to Cart doesn't fire\./g, "taps do nothing and your buttons don't respond."],
+    [/Shoppers actively look for these[^`]*?before\./g, "Visitors look for a privacy policy and terms before sharing their name, phone number or email, and their absence is a common reason a stranger hesitates to enquire."],
+    [/Directly suppresses first-time-buyer conversion/g, "Directly suppresses first-time enquiries"],
+    [/on a store they've never bought from before/g, "on a business they've never used before"],
+    [/Product images without alt text\./g, "Images without alt text."],
+    [/On checkout forms this can prevent purchases\./g, "On contact and booking forms this can prevent enquiries."],
+    [/Checkout friction for users with accessibility needs/g, "Lost enquiries from users with accessibility needs"],
+    [/If your Add to Cart button has this issue, you have a silent purchase blocker\./g, "If your call or contact button has this issue, you have a silent enquiry blocker."],
+    [/Every ad you run is sending buyers to a broken experience\./g, "Every ad you run is sending visitors to a broken experience."],
+    [/\b([Bb])uyers\b/g, (m, c) => (c === "B" ? "Visitors" : "visitors")],
+    [/\b([Ss])hoppers\b/g, (m, c) => (c === "S" ? "Visitors" : "visitors")],
+    [/\b([Yy])our store\b/g, (m, c) => c + "our website"],
+    [/\b([Tt])he store\b/g, (m, c) => c + "he website"],
+  ];
+  const tx = str => (isStore || typeof str !== "string") ? str : NON_STORE_WORDING.reduce((out, [re, to]) => out.replace(re, to), str);
   const add = (id, severity, category, title, finding, impact, fix, extra) =>
-    findings.push({ id, severity, category, title, finding, impact, fix, tags: extra?.tags || [], y: extra?.y ?? null, x: extra?.x ?? null, pin: extra?.pin ?? null, pinPage: extra?.pinPage ?? null });
+    findings.push({ id, severity, category, title: tx(title), finding: tx(finding), impact: tx(impact), fix: tx(fix), tags: extra?.tags || [], y: extra?.y ?? null, x: extra?.x ?? null, pin: extra?.pin ?? null, pinPage: extra?.pinPage ?? null });
 
   /* Mobile */
   if (mobileScore < 50)
@@ -320,7 +347,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
     add("seo3","high","SEO","No canonical tags — duplicate content risk",
       `Missing canonical tags. Without canonicals, Google may index duplicate versions of your pages, splitting your ranking power across multiple URLs.`,
       `Diluted search ranking from duplicate content signals`,
-      `Add canonical tags to all pages pointing to the preferred URL version. On Shopify this is often handled in theme settings.`);
+      `Add canonical tags to all pages pointing to the preferred URL version.${forShopify("On Shopify this is often handled in theme settings.")}`);
   if (!hasAltText)
     add("seo4","high","SEO","Images missing alt text",
       `Product images without alt text. Alt text tells Google what your images contain — this is how you rank in Google Image Search and how screen readers describe images to visually impaired users.`,
@@ -330,7 +357,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
     add("seo5","critical","SEO","Search engines may be blocked from your store",
       `Crawlability issue detected. Part or all of your store may have a noindex directive preventing Google from indexing your pages. If Google cannot crawl your store, you rank for nothing.`,
       `Pages may not appear in Google search at all`,
-      `Check your robots.txt and meta robots tags. Ensure no pages you want indexed have noindex directives. In Shopify check store preferences for password page settings.`);
+      `Check your robots.txt and meta robots tags. Ensure no pages you want indexed have noindex directives.${forShopify("In Shopify, check store preferences for password page settings.")}`);
   if (!hasRobots)
     add("seo6","medium","SEO","Robots.txt not properly configured",
       `Robots.txt issues detected. This file controls what search engines can crawl. Misconfiguration can accidentally block important pages.`,
@@ -338,9 +365,9 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
       `Allow all content pages, block checkout/cart/account pages. Submit your sitemap URL in robots.txt.`);
   if (!hasStructured)
     add("seo7","medium","SEO","No structured data — missing rich search results",
-      `No structured data (schema markup) detected. Without schema, your products can't appear with star ratings, price, and availability directly in search results.`,
+      `No structured data (schema markup) detected. Without schema, your ${isStore ? "products can't appear with star ratings, price, and availability" : "business can't appear with its name, reviews, opening hours and contact details"} directly in search results.`,
       `Missing rich snippets that drive 20-30% higher CTR`,
-      `Implement Product schema on all product pages. Most Shopify themes have this built in — check your theme settings.`);
+      `${isStore ? "Implement Product schema on all product pages." : "Add LocalBusiness or Organization schema to your homepage."}${forShopify("Most Shopify themes have this built in, so check your theme settings.")}`);
   if (!hasLang)
     add("seo8","medium","SEO","Missing HTML lang attribute",
       `Your HTML tag is missing a lang attribute. Search engines and screen readers use this to understand the language of your content.`,
@@ -352,7 +379,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
     add("tech1","critical","Technical","HTTPS not properly configured",
       `The site is not fully on HTTPS. Modern browsers display security warnings, payment processors refuse to work, and Google penalizes non-HTTPS sites in rankings.`,
       `Browser warnings actively driving visitors away — payment failures`,
-      `Force HTTPS across your entire domain. In Shopify this is one toggle in Settings → Domains.`);
+      `Force HTTPS across your entire domain.${forShopify("In Shopify this is one toggle in Settings → Domains.")}`);
   if (!hasGzip)
     add("tech2","high","Technical","Text compression not enabled",
       `Your server sends uncompressed HTML, CSS, and JavaScript to browsers. Enabling GZIP or Brotli typically reduces transfer sizes by 70-80%.`,
@@ -399,7 +426,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
     add("img1","high","Image Optimization","Images not in modern WebP format",
       `All or most images are JPEG or PNG instead of WebP. WebP images are 25-35% smaller at equivalent quality — directly improving load speed on every page.`,
       `Every page load is heavier than it needs to be`,
-      `Convert all product images to WebP. Shopify automatically serves WebP when supported. On WooCommerce use Imagify or ShortPixel plugin.`);
+      `Convert all ${isStore ? "product " : ""}images to WebP.${plat === "Shopify" ? " Shopify automatically serves WebP when supported." : ""}${plat === "WooCommerce" || plat === "WordPress" ? " Use the Imagify or ShortPixel plugin." : ""}`);
   if (imgOptScore === 0)
     add("img2","high","Image Optimization","Images are not optimized",
       `Image optimization issues detected. Oversized images are the most common cause of slow e-commerce stores — and the fastest to fix.`,
@@ -444,7 +471,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
     add("tech-err","critical","Technical",`JavaScript errors detected on page load`,
       `Your site is throwing errors in the browser console. This is often invisible to a human just scrolling the page, but errors like this frequently break interactive elements — including cart, checkout, and payment scripts — silently, with no visible warning to the shopper.`,
       `Potentially breaks checkout, cart, or apps for a share of visitors`,
-      `Open your browser's DevTools console on the live site and reproduce the error. Common culprits: a third-party app script conflicting with your theme, or an outdated Shopify app.`);
+      `Open your browser's DevTools console on the live site and reproduce the error. Common culprits: a third-party app script conflicting with your theme, or an outdated ${plat === "Shopify" ? "Shopify app" : "plugin or app"}.`);
   if (hasVulnLibs)
     add("tech-vuln","medium","Technical",`Outdated JavaScript library with known vulnerabilities`,
       `Your site is loading a JavaScript library version with publicly known security vulnerabilities. This is a trust and security issue, not just a performance one.`,
@@ -466,25 +493,37 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
      cannot see (it only scores load performance/SEO/accessibility). */
   if (scan?.ok) {
     if (scan.passwordProtected)
-      add("trust-locked","critical","Store Access",`Your store is password-protected — visitors can't get in at all`,
+      add("trust-locked","critical",isStore ? "Store Access" : "Site Access",`Your ${siteWord} is password-protected — visitors can't get in at all`,
         `The page is showing a password / "opening soon" screen instead of your actual storefront. Every single visitor — from ads, search, or a direct link — is hitting a locked door instead of your products. This alone can explain a total absence of sales regardless of anything else on this report.`,
         `100% of traffic blocked from purchasing`,
-        `Go to Shopify Admin → Online Store → Preferences, and disable password protection once your store is ready for real visitors.`);
+        `${plat === "Shopify" ? "Go to Shopify Admin → Online Store → Preferences, and disable password protection" : "Turn off the password or maintenance page in your site settings"} once your ${siteWord} is ready for real visitors.`);
 
-    const missingPolicies = Object.entries(scan.policies || {}).filter(([,present]) => !present).map(([k]) => k);
+    const missingPolicies = Object.entries(scan.policies || {}).filter(([,present]) => !present).filter(([k]) => isStore || ["privacy","terms"].includes(k)).map(([k]) => k);
     if (missingPolicies.length)
-      add("trust-policy","high","Trust Signals",`Missing ${missingPolicies.length} of 4 standard store policy pages`,
+      add("trust-policy","high","Trust Signals",`Missing ${missingPolicies.length} of ${isStore ? 4 : 2} standard policy pages`,
         `No visible link to a ${missingPolicies.map(p => ({privacy:"Privacy Policy",terms:"Terms of Service",refund:"Refund Policy",shipping:"Shipping Policy"}[p])).join(", ")} was found on the page. Shoppers actively look for these before entering card details — their absence is one of the most common reasons a stranger abandons checkout on a store they've never bought from before.`,
         `Directly suppresses first-time-buyer conversion`,
-        `Add all four policy pages (Shopify generates templates for these automatically under Settings → Policies) and link them in your footer.`);
+        `Add ${isStore ? "all four" : "your privacy and terms"} policy pages${plat === "Shopify" ? " (Shopify generates templates for these automatically under Settings → Policies)" : ""} and link them in your footer.`);
 
-    if (!scan.hasReviews)
+    if (!scan.hasReviews && !isStore)
+      add("trust-reviews","low","Trust Signals",`No customer reviews widget detected`,
+        `No review widget (Google reviews, Trustpilot, Facebook reviews or similar) was detected on the homepage. For a business people have not used yet, visible reviews are often what decides whether they call or enquire.`,
+        `Lower enquiry rate among first-time visitors`,
+        `Show a handful of genuine reviews on the homepage, either through a review widget or as short named testimonials, right next to your main call-to-action.`);
+
+    if (!scan.hasReviews && isStore)
       add("trust-reviews","medium","Trust Signals",`No product reviews or social proof detected`,
         `No review app (Judge.me, Loox, Yotpo, Stamped, or similar) was detected on the page. Shoppers overwhelmingly check reviews before buying from a store they don't recognize — without any visible social proof, you're asking for trust with nothing to back it up.`,
         `Lower conversion specifically among first-time visitors`,
         `Install a reviews app and get at least a handful of reviews live before running paid traffic — even a small number of genuine reviews outperforms having none.`);
 
-    if (!scan.hasLiveChat)
+    if (!isStore && !scan.hasClickToCall && !scan.hasLiveChat)
+      add("trust-contact","high","Trust Signals",`No tap-to-call or quick contact option found`,
+        `No clickable phone number, WhatsApp link or chat widget was detected on the homepage. Most visitors to a local or service business are on a phone and want to reach you in one tap. When they have to hunt for a number, many give up.`,
+        `Loses ready-to-buy visitors who wanted to call or message right away`,
+        `Add a tap-to-call button and a WhatsApp or message button where visitors can see them without scrolling, and repeat them in the footer.`);
+
+    if (isStore && !scan.hasLiveChat)
       add("trust-contact","low","Trust Signals",`No live chat or direct contact method visible`,
         `No chat widget or WhatsApp/contact link was detected. A shopper with a last-minute question (sizing, shipping time, etc.) who can't get a quick answer often just leaves instead of buying.`,
         `Loses hesitant buyers at the final decision point`,
@@ -492,27 +531,27 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
 
     if (!scan.hasTwitterCard)
       add("trust-twitter","low","Trust Signals",`Missing Twitter/X card tags`,
-        `No twitter:card meta tag was found. Links shared on X (formerly Twitter) fall back to a plain text preview instead of showing your product image and name.`,
-        `Reduced click-through when your store is shared or linked on X`,
+        `No twitter:card meta tag was found. Links shared on X (formerly Twitter) fall back to a plain text preview instead of showing your ${isStore ? "product image and name" : "photo and page title"}.`,
+        `Reduced click-through when your ${siteWord} is shared or linked on X`,
         `Add a twitter:card meta tag (summary_large_image is the usual choice) alongside your existing Open Graph tags.`);
 
     if (!scan.hasOG)
       add("trust-og","low","Trust Signals",`Missing social share preview tags`,
-        `No Open Graph tags were found. When your store link is shared or pasted into WhatsApp, Instagram, or Facebook, it shows a blank or broken preview instead of your product image and name — quietly hurting click-through from every share.`,
+        `No Open Graph tags were found. When your ${siteWord} link is shared or pasted into WhatsApp, Instagram, or Facebook, it shows a blank or broken preview instead of your ${isStore ? "product image and name" : "photo and page title"} — quietly hurting click-through from every share.`,
         `Reduced click-through from social/word-of-mouth shares`,
-        `Add og:title, og:description, and og:image meta tags to your theme's <head> — most Shopify themes support this natively via a few lines in theme.liquid.`);
+        `Add og:title, og:description, and og:image meta tags to your theme's <head>. ${plat === "Shopify" ? "Most Shopify themes support this natively via a few lines in theme.liquid." : "Most themes and SEO plugins can add these for you."}`);
 
-    if (!scan.paymentMethods || scan.paymentMethods.length === 0)
+    if (isStore && (!scan.paymentMethods || scan.paymentMethods.length === 0))
       add("trust-payment","medium","Checkout & Payment",`No recognizable payment method logos or scripts detected`,
         `No signature for PayPal, Klarna, Afterpay, Apple/Google Pay, Paystack, or Flutterwave was found on the page. Shoppers scan for familiar payment logos as a trust signal before entering card details — an unfamiliar or unclear checkout makes hesitant buyers assume the worst.`,
         `Increases checkout abandonment among first-time buyers`,
         `Make sure your available payment methods are visibly displayed (most themes show these automatically in the footer or cart) and consider adding at least one buy-now-pay-later option (Klarna/Afterpay) if you don't already.`);
 
-    if (scan.checkout?.forcesAccountCreation && !scan.checkout?.hasGuestCheckout)
+    if (isStore && scan.checkout?.forcesAccountCreation && !scan.checkout?.hasGuestCheckout)
       add("trust-checkout","high","Checkout & Payment",`Checkout may force account creation — no guest option detected`,
         `Language requiring an account before checkout was found, with no visible guest checkout option. Forcing account creation is one of the most well-documented causes of cart abandonment — many buyers will leave rather than sign up for an account with a store they're buying from for the first time.`,
         `Directly increases cart abandonment rate`,
-        `Enable guest checkout (Shopify: Settings → Checkout → Customer accounts → set to 'Optional') so buyers aren't blocked from purchasing without registering.`);
+        `Enable guest checkout${plat === "Shopify" ? " (Shopify: Settings → Checkout → Customer accounts → set to 'Optional')" : ""} so buyers aren't blocked from purchasing without registering.`);
 
     if (scan.brokenLinks && scan.brokenLinks.length > 0)
       add("trust-brokenlinks","high","Technical Health",`${scan.brokenLinks.length} broken link${scan.brokenLinks.length > 1 ? "s" : ""} found on your homepage`,
@@ -525,7 +564,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
     if (scan.ai) {
       (scan.ai.findings || []).forEach((f, i) =>
         add(`pos-${i}`, f.severity || "medium", "Positioning", f.title,
-          f.finding, "Visitors who can't quickly tell what you sell or what to do next tend to leave rather than dig for it.",
+          f.finding, `Visitors who can't quickly tell what you ${isStore ? "sell" : "offer"} or what to do next tend to leave rather than dig for it.`,
           f.fix, { tags: f.tags }));
     }
 
@@ -549,8 +588,8 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
   const isHomePage = label => /home/i.test(label || "");
   const SECTION_DEFS = [
     { id:"home",    label:"Homepage",                    impact:5 },
-    { id:"product", label:"Product & Collection Pages",  impact:5 },
-    { id:"trust",   label:"Trust & Checkout",            impact:4 },
+    { id:"product", label: isStore ? "Product & Collection Pages" : "Key Pages",  impact:5 },
+    { id:"trust",   label: isStore ? "Trust & Checkout" : "Trust & Enquiry",  impact:4 },
     { id:"speed",   label:"Speed & Performance",         impact:4 },
     { id:"tech",    label:"Search & Technical Health",   impact:2 },
   ];
@@ -558,7 +597,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
   const sectionOf = f => {
     if (f.category === "Positioning") return "home";
     if (f.category === "Visual Design") return isHomePage(f.pinPage) ? "home" : "product";
-    if (["Trust Signals","Checkout & Payment","Store Access"].includes(f.category)) return "trust";
+    if (["Trust Signals","Checkout & Payment","Store Access","Site Access"].includes(f.category)) return "trust";
     if (["Mobile Performance","Core Web Vitals","Image Optimization"].includes(f.category)) return "speed";
     if (f.category === "Technical" && SPEED_TECH_IDS.has(f.id)) return "speed";
     return "tech";
@@ -576,6 +615,7 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
     "Trust Signals": ["Trust", "Social proof"],
     "Checkout & Payment": ["Trust", "Friction"],
     "Store Access": ["Friction"],
+    "Site Access": ["Friction"],
     "Positioning": ["Clarity"],
     "Visual Design": ["Visual impact"],
   };
@@ -619,8 +659,8 @@ function buildAnalysis(desktop, mobile, storeUrl, scan) {
 
   const grade = gradeFor(overall); // fine-grained (A-/B+/C-/etc) so it matches every per-category badge in this report
   return {
-    overall, grade, leak, sections,
-    verdict: verdictMap[grade[0]], // verdictMap only has base letters -- drop any +/-
+    overall, grade, leak, sections, siteType: isStore ? "store" : "other", platform: plat,
+    verdict: tx(verdictMap[grade[0]]), // verdictMap only has base letters -- drop any +/-
     baseGrade: grade[0],
     isCritical: overall < 50 || mobileScore < 45 || vitScore < 35 || scan?.passwordProtected,
     domain: storeUrl.replace(/https?:\/\//,"").split("/")[0].split("?")[0],
@@ -916,8 +956,8 @@ export default function Audit() {
   const brandGG = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
   const seoTag = (
     <SEO
-      title="Free Shopify Store Audit - Find the Leaks Costing You Sales"
-      description="Run a free 12-point audit of your e-commerce store and ads in under a minute. Find the exact leaks costing you sales before you spend another dollar on traffic."
+      title="Free Website & Online Store Audit"
+      description="Run a free audit of your website or online store in under a minute. Find the exact leaks costing you sales before you spend another dollar on traffic."
       path="/audit"
     />
   );
@@ -961,7 +1001,7 @@ export default function Audit() {
   const vitC         = s => s==="good"?"#00ff88":s==="warn"?"#FF9900":"#FF3B3B";
 
   async function handleScan() {
-    if (!url.trim()) return setError("Please enter your store URL.");
+    if (!url.trim()) return setError("Please enter your website URL.");
     setError(""); setLoading(true); setStageIdx(0);
     setAnalysis(null); setSolution(null); setRevealed(false); setEarlyScan(null);
 
@@ -986,7 +1026,7 @@ export default function Audit() {
         scanPromise,
       ]);
       clearInterval(interval);
-      if (!desktop && !mobile) throw new Error("Could not reach store");
+      if (!desktop && !mobile) throw new Error("Could not reach website");
       const result = buildAnalysis(desktop, mobile, storeUrl, scan);
       const plan   = buildSolutionPlan(result);
       setAnalysis(result); setSolution(plan); setLoading(false);
@@ -1195,7 +1235,7 @@ export default function Audit() {
             <button onClick={verifyAccess} className="btn-g" style={{ width:"100%", fontFamily:"inherit", cursor:"pointer", marginBottom:"1rem" }}>Unlock →</button>
             <p style={{ fontSize:12, color:mutedText3, textAlign:"center" }}>
               No code?{" "}
-              <a href={"https://wa.me/2349064885280?text="+encodeURIComponent("Hi, I need my audit access code.")} target="_blank" rel="noopener noreferrer" style={{ color:brandG, textDecoration:"none", fontWeight:600 }}>WhatsApp us</a>
+              <a href={"https://wa.me/2348051481850?text="+encodeURIComponent("Hi, I need my audit access code.")} target="_blank" rel="noopener noreferrer" style={{ color:brandG, textDecoration:"none", fontWeight:600 }}>WhatsApp us</a>
             </p>
           </div>
         </div>
@@ -1210,11 +1250,10 @@ export default function Audit() {
               <span style={{ width:6, height:6, background:brandG, borderRadius:"50%", animation:"pulse 2s ease-in-out infinite" }}/> Automatic store diagnostic
             </span>
             <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,6vw,3.5rem)", fontWeight:800, lineHeight:1.08, letterSpacing:"-.03em", color:headingColor, marginBottom:"1rem" }}>
-              Find every leak in<br /><GradText>your store — free.</GradText>
+              Find every leak in<br /><GradText>your website, free.</GradText>
             </h1>
             <p style={{ fontSize:"clamp(0.9rem,2vw,1.05rem)", color:mutedText, lineHeight:1.8, maxWidth:500, margin:"0 auto 1rem" }}>
-              Enter your store URL. We automatically scan 8 categories and 40+ technical factors. Nothing skipped. Nothing softened.
-            </p>
+              Enter the address of your website or online store. We automatically scan 8 categories and 40+ technical factors and report everything we find.</p>
             <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:dark?`${glow(.06)}`:`${glow(.08)}`, border:`.5px solid ${glow(.25)}`, borderRadius:100, padding:"6px 14px", marginBottom:"2rem" }}>
               <span style={{ fontSize:12, color:mutedText2 }}>Then we hand you your</span>
               <span style={{ fontSize:12, fontWeight:800, color:brandG }}>SRS — Sales Recovery System</span>
@@ -1235,7 +1274,7 @@ export default function Audit() {
                   onFocus={e => e.target.style.borderColor=`${glow(.5)}`} onBlur={e => e.target.style.borderColor=inputBorder}/>
               </div>
               {error && <p style={{ fontSize:13, color:"#FF6B6B", marginBottom:"1rem", padding:".75rem", background:"rgba(255,107,107,.08)", border:".5px solid rgba(255,107,107,.25)", borderRadius:8 }}>{error}</p>}
-              <button onClick={handleScan} className="btn-g" style={{ width:"100%", fontFamily:"inherit", cursor:"pointer" }}>Scan my store now →</button>
+              <button onClick={handleScan} className="btn-g" style={{ width:"100%", fontFamily:"inherit", cursor:"pointer" }}>Scan my website now →</button>
               <p style={{ fontSize:11, color:mutedText3, textAlign:"center", marginTop:".75rem" }}>Automatic scan, no questionnaire. Takes 30-60 seconds. Free.</p>
             </div>
           </div>
@@ -1297,7 +1336,7 @@ export default function Audit() {
               <span style={{ width:10, height:10, borderRadius:"50%", background:"#FF3B3B", flexShrink:0, marginTop:6, display:"inline-block" }} />
               <div>
                 <p style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:14, fontWeight:800, color:"#FF3B3B", marginBottom:2 }}>CRITICAL REVENUE LEAK DETECTED</p>
-                <p style={{ fontSize:13, color:"rgba(255,120,120,.8)", margin:0, lineHeight:1.6 }}>Multiple critical failures identified. Every ad you run is sending buyers to a broken experience.</p>
+                <p style={{ fontSize:13, color:"rgba(255,120,120,.8)", margin:0, lineHeight:1.6 }}>Multiple critical failures identified. {analysis.siteType === "store" ? "Every ad you run is sending buyers to a broken experience." : "Every ad you run is sending visitors to a broken experience."}</p>
               </div>
             </div>
           )}
@@ -1315,6 +1354,7 @@ export default function Audit() {
               </div>
               <div style={{ flex:1, minWidth:200 }}>
                 <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(1rem,3vw,1.4rem)", fontWeight:800, color:headingColor, marginBottom:".3rem" }}>{analysis.domain}</h2>
+                <p style={{ fontSize:11.5, color:mutedText3, margin:"0 0 .5rem" }}>{analysis.platform ? `${analysis.platform} ` : ""}{analysis.siteType === "store" ? "online store" : "website"}</p>
                 <p style={{ fontSize:13, color:mutedText, lineHeight:1.75, marginBottom:".75rem" }}>{analysis.verdict}</p>
                 <span style={{ background:"rgba(255,59,59,.1)", border:".5px solid rgba(255,59,59,.25)", borderRadius:8, padding:"3px 10px", fontSize:12, color:"#FF6B6B", fontWeight:700 }}>Revenue leak: {analysis.leak}</span>
               </div>
@@ -1378,7 +1418,7 @@ export default function Audit() {
           {/* Where the store loses sales, ranked */}
           {analysis.sections.some(sec => sec.score != null) && (
             <div style={{ background:cardBg, border:`.5px solid ${cardBorder}`, borderRadius:16, padding:"1.2rem 1.4rem", marginBottom:"1.5rem" }}>
-              <p style={{ fontSize:11, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 .9rem" }}>Where your store loses sales, ranked</p>
+              <p style={{ fontSize:11, color:mutedText3, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", margin:"0 0 .9rem" }}>{analysis.siteType === "store" ? "Where your store loses sales, ranked" : "Where your website loses enquiries, ranked"}</p>
               <div style={{ display:"flex", flexDirection:"column", gap:".85rem" }}>
                 {analysis.sections.filter(sec => sec.score != null).map(sec => (
                   <button key={sec.id} type="button" onClick={() => jumpTo(`sec-${sec.id}`)}
@@ -1691,7 +1731,7 @@ export default function Audit() {
               Follow the full plan and don't see measurable movement in 90 days? We keep working with you free until you do.
             </p>
             <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
-              <a href={"https://wa.me/2349064885280?text="+encodeURIComponent(`Hi Bode Conversion Lab 👋 I just ran the free audit for ${url}. My store scored ${analysis?.overall}/100 and I want to fix these issues. Can we talk?`)} target="_blank" rel="noopener noreferrer" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>
+              <a href={"https://wa.me/2348051481850?text="+encodeURIComponent(`Hi Bode Conversion Lab 👋 I just ran the free audit for ${url}. My store scored ${analysis?.overall}/100 and I want to fix these issues. Can we talk?`)} target="_blank" rel="noopener noreferrer" className="btn-g" style={{ display:"inline-block", textDecoration:"none" }}>
                 Apply for professional audit →
               </a>
               <Link to={`/contact?url=${encodeURIComponent(url)}&grade=${encodeURIComponent(analysis?.grade || "")}`} className="btn-ghost" style={{ display:"inline-block", textDecoration:"none" }}>

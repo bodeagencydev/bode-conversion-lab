@@ -222,7 +222,7 @@ export function PastProjects() {
   const realProjects = PAST_PROJECTS.filter(p => !p.placeholder);
   const seoTag = (
     <SEO
-      title="Past Projects — Real Work, Real Experience"
+      title="Past Projects | Our Work & Experience"
       description="A look at the actual work behind Bode Conversion Lab — client content projects and hands-on e-commerce operator experience."
       path="/past-projects"
     />

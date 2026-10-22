@@ -54,7 +54,7 @@ export function Blog() {
   return (
     <PageWrapper>
       <SEO
-        title="Blog — E-commerce Conversion & Ads Tips"
+        title="Blog | Conversion Optimization & Growth Marketing Insights"
         description="Operator-tested tactics on ROAS, checkout optimization, ad strategy, and email flows. Original, operator-tested advice from the team behind the SRS methodology."
         path="/blog"
       />

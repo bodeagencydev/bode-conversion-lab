@@ -84,7 +84,7 @@ function ApplyForm() {
             Run a free scan while you wait →
           </Link>
         )}
-        <a href={"https://wa.me/2349064885280?text="+encodeURIComponent("Hi, I just applied on the site" + (prefillUrl ? ` for ${prefillUrl}` : "") + " — wanted to say hi while I wait to hear back.")}
+        <a href={"https://wa.me/2348051481850?text="+encodeURIComponent("Hi, I just applied on the site" + (prefillUrl ? ` for ${prefillUrl}` : "") + " — wanted to say hi while I wait to hear back.")}
           target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ display:"inline-block", textDecoration:"none" }}>
           Message us on WhatsApp
         </a>
@@ -190,8 +190,8 @@ export default function Contact() {
   return (
     <PageWrapper>
       <SEO
-        title="Contact Bode Conversion Lab"
-        description="Get in touch for a free store audit, pricing questions, or to start your Shopify conversion optimization and ad management project."
+        title="Contact Us | Start Your Project"
+        description="Get in touch for a free store audit, pricing questions, or to start your conversion optimization and ad management project."
         path="/contact"
       />
       <section style={{ position:"relative", padding:"clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 3rem", overflow:"hidden" }}>
@@ -221,7 +221,7 @@ export default function Contact() {
           </p>
           <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
             <a
-              href={"https://wa.me/2349064885280?text=" + encodeURIComponent("Hi Bode Conversion Lab 👋 I have a question.")}
+              href={"https://wa.me/2348051481850?text=" + encodeURIComponent("Hi Bode Conversion Lab 👋 I have a question.")}
               target="_blank"
               rel="noopener noreferrer"
               style={{ display:"inline-block", textDecoration:"none", background:brandGG, color:"#040608", borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700 }}>
