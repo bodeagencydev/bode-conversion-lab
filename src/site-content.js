@@ -82,3 +82,52 @@ export const HOME_SYSTEM = [
   { n:"03", t:"Scale & Compound", d:"Once the ROAS target is hit, we scale. Same efficiency, more budget. $1k/mo becomes $70k/mo." },
   { n:"04", t:"Systemize",        d:"We document what works so it runs itself and keeps compounding every month." },
 ];
+
+// Industries we serve. A full-service agency does not pick niches: every
+// website has one job (turn visitors into the action that pays: a sale, a lead,
+// a booking, a sign-up or a donation), and the method is the same everywhere.
+// What changes is the goal and the fixes. Shown as a picker on the homepage.
+export const SITE_TYPES = [
+  {
+    id:"retail", label:"Retail & e-commerce", goal:"Sales",
+    job:"Turn visitors into buyers, and buyers into repeat customers.",
+    examples:"online stores on Shopify, WooCommerce, BigCommerce, Magento, Wix, Squarespace and custom platforms",
+    fix:["Product pages, cart and checkout that remove doubt","Mobile speed fixes that stop lost clicks","Trust signals where buyers decide: reviews, policies, secure payments"],
+    run:["Meta, TikTok and Google ads built around ROAS","Email and SMS flows that bring buyers back","Weekly reports on revenue, not clicks"],
+  },
+  {
+    id:"services", label:"Professional & home services", goal:"Leads and quote requests",
+    job:"Turn local searches and ad clicks into calls, quote requests and booked jobs.",
+    examples:"contractors and trades, clinics, legal and financial firms, cleaning, automotive and other service providers",
+    fix:["A clear call and quote button on every screen","Fast mobile pages for people searching from their phone","Reviews, licences and local proof placed where people decide"],
+    run:["Google Ads and local search campaigns","Facebook and Instagram lead ads","Follow-up messages that turn an enquiry into a booked job"],
+  },
+  {
+    id:"hospitality", label:"Hospitality, travel & events", goal:"Bookings and reservations",
+    job:"Turn interest into confirmed bookings and reservations.",
+    examples:"restaurants, venues, tours, studios, stables, accommodation and event businesses",
+    fix:["Opening times, prices and a booking button visible in seconds","A booking path with the fewest possible steps","Photos and reviews that make a first visit feel safe"],
+    run:["Local search and map listings that put you in front of nearby visitors","Seasonal and event campaigns on Meta and Google","Email and SMS reminders that bring guests back"],
+  },
+  {
+    id:"creators", label:"Creators, coaches & personal brands", goal:"Enquiries and clients",
+    job:"Turn people who admire your work into enquiries and booked clients.",
+    examples:"photographers, designers, coaches, consultants, freelancers, authors and course creators",
+    fix:["A homepage that says who you help and how in the first few seconds","Packages, proof and case studies laid out so a visitor can say yes","One clear call to action instead of five competing ones"],
+    run:["Instagram, Facebook and LinkedIn campaigns aimed at your ideal client","An email list and nurture sequence that fills your calendar","Review and referral requests after every project"],
+  },
+  {
+    id:"b2b", label:"B2B, SaaS & technology", goal:"Demos and sign-ups",
+    job:"Turn visitors into qualified demo requests, trials and sign-ups.",
+    examples:"software, apps, agencies, manufacturers and business-to-business companies",
+    fix:["A homepage that states the value and the next step in seconds","Pricing, proof and case studies where decision-makers look","Short forms and booking links that cut drop-off"],
+    run:["Lead-generation campaigns on Google, Meta and LinkedIn","Email nurture sequences that move leads to a demo","Reporting on cost per qualified lead"],
+  },
+  {
+    id:"community", label:"Nonprofit, education & community", goal:"Donations and sign-ups",
+    job:"Turn visitors into supporters, donors, students and attendees.",
+    examples:"charities, churches, schools, clubs, associations and community organisations",
+    fix:["A giving or enrolment page that takes a minute to complete","Clear event, volunteer and newsletter sign-ups","Stories and impact placed at the top of the page"],
+    run:["Awareness campaigns on Meta and Google","Email and SMS updates that keep supporters close","Simple reports on gifts, sign-ups and enrolments"],
+  },
+];

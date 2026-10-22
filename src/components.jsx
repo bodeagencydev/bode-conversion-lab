@@ -1044,7 +1044,7 @@ export function PartnerCard({ partner }) {
 
 export function WhatsAppButton() {
   const msg = encodeURIComponent("Hi! I'd love to work with you.");
-  const href = `https://wa.me/2349064885280?text=${msg}`;
+  const href = `https://wa.me/2348051481850?text=${msg}`;
   const NUDGES = ["Message us now →", "Got a question? Chat with us", "We reply in minutes →"];
   const [nudgeIndex, setNudgeIndex] = useState(0);
   const [showNudge, setShowNudge] = useState(false);
