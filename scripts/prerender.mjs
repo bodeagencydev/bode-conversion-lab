@@ -77,7 +77,7 @@ async function main() {
   const data = await import(pathToFileURL(path.join(ROOT, "src", "data.js")).href);
   const site = await import(pathToFileURL(path.join(ROOT, "src", "site-content.js")).href);
   const { SERVICES, BLOG_POSTS, PAST_PROJECTS, TESTIMONIALS } = data;
-  const { PHASES, COMPARISON, SRS_FAQ, PROOF_RESULTS, HOME_SYSTEM } = site;
+  const { PHASES, COMPARISON, SRS_FAQ, PROOF_RESULTS, HOME_SYSTEM, SITE_TYPES } = site;
   const realProjects = (PAST_PROJECTS || []).filter((x) => !x.placeholder);
 
   /** @type {{path:string,title:string,description:string,body:string,extraHead?:string,priority:string}[]} */
@@ -102,6 +102,9 @@ async function main() {
         h("h2", "We don't run ads. We engineer ROAS.") +
         p("SRS, the Sales Recovery System, is the system behind everything we do. Most agencies run ads first. We fix the store first, because sending traffic to a leaky funnel just burns your budget.") +
         HOME_SYSTEM.map((s) => h("h3", `${s.n} ${s.t}`) + p(s.d)).join("") +
+        h("h2", "Who we help") +
+        p("Every website has one job: turn visitors into the action that pays you. We find where visitors drop out, fix it, then send the right traffic.") +
+        SITE_TYPES.map((t) => h("h3", `${t.label} (goal: ${t.goal})`) + p(`${t.job} For example: ${t.examples}.`)).join("") +
         `<p>${link("/srs", "See the full SRS breakdown")}</p>` +
         h("h2", "Services") +
         ul(SERVICES.map((s) => `${link(`/services/${s.id}`, s.title)}: ${esc(s.tagline)}`)),
