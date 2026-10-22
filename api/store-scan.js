@@ -51,20 +51,20 @@ function extractPageSignals(html) {
   return { title, metaDesc, h1, heroText, ctaText };
 }
 
-const CLARITY_PROMPT = `You are a blunt conversion-rate consultant reviewing a store's homepage for one thing only: can a first-time visitor, in the first 5 seconds, tell (1) what is being sold, (2) who it's for, and (3) what to do next?
+const CLARITY_PROMPT = `You are a blunt conversion-rate consultant reviewing a website's homepage for one thing only: can a first-time visitor, in the first 5 seconds, tell (1) what is being sold or offered, (2) who it's for, and (3) what to do next?
 
 You will be given the page title, meta description, H1, a rough text sample of the visible homepage copy, and the first call-to-action text found (may be empty if not detected).
 
 Respond with ONLY a JSON object, no markdown fences, no commentary, in exactly this shape:
 {"clarityScore": <0-100 integer>, "headlineVerdict": "<one sentence>", "ctaVerdict": "<one sentence>", "findings": [{"severity": "critical|high|medium", "title": "<short title>", "finding": "<1-2 sentences, specific to what you were given, not generic advice>", "fix": "<1 sentence, concrete>", "tags": ["<0-2 tags from: Value Proposition, Zero risk, Social proof, Herd effect, Voice of authority, Anchor price, Urgency, Clarity>"]}]}
 
-Rules: findings array has 0-3 items — only include a finding if there's a real, specific problem with THIS page's copy (vague headline, no clear offer, buried or generic CTA like "Learn More", mismatched title/H1, etc). If the copy is genuinely clear, return an empty findings array and a high clarityScore. Never invent details not implied by the given text. When you refer to something on the page (the headline, a button label, an announcement bar), quote its exact wording in single quotes, for example the headline reads 'Newest Arrivals'. Quote only text you were actually given. Keep everything short — this feeds a report, not an essay.`;
+Rules: findings array has 0-3 items — only include a finding if there's a real, specific problem with THIS page's copy (vague headline, no clear offer, buried or generic CTA like "Learn More", mismatched title/H1, etc). If the copy is genuinely clear, return an empty findings array and a high clarityScore. Never invent details not implied by the given text. The input says whether this is an online store or another kind of website. A store's goal is a purchase; for any other site the goal is an enquiry, a call, a booking, a donation or a sign-up, so judge the page by that goal and never mention carts or checkout for a site that is not a store. When you refer to something on the page (the headline, a button label, an announcement bar), quote its exact wording in single quotes, for example the headline reads 'Newest Arrivals'. Quote only text you were actually given. Keep everything short — this feeds a report, not an essay.`;
 
 async function scoreClarity(signals) {
   if (!process.env.GEMINI_API_KEY) return null;
-  const { title, metaDesc, h1, heroText, ctaText } = signals;
+  const { title, metaDesc, h1, heroText, ctaText, siteType } = signals;
   if (!heroText && !h1) return null; // nothing meaningful to read
-  const input = `PAGE TITLE: ${title || "(none)"}\nMETA DESCRIPTION: ${metaDesc || "(none)"}\nH1: ${h1 || "(none)"}\nFIRST CTA TEXT FOUND: ${ctaText || "(none detected)"}\nVISIBLE HOMEPAGE TEXT SAMPLE:\n${heroText || "(none extracted)"}`;
+  const input = `SITE TYPE: ${siteType === "store" ? "online store" : "website that is not an online store"}\nPAGE TITLE: ${title || "(none)"}\nMETA DESCRIPTION: ${metaDesc || "(none)"}\nH1: ${h1 || "(none)"}\nFIRST CTA TEXT FOUND: ${ctaText || "(none detected)"}\nVISIBLE HOMEPAGE TEXT SAMPLE:\n${heroText || "(none extracted)"}`;
   const result = await askGemini([{ role: "user", content: input }], {
     system: CLARITY_PROMPT,
     maxOutputTokens: 500,
@@ -106,16 +106,42 @@ async function scoreClarity(signals) {
    audit is always unaffected. ── */
 
 const SECONDARY_PAGE_PATTERNS = [
-  { label: "Product Page",    re: /\/(products?|item)\// },
-  { label: "Collection Page", re: /\/(collections?|shop|store|catalog)(\/|$)/ },
+  { label: "Product Page",    re: /\/(products?|item)\//, forStore: true },
+  { label: "Collection Page", re: /\/(collections?|shop|store|catalog)(\/|$)/, forStore: true },
+  { label: "Booking Page",    re: /\/(book(ing)?|reserve|reservations?|appointments?|schedule)(\/|$|-)/ },
+  { label: "Donation Page",   re: /\/(donate|giving|give|support-us)(\/|$|-)/ },
+  { label: "Quote Page",      re: /\/(get-a-quote|request-a-quote|quote|free-estimate|estimate)(\/|$|-)/ },
+  { label: "Services Page",   re: /\/(services?|what-we-do|offerings|packages|pricing|rates)(\/|$|-)/ },
+  { label: "Contact Page",    re: /\/(contact(-us)?)(\/|$)/ },
 ];
+
+/* What kind of site is this, and what is it built on? Used so the audit judges
+   a plumber's site by calls and quotes, not by a checkout it does not have.
+   Heuristic, from the homepage HTML only: store platforms and cart language
+   mean "store"; anything else is treated as another kind of website. */
+function detectSite(lower) {
+  const platform =
+    /cdn\.shopify\.com|myshopify\.com|shopify\.theme/.test(lower) ? "Shopify" :
+    /woocommerce/.test(lower) ? "WooCommerce" :
+    /bigcommerce/.test(lower) ? "BigCommerce" :
+    /magento|mage-init/.test(lower) ? "Magento" :
+    /wixstatic\.com|_wixcidx|wix\.com/.test(lower) ? "Wix" :
+    /squarespace/.test(lower) ? "Squarespace" :
+    /webflow/.test(lower) ? "Webflow" :
+    /wp-content|wp-includes/.test(lower) ? "WordPress" : null;
+  const storePlatform = ["Shopify", "WooCommerce", "BigCommerce", "Magento"].includes(platform);
+  const cartLanguage = /add to cart|add-to-cart|addtocart|href=["'][^"']*\/cart[\/"'?]|href=["'][^"']*\/checkout|"@type"\s*:\s*"product"|product_id|shop now/.test(lower);
+  return { platform, siteType: storePlatform || cartLanguage ? "store" : "other" };
+}
+
 
 /* Picks ONE other page worth screenshotting, preferring an actual product
    page over a generic collection/shop listing. Returns null if nothing
    matching was found among the homepage's own links — never guesses at a
    URL that wasn't actually linked from the page. */
-function findSecondaryPageUrl(hrefMatches, origin, homepageUrl) {
-  for (const { re } of SECONDARY_PAGE_PATTERNS) {
+function findSecondaryPageUrl(hrefMatches, origin, homepageUrl, siteType) {
+  const wanted = SECONDARY_PAGE_PATTERNS.filter(p => (siteType === "store" ? p.forStore : !p.forStore));
+  for (const { re } of wanted) {
     const hit = hrefMatches.find((href) => re.test(href) && (href.startsWith("/") || href.startsWith(origin)));
     if (hit) {
       const abs = hit.startsWith("/") ? origin + hit : hit;
@@ -163,8 +189,10 @@ async function fetchAsBase64(imageUrl) {
   }
 }
 
-function visualPrompt(pageLabel) {
-  return `You are a blunt conversion-rate consultant looking at a FULL-PAGE screenshot of a store's ${pageLabel} — the entire scrollable page from top to bottom, not just what's visible without scrolling. Judge ONLY what is visible in the image.
+function visualPrompt(pageLabel, siteType) {
+  const kind = siteType === "store" ? "store" : "website";
+  const goal = siteType === "store" ? "a purchase" : "an enquiry, a call, a booking, a donation or a sign-up (whatever this site exists to get)";
+  return `You are a blunt conversion-rate consultant looking at a FULL-PAGE screenshot of a ${kind}'s ${pageLabel} — the entire scrollable page from top to bottom, not just what's visible without scrolling. Judge ONLY what is visible in the image.
 
 Read it top to bottom as distinct sections (hero/top of page, main content area, further down the page, footer) and give findings specific to what you actually see in each part — not one generic comment about "the page". Look for real, specific visual problems in any section: cluttered or busy layout, a call-to-action that's hard to spot (low contrast, wrong size, buried under something more prominent), unclear visual hierarchy, no visible trust signals (reviews, badges, guarantees), poor spacing/crowding, text that's hard to read against its background, imagery that looks low-quality or generic/stocky, dead space, or a section that doesn't clearly signal what it's for.
 
@@ -173,13 +201,13 @@ Also estimate WHERE each finding sits on the page, as a percentage from the very
 Respond with ONLY a JSON object, no markdown fences, no commentary, in exactly this shape:
 {"visualScore": <0-100 integer>, "summary": "<one sentence overall impression of this specific page>", "findings": [{"severity": "critical|high|medium", "title": "<short title>", "finding": "<1-2 sentences — name WHERE on the page this is (e.g. \"in the hero\", \"further down near the product grid\", \"in the footer\") and what's actually wrong there>", "fix": "<1 sentence, concrete>", "y": <0-100 integer, vertical position on the full page>, \"x\": <0-100 integer, horizontal position>, "tags": ["<0-2 tags from: Value Proposition, Zero risk, Social proof, Herd effect, Voice of authority, Anchor price, Urgency, Clarity>"]}]}
 
-Rules: findings array has 0-4 items — only real, specific problems, never generic advice, and never invent a section that isn't in the image. When you point to text you can read in the image (a headline, a button label, a rating line), quote it exactly in single quotes, for example the 'Add to cart' button. If the page looks clean and clear throughout, return an empty findings array and a high visualScore. Keep everything short — this feeds a report, not an essay.`;
+Rules: findings array has 0-4 items — only real, specific problems, never generic advice, and never invent a section that isn't in the image. Judge the page by its goal: ${goal}. When you point to text you can read in the image (a headline, a button label, a rating line), quote it exactly in single quotes, for example the 'Add to cart' button. If the page looks clean and clear throughout, return an empty findings array and a high visualScore. Keep everything short — this feeds a report, not an essay.`;
 }
 
 /* Screenshots + AI-scores ONE page. Returns null if the screenshot itself
    couldn't be captured; returns a scoreless entry (still with the screenshot
    URL, so the report can at least show the image) if only the AI read failed. */
-async function scoreVisualForPage(pageUrl, label) {
+async function scoreVisualForPage(pageUrl, label, siteType) {
   const screenshotUrl = await captureScreenshot(pageUrl);
   if (!screenshotUrl) return null;
 
@@ -193,7 +221,7 @@ async function scoreVisualForPage(pageUrl, label) {
     imageBase64: image.base64,
     mimeType: image.mimeType,
     prompt: `Here is the full-page ${label} screenshot. Return the JSON as instructed.`,
-    system: visualPrompt(label),
+    system: visualPrompt(label, siteType),
     maxOutputTokens: 600,
     budgetMs: 10000,
   });
@@ -217,9 +245,9 @@ async function scoreVisualForPage(pageUrl, label) {
 /* Runs the homepage screenshot and (when one was found) the secondary-page
    screenshot CONCURRENTLY — two independent Microlink + Gemini pipelines,
    so total time is set by the slower of the two, not their sum. */
-async function scoreVisual(homepageUrl, secondaryPageUrl) {
-  const jobs = [scoreVisualForPage(homepageUrl, "Homepage")];
-  if (secondaryPageUrl) jobs.push(scoreVisualForPage(secondaryPageUrl, SECONDARY_PAGE_PATTERNS.find(p => p.re.test(secondaryPageUrl))?.label || "Other Page"));
+async function scoreVisual(homepageUrl, secondaryPageUrl, siteType) {
+  const jobs = [scoreVisualForPage(homepageUrl, "Homepage", siteType)];
+  if (secondaryPageUrl) jobs.push(scoreVisualForPage(secondaryPageUrl, SECONDARY_PAGE_PATTERNS.find(p => p.re.test(secondaryPageUrl))?.label || "Other Page", siteType));
   const results = (await Promise.all(jobs)).filter(Boolean);
   return results.length ? { pages: results } : null;
 }
@@ -236,6 +264,8 @@ async function scan(req, res) {
     });
     const html = await r.text();
     const lower = html.toLowerCase();
+    const { platform, siteType } = detectSite(lower);
+    const hasClickToCall = /href=["']tel:/.test(lower);
 
     // Store closed to visitors entirely — the single biggest possible
     // "why customers left" answer, so it's checked first.
@@ -280,12 +310,12 @@ async function scan(req, res) {
       .filter(href => href.startsWith("/") || href.startsWith(origin))
       .map(href => href.startsWith("/") ? origin + href : href);
     const uniqueLinks = [...new Set(hrefMatches)].slice(0, 15);
-    const secondaryPageUrl = findSecondaryPageUrl(hrefMatches, origin, target);
+    const secondaryPageUrl = findSecondaryPageUrl(hrefMatches, origin, target, siteType);
 
     // Clarity (text), the visual read(s), and the broken-link check below all run
     // concurrently — total added time is set by the slowest of the three, not their sum.
-    const aiPromise     = scoreClarity(pageSignals).catch((err) => { console.error("CLARITY SCORE THREW:", err.message); return null; });
-    const visualPromise = scoreVisual(target, secondaryPageUrl).catch((err) => { console.error("VISUAL SCAN THREW:", err.message); return null; });
+    const aiPromise     = scoreClarity({ ...pageSignals, siteType }).catch((err) => { console.error("CLARITY SCORE THREW:", err.message); return null; });
+    const visualPromise = scoreVisual(target, secondaryPageUrl, siteType).catch((err) => { console.error("VISUAL SCAN THREW:", err.message); return null; });
 
     /* ── Payment methods detected ── */
     const paymentSignatures = {
@@ -327,6 +357,9 @@ async function scan(req, res) {
 
     res.status(200).json({
       ok: true,
+      platform,
+      siteType,
+      hasClickToCall,
       passwordProtected,
       policies,
       hasReviews,
@@ -354,7 +387,7 @@ export default async function handler(req, res) {
   const target = req.query.url;
   if (!target) return scan(req, res);
 
-  const key = `bcl:scan:v2:${normalizeTarget(target)}`;
+  const key = `bcl:scan:v3:${normalizeTarget(target)}`;
   const hit = await cacheGet(key);
   if (hit) {
     res.setHeader("x-bcl-cache", "hit");
