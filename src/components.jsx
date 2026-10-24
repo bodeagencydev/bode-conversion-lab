@@ -987,40 +987,47 @@ export function TestimonialTicker({ items = [] }) {
 
 export function VideoTips({ items = [] }) {
   const { dark } = useTheme();
-  const solidG = dark ? "#00ff88" : "#00A35C";
-  const tint   = dark ? "0,255,136" : "0,130,74";
+  const solidG = dark ? "#6CCB2E" : "#2E7D1F";
+  const tint = dark ? "108,203,46" : "46,125,31";
   const scrollRef = useRef(null);
   const [playing, setPlaying] = useState(null);
   const scroll = dir => { if (scrollRef.current) scrollRef.current.scrollBy({ left:dir*280, behavior:"smooth" }); };
   return (
     <div style={{ position:"relative" }}>
-      <button onClick={() => scroll(-1)} style={{ position:"absolute", left:-16, top:"40%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:`rgba(${tint},.12)`, border:`.5px solid rgba(${tint},.4)`, color:solidG, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
-      <button onClick={() => scroll(1)}  style={{ position:"absolute", right:-16, top:"40%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:`rgba(${tint},.12)`, border:`.5px solid rgba(${tint},.4)`, color:solidG, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
-      <div ref={scrollRef} style={{ display:"flex", gap:"1.5rem", overflowX:"auto", scrollSnapType:"x mandatory", paddingBottom:"1rem", scrollbarWidth:"none" }}>
+      <button type="button" aria-label="Scroll videos left" onClick={() => scroll(-1)} style={{ position:"absolute", left:-12, top:"38%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:"var(--card-bg, #fff)", border:"1px solid var(--card-border, rgba(21,24,22,.15))", color:solidG, fontSize:22, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
+      <button type="button" aria-label="Scroll videos right" onClick={() => scroll(1)} style={{ position:"absolute", right:-12, top:"38%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:"var(--card-bg, #fff)", border:"1px solid var(--card-border, rgba(21,24,22,.15))", color:solidG, fontSize:22, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
+      <div ref={scrollRef} style={{ display:"flex", gap:"1rem", overflowX:"auto", scrollSnapType:"x mandatory", padding:"4px 2px 1rem", scrollbarWidth:"thin" }}>
         {items.map((v, i) => (
-          <div key={i}
-            style={{ flexShrink:0, width:240, scrollSnapAlign:"start", background:"var(--card-bg,rgba(255,255,255,.06))", border:".5px solid var(--card-border,rgba(255,255,255,.1))", borderRadius:16, overflow:"hidden", transition:"transform .3s,border-color .3s" }}
-            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-5px)"; e.currentTarget.style.borderColor=`rgba(${tint},.4)`; }}
-            onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor="var(--card-border,rgba(255,255,255,.1))"; }}>
-            <div style={{ width:"100%", aspectRatio:"9/16", position:"relative", background:"#000" }}>
-              {playing === i
-                ? <iframe src={`https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0`} title={v.title} allow="autoplay" allowFullScreen style={{ width:"100%", height:"100%", border:"none", position:"absolute", inset:0 }}/>
-                : <>
-                    <img src={v.thumb} alt={v.title} loading="lazy" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", transform:"scale(1.18)" }}/>
-                    <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", background:"rgba(0,0,0,.3)" }} onClick={() => setPlaying(i)}>
-                      <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(255,0,0,.9)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M6 4L16 10L6 16Z"/></svg>
-                      </div>
-                    </div>
-                    <div style={{ position:"absolute", top:8, left:8, background:"rgba(0,0,0,.75)", borderRadius:100, padding:"2px 8px", fontSize:10, color:G, fontWeight:700 }}>{v.tag}</div>
-                  </>
-              }
+          <article key={v.reelId || i} style={{ flexShrink:0, width:"min(280px, 78vw)", scrollSnapAlign:"start", background:"var(--card-bg, #fff)", border:"1px solid var(--card-border, rgba(21,24,22,.12))", borderRadius:16, overflow:"hidden" }}>
+            <div style={{ width:"100%", aspectRatio:"9/16", position:"relative", background:"#0B0D0C" }}>
+              {playing === i ? (
+                <iframe
+                  src={`https://www.instagram.com/reel/${v.reelId}/embed/`}
+                  title={v.title}
+                  loading="lazy"
+                  allow="autoplay; encrypted-media; picture-in-picture; web-share"
+                  allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  style={{ width:"100%", height:"100%", border:0, position:"absolute", inset:0, background:"#fff" }}
+                />
+              ) : (
+                <button type="button" onClick={() => setPlaying(i)} aria-label={`Load Instagram video: ${v.title}`} style={{ position:"absolute", inset:0, width:"100%", height:"100%", border:0, padding:24, cursor:"pointer", textAlign:"left", color:"#F4F6F3", background:"linear-gradient(160deg,#151816 0%,#20291e 58%,#0B0D0C 100%)", display:"flex", flexDirection:"column", justifyContent:"space-between" }}>
+                  <span style={{ fontSize:11, letterSpacing:".14em", textTransform:"uppercase", color:"#8EEA3A" }}>BODE CONVERSION LAB</span>
+                  <span style={{ display:"flex", flexDirection:"column", gap:16 }}>
+                    <span style={{ width:58, height:58, display:"grid", placeItems:"center", borderRadius:"50%", background:"#6CCB2E", color:"#0B0D0C", fontSize:24, paddingLeft:3 }}>▶</span>
+                    <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:22, lineHeight:1.15, fontWeight:700 }}>{v.title}</span>
+                    <span style={{ color:"#C5CEC7", fontSize:12 }}>Tap to load Instagram Reel</span>
+                  </span>
+                </button>
+              )}
             </div>
-            <div style={{ padding:".9rem" }}>
-              <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:".85rem", fontWeight:700, color:"var(--fg,#f0f0f0)", marginBottom:".3rem", lineHeight:1.4 }}>{v.title}</h3>
-              <p style={{ fontSize:12, color:"var(--muted2,rgba(255,255,255,.4))", lineHeight:1.5, margin:0 }}>{v.desc}</p>
+            <div style={{ padding:14 }}>
+              <p style={{ margin:"0 0 6px", fontSize:10, fontWeight:700, letterSpacing:".12em", textTransform:"uppercase", color:solidG }}>{v.tag}</p>
+              <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:15, lineHeight:1.35, fontWeight:700, color:"var(--fg,#151816)", margin:"0 0 8px" }}>{v.title}</h3>
+              <p style={{ fontSize:12, color:"var(--muted2, #58615B)", lineHeight:1.5, margin:"0 0 12px" }}>{v.desc}</p>
+              <a href={v.url} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, fontWeight:700, color:solidG, textDecoration:"none" }}>Open on Instagram ↗</a>
             </div>
-          </div>
+          </article>
         ))}
       </div>
     </div>
