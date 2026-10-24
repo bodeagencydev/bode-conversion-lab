@@ -986,50 +986,20 @@ export function TestimonialTicker({ items = [] }) {
 }
 
 export function VideoTips({ items = [] }) {
-  const { dark } = useTheme();
-  const solidG = dark ? "#6CCB2E" : "#2E7D1F";
-  const tint = dark ? "108,203,46" : "46,125,31";
-  const scrollRef = useRef(null);
-  const [playing, setPlaying] = useState(null);
-  const scroll = dir => { if (scrollRef.current) scrollRef.current.scrollBy({ left:dir*280, behavior:"smooth" }); };
   return (
-    <div style={{ position:"relative" }}>
-      <button type="button" aria-label="Scroll videos left" onClick={() => scroll(-1)} style={{ position:"absolute", left:-12, top:"38%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:"var(--card-bg, #fff)", border:"1px solid var(--card-border, rgba(21,24,22,.15))", color:solidG, fontSize:22, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
-      <button type="button" aria-label="Scroll videos right" onClick={() => scroll(1)} style={{ position:"absolute", right:-12, top:"38%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:"var(--card-bg, #fff)", border:"1px solid var(--card-border, rgba(21,24,22,.15))", color:solidG, fontSize:22, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
-      <div ref={scrollRef} style={{ display:"flex", gap:"1rem", overflowX:"auto", scrollSnapType:"x mandatory", padding:"4px 2px 1rem", scrollbarWidth:"thin" }}>
-        {items.map((v, i) => (
-          <article key={v.reelId || i} style={{ flexShrink:0, width:"min(280px, 78vw)", scrollSnapAlign:"start", background:"var(--card-bg, #fff)", border:"1px solid var(--card-border, rgba(21,24,22,.12))", borderRadius:16, overflow:"hidden" }}>
-            <div style={{ width:"100%", aspectRatio:"9/16", position:"relative", background:"#0B0D0C" }}>
-              {playing === i ? (
-                <iframe
-                  src={`https://www.instagram.com/reel/${v.reelId}/embed/`}
-                  title={v.title}
-                  loading="lazy"
-                  allow="autoplay; encrypted-media; picture-in-picture; web-share"
-                  allowFullScreen
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  style={{ width:"100%", height:"100%", border:0, position:"absolute", inset:0, background:"#fff" }}
-                />
-              ) : (
-                <button type="button" onClick={() => setPlaying(i)} aria-label={`Load Instagram video: ${v.title}`} style={{ position:"absolute", inset:0, width:"100%", height:"100%", border:0, padding:24, cursor:"pointer", textAlign:"left", color:"#F4F6F3", background:"linear-gradient(160deg,#151816 0%,#20291e 58%,#0B0D0C 100%)", display:"flex", flexDirection:"column", justifyContent:"space-between" }}>
-                  <span style={{ fontSize:11, letterSpacing:".14em", textTransform:"uppercase", color:"#8EEA3A" }}>BODE CONVERSION LAB</span>
-                  <span style={{ display:"flex", flexDirection:"column", gap:16 }}>
-                    <span style={{ width:58, height:58, display:"grid", placeItems:"center", borderRadius:"50%", background:"#6CCB2E", color:"#0B0D0C", fontSize:24, paddingLeft:3 }}>▶</span>
-                    <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:22, lineHeight:1.15, fontWeight:700 }}>{v.title}</span>
-                    <span style={{ color:"#C5CEC7", fontSize:12 }}>Tap to load Instagram Reel</span>
-                  </span>
-                </button>
-              )}
-            </div>
-            <div style={{ padding:14 }}>
-              <p style={{ margin:"0 0 6px", fontSize:10, fontWeight:700, letterSpacing:".12em", textTransform:"uppercase", color:solidG }}>{v.tag}</p>
-              <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:15, lineHeight:1.35, fontWeight:700, color:"var(--fg,#151816)", margin:"0 0 8px" }}>{v.title}</h3>
-              <p style={{ fontSize:12, color:"var(--muted2, #58615B)", lineHeight:1.5, margin:"0 0 12px" }}>{v.desc}</p>
-              <a href={v.url} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, fontWeight:700, color:solidG, textDecoration:"none" }}>Open on Instagram ↗</a>
-            </div>
-          </article>
-        ))}
-      </div>
+    <div className="bcl-reels-grid" aria-label="Bode Conversion Lab Instagram videos">
+      {items.map((v, i) => (
+        <div className="bcl-reel-frame" key={v.reelId || i}>
+          <iframe
+            src={`https://www.instagram.com/reel/${v.reelId}/embed/?hidecaption=true`}
+            title={`Bode Conversion Lab Instagram Reel ${i + 1}`}
+            loading={i < 2 ? "eager" : "lazy"}
+            allow="autoplay; encrypted-media; picture-in-picture; web-share"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        </div>
+      ))}
     </div>
   );
 }
