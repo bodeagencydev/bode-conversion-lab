@@ -1,6 +1,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { margin: 0; padding: 0; width: 100%; background: #040608; overflow-x: hidden; }
-#root { width: 100%; min-height: 100vh; background: #040608; overflow-x: hidden; }
+html, body { margin: 0; padding: 0; width: 100%; background: var(--bg, #F5F4EF); overflow-x: hidden; }
+#root { width: 100%; min-height: 100vh; background: var(--bg, #F5F4EF); overflow-x: hidden; }
 div::-webkit-scrollbar { display: none; }
 
 @media (min-width: 769px) {
@@ -228,3 +228,15 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
+
+
+/* Approved editorial redesign foundation: warm paper, ink, and Bode green. */
+:root { color-scheme: dark; --bcl-bg:#0B0D0C; --bcl-surface:#151816; --bcl-surface-raised:#1A1E1B; --bcl-text:#F4F6F3; --bcl-muted:#A5AFA9; --bcl-green:#6CCB2E; --bcl-green-deep:#2E7D1F; --bcl-highlight:#8EEA3A; --bcl-border:rgba(244,246,243,.14); }
+[data-theme="light"] { color-scheme:light; --bcl-bg:#F5F4EF; --bcl-surface:#FFFFFF; --bcl-surface-raised:#ECEEE8; --bcl-text:#151816; --bcl-muted:#58615B; --bcl-green:#2E7D1F; --bcl-green-deep:#205C17; --bcl-highlight:#6CCB2E; --bcl-border:rgba(21,24,22,.13); }
+html { background:var(--bg,#F5F4EF); } body,#root { background:var(--bg,#F5F4EF) !important; color:var(--fg,#151816); }
+::selection { background:#6CCB2E; color:#0B0D0C; }
+.btn-g { background:#6CCB2E !important; border-color:#6CCB2E !important; color:#0B0D0C !important; box-shadow:0 8px 24px rgba(108,203,46,.18); }
+.btn-g:hover { box-shadow:0 12px 32px rgba(108,203,46,.26); }
+[data-theme="light"] .btn-ghost { color:#151816 !important; border-color:rgba(21,24,22,.2) !important; }
+[data-theme="light"] .glass,[data-theme="light"] .stat-card,[data-theme="light"] .offer-card { background-color:rgba(255,255,255,.88); border-color:rgba(21,24,22,.12); }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
