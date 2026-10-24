@@ -565,9 +565,9 @@ export default function Home() {
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <ScrollReveal delay={0}>
             <div style={{ textAlign:"center", marginBottom:"3rem" }}>
-              <SectionLabel>Free tips & insights</SectionLabel>
-              <Heading size="2.4rem">Learn from the lab</Heading>
-              <p style={{ fontSize:14, color:mutedText2, marginTop:".75rem" }}>Scroll through for free tips and insights from the lab.</p>
+              <SectionLabel>Bode on Instagram</SectionLabel>
+              <Heading size="2.4rem">Ideas from the lab, in motion.</Heading>
+              <p style={{ fontSize:14, color:mutedText2, marginTop:".75rem" }}>Watch Bode Conversion Lab Reels. Select a card to load the video, or open it directly on Instagram.</p>
             </div>
           </ScrollReveal>
           <VideoTips items={VIDEO_TIPS} />
