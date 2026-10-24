@@ -39,8 +39,8 @@ function PageSkeleton() {
 
 export default function App() {
   const [dark, setDark] = useState(() => {
-    try { return localStorage.getItem("bcl-theme") !== "light"; }
-    catch { return true; }
+    try { return localStorage.getItem("bcl-theme") === "dark"; }
+    catch { return false; }
   });
   useEffect(() => {
     // Belt-and-suspenders against a known Chrome quirk: gradient-clipped
@@ -111,9 +111,9 @@ function AppInner({ dark }) {
         :root {
           --bg:           #0B0D0C;
           --fg:           #EFECE6;
-          --g:            #00ff88;
-          --gg:           linear-gradient(135deg,#00ff88,#00cc6a);
-          --rust:         #FF5A3C;
+          --g:            #6CCB2E;
+          --gg:           linear-gradient(135deg,#6CCB2E,#8EEA3A);
+          --rust:         #6CCB2E;
           --card-bg:      rgba(239,236,230,.05);
           --card-border:  rgba(239,236,230,.09);
           --muted:        rgba(239,236,230,.55);
@@ -126,27 +126,27 @@ function AppInner({ dark }) {
         }
 
         [data-theme="light"] {
-          --bg:           #EDEAE3;
-          --fg:           #17140F;
-          --g:            #00A35C;
-          --gg:           linear-gradient(135deg,#00A35C,#00b869);
-          --rust:         #C74B32;
-          --card-bg:      rgba(23,20,15,.06);
-          --card-border:  rgba(23,20,15,.16);
-          --muted:        rgba(23,20,15,.72);
-          --muted2:       rgba(23,20,15,.62);
-          --muted3:       rgba(23,20,15,.6);
-          --ghost-bg:     rgba(23,20,15,.07);
-          --ghost-fg:     rgba(23,20,15,.75);
-          --ghost-border: rgba(23,20,15,.26);
-          --divider:      rgba(23,20,15,.16);
+          --bg:           #F5F4EF;
+          --fg:           #151816;
+          --g:            #2E7D1F;
+          --gg:           linear-gradient(135deg,#2E7D1F,#6CCB2E);
+          --rust:         #2E7D1F;
+          --card-bg:      rgba(21,24,22,.045);
+          --card-border:  rgba(21,24,22,.12);
+          --muted:        rgba(21,24,22,.68);
+          --muted2:       rgba(21,24,22,.58);
+          --muted3:       rgba(21,24,22,.52);
+          --ghost-bg:     rgba(21,24,22,.04);
+          --ghost-fg:     rgba(21,24,22,.78);
+          --ghost-border: rgba(21,24,22,.18);
+          --divider:      rgba(21,24,22,.12);
         }
 
         *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
         html { scroll-behavior:smooth; overflow-x:hidden; }
         body { overflow-x:hidden; background:var(--bg) !important; color:var(--fg) !important; }
         [lang], font { color:inherit !important; }
-        ::selection { background:#00ff88; color:#040608; }
+        ::selection { background:#6CCB2E; color:#0B0D0C; }
         div::-webkit-scrollbar { display:none; }
         h1,h2,h3,h4,p,span,li { color:inherit; }
 
