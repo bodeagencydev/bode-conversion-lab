@@ -184,9 +184,10 @@ export const PARTNERS = [
 ];
 
 export const VIDEO_TIPS = [
-  { tag:"Checkout Tip",  title:"Why your checkout loses 40% of buyers",        desc:"The #1 mistake e-commerce stores make that kills conversions.",  videoId:"HcNzgUUQI5g", thumb:"https://i.ytimg.com/vi/HcNzgUUQI5g/hqdefault.jpg" },
-  { tag:"Ad Strategy",   title:"How to cut your Meta CPA in half",             desc:"A simple audience restructure most agencies overlook.",           videoId:"SklDEDMQmmY", thumb:"https://i.ytimg.com/vi/SklDEDMQmmY/hqdefault.jpg" },
-  { tag:"Store Audit",   title:"5 things we check in every store audit",       desc:"The exact checklist we use to find where your store leaks money.", videoId:"vxmXlxLjDRY", thumb:"https://i.ytimg.com/vi/vxmXlxLjDRY/hqdefault.jpg" },
-  { tag:"ROAS Explained",title:"What a 4x ROAS actually looks like",            desc:"Real numbers, breaking down what makes ads profitable.",           videoId:"UQGUkS8H-44", thumb:"https://i.ytimg.com/vi/UQGUkS8H-44/hqdefault.jpg" },
-  { tag:"Email Flow",    title:"The abandoned cart sequence that recovers 20%", desc:"3 emails, exact timing, exact copy. Free to implement today.",    videoId:"fvbex4WkncE", thumb:"https://i.ytimg.com/vi/fvbex4WkncE/hqdefault.jpg" },
+  { tag:"Bode Reel", title:"Bode Conversion Lab | Reel 1", desc:"Watch this Bode Conversion Lab video on Instagram.", reelId:"DduJGGbs5eH", url:"https://www.instagram.com/reel/DduJGGbs5eH/" },
+  { tag:"Bode Reel", title:"Bode Conversion Lab | Reel 2", desc:"Watch this Bode Conversion Lab video on Instagram.", reelId:"Dd1ajUpiCPS", url:"https://www.instagram.com/reel/Dd1ajUpiCPS/" },
+  { tag:"Bode Reel", title:"Bode Conversion Lab | Reel 3", desc:"Watch this Bode Conversion Lab video on Instagram.", reelId:"DeYlfwuxVSc", url:"https://www.instagram.com/reel/DeYlfwuxVSc/" },
+  { tag:"Bode Reel", title:"Bode Conversion Lab | Reel 4", desc:"Watch this Bode Conversion Lab video on Instagram.", reelId:"DegfnSwxpIq", url:"https://www.instagram.com/reel/DegfnSwxpIq/" },
+  { tag:"Bode Reel", title:"Bode Conversion Lab | Reel 5", desc:"Watch this Bode Conversion Lab video on Instagram.", reelId:"DejBPntx1RT", url:"https://www.instagram.com/reel/DejBPntx1RT/" },
+  { tag:"Bode Reel", title:"Bode Conversion Lab | Reel 6", desc:"Watch this Bode Conversion Lab video on Instagram.", reelId:"DewNyxwRvjP", url:"https://www.instagram.com/reel/DewNyxwRvjP/" },
 ];
