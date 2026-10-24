@@ -1,5 +1,5 @@
-export const G = "#00ff88";
-export const GG = "linear-gradient(135deg,#00ff88,#00cc6a)";
+export const G = "#6CCB2E";
+export const GG = "linear-gradient(135deg,#2E7D1F,#6CCB2E)";
 
 export const NAV_LINKS = [
   { label: "Home",         path: "/" },
