@@ -15,7 +15,7 @@ div::-webkit-scrollbar { display: none; }
   h1 { font-size: clamp(1.6rem, 6vw, 2.2rem) !important; word-break: break-word !important; }
   h2 { font-size: clamp(1.2rem, 5vw, 1.8rem) !important; word-break: break-word !important; }
   h3 { font-size: clamp(0.95rem, 4vw, 1.2rem) !important; }
-  .hero-t { font-size: clamp(1.8rem, 7vw, 2.5rem) !important; }
+  .hero-t { font-size: clamp(2.6rem, 10.5vw, 4rem) !important; line-height: 1.02 !important; letter-spacing: -.045em !important; }
   .how-grid, .about-grid, .offer-grid, .partner-grid, .stat-grid, .hero-cards { grid-template-columns: 1fr !important; }
   .float-shape { display: none !important; }
   .btn-g, .btn-ghost { width: 100% !important; text-align: center !important; display: block !important; margin-bottom: 8px; }
