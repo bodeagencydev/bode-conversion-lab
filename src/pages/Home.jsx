@@ -426,28 +426,35 @@ export default function Home() {
 
       <hr className="divider" />
 
-      {/* ── STATS ── */}
+      {/* ── BODE GROWTH SYSTEM ── */}
       <Section id="results">
-        <div ref={statsRef} style={{ maxWidth:960, margin:"0 auto" }}>
+        <div className="bcl-growth-section" style={{ maxWidth:1100, margin:"0 auto" }}>
           <ScrollReveal delay={0}>
-            <div style={{ textAlign:"center", marginBottom:"3rem" }}>
-              <SectionLabel>Proven results</SectionLabel>
-              <Heading size="2.4rem">Same product. Same budget.<br /><GradText>70x the revenue.</GradText></Heading>
+            <div style={{ maxWidth:700, marginBottom:"2.5rem" }}>
+              <SectionLabel>The growth system</SectionLabel>
+              <Heading size="2.7rem" style={{ textAlign:"left" }}>Better conversion is not one trick. <GradText>It is a system.</GradText></Heading>
+              <p style={{ color:mutedText, fontSize:16, lineHeight:1.8, marginTop:"1rem", maxWidth:620 }}>We connect the parts of your customer journey that are too often treated separately, then prioritize the fixes that make the biggest business sense.</p>
             </div>
           </ScrollReveal>
-          <div className="stat-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1.5rem" }}>
-            {[
-              { n:70,  s:"x",    l:"Revenue multiplier" },
-              { n:90,  s:" days", l:"Time to results" },
-              { n:4,   s:"x+",   l:"ROAS improvement" },
-            ].map((s, i) => (
-              <ScrollReveal key={i} delay={i * 0.12}>
-                <div className="stat-card">
-                  <StatNumber n={s.n} suffix={s.s} start={statsInView} />
-                  <p style={{ fontSize:14, color:mutedText2 }}>{s.l}</p>
-                </div>
-              </ScrollReveal>
-            ))}
+          <div className="bcl-growth-grid">
+            <article className="bcl-growth-card">
+              <span className="bcl-growth-number">01</span>
+              <h3>Find the friction</h3>
+              <p>Audit the experience, messaging, speed, trust signals and path to conversion to identify what is holding performance back.</p>
+              <span className="bcl-growth-link">Research & audit ↗</span>
+            </article>
+            <article className="bcl-growth-card">
+              <span className="bcl-growth-number">02</span>
+              <h3>Fix the journey</h3>
+              <p>Improve the pages, offer clarity, landing experience and checkout flow so more visitors can take the next step.</p>
+              <span className="bcl-growth-link">Store optimization ↗</span>
+            </article>
+            <article className="bcl-growth-card">
+              <span className="bcl-growth-number">03</span>
+              <h3>Scale with intent</h3>
+              <p>Align paid acquisition and creative testing with the customer journey, then use performance signals to guide the next move.</p>
+              <span className="bcl-growth-link">Ads engineering ↗</span>
+            </article>
           </div>
         </div>
       </Section>
