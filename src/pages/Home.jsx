@@ -276,9 +276,9 @@ export default function Home() {
                 className="hero-t"
                 delay={0.1}
                 stagger={0.06}
-                style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,4.6vw,3.3rem)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:headingColor, wordBreak:"break-word", textAlign:"left", justifyContent:"flex-start" }}
+                style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2.8rem,7.2vw,5.8rem)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:headingColor, wordBreak:"break-word", textAlign:"left", justifyContent:"flex-start" }}
               />
-              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2rem,4.6vw,3.3rem)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:brandG, animation:"heroFadeUp .8s .5s ease both", animationFillMode:"forwards", opacity:0, textAlign:"left" }}>
+              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2.8rem,7.2vw,5.8rem)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:brandG, animation:"heroFadeUp .8s .5s ease both", animationFillMode:"forwards", opacity:0, textAlign:"left" }}>
                 <Typewriter words={["a revenue machine.", "a conversion engine.", "a ROAS multiplier.", "a scaling system."]} />
               </div>
             </div>
