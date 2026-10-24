@@ -1,6 +1,6 @@
 import { useState, useEffect, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Nav, Footer, WhatsAppButton, ChatWidget, ThemeContext, CookieConsent, LanguageBanner } from "./components.jsx";
+import { Nav, Footer, WhatsAppButton, ChatWidget, ThemeContext, ThemeToggle, CookieConsent, LanguageBanner } from "./components.jsx";
 import { CursorSystem, ClickRipple, ScrollProgress, NoiseOverlay } from "./AnimationSystem.jsx";
 import { usePageTracking } from "./NotificationSystem.js";
 import NotFound from "./NotFound.jsx";
@@ -38,7 +38,10 @@ function PageSkeleton() {
 }
 
 export default function App() {
-  const [dark] = useState(true);
+  const [dark, setDark] = useState(() => {
+    try { return localStorage.getItem("bcl-theme") !== "light"; }
+    catch { return true; }
+  });
   useEffect(() => {
     // Belt-and-suspenders against a known Chrome quirk: gradient-clipped
     // text (background-clip:text) can get "stuck" showing an unclipped
@@ -58,7 +61,11 @@ export default function App() {
       });
     }
   }, []);
-  const toggle = () => {};
+  const toggle = () => setDark(current => {
+    const next = !current;
+    try { localStorage.setItem("bcl-theme", next ? "dark" : "light"); } catch {}
+    return next;
+  });
   return (
     <ThemeContext.Provider value={{ dark, toggle }}>
       <BrowserRouter>
@@ -242,6 +249,7 @@ function AppInner({ dark }) {
       `}</style>
 
       <Nav />
+      <ThemeToggle />
       <div style={{ position:"relative", zIndex:1 }}>
         <Suspense fallback={<PageSkeleton />}>
           <Routes>

@@ -157,9 +157,9 @@ a:not([class]), button { -webkit-tap-highlight-color: transparent; }
 }
 
 
-/* Bode Conversion Lab design system: one intentional dark theme.
-   Ink, warm-white type, and the existing signature green are the only core
-   surfaces; no alternate light-mode styling is applied. */
+/* Bode Conversion Lab brand system.
+   Dark is the default identity: ink, warm white and electric green.
+   The existing light theme remains available through the theme control. */
 :root {
   color-scheme: dark;
   --bcl-bg: #040608;
@@ -171,8 +171,23 @@ a:not([class]), button { -webkit-tap-highlight-color: transparent; }
   --bcl-green-deep: #00a965;
   --bcl-border: rgba(244,246,243,.12);
 }
-html, body, #root { background: var(--bcl-bg) !important; color: var(--bcl-text); }
+[data-theme="light"] {
+  color-scheme: light;
+  --bcl-bg: #f5f4ef;
+  --bcl-surface: #ffffff;
+  --bcl-surface-raised: #eceee8;
+  --bcl-text: #151816;
+  --bcl-muted: #58615b;
+  --bcl-green: #008b50;
+  --bcl-green-deep: #006b3c;
+  --bcl-border: rgba(21,24,22,.14);
+}
+html { background: #040608; }
+body { background: var(--bg) !important; color: var(--fg) !important; }
+#root { background: var(--bg) !important; color: var(--fg) !important; }
+body:has([data-theme="light"]) { background: #f5f4ef !important; color: #151816 !important; }
 body { background-image: radial-gradient(ellipse at 78% 2%, rgba(0,255,136,.055), transparent 28%), radial-gradient(ellipse at 5% 38%, rgba(0,255,136,.025), transparent 25%); }
+body:has([data-theme="light"]) { background-image: radial-gradient(ellipse at 78% 2%, rgba(0,139,80,.045), transparent 28%); }
 ::selection { background: var(--bcl-green); color: #040608; }
 a { text-underline-offset: .2em; }
 .btn-g {
@@ -187,9 +202,28 @@ a { text-underline-offset: .2em; }
   border-color: var(--bcl-border) !important;
   color: var(--bcl-text) !important;
 }
+[data-theme="light"] .btn-ghost {
+  background: rgba(21,24,22,.025) !important;
+  color: var(--bcl-text) !important;
+}
 .glass, .stat-card, .offer-card {
   background-color: rgba(15,20,20,.78);
   border-color: var(--bcl-border);
+}
+[data-theme="light"] .glass,
+[data-theme="light"] .stat-card,
+[data-theme="light"] .offer-card {
+  background-color: rgba(255,255,255,.82);
+  border-color: var(--bcl-border);
+}
+.hero-split, .about-grid, .offer-grid, .partner-grid, .stat-grid, .hero-cards {
+  min-width: 0;
+}
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--bcl-green); outline-offset: 4px; }
+@media (max-width: 768px) {
+  .hero-split { row-gap: clamp(1.5rem, 6vw, 2.5rem) !important; }
+  .glass, .stat-card, .offer-card { border-radius: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
