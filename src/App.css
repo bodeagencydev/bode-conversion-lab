@@ -155,3 +155,42 @@ a:not([class]), button { -webkit-tap-highlight-color: transparent; }
   .hero-split .hero-t,
   .hero-split .hero-t + div { font-size: clamp(2.05rem, 9.7vw, 2.7rem) !important; }
 }
+
+
+/* Bode Conversion Lab design system: one intentional dark theme.
+   Ink, warm-white type, and the existing signature green are the only core
+   surfaces; no alternate light-mode styling is applied. */
+:root {
+  color-scheme: dark;
+  --bcl-bg: #040608;
+  --bcl-surface: #0b0f10;
+  --bcl-surface-raised: #111719;
+  --bcl-text: #f4f6f3;
+  --bcl-muted: #a5afaa;
+  --bcl-green: #00ff88;
+  --bcl-green-deep: #00a965;
+  --bcl-border: rgba(244,246,243,.12);
+}
+html, body, #root { background: var(--bcl-bg) !important; color: var(--bcl-text); }
+body { background-image: radial-gradient(ellipse at 78% 2%, rgba(0,255,136,.055), transparent 28%), radial-gradient(ellipse at 5% 38%, rgba(0,255,136,.025), transparent 25%); }
+::selection { background: var(--bcl-green); color: #040608; }
+a { text-underline-offset: .2em; }
+.btn-g {
+  background: var(--bcl-green) !important;
+  color: #03110a !important;
+  border: 1px solid var(--bcl-green) !important;
+  box-shadow: 0 8px 28px rgba(0,255,136,.12);
+}
+.btn-g:hover { box-shadow: 0 10px 36px rgba(0,255,136,.22); }
+.btn-ghost {
+  background: rgba(255,255,255,.025) !important;
+  border-color: var(--bcl-border) !important;
+  color: var(--bcl-text) !important;
+}
+.glass, .stat-card, .offer-card {
+  background-color: rgba(15,20,20,.78);
+  border-color: var(--bcl-border);
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
