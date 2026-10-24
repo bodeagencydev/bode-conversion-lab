@@ -20,3 +20,79 @@ div::-webkit-scrollbar { display: none; }
   .float-shape { display: none !important; }
   .btn-g, .btn-ghost { width: 100% !important; text-align: center !important; display: block !important; margin-bottom: 8px; }
 }
+
+/* ── Bode Conversion Lab visual refinement ──────────────────────────────
+   Additive presentation layer inspired by Bode AI Ad Lab's editorial,
+   cinematic art direction. Existing page content, integrations, routes,
+   component behavior, themes and animations remain intact. */
+:root {
+  --bcl-accent: #00ff88;
+  --bcl-accent-soft: rgba(0, 255, 136, .12);
+  --bcl-hairline: rgba(239, 236, 230, .12);
+  --bcl-surface: rgba(239, 236, 230, .035);
+  --bcl-radius: 16px;
+}
+
+html { scroll-behavior: smooth; }
+body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+::selection { background: #00ff88; color: #040608; }
+:focus-visible {
+  outline: 2px solid var(--bcl-accent);
+  outline-offset: 4px;
+}
+img { max-width: 100%; }
+button, input, textarea, select { font: inherit; }
+
+/* More deliberate rhythm for the split hero, without replacing its artwork. */
+.hero-split { isolation: isolate; }
+.hero-split > div { min-width: 0; }
+.hero-split .hero-t { max-width: 13ch; text-wrap: balance; }
+.hero-split input:focus-visible {
+  border-color: var(--bcl-accent) !important;
+  box-shadow: 0 0 0 4px rgba(0,255,136,.1);
+  outline: none;
+}
+
+/* Refined interactions: restrained lift, crisp borders, no forced recoloring. */
+.btn-g, .btn-ghost {
+  transition: transform .24s cubic-bezier(.2,.8,.2,1),
+              box-shadow .24s ease, border-color .24s ease,
+              background-color .24s ease;
+}
+.btn-g:active, .btn-ghost:active { transform: translateY(0) scale(.985); }
+a:not([class]), button { -webkit-tap-highlight-color: transparent; }
+
+/* Use a consistent premium panel language only where components already
+   declare a surface class. Preserve their current theme-aware colors. */
+.glass, .stat-card, .offer-card {
+  border-radius: var(--bcl-radius);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.glass:hover, .stat-card:hover, .offer-card:hover {
+  transition-duration: .24s;
+}
+.wwh-panel { box-shadow: 0 18px 55px rgba(0,0,0,.08); }
+.wwh-tab { min-height: 62px; }
+.wwh-tab:focus-visible { outline-offset: 3px; }
+
+/* Readable responsive layouts. Existing mobile menu and CTA behavior retained. */
+@media (min-width: 769px) {
+  .hero-split { gap: clamp(2rem, 5vw, 5rem) !important; }
+}
+@media (max-width: 900px) {
+  .hero-split { grid-template-columns: minmax(0,1fr) !important; }
+  .hero-split > div:first-child { max-width: 760px; }
+  .hero-split .hero-t { max-width: 17ch; }
+}
+@media (max-width: 768px) {
+  .hero-split { gap: 2rem !important; }
+  .hero-split .hero-t { max-width: 100%; }
+  .wwh-panel { border-radius: 14px !important; }
+  .glass, .stat-card, .offer-card { border-radius: 14px; }
+  input, textarea, select { max-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .btn-g, .btn-ghost, .glass, .stat-card, .offer-card { transition: none !important; }
+}
