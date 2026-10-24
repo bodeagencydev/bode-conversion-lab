@@ -96,3 +96,62 @@ a:not([class]), button { -webkit-tap-highlight-color: transparent; }
   html { scroll-behavior: auto; }
   .btn-g, .btn-ghost, .glass, .stat-card, .offer-card { transition: none !important; }
 }
+
+
+/* Responsive hero reconstruction: keep the oversized editorial feel without
+   allowing the static and typewriter lines to collide with the adjacent panel. */
+.hero-split {
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr) !important;
+  column-gap: clamp(2rem, 4vw, 4rem) !important;
+}
+.hero-split > div { min-width: 0; }
+.hero-split .hero-t {
+  max-width: 13ch;
+  font-size: clamp(2.55rem, 5.1vw, 4.5rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -.045em !important;
+  overflow-wrap: normal;
+  word-break: normal !important;
+  text-wrap: balance;
+}
+.hero-split .hero-t + div {
+  max-width: 100%;
+  font-size: clamp(2.55rem, 5.1vw, 4.5rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -.045em !important;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.hero-split .hero-t + div > * { max-width: 100%; }
+.hero-split p { overflow-wrap: anywhere; }
+.hero-scan-wrap { min-width: 0; width: 100%; }
+.hero-scan-wrap > * { min-width: 0; }
+@media (max-width: 1100px) and (min-width: 901px) {
+  .hero-split { grid-template-columns: minmax(0, 1fr) minmax(280px, .82fr) !important; }
+  .hero-split .hero-t,
+  .hero-split .hero-t + div {
+    font-size: clamp(2.5rem, 4.5vw, 3.6rem) !important;
+  }
+}
+@media (max-width: 900px) {
+  .hero-split { grid-template-columns: minmax(0, 1fr) !important; row-gap: 2.25rem !important; }
+  .hero-split > div:first-child { width: 100%; max-width: 760px; }
+  .hero-split .hero-t { max-width: 15ch; }
+  .hero-scan-wrap { max-width: 600px; margin: 0 auto; }
+}
+@media (max-width: 600px) {
+  .hero-split .hero-t,
+  .hero-split .hero-t + div {
+    font-size: clamp(2.35rem, 10vw, 3.5rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: -.05em !important;
+  }
+  .hero-split .hero-t { max-width: 12ch; }
+  .hero-split .hero-t + div { overflow-wrap: anywhere; }
+  .hero-scan-wrap { margin-top: .25rem !important; }
+  .hero-scan-wrap > div { max-width: 100%; }
+}
+@media (max-width: 380px) {
+  .hero-split .hero-t,
+  .hero-split .hero-t + div { font-size: clamp(2.05rem, 9.7vw, 2.7rem) !important; }
+}
