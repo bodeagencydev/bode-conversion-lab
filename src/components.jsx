@@ -293,7 +293,7 @@ export function Logo({ size = 40, textSize = 14 }) {
       </div>
       <div style={{ lineHeight:1.1 }}>
         <p style={{ fontSize:textSize, fontWeight:800, color:"var(--fg)", margin:0, fontFamily:"'Space Grotesk',sans-serif", letterSpacing:"-0.02em" }}>Bode</p>
-        <p style={{ fontSize:textSize*.78, fontWeight:700, color:"var(--g,#00ff88)", margin:0, letterSpacing:".06em", textTransform:"uppercase" }}>Conversion Lab</p>
+        <p style={{ fontSize:textSize*.78, fontWeight:700, color:"var(--bcl-green,#6CCB2E)", margin:0, letterSpacing:".06em", textTransform:"uppercase" }}>Conversion Lab</p>
       </div>
     </div>
   );
@@ -321,17 +321,17 @@ export function Nav() {
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
   const navBg = dark
-    ? (scrolled ? "rgba(4,6,8,.96)"       : "rgba(4,6,8,.75)")
-    : (scrolled ? "rgba(248,249,250,.97)" : "rgba(248,249,250,.88)");
-  const navG   = dark ? G  : "#00A35C";
-  const navGG  = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
-  const navGlow = dark ? "0,255,136" : "0,130,74";
+    ? (scrolled ? "rgba(9,12,10,.97)" : "rgba(9,12,10,.82)")
+    : (scrolled ? "rgba(246,247,243,.97)" : "rgba(246,247,243,.9)");
+  const navG   = dark ? "#6CCB2E" : "#2E7D1F";
+  const navGG  = "linear-gradient(135deg,#2E7D1F,#6CCB2E)";
+  const navGlow = "108,203,46";
 
   return (
     <>
       <nav style={{
         position:"fixed", top:0, left:0, right:0, zIndex:1000,
-        padding:"0 clamp(1rem,4vw,2.5rem)", height:60,
+        padding:"0 clamp(1.1rem,4vw,3rem)", height:72,
         display:"flex", alignItems:"center", justifyContent:"space-between",
         background:navBg, backdropFilter:"blur(20px)",
         borderBottom:".5px solid var(--divider,rgba(255,255,255,.06))",
@@ -357,7 +357,7 @@ export function Nav() {
             style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", lineHeight:1, background:navGG, color:"#040608", borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:`0 2px 14px rgba(${navGlow},.3)`, transition:"transform .2s,box-shadow .2s" }}
             onMouseEnter={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow=`0 6px 22px rgba(${navGlow},.5)`; }}
             onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow=`0 2px 14px rgba(${navGlow},.3)`; }}>
-            Apply Now →
+            Get free audit ↗
           </a>
         </div>
 
@@ -376,8 +376,8 @@ export function Nav() {
       </nav>
 
       <div style={{
-        position:"fixed", top:60, left:0, right:0, zIndex:999,
-        background: dark ? "rgba(4,6,8,.97)" : "rgba(248,249,250,.97)",
+        position:"fixed", top:72, left:0, right:0, zIndex:999,
+        background: dark ? "rgba(9,12,10,.98)" : "rgba(246,247,243,.98)",
         backdropFilter:"blur(20px)",
         borderBottom:".5px solid var(--divider,rgba(255,255,255,.06))",
         padding:menuOpen?"1.2rem 1.5rem 1.5rem":"0 1.5rem",
@@ -986,43 +986,20 @@ export function TestimonialTicker({ items = [] }) {
 }
 
 export function VideoTips({ items = [] }) {
-  const { dark } = useTheme();
-  const solidG = dark ? "#00ff88" : "#00A35C";
-  const tint   = dark ? "0,255,136" : "0,130,74";
-  const scrollRef = useRef(null);
-  const [playing, setPlaying] = useState(null);
-  const scroll = dir => { if (scrollRef.current) scrollRef.current.scrollBy({ left:dir*280, behavior:"smooth" }); };
   return (
-    <div style={{ position:"relative" }}>
-      <button onClick={() => scroll(-1)} style={{ position:"absolute", left:-16, top:"40%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:`rgba(${tint},.12)`, border:`.5px solid rgba(${tint},.4)`, color:solidG, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
-      <button onClick={() => scroll(1)}  style={{ position:"absolute", right:-16, top:"40%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", background:`rgba(${tint},.12)`, border:`.5px solid rgba(${tint},.4)`, color:solidG, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
-      <div ref={scrollRef} style={{ display:"flex", gap:"1.5rem", overflowX:"auto", scrollSnapType:"x mandatory", paddingBottom:"1rem", scrollbarWidth:"none" }}>
-        {items.map((v, i) => (
-          <div key={i}
-            style={{ flexShrink:0, width:240, scrollSnapAlign:"start", background:"var(--card-bg,rgba(255,255,255,.06))", border:".5px solid var(--card-border,rgba(255,255,255,.1))", borderRadius:16, overflow:"hidden", transition:"transform .3s,border-color .3s" }}
-            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-5px)"; e.currentTarget.style.borderColor=`rgba(${tint},.4)`; }}
-            onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.borderColor="var(--card-border,rgba(255,255,255,.1))"; }}>
-            <div style={{ width:"100%", aspectRatio:"9/16", position:"relative", background:"#000" }}>
-              {playing === i
-                ? <iframe src={`https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0`} title={v.title} allow="autoplay" allowFullScreen style={{ width:"100%", height:"100%", border:"none", position:"absolute", inset:0 }}/>
-                : <>
-                    <img src={v.thumb} alt={v.title} loading="lazy" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", transform:"scale(1.18)" }}/>
-                    <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", background:"rgba(0,0,0,.3)" }} onClick={() => setPlaying(i)}>
-                      <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(255,0,0,.9)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M6 4L16 10L6 16Z"/></svg>
-                      </div>
-                    </div>
-                    <div style={{ position:"absolute", top:8, left:8, background:"rgba(0,0,0,.75)", borderRadius:100, padding:"2px 8px", fontSize:10, color:G, fontWeight:700 }}>{v.tag}</div>
-                  </>
-              }
-            </div>
-            <div style={{ padding:".9rem" }}>
-              <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:".85rem", fontWeight:700, color:"var(--fg,#f0f0f0)", marginBottom:".3rem", lineHeight:1.4 }}>{v.title}</h3>
-              <p style={{ fontSize:12, color:"var(--muted2,rgba(255,255,255,.4))", lineHeight:1.5, margin:0 }}>{v.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="bcl-reels-grid" aria-label="Bode Conversion Lab Instagram videos">
+      {items.map((v, i) => (
+        <div className="bcl-reel-frame" key={v.reelId || i}>
+          <iframe
+            src={`https://www.instagram.com/reel/${v.reelId}/embed/?hidecaption=true`}
+            title={`Bode Conversion Lab Instagram Reel ${i + 1}`}
+            loading={i < 2 ? "eager" : "lazy"}
+            allow="autoplay; encrypted-media; picture-in-picture; web-share"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        </div>
+      ))}
     </div>
   );
 }
