@@ -250,7 +250,7 @@ export default function Home() {
       />
 
       {/* ── HERO ── */}
-      <section style={{ position:"relative", minHeight:"92vh", display:"flex", alignItems:"center", padding:"clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 3rem", overflow:"hidden" }}>
+      <section className="bcl-hero" style={{ position:"relative", minHeight:"92vh", display:"flex", alignItems:"center", padding:"clamp(4rem,8vw,6rem) clamp(1rem,4vw,2rem) 3rem", overflow:"hidden" }}>
         <HeroBackdrop dark={dark} />
         <div style={{ maxWidth:1180, margin:"0 auto", width:"100%", display:"grid", gridTemplateColumns:"1.05fr 0.95fr", gap:"clamp(2rem,5vw,4rem)", alignItems:"center" }} className="hero-split">
 
@@ -265,13 +265,13 @@ export default function Home() {
                 letterSpacing:".03em", marginBottom:"1.6rem"
               }}>
                 <span style={{ width:6, height:6, background:brandG, borderRadius:"50%" }}/>
-                STORE_AUDIT.STATUS — ACTIVE
+                CONVERSION SYSTEMS / BODE LAB
               </span>
             </ScrollReveal>
 
             <div style={{ marginBottom:"1.2rem" }}>
               <MaskedHeading
-                text="We turn your website into"
+                text="Turn more visitors into"
                 tag="h1"
                 className="hero-t"
                 delay={0.1}
@@ -279,13 +279,13 @@ export default function Home() {
                 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2.65rem,5.2vw,4.55rem)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:headingColor, wordBreak:"break-word", textAlign:"left", justifyContent:"flex-start" }}
               />
               <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:"clamp(2.65rem,5.2vw,4.55rem)", fontWeight:700, lineHeight:1.1, letterSpacing:"-.02em", color:brandG, animation:"heroFadeUp .8s .5s ease both", animationFillMode:"forwards", opacity:0, textAlign:"left" }}>
-                <Typewriter words={["a revenue machine.", "a conversion engine.", "a ROAS multiplier.", "a scaling system."]} />
+                <Typewriter words={["paying customers.", "qualified leads.", "repeat buyers.", "real growth."]} />
               </div>
             </div>
 
             <ScrollReveal delay={0.3}>
               <p style={{ fontSize:"clamp(0.9rem,1.6vw,1.02rem)", color:mutedText, lineHeight:1.75, maxWidth:460, margin:"0 0 2rem" }}>
-                We don't run ads. We engineer ROAS, finding every leak between your visitors and the action that pays you (a sale, a call, a booking or a donation), then fixing it as one compounding system.</p>
+                Bode Conversion Lab connects store optimization, paid acquisition and conversion strategy into one clear growth system. Find the friction, fix what matters, and make more of the traffic you already earn.</p>
             </ScrollReveal>
 
             <ScrollReveal delay={0.4}>
@@ -294,17 +294,17 @@ export default function Home() {
                   <input
                     type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false}
                     value={scanUrl} onChange={e => setScanUrl(e.target.value)}
-                    placeholder="yourstore.com" aria-label="Your store URL"
+                    placeholder="https://yourwebsite.com" aria-label="Your website URL"
                     style={{ flex:"1 1 200px", minWidth:0, padding:"14px 16px", borderRadius:10, fontSize:15, fontFamily:"'IBM Plex Mono',monospace",
                       border:`1px solid ${dark ? "rgba(239,236,230,.22)" : "rgba(23,20,15,.32)"}`,
                       background: dark ? "rgba(239,236,230,.05)" : "rgba(255,255,255,.7)", color:headingColor, outline:"none" }}
                   />
-                  <button type="submit" className="btn-g" style={{ flex:"0 0 auto", cursor:"pointer", whiteSpace:"nowrap" }}>Scan my store free →</button>
+                  <button type="submit" className="btn-g" style={{ flex:"0 0 auto", cursor:"pointer", whiteSpace:"nowrap" }}>Get my free audit →</button>
                 </form>
                 <div style={{ display:"flex", flexWrap:"wrap", alignItems:"center", gap:"6px 18px" }}>
                   <a href="https://calendly.com/bodeagencyofficial/30min" target="_blank" rel="noopener noreferrer"
                     style={{ fontSize:13, color:brandG, textDecoration:"none", fontWeight:600 }}>
-                    Or book a free strategy call →
+                    Book a strategy call →
                   </a>
                   <Link to="/past-projects"
                     style={{ fontSize:13, color:mutedText2, textDecoration:"underline", textUnderlineOffset:4, textDecorationThickness:"1px", display:"inline-block" }}>
@@ -326,16 +326,16 @@ export default function Home() {
                 padding:"1.1rem 1.2rem", fontFamily:"'IBM Plex Mono',monospace",
               }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem", paddingBottom:"0.8rem", borderBottom:`1px solid ${dark ? "rgba(239,236,230,.1)" : "rgba(23,20,15,.16)"}` }}>
-                  <span style={{ fontSize:11, color:mutedText3, letterSpacing:".04em" }}>SCAN://your-website.com</span>
+                  <span style={{ fontSize:11, color:mutedText3, letterSpacing:".04em" }}>AUDIT_PREVIEW://</span>
                   <span style={{ fontSize:10, color:brandG }}>● LIVE</span>
                 </div>
 
                 {[
                   { label:"Checkout friction",   status:"3 issues found", tone:"rust" },
-                  { label:"Mobile page speed",   status:"2.1s → 0.6s",    tone:"good" },
+                  { label:"Mobile experience",   status:"Review",    tone:"good" },
                   { label:"Ad account targeting",status:"Rebuilt",        tone:"good" },
                   { label:"Trust signals",       status:"Missing",        tone:"rust" },
-                  { label:"ROAS",                status:"0.8x → 4.2x",    tone:"good" },
+                  { label:"Conversion journey", status:"Map & improve", tone:"good" },
                 ].map((row, i) => (
                   <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, padding:"9px 0", borderBottom: i < 4 ? `1px solid ${dark ? "rgba(239,236,230,.06)" : "rgba(23,20,15,.1)"}` : "none" }}>
                     <div style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -363,12 +363,11 @@ export default function Home() {
                 boxShadow: dark ? "0 8px 24px rgba(0,0,0,.45)" : "0 8px 24px rgba(0,0,0,.12)",
                 zIndex:2,
               }}>
-                <SvgGradText fontFamily="'Space Grotesk',sans-serif" fontSize="1.35rem" fontWeight={800}>4x+</SvgGradText>
-                <span style={{ fontSize:9.5, color:mutedText3, lineHeight:1.3, maxWidth:72 }}>avg ROAS improvement</span>
+                <span style={{ fontSize:11, color:brandG, fontWeight:700, letterSpacing:".08em" }}>THE BODE METHOD</span>
               </div>
 
               <p style={{ fontSize:10.5, color:mutedText3, marginTop:10, fontFamily:"'IBM Plex Mono',monospace", textAlign:"center" }}>
-                — sample output from a real store audit —
+                — illustrative audit preview —
               </p>
             </div>
           </ScrollReveal>
@@ -565,9 +564,9 @@ export default function Home() {
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <ScrollReveal delay={0}>
             <div style={{ textAlign:"center", marginBottom:"3rem" }}>
-              <SectionLabel>Bode on Instagram</SectionLabel>
-              <Heading size="2.4rem">Ideas from the lab, in motion.</Heading>
-              <p style={{ fontSize:14, color:mutedText2, marginTop:".75rem" }}>Watch Bode Conversion Lab Reels. Select a card to load the video, or open it directly on Instagram.</p>
+              <SectionLabel>From Bode</SectionLabel>
+              <Heading size="2.4rem">Watch the work.</Heading>
+              <p style={{ fontSize:14, color:mutedText2, marginTop:".75rem" }}>Short-form ideas and perspectives from Bode Conversion Lab.</p>
             </div>
           </ScrollReveal>
           <VideoTips items={VIDEO_TIPS} />
