@@ -242,7 +242,6 @@ export default function Home() {
 
   return (
     <PageWrapper>
-      <FreeRedesignOffer />
       <SEO
         title="Conversion Rate Optimization & Performance Marketing Agency"
         description="Bode Conversion Lab is a full-service conversion rate optimization and performance marketing agency. We audit, fix and scale websites and online stores across every industry using the SRS (Sales Recovery System) methodology. Free website audit available."
