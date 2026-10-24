@@ -1,6 +1,6 @@
 import { useState, useEffect, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Nav, Footer, WhatsAppButton, ChatWidget, ThemeToggle, ThemeContext, CookieConsent, LanguageBanner } from "./components.jsx";
+import { Nav, Footer, WhatsAppButton, ChatWidget, ThemeContext, CookieConsent, LanguageBanner } from "./components.jsx";
 import { CursorSystem, ClickRipple, ScrollProgress, NoiseOverlay } from "./AnimationSystem.jsx";
 import { usePageTracking } from "./NotificationSystem.js";
 import NotFound from "./NotFound.jsx";
@@ -38,10 +38,7 @@ function PageSkeleton() {
 }
 
 export default function App() {
-  const [dark, setDark] = useState(() => {
-    try { const s = localStorage.getItem("bcl-theme"); if (s !== null) return s === "dark"; } catch {}
-    return true;
-  });
+  const [dark] = useState(true);
   useEffect(() => {
     // Belt-and-suspenders against a known Chrome quirk: gradient-clipped
     // text (background-clip:text) can get "stuck" showing an unclipped
@@ -61,15 +58,7 @@ export default function App() {
       });
     }
   }, []);
-  const toggle = () => setDark(v => {
-    const next = !v;
-    // A light/dark preference is a functional UI setting, not tracking —
-    // it doesn't identify or profile the visitor, so it's saved right away
-    // rather than waiting on the cookie-consent banner (see CookieConsent
-    // in components.jsx, which no longer touches this key at all).
-    try { localStorage.setItem("bcl-theme", next ? "dark" : "light"); } catch {}
-    return next;
-  });
+  const toggle = () => {};
   return (
     <ThemeContext.Provider value={{ dark, toggle }}>
       <BrowserRouter>
@@ -281,7 +270,6 @@ function AppInner({ dark }) {
       <LanguageBanner />
       <PopupSystem />
       <CookieConsent />
-      <ThemeToggle />
     </div>
   );
 }
