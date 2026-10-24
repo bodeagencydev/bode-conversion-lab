@@ -293,7 +293,7 @@ export function Logo({ size = 40, textSize = 14 }) {
       </div>
       <div style={{ lineHeight:1.1 }}>
         <p style={{ fontSize:textSize, fontWeight:800, color:"var(--fg)", margin:0, fontFamily:"'Space Grotesk',sans-serif", letterSpacing:"-0.02em" }}>Bode</p>
-        <p style={{ fontSize:textSize*.78, fontWeight:700, color:"var(--g,#00ff88)", margin:0, letterSpacing:".06em", textTransform:"uppercase" }}>Conversion Lab</p>
+        <p style={{ fontSize:textSize*.78, fontWeight:700, color:"var(--bcl-green,#6CCB2E)", margin:0, letterSpacing:".06em", textTransform:"uppercase" }}>Conversion Lab</p>
       </div>
     </div>
   );
@@ -321,17 +321,17 @@ export function Nav() {
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
   const navBg = dark
-    ? (scrolled ? "rgba(4,6,8,.96)"       : "rgba(4,6,8,.75)")
-    : (scrolled ? "rgba(248,249,250,.97)" : "rgba(248,249,250,.88)");
-  const navG   = dark ? G  : "#00A35C";
-  const navGG  = dark ? GG : "linear-gradient(135deg,#00A35C,#00814A)";
-  const navGlow = dark ? "0,255,136" : "0,130,74";
+    ? (scrolled ? "rgba(9,12,10,.97)" : "rgba(9,12,10,.82)")
+    : (scrolled ? "rgba(246,247,243,.97)" : "rgba(246,247,243,.9)");
+  const navG   = dark ? "#6CCB2E" : "#2E7D1F";
+  const navGG  = "linear-gradient(135deg,#2E7D1F,#6CCB2E)";
+  const navGlow = "108,203,46";
 
   return (
     <>
       <nav style={{
         position:"fixed", top:0, left:0, right:0, zIndex:1000,
-        padding:"0 clamp(1rem,4vw,2.5rem)", height:60,
+        padding:"0 clamp(1.1rem,4vw,3rem)", height:72,
         display:"flex", alignItems:"center", justifyContent:"space-between",
         background:navBg, backdropFilter:"blur(20px)",
         borderBottom:".5px solid var(--divider,rgba(255,255,255,.06))",
@@ -357,7 +357,7 @@ export function Nav() {
             style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", lineHeight:1, background:navGG, color:"#040608", borderRadius:8, padding:".55rem 1.1rem", fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:`0 2px 14px rgba(${navGlow},.3)`, transition:"transform .2s,box-shadow .2s" }}
             onMouseEnter={e => { e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow=`0 6px 22px rgba(${navGlow},.5)`; }}
             onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow=`0 2px 14px rgba(${navGlow},.3)`; }}>
-            Apply Now →
+            Get free audit ↗
           </a>
         </div>
 
@@ -376,8 +376,8 @@ export function Nav() {
       </nav>
 
       <div style={{
-        position:"fixed", top:60, left:0, right:0, zIndex:999,
-        background: dark ? "rgba(4,6,8,.97)" : "rgba(248,249,250,.97)",
+        position:"fixed", top:72, left:0, right:0, zIndex:999,
+        background: dark ? "rgba(9,12,10,.98)" : "rgba(246,247,243,.98)",
         backdropFilter:"blur(20px)",
         borderBottom:".5px solid var(--divider,rgba(255,255,255,.06))",
         padding:menuOpen?"1.2rem 1.5rem 1.5rem":"0 1.5rem",
