@@ -267,14 +267,12 @@ export function SEO({ title, description, path = "", article = null, faq = null,
 }
 
 const NAV_LINKS = [
-  { path:"/",             label:"Home" },
-  { path:"/about",        label:"About" },
-  { path:"/srs",          label:"SRS" },
-  { path:"/past-projects", label:"Past Projects" },
-  { path:"/pricing",      label:"Pricing" },
-  { path:"/blog",         label:"Blog" },
-  { path:"/audit",        label:"Free Audit" },
-  { path:"/contact",      label:"Contact" },
+  { path:"/",              label:"Home" },
+  { path:"/services",      label:"Services" },
+  { path:"/past-projects", label:"Work" },
+  { path:"/about",         label:"About" },
+  { path:"/pricing",       label:"Pricing" },
+  { path:"/contact",       label:"Contact" },
 ];
 
 export function Logo({ size = 40, textSize = 14 }) {
