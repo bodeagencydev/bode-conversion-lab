@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useLocation, useParams } from "react-router-dom";
 import { ThemeContext } from "./components.jsx";
 import "./App.css";
 const Home=lazy(()=>import("./pages/Home.jsx"));
@@ -7,9 +7,9 @@ const Services=lazy(()=>import("./pages/Services.jsx"));
 const About=lazy(()=>import("./pages/About.jsx"));
 const ServiceDetail=lazy(()=>import("./pages/ServiceDetail.jsx"));
 const SRS=lazy(()=>import("./pages/SRS.jsx"));
-const Projects=lazy(()=>import("./pages/PastProjects.jsx").then(m=>({default:m.PastProjects})));
+const Projects=lazy(()=>import("./pages/PastProjects.jsx").then(m=>({default:function ProjectsRoute(){const {id}=useParams();return id?<m.PastProjectDetail/>:<m.PastProjects/>;}})));
 const Pricing=lazy(()=>import("./pages/Pricing.jsx"));
-const Blog=lazy(()=>import("./pages/Blog.jsx").then(m=>({default:m.Blog})));
+const Blog=lazy(()=>import("./pages/Blog.jsx").then(m=>({default:function BlogRoute(){const {id}=useParams();return id?<m.BlogPost/>:<m.Blog/>;}})));
 const Contact=lazy(()=>import("./pages/Contact.jsx"));
 const Audit=lazy(()=>import("./pages/Audit.jsx"));
 const Subscribe=lazy(()=>import("./pages/Subscribe.jsx"));
