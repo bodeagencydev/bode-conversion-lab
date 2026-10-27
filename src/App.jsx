@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Nav, Footer, WhatsAppButton, ChatWidget, ThemeContext, ThemeToggle, CookieConsent, LanguageBanner } from "./components.jsx";
 import { CursorSystem, ClickRipple, ScrollProgress, NoiseOverlay } from "./AnimationSystem.jsx";
 import { usePageTracking } from "./NotificationSystem.js";
-import "./StudioRedesign.css";
 import NotFound from "./NotFound.jsx";
 import PopupSystem from "./PopupSystem.jsx";
 
