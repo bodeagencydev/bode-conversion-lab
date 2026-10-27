@@ -53,3 +53,13 @@
  .studio-feature h3{font-size:2rem}
  .studio-section{padding-top:4.8rem;padding-bottom:4.8rem}
 }
+
+
+/* Featured video work */
+.studio-video-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem}
+.studio-video-card{min-width:0;border:1px solid var(--bcl-border,rgba(255,255,255,.13));background:var(--bcl-surface,#101512);overflow:hidden}
+.studio-video-card video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#050705}
+.studio-video-card>div{padding:1.3rem 1.4rem 1.5rem}
+.studio-video-card>div span{font:10px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:var(--studio-green)}
+.studio-video-card h3{font:600 clamp(1.25rem,2vw,1.8rem)/1.2 'Space Grotesk',sans-serif;letter-spacing:-.04em;margin:.65rem 0 0}
+@media(max-width:680px){.studio-video-grid{grid-template-columns:1fr}.studio-video-card>div{padding:1rem}}
