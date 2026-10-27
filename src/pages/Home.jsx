@@ -31,6 +31,22 @@ export default function Home() {
     <div className="studio-feature-grid">{areas.map(a=><Link className="studio-feature" key={a[3]} to={"/services/"+a[3]}><span className="studio-feature-number">{a[0]}</span><span className="studio-feature-label">{a[1]}</span><h3>{a[2]}</h3><span className="studio-feature-arrow">Explore service ↗</span></Link>)}</div>
    </section>
    <section className="studio-work-band"><div><p className="studio-eyebrow">REAL WORK. CLEAR THINKING.</p><h2>See what better<br/><em>can look like.</em></h2></div><p>Explore selected project proof and the thinking behind the work.</p><Link className="studio-button studio-button-light" to="/past-projects">View our work <span>↗</span></Link></section>
+   <section className="studio-section studio-video-work">
+    <div className="studio-section-head">
+     <div><p className="studio-eyebrow">SELECTED VIDEO WORK</p><h2>Made to be<br/><em>remembered.</em></h2></div>
+     <div className="studio-section-side"><p>A look at the creative work behind clearer brand stories and stronger marketing.</p><Link className="studio-arrow-link" to="/past-projects">Explore all work <span>↗</span></Link></div>
+    </div>
+    <div className="studio-video-grid">
+     <article className="studio-video-card">
+      <video src="https://bodeconversionlab.vercel.app/bode_final_1080p.mp4" controls playsInline preload="metadata" aria-label="Bode Conversion Lab featured video" />
+      <div><span>01 / BRAND FILM</span><h3>Bode Conversion Film</h3></div>
+     </article>
+     <article className="studio-video-card">
+      <video src="https://bodeconversionlab.vercel.app/viral_edit_1080p.mp4" controls playsInline preload="metadata" aria-label="Featured creative ad edit" />
+      <div><span>02 / CREATIVE EDIT</span><h3>Creative Ad Edit</h3></div>
+     </article>
+    </div>
+   </section>
    <section className="studio-section studio-process"><div className="studio-section-head"><div><p className="studio-eyebrow">A SIMPLE PROCESS</p><h2>Clarity before<br/><em>complexity.</em></h2></div><p className="studio-process-note">No pile of confusing tactics. A focused path from diagnosis to improvement.</p></div>
     <div className="studio-steps"><article><span>01</span><h3>Find the friction</h3><p>Understand where people hesitate, drop off or lose trust.</p></article><article><span>02</span><h3>Make the fix</h3><p>Prioritize changes that can improve the journey.</p></article><article><span>03</span><h3>Build on progress</h3><p>Use evidence to guide what comes next.</p></article></div>
    </section>
