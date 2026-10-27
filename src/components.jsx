@@ -267,14 +267,12 @@ export function SEO({ title, description, path = "", article = null, faq = null,
 }
 
 const NAV_LINKS = [
-  { path:"/",             label:"Home" },
-  { path:"/about",        label:"About" },
-  { path:"/srs",          label:"SRS" },
-  { path:"/past-projects", label:"Past Projects" },
-  { path:"/pricing",      label:"Pricing" },
-  { path:"/blog",         label:"Blog" },
-  { path:"/audit",        label:"Free Audit" },
-  { path:"/contact",      label:"Contact" },
+  { path:"/",              label:"Home" },
+  { path:"/services",      label:"Services" },
+  { path:"/past-projects", label:"Work" },
+  { path:"/about",         label:"About" },
+  { path:"/pricing",       label:"Pricing" },
+  { path:"/contact",       label:"Contact" },
 ];
 
 export function Logo({ size = 40, textSize = 14 }) {
@@ -986,19 +984,20 @@ export function TestimonialTicker({ items = [] }) {
 }
 
 export function VideoTips({ items = [] }) {
+  const featuredVideos = [
+    { src: "/bode_final_1080p.mp4", title: "Bode Conversion Film", label: "01 / BRAND FILM" },
+    { src: "/viral_edit_1080p.mp4", title: "Creative Ad Edit", label: "02 / CREATIVE EDIT" },
+  ];
   return (
-    <div className="bcl-reels-grid" aria-label="Bode Conversion Lab Instagram videos">
-      {items.map((v, i) => (
-        <div className="bcl-reel-frame" key={v.reelId || i}>
-          <iframe
-            src={`https://www.instagram.com/reel/${v.reelId}/embed/?hidecaption=true`}
-            title={`Bode Conversion Lab Instagram Reel ${i + 1}`}
-            loading={i < 2 ? "eager" : "lazy"}
-            allow="autoplay; encrypted-media; picture-in-picture; web-share"
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
-        </div>
+    <div className="bcl-reels-grid bcl-featured-video-grid" aria-label="Bode Conversion Lab featured videos">
+      {featuredVideos.map((video) => (
+        <article className="bcl-featured-video" key={video.src}>
+          <video src={video.src} controls playsInline preload="metadata" aria-label={video.title} />
+          <div className="bcl-featured-video-caption">
+            <span>{video.label}</span>
+            <h3>{video.title}</h3>
+          </div>
+        </article>
       ))}
     </div>
   );

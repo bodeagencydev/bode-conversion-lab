@@ -3,10 +3,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Nav, Footer, WhatsAppButton, ChatWidget, ThemeContext, ThemeToggle, CookieConsent, LanguageBanner } from "./components.jsx";
 import { CursorSystem, ClickRipple, ScrollProgress, NoiseOverlay } from "./AnimationSystem.jsx";
 import { usePageTracking } from "./NotificationSystem.js";
+import "./StudioRedesign.css";
 import NotFound from "./NotFound.jsx";
 import PopupSystem from "./PopupSystem.jsx";
 
 const Home            = lazy(() => import("./pages/Home.jsx"));
+const Services        = lazy(() => import("./pages/Services.jsx"));
 const About           = lazy(() => import("./pages/About.jsx"));
 const ServiceDetail   = lazy(() => import("./pages/ServiceDetail.jsx"));
 const SRS              = lazy(() => import("./pages/SRS.jsx"));
@@ -254,6 +256,7 @@ function AppInner({ dark }) {
         <Suspense fallback={<PageSkeleton />}>
           <Routes>
             <Route path="/"                 element={<Home />} />
+            <Route path="/services"         element={<Services />} />
             <Route path="/about"            element={<About />} />
             <Route path="/services/:id"     element={<ServiceDetail />} />
             <Route path="/past-projects"     element={<PastProjects />} />
