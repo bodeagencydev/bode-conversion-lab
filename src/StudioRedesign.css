@@ -63,3 +63,13 @@
 .studio-video-card>div span{font:10px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:var(--studio-green)}
 .studio-video-card h3{font:600 clamp(1.25rem,2vw,1.8rem)/1.2 'Space Grotesk',sans-serif;letter-spacing:-.04em;margin:.65rem 0 0}
 @media(max-width:680px){.studio-video-grid{grid-template-columns:1fr}.studio-video-card>div{padding:1rem}}
+
+
+/* Temporary portfolio swap: use the two hosted MP4s in place of Instagram embeds. */
+.bcl-featured-video-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem}
+.bcl-featured-video{min-width:0;overflow:hidden;border:1px solid var(--bcl-border,rgba(255,255,255,.13));background:var(--bcl-surface,#101512)}
+.bcl-featured-video video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#050705}
+.bcl-featured-video-caption{padding:1.15rem 1.25rem 1.35rem}
+.bcl-featured-video-caption span{font:10px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:var(--studio-green,#6CCB2E)}
+.bcl-featured-video-caption h3{font:600 clamp(1.2rem,2vw,1.7rem)/1.2 'Space Grotesk',sans-serif;letter-spacing:-.04em;margin:.55rem 0 0}
+@media(max-width:680px){.bcl-featured-video-grid{grid-template-columns:1fr}}
