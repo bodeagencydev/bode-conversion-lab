@@ -1,23 +1,20 @@
 # Bode Conversion Lab
 
-A clean rebuild of the public Bode Conversion Lab website.
-
-## Direction
-- E-commerce growth, store experience, marketing execution, creative production, retention and analytics.
-- Editorial layout, restrained interactions, accessible responsive design.
-- Mobile-first checks and no fabricated testimonials or performance claims.
-- Existing portfolio evidence and brand assets are retained under `public/`.
+Multi-page agency website for Bode Conversion Lab.
 
 ## Development
 - `npm install`
 - `npm run dev`
 - `npm run build`
 
-## Contact
-Public contact email: bodeagencyofficial@gmail.com
+## Website structure
+Home, services overview, six dedicated service pages, selected work, individual portfolio records, about, contact and privacy.
 
-## Important implementation notes
-- The project enquiry form prepares an email in the visitor's own email application. It does not silently send or store submitted data.
-- The current release is English-only. Additional languages should be launched as fully translated, crawlable locale routes with matching metadata and `hreflang`, not as a partial machine-translated toggle.
-- The portfolio figures are carried forward from the existing site content. Keep their supporting records available and confirm permissions before expanding their use.
-- The previous API handlers, admin pages, scan utilities, tracking scripts and cron configuration are intentionally not part of this rebuilt public site. Reintroduce only after a specific need, security review and test plan.
+## Contact form
+The enquiry form opens a prefilled email draft addressed to bodeagencyofficial@gmail.com. It does not submit or store data on the website.
+
+## Portfolio evidence
+Historical performance figures are retained from previous site material. Confirm source reports, measurement periods and permissions before describing them as verified case studies.
+
+## Technical notes
+Routes use the Vercel rewrite to serve the React app. The app renders distinct page content based on the current path and updates title, description and canonical metadata client-side. For full server-rendered or statically prerendered metadata, add a prerendering or framework build step.
