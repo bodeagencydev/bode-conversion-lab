@@ -17,5 +17,5 @@
 
 /* Persistent mobile contact access. Kept quiet so it supports, rather than competes with, the page. */
 .mobile-sticky-cta{display:none}
-@media(max-width:760px){.mobile-sticky-cta{position:fixed;z-index:40;left:14px;right:14px;bottom:calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;min-height:50px;padding:0 18px;background:var(--ink,#171a16);color:#fff;text-decoration:none;font-size:13px;font-weight:700;border:1px solid #ffffff20;box-shadow:0 8px 28px #1114}.mobile-sticky-cta span{font-size:17px}.site-shell{padding-bottom:74px}.contact-form button:disabled{opacity:.65;cursor:wait}.form-note[role=status]{line-height:1.65}}
+@media(max-width:760px){.mobile-sticky-cta{position:fixed;z-index:40;left:14px;right:14px;bottom:calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;min-height:50px;padding:0 18px;background:var(--ink,#171a16);color:#fff;text-decoration:none;font-size:13px;font-weight:700;border:1px solid #ffffff20;box-shadow:0 8px 28px #1114}.site-shell{padding-bottom:74px}.site-shell.contact-route{padding-bottom:0}.contact-form button:disabled{opacity:.65;cursor:wait}.form-note[role=status]{line-height:1.65}}
 @media(prefers-reduced-motion:reduce){.mobile-sticky-cta{transition:none}}
