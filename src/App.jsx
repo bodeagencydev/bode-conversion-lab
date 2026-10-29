@@ -133,7 +133,14 @@ function NotFound() { return <PageIntro eyebrow="PAGE NOT FOUND" title="This pag
 
 export default function App() {
   const path = window.location.pathname.replace(/\/$/, "") || "/";
-  const current = pages[path] || {};
+  const caseRecord = path.startsWith("/work/") ? work.find(w => "/work/" + w.slug === path) : null;
+  const current = pages[path] || (caseRecord ? {
+    title: caseRecord.name + " portfolio record",
+    description: "Review the available portfolio record for " + caseRecord.name + " from Bode Conversion Lab, with context on historical performance figures."
+  } : services.find(s => "/" + s.slug === path) ? {
+    title: services.find(s => "/" + s.slug === path).title,
+    description: services.find(s => "/" + s.slug === path).summary
+  } : { title: "Page not found", description: "The requested page could not be found on Bode Conversion Lab." });
   useEffect(() => {
     document.title = (current.title ? current.title + " | " : "") + "Bode Conversion Lab";
     let desc = document.querySelector('meta[name="description"]');
