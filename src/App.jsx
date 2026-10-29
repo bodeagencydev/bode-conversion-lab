@@ -42,7 +42,6 @@ function SectionLabel({ children }) {
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", store: "", platform: "Not sure yet", challenge: "Improve store conversion" });
-  const [language, setLanguage] = useState("en");
 
   const nav = [
     ["Services", "#services"],
@@ -70,18 +69,11 @@ export default function App() {
           <img src="/logo-mark.png" alt="" />
           <span className="brand-wordmark"><strong>BODE</strong><small>CONVERSION LAB</small></span>
         </a>
-        <nav className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="Main navigation">
+        <nav id="main-navigation" className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="Main navigation">
           {nav.map(([label, href]) => <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>)}
           <a className="nav-cta" href="#contact" onClick={() => setMenuOpen(false)}>Discuss your store <Arrow diagonal /></a>
         </nav>
         <div className="header-tools">
-          <label className="language-select">
-            <span className="sr-only">Interface language</span>
-            <select value={language} onChange={(e) => setLanguage(e.target.value)} aria-label="Language">
-              <option value="en">EN</option>
-              <option value="fr" disabled>FR · soon</option>
-            </select>
-          </label>
           <button className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="main-navigation" onClick={() => setMenuOpen(!menuOpen)}>
             <span>{menuOpen ? "Close" : "Menu"}</span><i aria-hidden="true">{menuOpen ? "×" : "+"}</i>
           </button>
