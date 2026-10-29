@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const dist = path.resolve("dist");
-const site = "https://bodeconversionlab.vercel.app";
+const site = (process.env.VITE_SITE_URL || "https://bodeconversionlab.vercel.app").replace(/\/$/, "");
 const shareImage = site + "/og-image.png";
 
 const pages = {
@@ -76,7 +76,7 @@ const baseHtml = await readFile(path.join(dist, "index.html"), "utf8");
 
 for (const [route, metadata] of Object.entries(pages)) {
   const canonical = site + (route === "/" ? "/" : route);
-  let html = baseHtml;
+  let html = baseHtml.replaceAll("https://bodeconversionlab.vercel.app", site);
   html = html.replace(/<title>[^<]*<\/title>/i, "<title>" + escapeHtml(metadata.title + " | Bode Conversion Lab") + "</title>");
   html = html.replace(/<meta name="description" content="[^"]*"\s*\/>/i, '<meta name="description" content="' + escapeHtml(metadata.description) + '" />');
   html = html.replace(/<link rel="canonical" href="[^"]*"\s*\/>/i, '<link rel="canonical" href="' + canonical + '" />');
@@ -89,4 +89,15 @@ for (const [route, metadata] of Object.entries(pages)) {
   await writeFile(path.join(outputDir, "index.html"), html, "utf8");
 }
 
-console.log("Generated route-specific HTML metadata for " + Object.keys(pages).length + " routes.");
+const sitemapPath = path.join(dist, "sitemap.xml");
+const robotsPath = path.join(dist, "robots.txt");
+for (const filePath of [sitemapPath, robotsPath]) {
+  try {
+    const original = await readFile(filePath, "utf8");
+    await writeFile(filePath, original.replaceAll("https://bodeconversionlab.vercel.app", site), "utf8");
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+}
+
+console.log("Generated route-specific HTML metadata for " + Object.keys(pages).length + " routes using " + site + ".");
