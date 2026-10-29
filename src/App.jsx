@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 const EMAIL = "bodeagencyofficial@gmail.com";
+const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://bodeconversionlab.vercel.app").replace(/\/$/, "");
 const services = [
   { slug: "store-optimization", title: "Store optimization", kicker: "A better buying experience", summary: "Remove the friction between a customer discovering your product and feeling confident enough to buy it.", detail: "We examine the store as a customer experiences it: the first impression, product information, navigation, mobile usability, trust, cart and checkout. Recommendations are prioritized by customer impact and practical effort, not by how many changes can be listed in an audit.", deliverables: ["Store and customer-journey review", "Product-page and merchandising improvements", "Mobile usability and navigation review", "Trust, cart and checkout friction review", "Prioritized implementation plan"], fit: "For stores with traffic or customer interest that are not converting as consistently as they should.", visual: "store" },
   { slug: "paid-advertising", title: "Paid advertising", kicker: "A more considered way to acquire customers", summary: "Build campaigns around the offer, the customer and the experience that follows the click.", detail: "We connect campaign objectives with creative concepts, audience hypotheses, landing pages and measurement. Testing is structured so that the business can learn what is working instead of simply increasing spend and hoping for a better result.", deliverables: ["Campaign and account review", "Offer, audience and creative hypotheses", "Meta and Google campaign planning", "Landing-page and ad-message alignment", "Performance review and next-test priorities"], fit: "For businesses ready to measure acquisition against meaningful commercial goals.", visual: "ads" },
@@ -165,11 +166,11 @@ export default function App() {
     let desc = document.querySelector('meta[name="description"]');
     if (desc && current.description) desc.setAttribute("content", current.description);
     let canonical = document.querySelector('link[rel="canonical"]');
-    if (canonical) canonical.setAttribute("href", "https://bodeconversionlab.vercel.app" + path);
+    if (canonical) canonical.setAttribute("href", SITE_URL + path);
     let ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) ogTitle.setAttribute("content", document.title);
     let ogUrl = document.querySelector('meta[property="og:url"]');
-    if (ogUrl) ogUrl.setAttribute("content", "https://bodeconversionlab.vercel.app" + path);
+    if (ogUrl) ogUrl.setAttribute("content", SITE_URL + path);
   }, [path, current.title, current.description]);
 
   let content;
