@@ -3,7 +3,7 @@ import path from "node:path";
 
 const dist = path.resolve("dist");
 const site = "https://bodeconversionlab.vercel.app";
-const shareImage = site + "/logo.png";
+const shareImage = site + "/og-image.png";
 
 const pages = {
   "/": {
