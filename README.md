@@ -1,73 +1,23 @@
-# React + TypeScript + Vite
+# Bode Conversion Lab
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A clean rebuild of the public Bode Conversion Lab website.
 
-Currently, two official plugins are available:
+## Direction
+- E-commerce growth, store experience, marketing execution, creative production, retention and analytics.
+- Editorial layout, restrained interactions, accessible responsive design.
+- Mobile-first checks and no fabricated testimonials or performance claims.
+- Existing portfolio evidence and brand assets are retained under `public/`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Development
+- `npm install`
+- `npm run dev`
+- `npm run build`
 
-## React Compiler
+## Contact
+Public contact email: bodeagencyofficial@gmail.com
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Important implementation notes
+- The project enquiry form prepares an email in the visitor's own email application. It does not silently send or store submitted data.
+- The current release is English-only. Additional languages should be launched as fully translated, crawlable locale routes with matching metadata and `hreflang`, not as a partial machine-translated toggle.
+- The portfolio figures are carried forward from the existing site content. Keep their supporting records available and confirm permissions before expanding their use.
+- The previous API handlers, admin pages, scan utilities, tracking scripts and cron configuration are intentionally not part of this rebuilt public site. Reintroduce only after a specific need, security review and test plan.
