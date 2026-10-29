@@ -18,7 +18,7 @@ function assert(condition, message) {
 }
 
 for (const route of routes) {
-  const file = path.join(dist, route === "/" ? "index.html" : route.slice(1), "index.html");
+  const file = route === "/" ? path.join(dist, "index.html") : path.join(dist, route.slice(1), "index.html");
   try {
     const html = await readFile(file, "utf8");
     const title = html.match(/<title>([^<]+)<\/title>/i)?.[1] || "";
