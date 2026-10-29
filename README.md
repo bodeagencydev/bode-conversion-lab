@@ -36,3 +36,8 @@ Until an endpoint is configured and tested, the website must not be described as
 - Complete visual QA at desktop and mobile widths.
 - Add approved founder/team photographs when provided.
 - Verify supporting evidence and permissions for all public case-study figures.
+
+
+## Domain configuration
+
+The canonical URL, sitemap, robots.txt and generated route metadata use `VITE_SITE_URL` when it is set during the Vercel build. After the custom domain is connected, set `VITE_SITE_URL` to the full HTTPS origin, for example `https://your-domain.com`, and redeploy. Until then, the build falls back to the current Vercel domain.
