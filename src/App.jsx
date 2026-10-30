@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const EMAIL = "bodeagencyofficial@gmail.com";
 const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://bodeconversionlab.vercel.app").replace(/\/$/, "");
@@ -41,11 +41,80 @@ const pages = {
   "/privacy": { title: "Privacy policy", description: "Read how Bode Conversion Lab handles information submitted through its website." }
 };
 
+function ParticleSphere() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const points = [];
+    const total = window.innerWidth < 760 ? 1050 : 1850;
+    const golden = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < total; i++) {
+      const y = 1 - (i / (total - 1)) * 2;
+      const radius = Math.sqrt(1 - y * y);
+      const angle = golden * i;
+      points.push({ x: Math.cos(angle) * radius, y, z: Math.sin(angle) * radius, size: .55 + Math.random() * 1.15, phase: Math.random() * Math.PI * 2 });
+    }
+    let frame = 0, raf = 0, width = 0, height = 0, pointerX = 0, pointerY = 0, targetX = 0, targetY = 0;
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.7);
+      width = rect.width; height = rect.height;
+      canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    const onMove = e => {
+      const rect = canvas.getBoundingClientRect();
+      targetX = ((e.clientX - rect.left) / rect.width - .5) * .45;
+      targetY = ((e.clientY - rect.top) / rect.height - .5) * .35;
+    };
+    const draw = () => {
+      frame += reduceMotion ? 0 : .0038;
+      pointerX += (targetX - pointerX) * .035;
+      pointerY += (targetY - pointerY) * .035;
+      ctx.clearRect(0, 0, width, height);
+      const cx = width / 2, cy = height / 2, scale = Math.min(width, height) * .37;
+      const rot = frame + pointerX, tilt = .22 + pointerY;
+      const cos = Math.cos(rot), sin = Math.sin(rot), ct = Math.cos(tilt), st = Math.sin(tilt);
+      const projected = [];
+      for (const p of points) {
+        const x = p.x * cos - p.z * sin;
+        const z = p.x * sin + p.z * cos;
+        const y = p.y * ct - z * st;
+        const zz = p.y * st + z * ct;
+        const perspective = 2.65 / (2.65 - zz * .32);
+        projected.push({ x: cx + x * scale * perspective, y: cy + y * scale * perspective, z: zz, size: p.size * perspective, phase: p.phase });
+      }
+      projected.sort((a, b) => a.z - b.z);
+      for (const p of projected) {
+        const depth = (p.z + 1) / 2;
+        const alpha = .2 + depth * .72;
+        const pulse = .78 + Math.sin(frame * 2 + p.phase) * .22;
+        ctx.beginPath();
+        ctx.fillStyle = p.phase > 5.4 ? "rgba(142,234,58," + alpha * .8 + ")" : "rgba(" + Math.round(145 + depth * 85) + "," + Math.round(145 + depth * 80) + ",255," + alpha + ")";
+        ctx.shadowBlur = depth > .72 ? 8 : 0;
+        ctx.shadowColor = "#9a91ff";
+        ctx.arc(p.x, p.y, p.size * pulse, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+      if (!reduceMotion) raf = requestAnimationFrame(draw);
+    };
+    resize(); draw();
+    window.addEventListener("resize", resize);
+    canvas.addEventListener("pointermove", onMove);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); canvas.removeEventListener("pointermove", onMove); };
+  }, []);
+  return <div className="orb-stage" aria-label="Animated particle sphere representing connected ecommerce systems"><div className="orb-ring"></div><div className="orb-ring orb-ring-two"></div><canvas ref={canvasRef} className="orb-canvas" role="img" aria-label="Luminous animated particle sphere" /><span className="orb-caption">One system. Compounding results.</span></div>;
+}
+
 function Header({ path }) {
   const [open, setOpen] = useState(false);
   const nav = [["Services", "/services"], ["Selected work", "/work"], ["About", "/about"]];
   return <header className="header">
-    <a className="brand" href="/" aria-label="Bode Conversion Lab home"><img src="/logo-mark.png" alt="" /><span><b>BODE</b><small>CONVERSION LAB</small></span></a>
+    <a className="brand" href="/" aria-label="Bode Conversion Lab home"><img src="/bode-orbit-mark.svg" alt="" /><span><b>BODE</b><small>CONVERSION LAB</small></span></a>
     <button className="mobile-menu" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Close navigation" : "Open navigation"} aria-controls="primary-navigation">{open ? "Close" : "Menu"}</button>
     <nav id="primary-navigation" className={open ? "nav nav-open" : "nav"} aria-label="Main navigation">
       {nav.map(([label, href]) => <a key={href} className={path === href ? "nav-current" : ""} href={href} onClick={() => setOpen(false)}>{label}</a>)}
@@ -56,7 +125,7 @@ function Header({ path }) {
 
 function Footer() {
   return <footer className="footer">
-    <div className="footer-top"><a className="brand brand-footer" href="/"><img src="/logo-mark.png" alt="" /><span><b>BODE</b><small>CONVERSION LAB</small></span></a><p>Better store experiences. More considered marketing. Clearer decisions.</p><a className="footer-email" href={"mailto:" + EMAIL}>{EMAIL}</a></div>
+    <div className="footer-top"><a className="brand brand-footer" href="/"><img src="/bode-orbit-mark.svg" alt="" /><span><b>BODE</b><small>CONVERSION LAB</small></span></a><p>Better store experiences. More considered marketing. Clearer decisions.</p><a className="footer-email" href={"mailto:" + EMAIL}>{EMAIL}</a></div>
     <div className="footer-bottom"><span>© {new Date().getFullYear()} Bode Conversion Lab</span><div><a href="/services">Services</a><a href="/work">Work</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a></div><span>Built around the customer.</span></div>
   </footer>;
 }
@@ -79,8 +148,8 @@ function ContactCallout({ title = "Let's talk about the work.", text = "Tell us 
 function Home() {
   return <>
     <section className="home-hero">
-      <div className="hero-copy"><Eyebrow>ECOMMERCE GROWTH · STORE EXPERIENCE · MARKETING</Eyebrow><h1>Make every part of the customer journey <em>work harder.</em></h1><p className="hero-lede">Bode Conversion Lab helps ecommerce businesses improve how they sell, how they reach customers and what they learn from the results.</p><div className="hero-actions"><a className="button button-dark" href="/contact">Discuss your store</a><a className="plain-link" href="/services">Explore our services</a></div><p className="hero-note">Platform independent. Built around your business.</p></div>
-      <div className="hero-composition"><div className="composition-head"><span>THE CUSTOMER JOURNEY</span><span>01 / 04</span></div><div className="journey-item"><span>01</span><div><b>Store experience</b><small>Can customers buy with confidence?</small></div></div><div className="journey-item"><span>02</span><div><b>Acquisition</b><small>Are we reaching the right people?</small></div></div><div className="journey-item"><span>03</span><div><b>Retention</b><small>Is there a reason to return?</small></div></div><div className="journey-item journey-last"><span>04</span><div><b>Measurement</b><small>What should happen next?</small></div></div><p className="composition-foot">One connected plan. Clear priorities. Work you can inspect.</p></div>
+      <div className="hero-copy"><Eyebrow>ECOMMERCE GROWTH · STORE EXPERIENCE · MARKETING</Eyebrow><h1>We engineer the systems behind <em>conversion.</em></h1><p className="hero-lede">Ads, landing pages, product experience and checkout working as one. Bode Conversion Lab helps ecommerce businesses turn more of the right attention into measurable growth.</p><div className="hero-actions"><a className="button button-dark" href="/contact">Start a project <span aria-hidden="true">↗</span></a><a className="plain-link" href="/services">Explore our services</a></div><p className="hero-note">Platform independent. Built around your business.</p></div>
+      <ParticleSphere />
     </section>
     <section className="platform-strip"><span>WORKING ACROSS YOUR STOREFRONT</span><div><b>Shopify</b><b>WooCommerce</b><b>Wix</b><b>BigCommerce</b><b>Custom platforms</b></div></section>
     <section className="section problem-section"><div className="section-title"><Eyebrow>START WITH THE REAL PROBLEM</Eyebrow><h2>More activity is not always the answer.</h2><p>Before increasing spend or adding another tool, understand where the customer journey is breaking down.</p></div><div className="problem-points"><article><span>01</span><div><h3>People visit, but do not buy.</h3><p>Review product pages, mobile experience, trust signals and checkout friction.</p></div></article><article><span>02</span><div><h3>Marketing spend lacks a clear answer.</h3><p>Connect campaign goals, creative tests, landing pages and reliable measurement.</p></div></article><article><span>03</span><div><h3>Customers buy once and disappear.</h3><p>Build relevant follow-up, post-purchase communication and retention flows.</p></div></article></div></section>
@@ -88,7 +157,7 @@ function Home() {
     <section className="dark-band"><div className="dark-band-copy"><Eyebrow>HOW WE WORK</Eyebrow><h2>Clear thinking before busy work.</h2><p>We agree on the problem, scope and how progress will be judged before the work starts.</p></div><div className="process-list"><article><span>01</span><div><h3>Understand the business</h3><p>Learn what you sell, who buys it and what success needs to look like.</p></div></article><article><span>02</span><div><h3>Find the constraint</h3><p>Review the customer journey and available data, then prioritize what matters.</p></div></article><article><span>03</span><div><h3>Make and review changes</h3><p>Work to an agreed scope, with clear ownership and approval before launch.</p></div></article><article><span>04</span><div><h3>Measure and improve</h3><p>Explain what changed, what the data says and what should happen next.</p></div></article></div></section>
     <section className="section work-home"><div className="section-title section-title-wide"><div><Eyebrow>SELECTED WORK</Eyebrow><h2>Evidence belongs in the open.</h2></div><p>Explore selected creative and performance records. Claims are not expanded beyond the information currently available.</p></div><WorkCards limit={3}/><a className="underlined-link" href="/work">Explore selected work</a><p className="disclaimer">Previously supplied performance figures should be supported by source records and measurement periods before being used as verified case-study claims.</p></section>
     <section className="creative-feature"><div className="creative-feature-copy"><Eyebrow>CREATIVE PRODUCTION</Eyebrow><h2>Make the product matter before you ask for the sale.</h2><p>Product-focused creative starts with what customers care about, what they need to see and what makes the offer relevant.</p><a className="button button-light" href="/ai-product-videos">Explore product video</a></div><div className="creative-frame"><video controls playsInline preload="metadata" poster="/og-image.png" controlsList="nodownload" aria-label="Bode creative portfolio sample"><source src="/bode_final_1080p.mp4" type="video/mp4" />Your browser does not support embedded video.</video><span>SELECTED CREATIVE WORK</span></div></section>
-    <section className="section about-teaser"><div className="about-symbol"><img src="/logo-mark.png" alt="" /></div><div><Eyebrow>ABOUT BODE CONVERSION LAB</Eyebrow><h2>Practical work. Clear ownership. No mystery process.</h2><p>We bring store improvement, marketing execution, creative production and performance analysis together around the needs of each business.</p><a className="underlined-link" href="/about">Learn about our approach</a></div></section>
+    <section className="section about-teaser"><div className="about-symbol"><img src="/bode-orbit-mark.svg" alt="" /></div><div><Eyebrow>ABOUT BODE CONVERSION LAB</Eyebrow><h2>Practical work. Clear ownership. No mystery process.</h2><p>We bring store improvement, marketing execution, creative production and performance analysis together around the needs of each business.</p><a className="underlined-link" href="/about">Learn about our approach</a></div></section>
     <section className="section faq-home"><div className="section-title"><Eyebrow>BEFORE YOU START</Eyebrow><h2>Useful answers, without the sales script.</h2></div><FAQList items={faqs.slice(0, 4)} /></section>
     <ContactCallout />
   </>;
@@ -113,7 +182,7 @@ function CaseStudy({ item }) {
 }
 
 function AboutPage() {
-  return <><PageIntro eyebrow="ABOUT BODE CONVERSION LAB" title="Practical work, built around how customers decide." text="Bode Conversion Lab connects store experience, marketing execution, creative production and performance analysis around the needs of each business."/><section className="section about-detail"><div className="about-symbol"><img src="/logo-mark.png" alt="" /></div><div><Eyebrow>OUR WORKING PRINCIPLES</Eyebrow><h2>Clear priorities. Honest reporting. Work you can inspect.</h2><p>We start by understanding the business and the customer journey. Then we identify the constraints that matter, agree on a scope and define how progress will be evaluated.</p><p>Recommendations should be understandable. Deliverables should be clear. Results should be described with the context needed to interpret them. We do not treat more activity, more tools or more complicated reports as proof of progress.</p></div></section><section className="section principles"><article><span>01</span><h3>Understand before recommending</h3><p>Context matters. We look at the product, customer, platform, offer and current information before suggesting a plan.</p></article><article><span>02</span><h3>Make the work visible</h3><p>Scopes, deliverables and responsibilities are agreed clearly so you know what is being done and why.</p></article><article><span>03</span><h3>Be honest about evidence</h3><p>We distinguish what is measured, what is assumed and what still needs to be tested.</p></article></section><ContactCallout title="Tell us what you are building." /></>;
+  return <><PageIntro eyebrow="ABOUT BODE CONVERSION LAB" title="Practical work, built around how customers decide." text="Bode Conversion Lab connects store experience, marketing execution, creative production and performance analysis around the needs of each business."/><section className="section about-detail"><div className="about-symbol"><img src="/bode-orbit-mark.svg" alt="" /></div><div><Eyebrow>OUR WORKING PRINCIPLES</Eyebrow><h2>Clear priorities. Honest reporting. Work you can inspect.</h2><p>We start by understanding the business and the customer journey. Then we identify the constraints that matter, agree on a scope and define how progress will be evaluated.</p><p>Recommendations should be understandable. Deliverables should be clear. Results should be described with the context needed to interpret them. We do not treat more activity, more tools or more complicated reports as proof of progress.</p></div></section><section className="section principles"><article><span>01</span><h3>Understand before recommending</h3><p>Context matters. We look at the product, customer, platform, offer and current information before suggesting a plan.</p></article><article><span>02</span><h3>Make the work visible</h3><p>Scopes, deliverables and responsibilities are agreed clearly so you know what is being done and why.</p></article><article><span>03</span><h3>Be honest about evidence</h3><p>We distinguish what is measured, what is assumed and what still needs to be tested.</p></article></section><ContactCallout title="Tell us what you are building." /></>;
 }
 
 function ContactPage() {
