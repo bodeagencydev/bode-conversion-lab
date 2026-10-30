@@ -49,13 +49,13 @@ function ParticleSphere() {
     const ctx = canvas.getContext("2d", { alpha: true });
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const points = [];
-    const total = window.innerWidth < 760 ? 1050 : 1850;
+    const total = window.innerWidth < 760 ? 1900 : 3600;
     const golden = Math.PI * (3 - Math.sqrt(5));
     for (let i = 0; i < total; i++) {
       const y = 1 - (i / (total - 1)) * 2;
       const radius = Math.sqrt(1 - y * y);
       const angle = golden * i;
-      points.push({ x: Math.cos(angle) * radius, y, z: Math.sin(angle) * radius, size: .55 + Math.random() * 1.15, phase: Math.random() * Math.PI * 2 });
+      points.push({ x: Math.cos(angle) * radius, y, z: Math.sin(angle) * radius, size: .45 + Math.random() * 1.0, phase: Math.random() * Math.PI * 2 });
     }
     let frame = 0, raf = 0, width = 0, height = 0, pointerX = 0, pointerY = 0, targetX = 0, targetY = 0;
     const resize = () => {
@@ -93,9 +93,9 @@ function ParticleSphere() {
         const alpha = .2 + depth * .72;
         const pulse = .78 + Math.sin(frame * 2 + p.phase) * .22;
         ctx.beginPath();
-        ctx.fillStyle = p.phase > 5.4 ? "rgba(142,234,58," + alpha * .8 + ")" : "rgba(" + Math.round(145 + depth * 85) + "," + Math.round(145 + depth * 80) + ",255," + alpha + ")";
+        ctx.fillStyle = p.phase > 5.4 ? "rgba(191,184,255," + alpha * .8 + ")" : "rgba(" + Math.round(185 + depth * 65) + "," + Math.round(180 + depth * 65) + ",255," + alpha + ")";
         ctx.shadowBlur = depth > .72 ? 8 : 0;
-        ctx.shadowColor = "#9a91ff";
+        ctx.shadowColor = "#8c7bff";
         ctx.arc(p.x, p.y, p.size * pulse, 0, Math.PI * 2);
         ctx.fill();
       }
@@ -109,6 +109,7 @@ function ParticleSphere() {
   }, []);
   return <div className="orb-stage" aria-label="Animated particle sphere representing connected ecommerce systems"><div className="orb-ring"></div><div className="orb-ring orb-ring-two"></div><canvas ref={canvasRef} className="orb-canvas" role="img" aria-label="Luminous animated particle sphere" /><span className="orb-caption">One system. Compounding results.</span></div>;
 }
+
 
 function Header({ path }) {
   const [open, setOpen] = useState(false);
@@ -147,22 +148,30 @@ function ContactCallout({ title = "Let's talk about the work.", text = "Tell us 
 
 function Home() {
   return <>
-    <section className="home-hero">
-      <div className="hero-copy"><Eyebrow>ECOMMERCE GROWTH · STORE EXPERIENCE · MARKETING</Eyebrow><h1>We engineer the systems behind <em>conversion.</em></h1><p className="hero-lede">Ads, landing pages, product experience and checkout working as one. Bode Conversion Lab helps ecommerce businesses turn more of the right attention into measurable growth.</p><div className="hero-actions"><a className="button button-dark" href="/contact">Start a project <span aria-hidden="true">↗</span></a><a className="plain-link" href="/services">Explore our services</a></div><p className="hero-note">Platform independent. Built around your business.</p></div>
+    <section className="home-hero reference-hero">
+      <div className="hero-ghost" aria-hidden="true">BODE</div>
+      <div className="reference-navline"><span>INDEPENDENT ECOMMERCE GROWTH STUDIO</span><span>STRATEGY / CREATIVE / CONVERSION</span></div>
+      <div className="reference-headline"><h1>We build <em>growth</em><br/>systems that convert.</h1></div>
       <ParticleSphere />
+      <div className="reference-hero-bottom">
+        <div className="reference-intro"><p>We connect the store experience, paid acquisition and creative into one clearer system for ecommerce growth.</p><a className="reference-pill" href="/contact">Start your project <span>↗</span></a></div>
+        <div className="reference-pillars"><div><b>01</b><span>Store experience</span></div><div><b>02</b><span>Ads & creative</span></div><div><b>03</b><span>Conversion data</span></div></div>
+      </div>
+      <div className="hero-scroll-cue"><span></span> SCROLL TO EXPLORE</div>
     </section>
-    <section className="platform-strip"><span>WORKING ACROSS YOUR STOREFRONT</span><div><b>Shopify</b><b>WooCommerce</b><b>Wix</b><b>BigCommerce</b><b>Custom platforms</b></div></section>
-    <section className="section problem-section"><div className="section-title"><Eyebrow>START WITH THE REAL PROBLEM</Eyebrow><h2>More activity is not always the answer.</h2><p>Before increasing spend or adding another tool, understand where the customer journey is breaking down.</p></div><div className="problem-points"><article><span>01</span><div><h3>People visit, but do not buy.</h3><p>Review product pages, mobile experience, trust signals and checkout friction.</p></div></article><article><span>02</span><div><h3>Marketing spend lacks a clear answer.</h3><p>Connect campaign goals, creative tests, landing pages and reliable measurement.</p></div></article><article><span>03</span><div><h3>Customers buy once and disappear.</h3><p>Build relevant follow-up, post-purchase communication and retention flows.</p></div></article></div></section>
-    <section className="section services-home"><div className="section-title section-title-wide"><div><Eyebrow>WHAT WE DO</Eyebrow><h2>Bring the important parts of growth into one plan.</h2></div><p>Start with the challenge that matters most. Connect other services when the evidence says they belong in the plan.</p></div><ServiceRows compact /><a className="underlined-link" href="/services">View all services</a></section>
-    <section className="dark-band"><div className="dark-band-copy"><Eyebrow>HOW WE WORK</Eyebrow><h2>Clear thinking before busy work.</h2><p>We agree on the problem, scope and how progress will be judged before the work starts.</p></div><div className="process-list"><article><span>01</span><div><h3>Understand the business</h3><p>Learn what you sell, who buys it and what success needs to look like.</p></div></article><article><span>02</span><div><h3>Find the constraint</h3><p>Review the customer journey and available data, then prioritize what matters.</p></div></article><article><span>03</span><div><h3>Make and review changes</h3><p>Work to an agreed scope, with clear ownership and approval before launch.</p></div></article><article><span>04</span><div><h3>Measure and improve</h3><p>Explain what changed, what the data says and what should happen next.</p></div></article></div></section>
-    <section className="section work-home"><div className="section-title section-title-wide"><div><Eyebrow>SELECTED WORK</Eyebrow><h2>Evidence belongs in the open.</h2></div><p>Explore selected creative and performance records. Claims are not expanded beyond the information currently available.</p></div><WorkCards limit={3}/><a className="underlined-link" href="/work">Explore selected work</a><p className="disclaimer">Previously supplied performance figures should be supported by source records and measurement periods before being used as verified case-study claims.</p></section>
-    <section className="creative-feature"><div className="creative-feature-copy"><Eyebrow>CREATIVE PRODUCTION</Eyebrow><h2>Make the product matter before you ask for the sale.</h2><p>Product-focused creative starts with what customers care about, what they need to see and what makes the offer relevant.</p><a className="button button-light" href="/ai-product-videos">Explore product video</a></div><div className="creative-frame"><video controls playsInline preload="metadata" poster="/og-image.png" controlsList="nodownload" aria-label="Bode creative portfolio sample"><source src="/bode_final_1080p.mp4" type="video/mp4" />Your browser does not support embedded video.</video><span>SELECTED CREATIVE WORK</span></div></section>
-    <section className="section about-teaser"><div className="about-symbol"><img src="/logo-mark.png" alt="" /></div><div><Eyebrow>ABOUT BODE CONVERSION LAB</Eyebrow><h2>Practical work. Clear ownership. No mystery process.</h2><p>We bring store improvement, marketing execution, creative production and performance analysis together around the needs of each business.</p><a className="underlined-link" href="/about">Learn about our approach</a></div></section>
-    <section className="section faq-home"><div className="section-title"><Eyebrow>BEFORE YOU START</Eyebrow><h2>Useful answers, without the sales script.</h2></div><FAQList items={faqs.slice(0, 4)} /></section>
-    <ContactCallout />
+    <section className="platform-strip"><span>BUILT AROUND YOUR COMMERCE STACK</span><div><b>Shopify</b><b>WooCommerce</b><b>Wix</b><b>BigCommerce</b><b>Custom platforms</b></div></section>
+    <section className="reference-services section">
+      <div className="reference-section-heading"><Eyebrow>WHAT WE DO</Eyebrow><h2>One connected system.<br/><em>Every touchpoint matters.</em></h2><p>We bring the parts of ecommerce growth together, then focus on the constraint that matters most.</p></div>
+      <div className="reference-service-layout"><div className="service-orbit-visual"><div className="service-orbit-core"><span>B</span></div><i className="service-orbit orbit-a"></i><i className="service-orbit orbit-b"></i><i className="service-orbit orbit-c"></i><span className="orbit-label orbit-label-a">DISCOVER</span><span className="orbit-label orbit-label-b">CONVERT</span><span className="orbit-label orbit-label-c">RETURN</span></div>
+      <div className="reference-service-cards">{services.map((s,i)=><a className={"reference-service-card card-"+i} href={"/"+s.slug} key={s.slug}><span className="reference-card-number">0{i+1}</span><span className="reference-card-arrow">↗</span><h3>{s.title}</h3><p>{s.kicker}</p><small>EXPLORE SERVICE</small></a>)}</div></div>
+    </section>
+    <section className="reference-work section"><div className="reference-section-heading work-heading"><Eyebrow>SELECTED WORK</Eyebrow><h2>Work that moves<br/><em>business forward.</em></h2><p>Selected creative and performance records from projects across ecommerce.</p></div><div className="reference-work-layout"><div className="reference-work-list">{work.map((item,i)=><a href={"/work/"+item.slug} key={item.slug} className="reference-work-row"><span>0{i+1}</span><b>{item.name}</b><small>{item.metric}</small><i>↗</i></a>)}<a href="/work" className="reference-all-work">VIEW ALL PROJECTS ↗</a></div><div className="reference-work-preview"><video muted autoPlay loop playsInline preload="none" poster="/proof/thumbs/novigood.jpg"><source src="/proof/Videoproof2.mp4" type="video/mp4"/></video><span>PROJECT / SELECTED RECORD</span></div></div></section>
+    <section className="reference-manifesto section"><div><Eyebrow>THE BODE APPROACH</Eyebrow><p className="manifesto-kicker">GOOD COMMERCE IS NOT A COLLECTION OF DISCONNECTED TACTICS.</p></div><h2>Ads bring attention.<br/>Your store earns trust.<br/><em>The experience creates conversion.</em></h2><a href="/about" className="reference-text-link">MEET BODE CONVERSION LAB ↗</a></section>
+    <section className="reference-process section"><div className="reference-section-heading"><Eyebrow>HOW WE WORK</Eyebrow><h2>Clarity at every<br/><em>stage of the work.</em></h2></div><div className="reference-process-grid"><article><span>01</span><h3>Understand</h3><p>We learn your offer, customers, commercial goals and current constraints.</p></article><article><span>02</span><h3>Find the friction</h3><p>We review the customer journey and identify where attention or intent is being lost.</p></article><article><span>03</span><h3>Build and test</h3><p>We implement focused improvements and creative aligned to the agreed objective.</p></article><article><span>04</span><h3>Measure</h3><p>We review the evidence and decide what should happen next.</p></article></div></section>
+    <section className="reference-closing section"><div className="closing-visual" aria-hidden="true"><div className="closing-glow"></div><div className="closing-orbit"></div><div className="closing-core"></div></div><div className="closing-copy"><Eyebrow>LET'S CREATE SOMETHING THAT MATTERS</Eyebrow><h2>Make your next move<br/><em>a more considered one.</em></h2><a className="reference-pill" href="/contact">Start a project <span>↗</span></a><a href="/work" className="reference-text-link">EXPLORE OUR WORK ↗</a></div></section>
+    <ContactCallout title="Let's talk about your next stage of growth."/>
   </>;
 }
-
 function FAQList({ items = faqs }) { return <div className="faq-list">{items.map(([q, a], i) => <details key={q}><summary><span>0{i + 1}</span><b>{q}</b><i aria-hidden="true">+</i></summary><p>{a}</p></details>)}</div>; }
 
 function ServicesPage() {
