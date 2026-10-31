@@ -1,27 +1,191 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#0B0B0C" />
-<meta name="robots" content="index, follow" />
-<title>Bode Conversion Lab | Ecommerce Growth</title>
-<meta name="description" content="Bode Conversion Lab helps ecommerce businesses improve store experience, advertising, creative, product visibility and retention." />
-<link rel="canonical" href="https://bodeconversionlab.vercel.app/" />
-<meta property="og:title" content="Bode Conversion Lab | Ecommerce Growth" />
-<meta property="og:description" content="Improve how your store sells, how you reach customers and what you learn from the results." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://bodeconversionlab.vercel.app/" />
-<meta property="og:image" content="https://bodeconversionlab.vercel.app/og-image.png" />
-<meta name="twitter:card" content="summary_large_image" />
-<link rel="icon" type="image/png" sizes="48x48" href="/bode-favicon-v2.png" />
-<link rel="icon" href="/favicon.ico" sizes="any" />
-<link rel="apple-touch-icon" sizes="180x180" href="/bode-touch-icon-v2.png" />
-<link rel="manifest" href="/site.webmanifest" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Bode Conversion Lab","url":"https://bodeconversionlab.vercel.app/","email":"bodeagencyofficial@gmail.com","areaServed":"Worldwide","description":"Ecommerce store optimization, marketing execution, creative production and performance analysis."}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bode Conversion Lab</title>
+<meta name="description" content="Bode Conversion Lab engineers ecommerce ads, landing pages, checkout and sales recovery as one conversion system.">
+<meta name="theme-color" content="#1424ff">
+<link rel="canonical" href="https://bodeconversionlab.vercel.app/">
+<meta property="og:title" content="Bode Conversion Lab">
+<meta property="og:description" content="We engineer ROAS. Ads, landing pages, checkout and recovery working as one system.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bodeconversionlab.vercel.app/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1424ff;--fg:#ffffff;--acc:#d9ff00;--p:0;box-sizing:border-box}
+*{box-sizing:border-box;margin:0}
+html,body{background:var(--bg);color:var(--fg);font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.35}
+html{overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+#c{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.grain{position:fixed;inset:0;z-index:8;pointer-events:none;opacity:.14;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+.mono{font-family:"DM Mono",ui-monospace,monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase}
+.hud{position:fixed;z-index:6;left:6vw;right:6vw;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;justify-content:space-between;align-items:center}
+.hud b{font-weight:800;letter-spacing:-.03em;font-size:1.15rem;font-family:inherit;text-transform:none}
+.hud em{font-style:normal;color:var(--acc)}
+.hud a{border-bottom:1px solid var(--fg);margin-left:1rem}
+.dim{position:fixed;inset:0;z-index:2;visibility:hidden;opacity:0;pointer-events:none;overflow:hidden}
+.dim.on{visibility:visible;opacity:1}
+.dim.on a,.dim.on input,.dim.on button{pointer-events:auto}
+.in{position:absolute;left:6vw;right:6vw;bottom:calc(env(safe-area-inset-bottom,0px) + 9vh)}
+@media(min-width:760px){.in{top:50%;bottom:auto;right:auto;transform:translateY(-50%);max-width:54%}.in.w{max-width:66%}}
+h1{font-size:clamp(3.6rem,15vw,11.5rem);font-weight:800;letter-spacing:-.06em;line-height:.84}
+h1 span,h1 em{display:block;font-style:normal}
+h1 em{color:var(--acc);transform-origin:left;transform:scale(calc(1 + var(--p)*.5))}
+.l1{transform:translateX(calc(var(--p)*-60vw))}.l2{transform:translateX(calc(var(--p)*60vw))}
+#d0 .in{opacity:calc(2 - var(--p)*2)}
+h2{font-size:clamp(2.2rem,7.5vw,6rem);font-weight:700;letter-spacing:-.05em;line-height:.92}
+p{font-size:1.08rem;margin-top:1.2rem;max-width:30rem;opacity:.9}
+.k{margin-bottom:1.1rem;color:var(--acc)}
+.btn{display:inline-block;margin-top:1.8rem;border:2px solid var(--fg);border-radius:99px;padding:1rem 1.6rem;background:none;color:var(--fg);cursor:pointer;transition:background .25s,color .25s}
+.btn:hover{background:var(--fg);color:var(--bg)}
+.mq{position:absolute;left:0;top:calc(env(safe-area-inset-top,0px) + 62px);white-space:nowrap;font-size:clamp(4rem,17vw,13rem);font-weight:800;letter-spacing:-.06em;-webkit-text-stroke:2px var(--fg);color:transparent;transform:translateX(calc(var(--p)*-45%))}
+#wd span{transition:opacity .2s}
+.trk{position:absolute;inset:0 auto 0 0;width:400vw;display:flex;transform:translateX(calc(var(--p)*-75%))}
+.card{width:100vw;height:100%;padding:0 6vw calc(env(safe-area-inset-bottom,0px) + 14vh);display:flex;flex-direction:column;justify-content:flex-end}
+@media(min-width:760px){.card{justify-content:center;padding-bottom:0}.card>*{max-width:46%}}
+.card i{font-style:normal;font-size:clamp(5rem,22vw,15rem);font-weight:800;letter-spacing:-.07em;line-height:.8;color:var(--acc)}
+.card h3{font-size:clamp(2rem,6vw,4.4rem);font-weight:700;letter-spacing:-.05em;line-height:.95;margin-top:.6rem}
+.ln{position:absolute;left:6vw;right:6vw;bottom:calc(env(safe-area-inset-bottom,0px) + 4vh);width:88vw;height:8px}
+.ln path{fill:none;stroke:var(--acc);stroke-width:4;vector-effect:non-scaling-stroke}
+.ct{position:absolute;right:6vw;bottom:calc(env(safe-area-inset-bottom,0px) + 5vh);color:var(--acc)}
+.row{display:flex;gap:1rem;align-items:baseline;padding:1.2rem 0;border-top:2px solid var(--fg);opacity:.35;transition:all .4s}
+.row b{font-size:clamp(1.9rem,6.5vw,4.4rem);font-weight:800;letter-spacing:-.05em;line-height:1}
+.row.act{opacity:1;padding-left:1rem;padding-right:1rem;background:var(--fg);color:var(--bg)}
+.stk{position:relative;height:38vh;margin-top:1.6rem}
+.sc{position:absolute;inset:0;background:var(--fg);color:var(--bg);padding:1.4rem 1.6rem;border-radius:22px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 14px 40px rgba(0,0,0,.25)}
+.sc h3{font-size:clamp(2rem,6vw,3.6rem);font-weight:800;letter-spacing:-.05em;line-height:1}
+.sc p{margin-top:.4rem;color:var(--bg)}
+form{margin-top:1.6rem;display:grid;gap:1.4rem;max-width:30rem}
+label{display:block;opacity:.8}
+input{width:100%;background:none;border:0;border-bottom:2px solid var(--fg);color:var(--fg);font:inherit;font-size:1.5rem;padding:.4rem 0 .7rem;outline:0}
+input::placeholder{color:var(--fg);opacity:.45}
+.stat{margin-top:2.2rem;display:flex;gap:1.6rem;flex-wrap:wrap;opacity:.85}
+#tx,#bl{position:fixed;inset:0;z-index:9;pointer-events:none;display:none}
+#bl{flex-direction:row}#bl i{flex:1;transform:scaleY(0)}
+#pre{position:fixed;inset:0;z-index:20;background:#050505;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:6vw;transition:opacity .8s ease}
+#pre b{font-size:clamp(5rem,28vw,14rem);font-weight:800;letter-spacing:-.07em;line-height:.8}
+#cur{position:fixed;z-index:30;left:0;top:0;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;transition:width .25s,height .25s,margin .25s}
+#cur.h{width:56px;height:56px;margin:-28px 0 0 -28px}
+@media(pointer:coarse){#cur{display:none}}
+</style>
 </head>
-<body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body>
+<body>
+<canvas id="c"></canvas><div class="grain"></div><div id="cur"></div><div id="tx"></div><div id="bl"></div>
+<div id="pre"><span class="mono">Entering the lab</span><b id="pn">0</b></div>
+<div class="hud mono"><b>bode</b><span><em id="cn">01</em> / 06 &nbsp;<span id="nm">Origin</span><a href="#" id="jump">Free audit</a></span></div>
+<div class="dim" id="d0"><div class="in"><div class="mono k">Bode Conversion Lab / Ads engineering</div><h1><span class="l1">We</span><span class="l2">engineer</span><em>ROAS.</em></h1><p>Scroll to travel through the system that turns clicks into sales.</p></div></div>
+<div class="dim" id="d1"><div class="mq">SIGNAL * SIGNAL * SIGNAL * SIGNAL *</div><div class="in"><div class="mono k">Signal</div><h2 id="wd">Every sale is built before the click.</h2><p>It starts with one signal: a buyer who is ready to act.</p></div></div>
+<div class="dim" id="d2"><div class="trk">
+  <div class="card"><div><i>01</i><h3>The Ad</h3><p>Creative and targeting shaped around the buyer who converts.</p></div></div>
+  <div class="card"><div><i>02</i><h3>The Landing Page</h3><p>One clear promise and one clear next step.</p></div></div>
+  <div class="card"><div><i>03</i><h3>The Checkout</h3><p>Fewer fields, stronger trust, faster payment.</p></div></div>
+  <div class="card"><div><i>04</i><h3>Recovery</h3><p>Abandoned carts return as orders through the Sales Recovery System.</p></div></div></div>
+  <svg class="ln" viewBox="0 0 100 4" preserveAspectRatio="none"><path id="lp" pathLength="1" d="M0 2 H100"/></svg><div class="mono ct" id="ct">01 / 04</div></div>
+<div class="dim" id="d3"><div class="in w"><div class="mono k">Proof</div><h2>Real sales, straight from the store dashboard.</h2><div style="margin-top:1.6rem">
+  <a class="row" href="https://bodeconversionlab.vercel.app/past-projects"><span class="mono">01</span><b>Novi Good Store</b></a>
+  <a class="row" href="https://bodeconversionlab.vercel.app/past-projects"><span class="mono">02</span><b>Robin and Roobaby</b></a>
+  <a class="row" href="https://bodeconversionlab.vercel.app/past-projects" style="border-bottom:2px solid var(--fg)"><span class="mono">03</span><b>Stream Ride</b></a></div></div></div>
+<div class="dim" id="d4"><div class="in"><div class="mono k">Method</div><h2>Diagnose. Engineer. Scale.</h2><div class="stk">
+  <div class="sc"><span class="mono">Move 01</span><div><h3>Diagnose</h3><p>We scan the store and the full ad path to find where buyers drop.</p></div></div>
+  <div class="sc"><span class="mono">Move 02</span><div><h3>Engineer</h3><p>We rebuild pages, offers and checkout around the buyer.</p></div></div>
+  <div class="sc"><span class="mono">Move 03</span><div><h3>Scale</h3><p>We grow ad spend once the path converts.</p></div></div></div></div></div>
+<div class="dim" id="d5"><div class="in"><div class="mono k">Admission / Free audit</div><h2>Show us your store.</h2><p>We will show you exactly what it is losing.</p>
+  <form id="f"><div><label class="mono" for="u">Store link</label><input id="u" type="text" placeholder="yourstore.com" required autocomplete="url"></div><button class="btn mono" type="submit" style="justify-self:start;margin-top:0">Request your audit</button></form>
+  <div class="stat mono"><span>Lab status: Operational</span><span>Local time <span id="clk"></span></span></div></div></div>
+<div id="sp"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var P=[{n:'Origin',bg:'#1424ff',fg:'#ffffff',acc:'#d9ff00'},{n:'Signal',bg:'#ff1f7a',fg:'#ffffff',acc:'#fff700'},{n:'System',bg:'#060606',fg:'#f4f4f0',acc:'#c6ff00'},{n:'Proof',bg:'#b6ff00',fg:'#0a0a0a',acc:'#1424ff'},{n:'Method',bg:'#5b00ff',fg:'#ffffff',acc:'#ff9d00'},{n:'Admission',bg:'#ff4a00',fg:'#120000',acc:'#ffffff'}];
+var LEN=[1.6,2.2,4.2,3,2.6,1.4],GL=.9,TX=['portal','wipe','blinds','curtain','portal'],S=[],at=0;
+for(var i=0;i<6;i++){S.push({k:'d',i:i,s:at,l:LEN[i]});at+=LEN[i];if(i<5){S.push({k:'g',f:i,t:i+1,s:at,l:GL,x:TX[i]});at+=GL}}
+var TOT=at,reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,cur=-1,mx=0,my=0,cx=0,cy=0,px=0,py=0;
+var $=function(s){return document.querySelector(s)},all=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))},cl=function(v){return Math.min(1,Math.max(0,v))};
+var D=all('.dim'),sp=$('#sp');
+function rs(){sp.style.height=(TOT+1)*innerHeight+'px'}rs();addEventListener('resize',rs);
+$('#f').addEventListener('submit',function(e){e.preventDefault();var v=$('#u').value.trim();if(!v)return;if(!/^https?:\/\//i.test(v))v='https://'+v;location.href='https://bodeconversionlab.vercel.app/contact?url='+encodeURIComponent(v)});
+$('#jump').addEventListener('click',function(e){e.preventDefault();scrollTo({top:(S[S.length-1].s+.3)*innerHeight,behavior:'smooth'})});
+addEventListener('pointermove',function(e){mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;px=e.clientX;py=e.clientY;$('#cur').classList.toggle('h',!!e.target.closest('a,button,input'))});
+setInterval(function(){$('#clk').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})},1000);
+var wd=$('#wd');wd.innerHTML=wd.textContent.split(' ').map(function(w){return '<span>'+w+'</span>'}).join(' ');
+var wsp=all('#wd span'),rows=all('#d3 .row'),sc4=all('.sc'),lp=$('#lp'),ct=$('#ct');lp.style.strokeDasharray='1';
+var tx=$('#tx'),bl=$('#bl'),strips=[];for(var q=0;q<6;q++){var s=document.createElement('i');bl.appendChild(s);strips.push(s)}
+function txr(type,g,n){
+  tx.style.display=bl.style.display='none';if(!type||g<=0||g>=1)return;
+  var first=g<.5,a=first?g*2:1,b=first?0:(g-.5)*2,t=tx.style;
+  if(type==='blinds'){bl.style.display='flex';strips.forEach(function(s,k){var v=first?cl(a*1.7-k*.14):1-cl(b*1.7-k*.14);s.style.background=n.bg;s.style.borderRight='3px solid '+n.acc;s.style.transformOrigin=first?'top':'bottom';s.style.transform='scaleY('+v+')'});return}
+  t.display='block';t.opacity=1;t.clipPath='none';t.borderRadius='0';t.border='0';t.transform='none';t.background=n.bg;
+  if(type==='portal'){t.background='repeating-radial-gradient(circle at 50% 50%,'+n.bg+' 0 40px,'+n.acc+' 40px 46px)';
+    if(first){t.clipPath='circle('+a*75+'% at 50% 50%)';t.transform='scale('+(.35+.85*a)+') rotate('+(-24*(1-a))+'deg)'}
+    else{t.clipPath='circle(75% at 50% 50%)';t.opacity=1-b;t.transform='scale('+(1.2+1.4*b)+') rotate('+40*b+'deg)'}}
+  if(type==='wipe'){var X=(first?a:b)*160-20;t.clipPath=first?'polygon(0 0,'+X+'% 0,'+(X-25)+'% 100%,0 100%)':'polygon('+X+'% 0,100% 0,100% 100%,'+(X-25)+'% 100%)'}
+  if(type==='curtain'){t.borderRadius='50% 50% 0 0 / 12% 12% 0 0';t.borderTop='8px solid '+n.acc;t.transform='translateY('+(first?(1-a)*100:-b*100)+'%)'}
+}
+var ren,sc,cam,G=[],Lt;
+try{
+ren=new THREE.WebGLRenderer({canvas:$('#c'),antialias:true,alpha:true});
+ren.setClearColor(0x000000,0);ren.setPixelRatio(Math.min(devicePixelRatio||1,1.75));
+ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.1;ren.outputEncoding=THREE.sRGBEncoding;
+sc=new THREE.Scene();cam=new THREE.PerspectiveCamera(60,1,.1,100);var pm=new THREE.PMREMGenerator(ren);
+function env(bg,acc){var c=document.createElement('canvas');c.width=512;c.height=256;var x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,'#000');g.addColorStop(.5,bg);g.addColorStop(1,'#000');x.fillStyle=g;x.fillRect(0,0,512,256);
+x.fillStyle='#fff';[[40,60,120,14],[200,40,90,10],[330,90,150,16],[450,50,50,12],[100,150,160,12]].forEach(function(r){x.fillRect(r[0],r[1],r[2],r[3])});
+x.fillStyle=acc;x.fillRect(260,120,110,26);x.fillRect(10,110,70,20);
+var t=new THREE.CanvasTexture(c);t.mapping=THREE.EquirectangularReflectionMapping;t.encoding=THREE.sRGBEncoding;return pm.fromEquirectangular(t).texture}
+function M(c,m,r,cc,e){return new THREE.MeshPhysicalMaterial({color:c,metalness:m,roughness:r,clearcoat:cc||0,clearcoatRoughness:.04,envMap:e,envMapIntensity:1.4})}
+function slab(w,h,r,d,mat){var s=new THREE.Shape();s.moveTo(-w/2+r,-h/2);s.lineTo(w/2-r,-h/2);s.absarc(w/2-r,-h/2+r,r,-Math.PI/2,0);s.lineTo(w/2,h/2-r);s.absarc(w/2-r,h/2-r,r,0,Math.PI/2);s.lineTo(-w/2+r,h/2);s.absarc(-w/2+r,h/2-r,r,Math.PI/2,Math.PI);s.lineTo(-w/2,-h/2+r);s.absarc(-w/2+r,-h/2+r,r,Math.PI,Math.PI*1.5);
+var g=new THREE.ExtrudeGeometry(s,{depth:d,bevelEnabled:true,bevelThickness:.07,bevelSize:.07,bevelSegments:6,curveSegments:20});g.center();return new THREE.Mesh(g,mat)}
+function sph(r,mat,x,y,z){var m=new THREE.Mesh(new THREE.SphereGeometry(r,64,48),mat);m.position.set(x,y,z);return m}
+function tor(r,t,mat,k){var m=new THREE.Mesh(new THREE.TorusGeometry(r,t,48,200),mat);m.userData.sp=k;return m}
+P.forEach(function(p,i){var e=env(p.bg,p.acc),g=new THREE.Group(),a=parseInt(p.acc.slice(1),16),CH=M(0xffffff,1,.07,0,e),OB=M(0x050505,.5,.04,1,e);
+ if(i===0){g.add(new THREE.Mesh(new THREE.TorusKnotGeometry(1.3,.44,260,40,2,3),CH));
+  [[.5,0,.35,M(a,.1,.08,1,e)],[-.6,.8,.3,OB],[1.1,-.4,.28,M(0xffffff,.9,.1,0,e)]].forEach(function(o,k){var pv=new THREE.Group();pv.rotation.set(o[0],o[1],k);pv.add(sph(o[2],o[3],2.7+k*.3,0,0));pv.userData.s=.6+k*.35;g.add(pv)})}
+ if(i===1){var cs=[CH,M(a,.2,.1,1,e),OB,M(0xffffff,.1,.15,1,e)];g.userData.sl=[];for(var k=0;k<4;k++){var s=slab(2.6,3.4,.35,.22,cs[k]);g.add(s);g.userData.sl.push(s)}}
+ if(i===2){g.add(sph(1.4,CH,0,0,0));g.add(slab(2.6,3.4,.35,.22,M(a,.2,.1,1,e)));g.add(new THREE.Mesh(new THREE.TorusKnotGeometry(1,.34,200,32),CH));g.add(new THREE.Mesh(new THREE.TorusGeometry(1.5,.5,48,160),M(0xffffff,.1,.15,1,e)))}
+ if(i===3){g.add(sph(1.25,CH,-2.4,.5,0));g.add(sph(1.25,OB,0,-.7,.4));g.add(sph(1.25,M(a,.15,.08,1,e),2.4,.6,0))}
+ if(i===4){var gm=new THREE.Mesh(new THREE.IcosahedronGeometry(1.8,0),M(0x0a0a0a,1,.05,1,e));gm.material.flatShading=true;g.add(gm);var rg=tor(2.9,.2,CH,1);rg.userData.ring=1;g.add(rg)}
+ if(i===5){g.add(sph(1.5,CH,0,0,0));g.add(tor(2.3,.07,CH,1));g.add(tor(2.8,.07,M(a,.3,.1,1,e),2));g.add(tor(3.3,.07,M(0xffffff,.1,.15,1,e),3))}
+ g.sc=0;g.visible=false;sc.add(g);G[i]=g});
+var Dl=new THREE.DirectionalLight(0xffffff,1.1);Dl.position.set(3,4,5);sc.add(Dl);
+Lt=new THREE.PointLight(0xffffff,1.2,30);Lt.position.set(-4,-2,4);sc.add(Lt);
+function size(){ren.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}
+size();addEventListener('resize',size);
+}catch(err){ren=null}
+function setA(A){cur=A;var p=P[A],r=document.documentElement.style;r.setProperty('--bg',p.bg);r.setProperty('--fg',p.fg);r.setProperty('--acc',p.acc);
+ D.forEach(function(el,j){el.classList.toggle('on',j===A)});$('#cn').textContent='0'+(A+1);$('#nm').textContent=p.n;if(ren)Lt.color.set(p.acc)}
+var t0=performance.now(),n0=t0,pn=$('#pn');
+function loader(now){var v=Math.min(100,Math.round((now-n0)/13));pn.textContent=v;if(v<100)requestAnimationFrame(loader);else{$('#pre').style.opacity=0;setTimeout(function(){$('#pre').remove()},900)}}
+requestAnimationFrame(loader);
+function frame(now){
+  var T=reduce?0:(now-t0)/1000,u=Math.max(0,scrollY/innerHeight),sg=S[S.length-1],A,p,g=0,x='';
+  for(var k=0;k<S.length;k++){if(u>=S[k].s&&u<S[k].s+S[k].l){sg=S[k];break}}
+  if(sg.k==='d'){A=sg.i;p=cl((u-sg.s)/sg.l)}else{g=cl((u-sg.s)/sg.l);A=g<.5?sg.f:sg.t;p=g<.5?1:0;x=sg.x}
+  if(A!==cur)setA(A);
+  D[A].style.setProperty('--p',p);txr(x,g,P[sg.t||0]);
+  if(A===1)wsp.forEach(function(w,k){w.style.opacity=.15+.85*cl((p*1.5-k/wsp.length*.9)/.12)});
+  if(A===2){var a=p*4,ix=Math.min(3,Math.floor(a));ct.textContent='0'+(ix+1)+' / 04';lp.style.strokeDashoffset=1-p}
+  var act=Math.min(2,Math.floor(p*3));
+  if(A===3)rows.forEach(function(r,k){r.classList.toggle('act',k===act)});
+  if(A===4)sc4.forEach(function(c,k){var v=cl(p*3.2-k*.9);c.style.transform='translateY('+((1-v)*115)+'%) translateY('+k*16+'px) rotate('+((1-v)*(k%2?-6:6))+'deg)'});
+  if(ren){var d=innerWidth>760,m=d?1:.68,wp=Math.sin(g*Math.PI),cz=8;
+    cam.fov=60+wp*30;cam.updateProjectionMatrix();
+    if(A===0)cz=8-p*3.2;if(A===3)cz=8-p*1.2;if(A===4)cz=8-p*2.6;
+    cam.position.set(mx*.8,-my*.5,cz);cam.lookAt(0,0,0);
+    G.forEach(function(gr,j){var on=j===A;gr.sc+=((on?1:0)-gr.sc)*.08;gr.visible=gr.sc>.01;
+      gr.position.set(d?(j===3?1.3:2.9):0,d?0:2.0,0);gr.scale.setScalar(Math.max(.001,gr.sc*m));
+      gr.rotation.y=T*.28+(j===0?p*4:j===4?p*5:p*2)+wp*3;gr.rotation.x=Math.sin(T*.4)*.15+my*.3;
+      if(j===1)gr.userData.sl.forEach(function(s,k){var o=k-1.5;s.position.set(o*(.35+.7*p),0,-Math.abs(o)*.35*p);s.rotation.set(0,-o*.38*p,o*.08*p)});
+      if(j===2)gr.children.forEach(function(c,k){var s=Math.max(0,1-Math.abs(p*4-(k+.5))*1.4);c.scale.setScalar(.001+s*s*(3-2*s))});
+      if(j===3)gr.children.forEach(function(c,k){var tg=k===act?1.18:.8;c.scale.x+=(tg-c.scale.x)*.1;c.scale.setScalar(c.scale.x)});
+      gr.children.forEach(function(c){if(c.userData.s)c.rotation.y=T*c.userData.s*2;if(c.userData.ring)c.rotation.x=T*.5;if(j===5&&c.userData.sp){c.rotation.x=T*(.3+c.userData.sp*.2);c.rotation.y=T*.2*c.userData.sp}})});
+    ren.render(sc,cam)}
+  cx+=(px-cx)*.2;cy+=(py-cy)*.2;$('#cur').style.transform='translate('+cx+'px,'+cy+'px)';
+  requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
 </html>
-
