@@ -128,10 +128,10 @@ function Home() {
           <video key={selected.slug} muted autoPlay loop playsInline preload="none" poster={selected.poster} aria-label={selected.name}><source src={selected.video} type="video/mp4" /></video>
           <span className="project-screen-caption">PROJECT RECORD&nbsp;&nbsp; / &nbsp;&nbsp;{selected.name}</span>
         </a>
-        <div className="project-nav" aria-label="Selected projects">
-          {work.map((item, i) => <a key={item.slug} href={"/work/" + item.slug} className={"project-choice" + (selected.slug === item.slug ? " active" : "")} onMouseEnter={() => setSelected(item)} onFocus={() => setSelected(item)} aria-current={selected.slug === item.slug ? "true" : undefined}>
+        <div className="project-nav" aria-label="Select a project preview">
+          {work.map((item, i) => <button type="button" key={item.slug} className={"project-choice" + (selected.slug === item.slug ? " active" : "")} onClick={() => setSelected(item)} onMouseEnter={() => setSelected(item)} onFocus={() => setSelected(item)} aria-pressed={selected.slug === item.slug}>
             <span>0{i + 1}</span><div><b>{item.name}</b><small>{item.metric}</small></div><i aria-hidden="true">↗</i>
-          </a>)}
+          </button>)}
           <a className="project-all-link" href="/work">VIEW ALL PROJECTS&nbsp;&nbsp;↗</a>
         </div>
       </div>
