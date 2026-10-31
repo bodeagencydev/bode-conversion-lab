@@ -148,16 +148,28 @@ function ContactCallout({ title = "Let's talk about the work.", text = "Tell us 
 
 function Home() {
   return <>
-    <section className="home-hero reference-hero">
-      <div className="hero-ghost" aria-hidden="true">BODE</div>
-      <div className="reference-navline"><span>INDEPENDENT ECOMMERCE GROWTH STUDIO</span><span>STRATEGY / CREATIVE / CONVERSION</span></div>
-      <div className="reference-headline"><h1>We build <em>growth</em><br/>systems that convert.</h1></div>
-      <ParticleSphere />
-      <div className="reference-hero-bottom">
-        <div className="reference-intro"><p>We connect the store experience, paid acquisition and creative into one clearer system for ecommerce growth.</p><a className="reference-pill" href="/contact">Start your project <span>↗</span></a></div>
-        <div className="reference-pillars"><div><b>01</b><span>Store experience</span></div><div><b>02</b><span>Ads & creative</span></div><div><b>03</b><span>Conversion data</span></div></div>
+    <section className="home-hero workspace-hero">
+      <div className="workspace-hero-copy">
+        <Eyebrow>ECOMMERCE GROWTH, WORKING AS ONE</Eyebrow>
+        <h1>Make every part of the customer journey <em>work harder.</em></h1>
+        <p>We connect the store experience, marketing and measurement in one clear plan, then focus on the changes that matter most.</p>
+        <div className="workspace-hero-actions"><a className="button button-light" href="/contact">Discuss your project <span aria-hidden="true">↗</span></a><a className="workspace-secondary-link" href="/services">Explore our services</a></div>
+        <div className="workspace-proofline"><span className="workspace-proof-dot"></span> A considered approach to sustainable ecommerce growth</div>
       </div>
-      <div className="hero-scroll-cue"><span></span> SCROLL TO EXPLORE</div>
+      <div className="workspace-preview" aria-label="Illustrative preview of Bode's connected ecommerce growth process">
+        <div className="workspace-windowbar"><span className="window-dots"><i></i><i></i><i></i></span><span className="workspace-window-label">BODE / GROWTH WORKSPACE</span><span className="workspace-window-status"><i></i> EXAMPLE VIEW</span></div>
+        <div className="workspace-window-body">
+          <aside className="workspace-sidebar"><a className="workspace-mini-brand" href="/" aria-label="Bode Conversion Lab home"><img src="/logo-mark.png" alt="" /></a><span className="workspace-side-label">WORKSPACE</span><a className="workspace-side-item active" href="/services"><span className="workspace-side-icon">◫</span> Overview</a><a className="workspace-side-item" href="/store-optimization"><span className="workspace-side-icon">⌑</span> Store experience</a><a className="workspace-side-item" href="/paid-advertising"><span className="workspace-side-icon">↗</span> Acquisition</a><a className="workspace-side-item" href="/analytics-tracking"><span className="workspace-side-icon">⌁</span> Measurement</a><div className="workspace-sidebar-bottom"><span className="workspace-avatar">B</span><span>Bode Conversion Lab<small>Growth partner</small></span></div></aside>
+          <div className="workspace-main"><div className="workspace-topline"><span>PROJECT VIEW <b>/</b> ECOMMERCE</span><span className="workspace-menu-dots">•••</span></div><div className="workspace-title-row"><div><p className="workspace-overline">A CONNECTED APPROACH</p><h2>Growth, in context.</h2></div><span className="workspace-status-chip"><i></i> Clear priorities</span></div>
+            <div className="workspace-summary"><div><span className="workspace-card-icon">◈</span><p>THE CUSTOMER JOURNEY</p><h3>One experience.<br/>Every touchpoint.</h3><span className="workspace-card-note">Store · Marketing · Measurement</span></div><div className="workspace-summary-orbit" aria-hidden="true"><i></i><i></i><i></i><b></b></div></div>
+            <div className="workspace-task-head"><span>AREAS OF FOCUS</span><a href="/services">Explore services ↗</a></div>
+            <a className="workspace-task" href="/store-optimization"><span className="task-symbol task-symbol-purple">◫</span><span className="task-copy"><b>Store experience</b><small>Product pages, trust & checkout</small></span><span className="task-tag">FOUNDATION</span><span className="task-arrow">↗</span></a>
+            <a className="workspace-task" href="/paid-advertising"><span className="task-symbol task-symbol-green">⌁</span><span className="task-copy"><b>Paid acquisition</b><small>Creative, campaigns & landing pages</small></span><span className="task-tag">GROWTH</span><span className="task-arrow">↗</span></a>
+            <a className="workspace-task" href="/analytics-tracking"><span className="task-symbol task-symbol-silver">⌗</span><span className="task-copy"><b>Measurement</b><small>Signals, attribution & decisions</small></span><span className="task-tag">CLARITY</span><span className="task-arrow">↗</span></a>
+            <div className="workspace-footnote"><span>01 — 03</span><span>Connected work, grounded in your business</span><span>↘</span></div>
+          </div>
+        </div>
+      </div>
     </section>
     <section className="platform-strip"><span>BUILT AROUND YOUR COMMERCE STACK</span><div><b>Shopify</b><b>WooCommerce</b><b>Wix</b><b>BigCommerce</b><b>Custom platforms</b></div></section>
     <section className="reference-services section">
@@ -268,3 +280,4 @@ export default function App() {
 
   return <div className={"site-shell" + (path === "/contact" ? " contact-route" : "")}><a className="skip-link" href="#main">Skip to content</a><Header path={path}/><main id="main">{content}</main><Footer/>{path !== "/contact" && <a className="mobile-sticky-cta" href="/contact">Discuss your project </a>}</div>;
 }
+
