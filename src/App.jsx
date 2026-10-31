@@ -102,7 +102,7 @@ function Home() {
         <div className="conversion-hero-actions"><a className="button button-light" href="/contact">Discuss your project <span aria-hidden="true">↗</span></a><a className="conversion-secondary-link" href="/services">Explore our services</a></div>
       </div>
       <a className="hero-feature" href="/work/novi-good-store" onPointerMove={moveFeature} onPointerLeave={resetFeature} aria-label="View the Novi Good Store project">
-        <div className="hero-feature-media"><img src={work[0].poster} alt="Selected ecommerce project imagery for Novi Good Store" /><span className="hero-feature-index">01 / SELECTED PROJECT</span><span className="hero-feature-view">View project <b aria-hidden="true">↗</b></span></div>
+        <div className="hero-feature-media"><video muted autoPlay loop playsInline preload="metadata" poster={work[0].poster} aria-hidden="true"><source src={work[0].video} type="video/mp4" /></video><span className="hero-feature-index">01 / SELECTED PROJECT</span><span className="hero-feature-view">View project <b aria-hidden="true">↗</b></span></div>
         <div className="hero-feature-caption"><div><span>ECOMMERCE / PAID GROWTH</span><h2>Novi Good Store</h2></div><div className="hero-feature-metric"><strong>4.3×</strong><span>reported ROAS</span></div></div>
       </a>
     </section>
