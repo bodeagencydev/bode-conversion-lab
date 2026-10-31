@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ConversionStructure from "./ConversionStructure.jsx";
+import ImmersiveHome from "./ImmersiveHome.jsx";
 
 const EMAIL = "bodeagencyofficial@gmail.com";
 const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://bodeconversionlab.vercel.app").replace(/\/$/, "");
@@ -287,7 +288,7 @@ export default function App() {
   }, [path, current.title, current.description]);
 
   let content;
-  if (path === "/") content = <Home />;
+  if (path === "/") content = <ImmersiveHome />;
   else if (path === "/services") content = <ServicesPage />;
   else if (path === "/work") content = <WorkPage />;
   else if (path === "/about") content = <AboutPage />;
