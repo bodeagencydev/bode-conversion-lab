@@ -67,7 +67,7 @@ function PageIntro({ eyebrow, title, text, className = "" }) {
   return <section className={"page-intro " + className}><Eyebrow>{eyebrow}</Eyebrow><h1>{title}</h1>{text && <p className="intro-text">{text}</p>}</section>;
 }
 function ServiceRows({ compact = false }) {
-  return <div className={compact ? "service-rows service-rows-compact" : "service-rows"}>{services.map((s, i) => <a className="service-row" href={"/" + s.slug} key={s.slug}><span className="row-num">0{i + 1}</span><div><h3>{s.title}</h3><p>{s.summary}</p></div><span className="row-label">Explore service</span></a>)}</div>;
+  return <div className={compact ? "service-rows service-rows-compact" : "service-rows"}>{services.map((s, i) => <a className="service-row" data-structure-focus={i} href={"/" + s.slug} key={s.slug}><span className="row-num">0{i + 1}</span><div><h3>{s.title}</h3><p>{s.summary}</p></div><span className="row-label">Explore service</span></a>)}</div>;
 }
 function WorkCards({ limit }) {
   const list = typeof limit === "number" ? work.slice(0, limit) : work;
@@ -78,7 +78,7 @@ function ContactCallout({ title = "Let's talk about the work.", text = "Tell us 
 }
 
 function Home() {
-  return <>
+  return <div className="home-experience">
     <section className="home-hero conversion-hero">
       <div className="conversion-hero-copy">
         <Eyebrow>ECOMMERCE CONVERSION &amp; GROWTH</Eyebrow>
@@ -93,12 +93,12 @@ function Home() {
       <div className="reference-section-heading"><Eyebrow>WHAT WE DO</Eyebrow><h2>Fix the experience<br/><em>behind the sale.</em></h2><p>From the first campaign click to checkout and repeat purchase, we identify the specific friction costing your store customers.</p></div>
       <div className="reference-service-list"><ServiceRows compact /></div>
     </section>
-    <section className="reference-work section"><div className="reference-section-heading work-heading"><Eyebrow>SELECTED WORK</Eyebrow><h2>Project records<br/><em>from ecommerce.</em></h2><p>See the stores, creative and reported outcomes behind selected projects.</p></div><div className="reference-work-layout"><div className="reference-work-list">{work.map((item,i)=><a href={"/work/"+item.slug} key={item.slug} className="reference-work-row"><span>0{i+1}</span><b>{item.name}</b><small>{item.metric}</small><i>↗</i></a>)}<a href="/work" className="reference-all-work">VIEW ALL PROJECTS ↗</a></div><div className="reference-work-preview"><video muted autoPlay loop playsInline preload="none" poster="/proof/thumbs/novigood.jpg"><source src="/proof/Videoproof2.mp4" type="video/mp4"/></video><span>PROJECT / SELECTED RECORD</span></div></div></section>
+    <section className="reference-work section"><div className="reference-section-heading work-heading"><Eyebrow>SELECTED WORK</Eyebrow><h2>Project records<br/><em>from ecommerce.</em></h2><p>See the stores, creative and reported outcomes behind selected projects.</p></div><div className="reference-work-layout"><div className="reference-work-list">{work.map((item,i)=><a href={"/work/"+item.slug} key={item.slug} className="reference-work-row" data-structure-focus={i + 6}><span>0{i+1}</span><b>{item.name}</b><small>{item.metric}</small><i>↗</i></a>)}<a href="/work" className="reference-all-work">VIEW ALL PROJECTS ↗</a></div><div className="reference-work-preview"><video muted autoPlay loop playsInline preload="none" poster="/proof/thumbs/novigood.jpg"><source src="/proof/Videoproof2.mp4" type="video/mp4"/></video><span>PROJECT / SELECTED RECORD</span></div></div></section>
     <section className="reference-manifesto section"><div><Eyebrow>THE BODE APPROACH</Eyebrow><p className="manifesto-kicker">BETTER STORE EXPERIENCES. MORE EFFECTIVE MARKETING.</p></div><h2>Improve the store.<br/>Reach the right people.<br/><em>Learn from what works.</em></h2><a href="/about" className="reference-text-link">ABOUT BODE ↗</a></section>
     <section className="reference-process section"><div className="reference-section-heading"><Eyebrow>HOW WE WORK</Eyebrow><h2>From store review<br/><em>to focused improvements.</em></h2></div><div className="reference-process-grid"><article><span>01</span><h3>Review</h3><p>We look at your store, offer and current acquisition channels.</p></article><article><span>02</span><h3>Prioritize</h3><p>We agree on the main friction point and what evidence can test it.</p></article><article><span>03</span><h3>Improve</h3><p>We make the changes in scope across the store, creative or campaigns.</p></article><article><span>04</span><h3>Evaluate</h3><p>We review the agreed measures and set the next action.</p></article></div></section>
     <section className="reference-closing section"><div className="closing-copy"><Eyebrow>PROJECT ENQUIRIES</Eyebrow><h2>What would you like<br/><em>your store to improve?</em></h2><a className="reference-pill" href="/contact">Discuss a project <span>↗</span></a><a href="/work" className="reference-text-link">VIEW PROJECT RECORDS ↗</a></div></section>
     <ContactCallout title="Let's talk about your next stage of growth."/>
-  </>;
+  </div>;
 }
 function FAQList({ items = faqs }) { return <div className="faq-list">{items.map(([q, a], i) => <details key={q}><summary><span>0{i + 1}</span><b>{q}</b><i aria-hidden="true">+</i></summary><p>{a}</p></details>)}</div>; }
 
@@ -194,5 +194,29 @@ export default function App() {
     content = service ? <ServicePage service={service}/> : <NotFound/>;
   }
 
+  useEffect(() => {
+    const page = document.querySelector("#main");
+    if (!page) return undefined;
+    const targets = page.querySelectorAll(".page-intro, .section-title, .reference-section-heading, .service-rows .service-row, .reference-work-row, .reference-work-preview, .reference-manifesto h2, .reference-process-grid article, .closing-copy, .service-visual, .service-detail-copy, .case-video, .case-summary, .work-card, .deliverables li, .principles article, .contact-sidebar, .contact-form > label, .privacy-content > *");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      targets.forEach(target => target.classList.add("story-entered"));
+      return undefined;
+    }
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("story-entered");
+        observer.unobserve(entry.target);
+      }
+    }), { threshold: 0.12, rootMargin: "0px 0px -4% 0px" });
+    targets.forEach((target, index) => {
+      target.classList.add("story-enter");
+      target.style.setProperty("--story-delay", String((index % 5) * 65) + "ms");
+      observer.observe(target);
+    });
+    return () => observer.disconnect();
+  }, [path]);
+
   return <div className={"site-shell" + (path === "/contact" ? " contact-route" : "")}><a className="skip-link" href="#main">Skip to content</a><Header path={path}/><main id="main">{content}</main><Footer/>{path !== "/contact" && <a className="mobile-sticky-cta" href="/contact">Discuss your project </a>}</div>;
 }
+

@@ -1,88 +1,103 @@
 import { useEffect, useRef } from "react";
 
-const vertexSource = `
+const vertexShader = `
 attribute vec3 aPosition;
-attribute vec3 aNormal;
 attribute vec3 aColor;
-uniform mat4 uMvp;
-uniform mat4 uModel;
-varying vec3 vNormal;
+attribute float aSeed;
+uniform mat4 uViewProjection;
+uniform float uTime;
+uniform float uScroll;
+uniform float uPointerActive;
+uniform vec2 uPointer;
+uniform float uFocus;
+uniform float uPointScale;
 varying vec3 vColor;
+varying float vAlpha;
 void main() {
-  vec4 worldPosition = uModel * vec4(aPosition, 1.0);
-  vNormal = normalize(mat3(uModel) * aNormal);
-  vColor = aColor;
-  gl_Position = uMvp * vec4(aPosition, 1.0);
+  vec3 point = aPosition;
+  float funnel = smoothstep(0.12, 0.31, uScroll) * (1.0 - smoothstep(0.37, 0.54, uScroll));
+  float branching = smoothstep(0.48, 0.65, uScroll) * (1.0 - smoothstep(0.74, 0.91, uScroll));
+  float returnFlow = smoothstep(0.82, 0.98, uScroll);
+
+  float vertical = clamp((point.y + 1.2) / 2.4, 0.0, 1.0);
+  float waist = 0.36 + vertical * 0.9;
+  point.xz *= mix(1.0, waist, funnel);
+  point.y *= mix(1.0, 1.25, funnel);
+  point.x += sin(point.y * 2.5 + aSeed * 9.0 + uTime * 0.22) * funnel * 0.11;
+
+  float lane = floor(aSeed * 3.0) - 1.0;
+  point.x += lane * (0.28 + abs(point.y) * 0.22) * branching;
+  point.z += sin(aSeed * 19.0 + uTime * 0.25) * branching * 0.12;
+  point = mix(point, aPosition, returnFlow);
+
+  float shimmer = sin(uTime * (0.42 + aSeed * 0.8) + aSeed * 87.0);
+  point *= 1.0 + shimmer * 0.014;
+  point.z += sin(aSeed * 31.0 + uTime * 0.31) * 0.018;
+
+  vec4 clip = uViewProjection * vec4(point, 1.0);
+  vec2 projected = clip.xy / clip.w;
+  float cursorDistance = distance(projected, uPointer);
+  float cursorPull = exp(-cursorDistance * cursorDistance * 17.0) * uPointerActive;
+  point += normalize(point + vec3(0.001, 0.001, 0.0)) * cursorPull * (0.12 + aSeed * 0.07);
+  point.z += cursorPull * 0.16;
+  clip = uViewProjection * vec4(point, 1.0);
+
+  float angle = atan(aPosition.z, aPosition.x) / 6.2831853 + 0.5;
+  float focusAngle = mod(max(uFocus, 0.0), 8.0) / 8.0;
+  float angleDelta = abs(fract(angle - focusAngle + 0.5) - 0.5);
+  float focusLight = (1.0 - smoothstep(0.035, 0.19, angleDelta)) * step(0.0, uFocus);
+  vColor = aColor * (0.74 + shimmer * 0.10 + focusLight * 0.48 + cursorPull * 0.42);
+  vAlpha = 0.35 + aSeed * 0.45 + focusLight * 0.12;
+  gl_Position = clip;
+  gl_PointSize = uPointScale * (0.68 + aSeed * 0.8 + cursorPull * 1.9) * (1.0 / max(0.72, clip.w * 0.33));
 }`;
 
-const fragmentSource = `
+const fragmentShader = `
 precision mediump float;
-uniform vec3 uLightDirection;
-varying vec3 vNormal;
 varying vec3 vColor;
+varying float vAlpha;
 void main() {
-  vec3 normal = normalize(vNormal);
-  float diffuse = max(dot(normal, normalize(uLightDirection)), 0.0);
-  float edgeLight = pow(1.0 - abs(dot(normal, vec3(0.0, 0.0, 1.0))), 2.0);
-  vec3 color = vColor * (0.28 + diffuse * 0.68) + vec3(0.20, 0.34, 0.25) * edgeLight * 0.22;
-  gl_FragColor = vec4(color, 1.0);
+  vec2 point = gl_PointCoord - vec2(0.5);
+  float distanceFromCenter = length(point);
+  if (distanceFromCenter > 0.5) discard;
+  float core = 1.0 - smoothstep(0.05, 0.5, distanceFromCenter);
+  float halo = 1.0 - smoothstep(0.12, 0.5, distanceFromCenter);
+  vec3 color = vColor * (0.55 + core * 1.25);
+  gl_FragColor = vec4(color, (core * 0.76 + halo * 0.14) * vAlpha);
 }`;
 
-function identity() {
-  return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-}
+const identity = () => new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
 function multiply(a, b) {
   const out = new Float32Array(16);
   for (let column = 0; column < 4; column += 1) {
     for (let row = 0; row < 4; row += 1) {
-      out[column * 4 + row] =
-        a[row] * b[column * 4] +
-        a[4 + row] * b[column * 4 + 1] +
-        a[8 + row] * b[column * 4 + 2] +
-        a[12 + row] * b[column * 4 + 3];
+      out[column * 4 + row] = a[row] * b[column * 4] + a[4 + row] * b[column * 4 + 1] + a[8 + row] * b[column * 4 + 2] + a[12 + row] * b[column * 4 + 3];
     }
   }
   return out;
 }
 
 function rotateX(angle) {
-  const c = Math.cos(angle), s = Math.sin(angle), m = identity();
+  const m = identity(), c = Math.cos(angle), s = Math.sin(angle);
   m[5] = c; m[6] = s; m[9] = -s; m[10] = c;
   return m;
 }
 
 function rotateY(angle) {
-  const c = Math.cos(angle), s = Math.sin(angle), m = identity();
+  const m = identity(), c = Math.cos(angle), s = Math.sin(angle);
   m[0] = c; m[2] = -s; m[8] = s; m[10] = c;
   return m;
 }
 
-function rotateZ(angle) {
-  const c = Math.cos(angle), s = Math.sin(angle), m = identity();
-  m[0] = c; m[1] = s; m[4] = -s; m[5] = c;
-  return m;
-}
-
-function translate(x, y, z) {
-  const m = identity();
-  m[12] = x; m[13] = y; m[14] = z;
-  return m;
-}
-
-function scale(value) {
-  const m = identity();
-  m[0] = value; m[5] = value; m[10] = value;
-  return m;
-}
-
 function perspective(fov, aspect, near, far) {
-  const f = 1 / Math.tan(fov / 2), range = 1 / (near - far);
-  const m = new Float32Array(16);
-  m[0] = f / aspect; m[5] = f;
-  m[10] = (near + far) * range; m[11] = -1;
-  m[14] = near * far * 2 * range;
+  const f = 1 / Math.tan(fov / 2), range = 1 / (near - far), m = new Float32Array(16);
+  m[0] = f / aspect; m[5] = f; m[10] = (near + far) * range; m[11] = -1; m[14] = near * far * 2 * range;
   return m;
+}
+
+function translation(x, y, z) {
+  const m = identity(); m[12] = x; m[13] = y; m[14] = z; return m;
 }
 
 function compile(gl, type, source) {
@@ -90,6 +105,7 @@ function compile(gl, type, source) {
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.error("Bode particle shader failed:", gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
     return null;
   }
@@ -97,124 +113,59 @@ function compile(gl, type, source) {
 }
 
 function createProgram(gl) {
-  const vertex = compile(gl, gl.VERTEX_SHADER, vertexSource);
-  const fragment = compile(gl, gl.FRAGMENT_SHADER, fragmentSource);
+  const vertex = compile(gl, gl.VERTEX_SHADER, vertexShader);
+  const fragment = compile(gl, gl.FRAGMENT_SHADER, fragmentShader);
   if (!vertex || !fragment) return null;
   const program = gl.createProgram();
-  gl.attachShader(program, vertex);
-  gl.attachShader(program, fragment);
-  gl.linkProgram(program);
-  gl.deleteShader(vertex);
-  gl.deleteShader(fragment);
-  return gl.getProgramParameter(program, gl.LINK_STATUS) ? program : null;
+  gl.attachShader(program, vertex); gl.attachShader(program, fragment); gl.linkProgram(program);
+  gl.deleteShader(vertex); gl.deleteShader(fragment);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.error("Bode particle program failed:", gl.getProgramInfoLog(program));
+    gl.deleteProgram(program);
+    return null;
+  }
+  return program;
 }
 
-function makeMesh(gl, vertices) {
-  const buffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-  return { buffer, count: vertices.length / 9 };
-}
-
-function pushVertex(out, position, normal, color) {
-  out.push(...position, ...normal, ...color);
-}
-
-function makeTorus(gl, radius, tube, color, segments = 112, sides = 8) {
-  const data = [];
-  const point = (u, v) => {
-    const c = Math.cos(v), s = Math.sin(v), cu = Math.cos(u), su = Math.sin(u);
-    return {
-      position: [(radius + tube * c) * cu, (radius + tube * c) * su, tube * s],
-      normal: [c * cu, c * su, s]
-    };
+function seeded(seed) {
+  let value = seed >>> 0;
+  return () => {
+    value = (value * 1664525 + 1013904223) >>> 0;
+    return value / 4294967296;
   };
-  for (let i = 0; i < segments; i += 1) {
-    const u0 = i / segments * Math.PI * 2, u1 = (i + 1) / segments * Math.PI * 2;
-    for (let j = 0; j < sides; j += 1) {
-      const v0 = j / sides * Math.PI * 2, v1 = (j + 1) / sides * Math.PI * 2;
-      const a = point(u0, v0), b = point(u1, v0), c = point(u1, v1), d = point(u0, v1);
-      pushVertex(data, a.position, a.normal, color); pushVertex(data, b.position, b.normal, color); pushVertex(data, c.position, c.normal, color);
-      pushVertex(data, a.position, a.normal, color); pushVertex(data, c.position, c.normal, color); pushVertex(data, d.position, d.normal, color);
+}
+
+function makeParticles(count) {
+  const random = seeded(20261101), positions = new Float32Array(count * 3), colors = new Float32Array(count * 3), seeds = new Float32Array(count);
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < count; i += 1) {
+    const y = 1 - (i / (count - 1)) * 2;
+    const ring = Math.sqrt(1 - y * y), theta = goldenAngle * i;
+    const depth = 0.42 + Math.pow(random(), 0.42) * 0.76;
+    const jitter = (random() - 0.5) * 0.035;
+    const index = i * 3;
+    positions[index] = (Math.cos(theta) * ring + jitter) * depth * 1.45;
+    positions[index + 1] = (y + jitter) * depth * 1.45;
+    positions[index + 2] = (Math.sin(theta) * ring + jitter) * depth * 1.45;
+
+    const tone = random();
+    const brightness = 0.68 + random() * 0.32;
+    if (tone < 0.48) {
+      colors[index] = 0.50 * brightness; colors[index + 1] = 0.82 * brightness; colors[index + 2] = 0.62 * brightness;
+    } else if (tone < 0.77) {
+      colors[index] = 0.76 * brightness; colors[index + 1] = 0.85 * brightness; colors[index + 2] = 0.79 * brightness;
+    } else {
+      colors[index] = 0.26 * brightness; colors[index + 1] = 0.62 * brightness; colors[index + 2] = 0.42 * brightness;
     }
+    seeds[i] = random();
   }
-  return makeMesh(gl, data);
+  return { positions, colors, seeds };
 }
-
-function makeSphere(gl, radius, color, segments = 14, rings = 9) {
-  const data = [];
-  const point = (u, v) => {
-    const normal = [Math.sin(v) * Math.cos(u), Math.sin(v) * Math.sin(u), Math.cos(v)];
-    return { position: normal.map(value => value * radius), normal };
-  };
-  for (let row = 0; row < rings; row += 1) {
-    const v0 = row / rings * Math.PI, v1 = (row + 1) / rings * Math.PI;
-    for (let col = 0; col < segments; col += 1) {
-      const u0 = col / segments * Math.PI * 2, u1 = (col + 1) / segments * Math.PI * 2;
-      const a = point(u0, v0), b = point(u1, v0), c = point(u1, v1), d = point(u0, v1);
-      pushVertex(data, a.position, a.normal, color); pushVertex(data, b.position, b.normal, color); pushVertex(data, c.position, c.normal, color);
-      pushVertex(data, a.position, a.normal, color); pushVertex(data, c.position, c.normal, color); pushVertex(data, d.position, d.normal, color);
-    }
-  }
-  return makeMesh(gl, data);
-}
-
-function makeCube(gl) {
-  const data = [];
-  const faces = [
-    { n: [0, 0, 1], c: [0.19, 0.36, 0.26], p: [[-0.53, -0.53, 0.53], [0.53, -0.53, 0.53], [0.53, 0.53, 0.53], [-0.53, 0.53, 0.53]] },
-    { n: [0, 0, -1], c: [0.20, 0.23, 0.21], p: [[0.53, -0.53, -0.53], [-0.53, -0.53, -0.53], [-0.53, 0.53, -0.53], [0.53, 0.53, -0.53]] },
-    { n: [1, 0, 0], c: [0.27, 0.31, 0.28], p: [[0.53, -0.53, 0.53], [0.53, -0.53, -0.53], [0.53, 0.53, -0.53], [0.53, 0.53, 0.53]] },
-    { n: [-1, 0, 0], c: [0.15, 0.20, 0.17], p: [[-0.53, -0.53, -0.53], [-0.53, -0.53, 0.53], [-0.53, 0.53, 0.53], [-0.53, 0.53, -0.53]] },
-    { n: [0, 1, 0], c: [0.31, 0.36, 0.32], p: [[-0.53, 0.53, 0.53], [0.53, 0.53, 0.53], [0.53, 0.53, -0.53], [-0.53, 0.53, -0.53]] },
-    { n: [0, -1, 0], c: [0.12, 0.16, 0.13], p: [[-0.53, -0.53, -0.53], [0.53, -0.53, -0.53], [0.53, -0.53, 0.53], [-0.53, -0.53, 0.53]] }
-  ];
-  faces.forEach(({ n, c, p }) => {
-    [[0, 1, 2], [0, 2, 3]].forEach(indices => indices.forEach(index => pushVertex(data, p[index], n, c)));
-  });
-  return makeMesh(gl, data);
-}
-
-function makeCubeEdges(gl) {
-  const data = [], size = 0.53;
-  const points = [];
-  for (let z of [-size, size]) for (let y of [-size, size]) for (let x of [-size, size]) points.push([x, y, z]);
-  const edgeColor = [0.55, 0.69, 0.59];
-  for (let i = 0; i < points.length; i += 1) {
-    for (let j = i + 1; j < points.length; j += 1) {
-      const differingAxes = points[i].filter((v, axis) => v !== points[j][axis]).length;
-      if (differingAxes === 1) {
-        pushVertex(data, points[i], [0, 0, 1], edgeColor);
-        pushVertex(data, points[j], [0, 0, 1], edgeColor);
-      }
-    }
-  }
-  return makeMesh(gl, data);
-}
-
-function applyAttributes(gl, program, mesh) {
-  gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
-  const stride = 9 * Float32Array.BYTES_PER_ELEMENT;
-  const position = gl.getAttribLocation(program, "aPosition");
-  const normal = gl.getAttribLocation(program, "aNormal");
-  const color = gl.getAttribLocation(program, "aColor");
-  gl.enableVertexAttribArray(position);
-  gl.enableVertexAttribArray(normal);
-  gl.enableVertexAttribArray(color);
-  gl.vertexAttribPointer(position, 3, gl.FLOAT, false, stride, 0);
-  gl.vertexAttribPointer(normal, 3, gl.FLOAT, false, stride, 3 * Float32Array.BYTES_PER_ELEMENT);
-  gl.vertexAttribPointer(color, 3, gl.FLOAT, false, stride, 6 * Float32Array.BYTES_PER_ELEMENT);
-}
-
-const ringSpecs = [
-  { tiltX: 0.92, tiltY: 0.12, tiltZ: -0.24, speed: 0.14, color: [0.61, 0.69, 0.63] },
-  { tiltX: -0.28, tiltY: 1.02, tiltZ: 0.68, speed: -0.11, color: [0.35, 0.68, 0.47] },
-  { tiltX: 1.34, tiltY: -0.44, tiltZ: -0.91, speed: 0.08, color: [0.36, 0.42, 0.38] }
-];
 
 export default function ConversionStructure() {
   const canvasRef = useRef(null);
-  const pointerRef = useRef({ x: 0, y: 0 });
+  const pointerRef = useRef({ x: 0, y: 0, active: 0 });
+  const focusRef = useRef(-1);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -224,109 +175,128 @@ export default function ConversionStructure() {
     const program = createProgram(gl);
     if (!program) return undefined;
 
-    const ringMeshes = ringSpecs.map(spec => makeTorus(gl, 1.55, 0.018, spec.color));
-    const cube = makeCube(gl);
-    const cubeEdges = makeCubeEdges(gl);
-    const nodes = ringSpecs.map((spec, index) => makeSphere(gl, index === 1 ? 0.062 : 0.047, spec.color));
-    const pvLocation = gl.getUniformLocation(program, "uMvp");
-    const modelLocation = gl.getUniformLocation(program, "uModel");
-    const lightLocation = gl.getUniformLocation(program, "uLightDirection");
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let frame = 0;
-    let startedAt = 0;
-    let width = 0;
-    let height = 0;
-    let rotationX = 0;
-    let rotationY = 0;
+    const count = window.innerWidth < 760 ? 2600 : 5200;
+    const particles = makeParticles(count);
+    const buffers = [gl.createBuffer(), gl.createBuffer(), gl.createBuffer()];
+    [particles.positions, particles.colors, particles.seeds].forEach((data, index) => {
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers[index]);
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+    });
+    const attributes = ["aPosition", "aColor", "aSeed"].map(name => gl.getAttribLocation(program, name));
+    const uniforms = Object.fromEntries(["uViewProjection", "uTime", "uScroll", "uPointerActive", "uPointer", "uFocus", "uPointScale"].map(name => [name, gl.getUniformLocation(program, name)]));
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const story = canvas.closest(".home-experience");
+    const pointer = pointerRef.current;
+    const view = identity();
+    view[14] = -5.1;
+    let width = 1, height = 1, frame = 0, startTime = 0, active = true;
+    let motionAllowed = !reducedMotion.matches;
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
-      const ratio = Math.min(window.devicePixelRatio || 1, 1.7);
-      width = Math.max(1, Math.round(rect.width * ratio));
-      height = Math.max(1, Math.round(rect.height * ratio));
-      canvas.width = width;
-      canvas.height = height;
-      gl.viewport(0, 0, width, height);
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, window.innerWidth < 760 ? 1.35 : 1.65);
+      width = Math.max(1, Math.round(rect.width * pixelRatio));
+      height = Math.max(1, Math.round(rect.height * pixelRatio));
+      canvas.width = width; canvas.height = height; gl.viewport(0, 0, width, height);
     };
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
     resize();
 
-    const view = identity();
-    view[14] = -5.1;
-    gl.clearColor(0, 0, 0, 0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
-    gl.disable(gl.CULL_FACE);
-    gl.useProgram(program);
-    gl.uniform3f(lightLocation, -0.42, 0.76, 0.84);
-
-    const drawMesh = (mesh, model, projection, mode = gl.TRIANGLES) => {
-      applyAttributes(gl, program, mesh);
-      gl.uniformMatrix4fv(modelLocation, false, model);
-      gl.uniformMatrix4fv(pvLocation, false, multiply(projection, multiply(view, model)));
-      gl.drawArrays(mode, 0, mesh.count);
+    const onPointerMove = event => {
+      if (event.pointerType === "touch") return;
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = 1 - ((event.clientY - rect.top) / rect.height) * 2;
+      pointer.active = pointer.x >= -1 && pointer.x <= 1 && pointer.y >= -1 && pointer.y <= 1 ? 1 : 0;
+    };
+    const onPointerOut = event => { if (!event.relatedTarget) pointer.active = 0; };
+    const onMotionChange = event => { motionAllowed = !event.matches; };
+    const onFocus = event => {
+      const value = event.target?.closest?.("[data-structure-focus]")?.getAttribute("data-structure-focus");
+      if (value != null) focusRef.current = Number(value);
+    };
+    const onHoverFocus = event => {
+      const value = event.target?.closest?.("[data-structure-focus]")?.getAttribute("data-structure-focus");
+      if (value != null) focusRef.current = Number(value);
+    };
+    const onHoverClear = event => {
+      const from = event.target?.closest?.("[data-structure-focus]");
+      const to = event.relatedTarget?.closest?.("[data-structure-focus]");
+      if (from && from !== to) focusRef.current = -1;
+    };
+    const onBlur = event => {
+      if (event.target?.closest?.("[data-structure-focus]") && !event.relatedTarget?.closest?.("[data-structure-focus]")) focusRef.current = -1;
     };
 
-    const render = timestamp => {
-      if (!startedAt) startedAt = timestamp;
-      const elapsed = reducedMotion ? 0 : (timestamp - startedAt) / 1000;
-      const target = pointerRef.current;
-      rotationX += (target.y * 0.23 - rotationX) * 0.035;
-      rotationY += (target.x * 0.31 - rotationY) * 0.035;
-      const root = multiply(rotateY(rotationY + elapsed * 0.105), rotateX(rotationX + Math.sin(elapsed * 0.21) * 0.035));
-      const projection = perspective(Math.PI / 4.15, width / height, 0.1, 30);
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerout", onPointerOut, { passive: true });
+    reducedMotion.addEventListener?.("change", onMotionChange);
+    document.addEventListener("focusin", onFocus);
+    document.addEventListener("focusout", onBlur);
+    document.addEventListener("pointerover", onHoverFocus);
+    document.addEventListener("pointerout", onHoverClear);
+
+    gl.useProgram(program);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthMask(false);
+    gl.clearColor(0, 0, 0, 0);
+    attributes.forEach((location, index) => {
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers[index]);
+      gl.enableVertexAttribArray(location);
+      gl.vertexAttribPointer(location, index === 2 ? 1 : 3, gl.FLOAT, false, 0, 0);
+    });
+
+    const animate = timestamp => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = motionAllowed ? (timestamp - startTime) / 1000 : 0;
+      const rect = story?.getBoundingClientRect();
+      const scroll = rect ? Math.max(0, Math.min(1, -rect.top / Math.max(1, rect.height - window.innerHeight))) : 0;
+      const aspect = width / height;
+      const projection = perspective(Math.PI / 3.0, aspect, 0.1, 24);
+      const rotation = multiply(rotateY(elapsed * 0.11 + pointer.x * 0.08), rotateX(Math.sin(elapsed * 0.2) * 0.06 - pointer.y * 0.08));
+      const desktop = window.innerWidth >= 760;
+      const offset = desktop ? 0.88 : 0;
+      const viewProjection = multiply(projection, multiply(view, multiply(translation(offset, 0, 0), rotation)));
 
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      ringSpecs.forEach((spec, index) => {
-        const orientation = multiply(rotateZ(spec.tiltZ), multiply(rotateY(spec.tiltY), rotateX(spec.tiltX)));
-        const spin = rotateZ(elapsed * spec.speed + index * 0.42);
-        const ringModel = multiply(root, multiply(spin, orientation));
-        drawMesh(ringMeshes[index], ringModel, projection);
+      gl.uniformMatrix4fv(uniforms.uViewProjection, false, viewProjection);
+      gl.uniform1f(uniforms.uTime, elapsed);
+      gl.uniform1f(uniforms.uScroll, scroll);
+      gl.uniform1f(uniforms.uPointerActive, pointer.active * (motionAllowed ? 1 : 0));
+      gl.uniform2f(uniforms.uPointer, pointer.x, pointer.y);
+      gl.uniform1f(uniforms.uFocus, focusRef.current);
+      gl.uniform1f(uniforms.uPointScale, Math.min(width, height) * (desktop ? 0.006 : 0.005));
+      gl.drawArrays(gl.POINTS, 0, count);
 
-        const nodeAngle = elapsed * (spec.speed * 1.55) + index * 2.15;
-        const nodeAt = multiply(ringModel, translate(Math.cos(nodeAngle) * 1.55, Math.sin(nodeAngle) * 1.55, 0));
-        drawMesh(nodes[index], multiply(nodeAt, scale(1)), projection);
-      });
-
-      const cubeModel = multiply(root, multiply(rotateY(-elapsed * 0.16), rotateX(0.18 + Math.sin(elapsed * 0.25) * 0.025)));
-      drawMesh(cube, cubeModel, projection);
-      drawMesh(cubeEdges, cubeModel, projection, gl.LINES);
-
-      if (!reducedMotion) frame = window.requestAnimationFrame(render);
+      if (active && !document.hidden) frame = window.requestAnimationFrame(animate);
     };
 
-    render(0);
-    if (!reducedMotion) frame = window.requestAnimationFrame(render);
+    const start = () => { if (active && !document.hidden && !frame) frame = window.requestAnimationFrame(animate); };
+    const stop = () => { if (frame) window.cancelAnimationFrame(frame); frame = 0; };
+    const onVisibility = () => document.hidden ? stop() : start();
+    start();
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
-      window.cancelAnimationFrame(frame);
-      observer.disconnect();
-      [...ringMeshes, ...nodes, cube, cubeEdges].forEach(mesh => gl.deleteBuffer(mesh.buffer));
+      active = false; stop(); observer.disconnect();
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerout", onPointerOut);
+      reducedMotion.removeEventListener?.("change", onMotionChange);
+      document.removeEventListener("focusin", onFocus);
+      document.removeEventListener("focusout", onBlur);
+      document.removeEventListener("pointerover", onHoverFocus);
+      document.removeEventListener("pointerout", onHoverClear);
+      document.removeEventListener("visibilitychange", onVisibility);
+      buffers.forEach(buffer => gl.deleteBuffer(buffer));
       gl.deleteProgram(program);
     };
   }, []);
 
-  const moveCamera = event => {
-    if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    pointerRef.current = {
-      x: ((event.clientX - rect.left) / rect.width - 0.5) * 2,
-      y: ((event.clientY - rect.top) / rect.height - 0.5) * 2
-    };
-  };
-
-  const resetCamera = () => { pointerRef.current = { x: 0, y: 0 }; };
-
-  return <div className="conversion-structure" onPointerMove={moveCamera} onPointerLeave={resetCamera} role="img" aria-label="An animated three-dimensional structure of customer-journey rings around a central Bode cube.">
-    <canvas ref={canvasRef} className="conversion-structure-canvas" aria-hidden="true" />
-    <div className="structure-index" aria-hidden="true"><span>BODE / 01</span><span>COMMERCE PATH</span></div>
-    <ol className="structure-stages" aria-label="The four stages of the customer journey">
-      <li><b>01</b><span>Discover</span></li>
-      <li><b>02</b><span>Consider</span></li>
-      <li><b>03</b><span>Purchase</span></li>
-      <li><b>04</b><span>Return</span></li>
-    </ol>
+  return <div className="conversion-structure" aria-hidden="true">
+    <canvas ref={canvasRef} className="conversion-structure-canvas" />
   </div>;
 }
 
