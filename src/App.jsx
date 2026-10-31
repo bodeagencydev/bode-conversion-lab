@@ -78,26 +78,79 @@ function ContactCallout({ title = "Let's talk about the work.", text = "Tell us 
 }
 
 function Home() {
-  return <div className="home-experience">
-    <section className="home-hero conversion-hero">
-      <div className="conversion-hero-copy">
-        <Eyebrow>ECOMMERCE CONVERSION &amp; GROWTH</Eyebrow>
-        <h1>Turn more store visits into <em>sales.</em></h1>
-        <p>We improve product pages, campaigns and customer journeys so more of your existing demand becomes revenue.</p>
-        <div className="conversion-hero-actions"><a className="button button-light" href="/contact">Discuss your project <span aria-hidden="true">↗</span></a><a className="conversion-secondary-link" href="/services">Explore our services</a></div>
+  const [selected, setSelected] = useState(work[0]);
+  useEffect(() => {
+    if (!window.matchMedia("(pointer: fine)").matches) return undefined;
+    const cursor = document.querySelector(".bode-cursor");
+    if (!cursor) return undefined;
+    const move = event => {
+      cursor.style.transform = "translate3d(" + event.clientX + "px," + event.clientY + "px,0)";
+      cursor.classList.add("is-visible");
+      cursor.classList.toggle("is-hover", Boolean(event.target.closest("a,button,[role=button]")));
+    };
+    const leave = () => cursor.classList.remove("is-visible");
+    window.addEventListener("pointermove", move, { passive: true });
+    document.documentElement.addEventListener("pointerleave", leave);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      document.documentElement.removeEventListener("pointerleave", leave);
+    };
+  }, []);
+  return <div className="home-experience bespoke-home">
+    <section className="bespoke-hero">
+      <div className="hero-copy">
+        <p className="hero-index">BODE / CONVERSION LAB</p>
+        <h1>The sale starts <em>before</em> the click.</h1>
+        <p className="hero-description">We find where product pages, campaigns and checkout lose momentum, then improve the parts customers actually experience.</p>
+        <div className="hero-ctas"><a className="button button-light" href="/contact">Discuss your store <span aria-hidden="true">↗</span></a><a className="hero-work-link" href="#selected-work">See selected work</a></div>
+        <p className="hero-footnote">STORE EXPERIENCE&nbsp;&nbsp; / &nbsp;&nbsp;ACQUISITION&nbsp;&nbsp; / &nbsp;&nbsp;RETENTION</p>
       </div>
-      <ConversionStructure />
+      <div className="hero-art" aria-label="Interactive particle field responding to pointer and touch movement">
+        <ConversionStructure />
+        <img className="hero-mark" src="/logo-mark.png" alt="Bode Conversion Lab" />
+        <span className="hero-annotation hero-annotation-one">Customer signal / 01</span>
+        <span className="hero-annotation hero-annotation-two">Conversion current / live</span>
+      </div>
+      <span className="hero-scroll">Scroll to explore</span><span className="hero-corner-index">01 / 04</span>
     </section>
-    <section className="platform-strip"><span>BUILT AROUND YOUR COMMERCE STACK</span><div><b>Shopify</b><b>WooCommerce</b><b>Wix</b><b>BigCommerce</b><b>Custom platforms</b></div></section>
-    <section className="reference-services section">
-      <div className="reference-section-heading"><Eyebrow>WHAT WE DO</Eyebrow><h2>Fix the experience<br/><em>behind the sale.</em></h2><p>From the first campaign click to checkout and repeat purchase, we identify the specific friction costing your store customers.</p></div>
-      <div className="reference-service-list"><ServiceRows compact /></div>
+    <section className="field-note">
+      <div><span className="field-label">The work, beneath the surface</span><div className="field-stats"><div><span>Focus</span><b>Customer journey</b></div><div><span>Practice</span><b>Commerce growth</b></div><div><span>Approach</span><b>Evidence-led</b></div></div></div>
+      <div><h2 className="field-headline">Growth is rarely one big fix. It is a series of <em>better decisions.</em></h2><p className="field-copy">A store, its campaigns and the experience after checkout all shape the decision to buy again. Bode works across those connected moments: identify the friction, agree what to change, and measure what the available evidence can show.</p></div>
     </section>
-    <section className="reference-work section"><div className="reference-section-heading work-heading"><Eyebrow>SELECTED WORK</Eyebrow><h2>Project records<br/><em>from ecommerce.</em></h2><p>See the stores, creative and reported outcomes behind selected projects.</p></div><div className="reference-work-layout"><div className="reference-work-list">{work.map((item,i)=><a href={"/work/"+item.slug} key={item.slug} className="reference-work-row" data-structure-focus={i + 6}><span>0{i+1}</span><b>{item.name}</b><small>{item.metric}</small><i>↗</i></a>)}<a href="/work" className="reference-all-work">VIEW ALL PROJECTS ↗</a></div><div className="reference-work-preview"><video muted autoPlay loop playsInline preload="none" poster="/proof/thumbs/novigood.jpg"><source src="/proof/Videoproof2.mp4" type="video/mp4"/></video><span>PROJECT / SELECTED RECORD</span></div></div></section>
-    <section className="reference-manifesto section"><div><Eyebrow>THE BODE APPROACH</Eyebrow><p className="manifesto-kicker">BETTER STORE EXPERIENCES. MORE EFFECTIVE MARKETING.</p></div><h2>Improve the store.<br/>Reach the right people.<br/><em>Learn from what works.</em></h2><a href="/about" className="reference-text-link">ABOUT BODE ↗</a></section>
-    <section className="reference-process section"><div className="reference-section-heading"><Eyebrow>HOW WE WORK</Eyebrow><h2>From store review<br/><em>to focused improvements.</em></h2></div><div className="reference-process-grid"><article><span>01</span><h3>Review</h3><p>We look at your store, offer and current acquisition channels.</p></article><article><span>02</span><h3>Prioritize</h3><p>We agree on the main friction point and what evidence can test it.</p></article><article><span>03</span><h3>Improve</h3><p>We make the changes in scope across the store, creative or campaigns.</p></article><article><span>04</span><h3>Evaluate</h3><p>We review the agreed measures and set the next action.</p></article></div></section>
-    <section className="reference-closing section"><div className="closing-copy"><Eyebrow>PROJECT ENQUIRIES</Eyebrow><h2>What would you like<br/><em>your store to improve?</em></h2><a className="reference-pill" href="/contact">Discuss a project <span>↗</span></a><a href="/work" className="reference-text-link">VIEW PROJECT RECORDS ↗</a></div></section>
-    <ContactCallout title="Let's talk about your next stage of growth."/>
+    <section className="section service-sequence" id="services">
+      <div className="sequence-heading"><div><Eyebrow>WHAT WE WORK ON</Eyebrow><h2>Six ways to move<br/>the experience forward.</h2></div><p>Start with the part that needs attention. We scope each engagement around your platform, customers and business priorities.</p></div>
+      <ServiceRows compact />
+    </section>
+    <section className="project-chamber" id="selected-work">
+      <div className="project-head"><div><Eyebrow>SELECTED WORK / PROJECT RECORDS</Eyebrow><h2>Work in context.</h2></div><p>Selected project videos and reported figures. Each result is shown with the context available to us.</p></div>
+      <div className="project-display">
+        <a className="project-screen" href={"/work/" + selected.slug} aria-label={"Open project record: " + selected.name}>
+          <video key={selected.slug} muted autoPlay loop playsInline preload="none" poster={selected.poster} aria-label={selected.name}><source src={selected.video} type="video/mp4" /></video>
+          <span className="project-screen-caption">PROJECT RECORD&nbsp;&nbsp; / &nbsp;&nbsp;{selected.name}</span>
+        </a>
+        <div className="project-nav" aria-label="Selected projects">
+          {work.map((item, i) => <a key={item.slug} href={"/work/" + item.slug} className={"project-choice" + (selected.slug === item.slug ? " active" : "")} onMouseEnter={() => setSelected(item)} onFocus={() => setSelected(item)} aria-current={selected.slug === item.slug ? "true" : undefined}>
+            <span>0{i + 1}</span><div><b>{item.name}</b><small>{item.metric}</small></div><i aria-hidden="true">↗</i>
+          </a>)}
+          <a className="project-all-link" href="/work">VIEW ALL PROJECTS&nbsp;&nbsp;↗</a>
+        </div>
+      </div>
+    </section>
+    <section className="method-section">
+      <div><span className="method-index">BODE / METHOD</span><h2>Look closely.<br/><em>Change with intent.</em></h2><p className="method-description">A clear process makes the work easier to understand, deliver and evaluate.</p></div>
+      <div className="method-list">
+        <article className="method-item"><span>01</span><div><h3>Read the journey</h3><p>We look at the product, the offer and the path customers take through your store.</p></div></article>
+        <article className="method-item"><span>02</span><div><h3>Set the priority</h3><p>We agree on the main friction point and the evidence that can help assess it.</p></div></article>
+        <article className="method-item"><span>03</span><div><h3>Make the change</h3><p>We work within the agreed scope across the storefront, creative or campaigns.</p></div></article>
+        <article className="method-item"><span>04</span><div><h3>Review what happened</h3><p>We put the available results in context and define the next useful action.</p></div></article>
+      </div>
+    </section>
+    <section className="bespoke-close">
+      <div><Eyebrow>PROJECT ENQUIRIES</Eyebrow><h2>What is your store<br/>ready to <em>change?</em></h2><div className="closing-actions"><a className="button button-light" href="/contact">Start a conversation <span aria-hidden="true">↗</span></a><a className="closing-mail" href="mailto:bodeagencyofficial@gmail.com">Email Bode directly</a></div></div>
+      <div className="closing-coordinate">Store experience&nbsp;&nbsp; / &nbsp;&nbsp;Campaigns&nbsp;&nbsp; / &nbsp;&nbsp;Creative&nbsp;&nbsp; / &nbsp;&nbsp;Customer retention</div>
+      <img className="bespoke-close-mark" src="/logo-mark.png" alt="" />
+    </section>
+    <div className="bode-cursor" aria-hidden="true" />
   </div>;
 }
 function FAQList({ items = faqs }) { return <div className="faq-list">{items.map(([q, a], i) => <details key={q}><summary><span>0{i + 1}</span><b>{q}</b><i aria-hidden="true">+</i></summary><p>{a}</p></details>)}</div>; }
