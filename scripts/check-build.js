@@ -33,12 +33,23 @@ for (const route of routes) {
   }
 }
 
-for (const asset of ["og-image.png", "favicon.png", "apple-touch-icon.png", "logo-mark.png", "robots.txt", "sitemap.xml"]) {
+for (const asset of ["og-image.png", "favicon.png", "favicon.ico", "apple-touch-icon.png", "logo-mark.png", "site.webmanifest", "bode-favicon-v2.png", "bode-touch-icon-v2.png", "bode-app-icon-192-v2.png", "bode-app-icon-512-v2.png", "robots.txt", "sitemap.xml"]) {
   try {
     await access(path.join(dist, asset));
   } catch {
     assert(false, `required public asset missing: ${asset}`);
   }
+}
+
+try {
+  const manifest = JSON.parse(await readFile(path.join(dist, "site.webmanifest"), "utf8"));
+  assert(manifest.name === "Bode Conversion Lab", "web app manifest must use the current brand name");
+  assert(manifest.theme_color === "#0B0B0C", "web app manifest must match the site theme color");
+  for (const icon of ["/bode-app-icon-192-v2.png", "/bode-app-icon-512-v2.png"]) {
+    assert(manifest.icons?.some((entry) => entry.src === icon), `web app manifest is missing current icon: ${icon}`);
+  }
+} catch {
+  assert(false, "site.webmanifest is missing or invalid");
 }
 
 try {
@@ -55,5 +66,5 @@ try {
 if (process.exitCode) {
   console.error("Build verification failed.");
 } else {
-  console.log(`Build verification passed: ${routes.length} route HTML files, SEO metadata, sitemap, robots.txt and core assets.`);
+  console.log(`Build verification passed: ${routes.length} route HTML files, SEO metadata, sitemap, robots.txt, current install icons and core assets.`);
 }
