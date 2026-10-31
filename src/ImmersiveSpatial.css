@@ -23,7 +23,6 @@
 .ih-engine-node:hover{transform:translateZ(82px) scale(1.045);border-color:rgba(142,234,58,.75);background:rgba(108,203,46,.13)}
 .ih-engine-signal{animation:ih-signal-orbit 12s linear infinite}
 @keyframes ih-signal-orbit{to{transform:rotate(360deg)}}
-.ih-journey-line i{transform-origin:left center;transform:scaleX(var(--journey-progress,0));transition:transform .15s linear}
 .ih-journey-stop{transition:transform .45s cubic-bezier(.2,.7,.2,1),color .35s}
 .ih-journey-stop:hover{transform:translateY(-8px)}
 .ih-machine-core{transform:translateZ(0);transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s}
@@ -34,10 +33,8 @@
 .ih-project-screen:hover{box-shadow:0 55px 110px rgba(0,0,0,.62)}
 .ih-project-list button{transition:padding .25s,border-color .25s,background .25s}
 .ih-project-list button:hover,.ih-project-list button.chosen{padding-left:18px;border-color:rgba(142,234,58,.55)}
-.ih-method-cube{transform:rotateX(calc(-18deg + var(--pointer-y,0)*3deg)) rotateY(calc(-28deg + var(--pointer-x,0)*5deg));transform-style:preserve-3d;transition:transform .25s ease-out}
 .ih-method-steps article{transition:transform .3s,border-color .3s}
 .ih-method-steps article:hover{transform:translateX(8px);border-color:rgba(142,234,58,.45)}
-.ih-close-orb{transform:translate3d(calc(var(--pointer-x,0)*9px),calc(var(--pointer-y,0)*-8px),0);transition:transform .25s ease-out}
 .ih-progress{position:fixed;left:0;right:0;bottom:0;height:2px;z-index:80;pointer-events:none;background:rgba(255,255,255,.08)}
 .ih-progress span{display:block;width:100%;height:100%;background:#8eea3a;transform-origin:left center;box-shadow:0 0 12px rgba(142,234,58,.55)}
 .ih-primary,.ih-text-link,.ih-manifesto-content>a,.ih-project-list>a{transition:transform .25s,color .25s,background .25s,border-color .25s}
@@ -54,6 +51,6 @@
 }
 @media(prefers-reduced-motion:reduce){
  .immersive-home *, .immersive-home *::before,.immersive-home *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
- .ih-engine,.ih-glow,.ih-orbit,.ih-project-screen,.ih-method-cube,.ih-close-orb{transform:none!important}
+  .ih-engine,.ih-glow,.ih-orbit,.ih-project-screen{transform:none!important}
  .ih-progress{display:none}
 }
