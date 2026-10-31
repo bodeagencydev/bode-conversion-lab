@@ -257,8 +257,7 @@ export default function ConversionStructure() {
     gl.clearColor(0, 0, 0, 0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK);
+    gl.disable(gl.CULL_FACE);
     gl.useProgram(program);
     gl.uniform3f(lightLocation, -0.42, 0.76, 0.84);
 
