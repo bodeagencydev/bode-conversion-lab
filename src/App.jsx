@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ConversionStructure from "./ConversionStructure.jsx";
 
 const EMAIL = "bodeagencyofficial@gmail.com";
 const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://bodeconversionlab.vercel.app").replace(/\/$/, "");
@@ -72,27 +73,11 @@ function WorkCards({ limit }) {
   const list = typeof limit === "number" ? work.slice(0, limit) : work;
   return <div className="work-grid">{list.map((item, i) => <article className="work-card" key={item.slug}><a className="work-image" href={"/work/" + item.slug}><video muted playsInline preload="none" poster={item.poster} aria-label={item.name}><source src={item.video} type="video/mp4" /></video><span className="work-number">0{i + 1}</span></a><div className="work-card-info"><div><p className="small-cap">Selected record</p><h3><a href={"/work/" + item.slug}>{item.name}</a></h3></div><strong>{item.metric}</strong></div></article>)}</div>;
 }
-function ContactCallout({ title = "Let's talk about the work.", text = "Tell us what you are trying to improve. We will start with the business problem, not a preselected package." }) {
+function ContactCallout({ title = "Let's talk about the work.", text = "Tell us what you are trying to improve. We will shape the first conversation around that." }) {
   return <section className="contact-callout"><div><Eyebrow>START A CONVERSATION</Eyebrow><h2>{title}</h2><p>{text}</p></div><a className="button button-light" href="/contact">Discuss your project</a></section>;
 }
 
 function Home() {
-  const moveFeature = event => {
-    if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const box = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - box.left) / box.width;
-    const y = (event.clientY - box.top) / box.height;
-    event.currentTarget.style.setProperty("--tilt-x", ((.5 - y) * 5).toFixed(2) + "deg");
-    event.currentTarget.style.setProperty("--tilt-y", ((x - .5) * 7).toFixed(2) + "deg");
-    event.currentTarget.style.setProperty("--pointer-x", (x * 100).toFixed(1) + "%");
-    event.currentTarget.style.setProperty("--pointer-y", (y * 100).toFixed(1) + "%");
-  };
-  const resetFeature = event => {
-    event.currentTarget.style.setProperty("--tilt-x", "0deg");
-    event.currentTarget.style.setProperty("--tilt-y", "0deg");
-    event.currentTarget.style.setProperty("--pointer-x", "50%");
-    event.currentTarget.style.setProperty("--pointer-y", "50%");
-  };
   return <>
     <section className="home-hero conversion-hero">
       <div className="conversion-hero-copy">
@@ -101,21 +86,17 @@ function Home() {
         <p>We improve product pages, campaigns and customer journeys so more of your existing demand becomes revenue.</p>
         <div className="conversion-hero-actions"><a className="button button-light" href="/contact">Discuss your project <span aria-hidden="true">↗</span></a><a className="conversion-secondary-link" href="/services">Explore our services</a></div>
       </div>
-      <a className="hero-feature" href="/work/novi-good-store" onPointerMove={moveFeature} onPointerLeave={resetFeature} aria-label="View the Novi Good Store project">
-        <div className="hero-feature-media"><video muted autoPlay loop playsInline preload="metadata" poster={work[0].poster} aria-hidden="true"><source src={work[0].video} type="video/mp4" /></video><span className="hero-feature-index">01 / SELECTED PROJECT</span><span className="hero-feature-view">View project <b aria-hidden="true">↗</b></span></div>
-        <div className="hero-feature-caption"><div><span>ECOMMERCE / PAID GROWTH</span><h2>Novi Good Store</h2></div><div className="hero-feature-metric"><strong>4.3×</strong><span>reported ROAS</span></div></div>
-      </a>
+      <ConversionStructure />
     </section>
     <section className="platform-strip"><span>BUILT AROUND YOUR COMMERCE STACK</span><div><b>Shopify</b><b>WooCommerce</b><b>Wix</b><b>BigCommerce</b><b>Custom platforms</b></div></section>
     <section className="reference-services section">
       <div className="reference-section-heading"><Eyebrow>WHAT WE DO</Eyebrow><h2>Fix the experience<br/><em>behind the sale.</em></h2><p>From the first campaign click to checkout and repeat purchase, we identify the specific friction costing your store customers.</p></div>
-      <div className="reference-service-layout"><div className="service-orbit-visual"><div className="service-orbit-core"><span>B</span></div><i className="service-orbit orbit-a"></i><i className="service-orbit orbit-b"></i><i className="service-orbit orbit-c"></i><span className="orbit-label orbit-label-a">DISCOVER</span><span className="orbit-label orbit-label-b">CONVERT</span><span className="orbit-label orbit-label-c">RETURN</span></div>
-      <div className="reference-service-cards">{services.map((s,i)=><a className={"reference-service-card card-"+i} href={"/"+s.slug} key={s.slug}><span className="reference-card-number">0{i+1}</span><span className="reference-card-arrow">↗</span><h3>{s.title}</h3><p>{s.kicker}</p><small>EXPLORE SERVICE</small></a>)}</div></div>
+      <div className="reference-service-list"><ServiceRows compact /></div>
     </section>
     <section className="reference-work section"><div className="reference-section-heading work-heading"><Eyebrow>SELECTED WORK</Eyebrow><h2>Project records<br/><em>from ecommerce.</em></h2><p>See the stores, creative and reported outcomes behind selected projects.</p></div><div className="reference-work-layout"><div className="reference-work-list">{work.map((item,i)=><a href={"/work/"+item.slug} key={item.slug} className="reference-work-row"><span>0{i+1}</span><b>{item.name}</b><small>{item.metric}</small><i>↗</i></a>)}<a href="/work" className="reference-all-work">VIEW ALL PROJECTS ↗</a></div><div className="reference-work-preview"><video muted autoPlay loop playsInline preload="none" poster="/proof/thumbs/novigood.jpg"><source src="/proof/Videoproof2.mp4" type="video/mp4"/></video><span>PROJECT / SELECTED RECORD</span></div></div></section>
     <section className="reference-manifesto section"><div><Eyebrow>THE BODE APPROACH</Eyebrow><p className="manifesto-kicker">BETTER STORE EXPERIENCES. MORE EFFECTIVE MARKETING.</p></div><h2>Improve the store.<br/>Reach the right people.<br/><em>Learn from what works.</em></h2><a href="/about" className="reference-text-link">ABOUT BODE ↗</a></section>
     <section className="reference-process section"><div className="reference-section-heading"><Eyebrow>HOW WE WORK</Eyebrow><h2>From store review<br/><em>to focused improvements.</em></h2></div><div className="reference-process-grid"><article><span>01</span><h3>Review</h3><p>We look at your store, offer and current acquisition channels.</p></article><article><span>02</span><h3>Prioritize</h3><p>We agree on the main friction point and what evidence can test it.</p></article><article><span>03</span><h3>Improve</h3><p>We make the changes in scope across the store, creative or campaigns.</p></article><article><span>04</span><h3>Evaluate</h3><p>We review the agreed measures and set the next action.</p></article></div></section>
-    <section className="reference-closing section"><div className="closing-visual" aria-hidden="true"><div className="closing-glow"></div><div className="closing-orbit"></div><div className="closing-core"></div></div><div className="closing-copy"><Eyebrow>PROJECT ENQUIRIES</Eyebrow><h2>What would you like<br/><em>your store to improve?</em></h2><a className="reference-pill" href="/contact">Discuss a project <span>↗</span></a><a href="/work" className="reference-text-link">VIEW PROJECT RECORDS ↗</a></div></section>
+    <section className="reference-closing section"><div className="closing-copy"><Eyebrow>PROJECT ENQUIRIES</Eyebrow><h2>What would you like<br/><em>your store to improve?</em></h2><a className="reference-pill" href="/contact">Discuss a project <span>↗</span></a><a href="/work" className="reference-text-link">VIEW PROJECT RECORDS ↗</a></div></section>
     <ContactCallout title="Let's talk about your next stage of growth."/>
   </>;
 }
