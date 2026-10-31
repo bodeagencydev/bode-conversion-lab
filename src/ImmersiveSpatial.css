@@ -1,0 +1,56 @@
+/* Spatial interaction layer for the Bode homepage.
+   Uses the existing semantic sections and keeps a CSS-only fallback. */
+.immersive-home{
+  --ih-pointer-x:calc(var(--pointer-x,0)*1deg);
+  --ih-pointer-y:calc(var(--pointer-y,0)*1deg);
+  position:relative;isolation:isolate;overflow:clip;
+  background:#080a08;color:#f0f3ed;
+}
+.immersive-home section{position:relative;z-index:1}
+.ih-atmosphere{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.ih-grid{opacity:.46;mask-image:linear-gradient(180deg,#000 0%,transparent 82%)}
+.ih-glow{will-change:transform;transition:transform .35s ease-out}
+.ih-glow-a{transform:translate3d(calc(var(--pointer-x,0)*-12px),calc(var(--pointer-y,0)*-9px),0)}
+.ih-glow-b{transform:translate3d(calc(var(--pointer-x,0)*9px),calc(var(--pointer-y,0)*11px),0)}
+.ih-orbit{will-change:transform}
+.ih-orbit-a{transform:translate3d(calc(var(--pointer-x,0)*8px),calc(var(--pointer-y,0)*-7px),0) rotate(-18deg)}
+.ih-orbit-b{transform:translate3d(calc(var(--pointer-x,0)*-6px),calc(var(--pointer-y,0)*8px),0) rotate(32deg)}
+.ih-hero{min-height:min(900px,calc(100svh - 82px));}
+.ih-engine{transform:perspective(1100px) rotateX(calc(var(--pointer-y,0)*-2deg)) rotateY(calc(var(--pointer-x,0)*3deg));transform-style:preserve-3d;transition:transform .22s ease-out}
+.ih-engine-ring{transform-style:preserve-3d;backface-visibility:hidden}
+.ih-engine-core{transform:translateZ(35px)}
+.ih-engine-node{transform:translateZ(55px);transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .35s,background .35s}
+.ih-engine-node:hover{transform:translateZ(82px) scale(1.045);border-color:rgba(142,234,58,.75);background:rgba(108,203,46,.13)}
+.ih-engine-signal{animation:ih-signal-orbit 12s linear infinite}
+@keyframes ih-signal-orbit{to{transform:rotate(360deg)}}
+.ih-journey-stop{transition:transform .45s cubic-bezier(.2,.7,.2,1),color .35s}
+.ih-journey-stop:hover{transform:translateY(-8px)}
+.ih-machine-core{transform:translateZ(0);transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s}
+.ih-service-node{transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .3s,background .3s}
+.ih-service-node.selected{transform:translateY(-4px);border-color:rgba(142,234,58,.65)}
+.ih-project-stack{perspective:1200px}
+.ih-project-screen{transform:rotateY(calc(-7deg + var(--pointer-x,0)*1deg)) rotateX(calc(3deg - var(--pointer-y,0)*.7deg));transform-origin:center;transition:transform .25s ease-out,box-shadow .4s}
+.ih-project-screen:hover{box-shadow:0 55px 110px rgba(0,0,0,.62)}
+.ih-project-list button{transition:padding .25s,border-color .25s,background .25s}
+.ih-project-list button:hover,.ih-project-list button.chosen{padding-left:18px;border-color:rgba(142,234,58,.55)}
+.ih-method-steps article{transition:transform .3s,border-color .3s}
+.ih-method-steps article:hover{transform:translateX(8px);border-color:rgba(142,234,58,.45)}
+.ih-progress{position:fixed;left:0;right:0;bottom:0;height:2px;z-index:80;pointer-events:none;background:rgba(255,255,255,.08)}
+.ih-progress span{display:block;width:100%;height:100%;background:#8eea3a;transform-origin:left center;box-shadow:0 0 12px rgba(142,234,58,.55)}
+.ih-primary,.ih-text-link,.ih-manifesto-content>a,.ih-project-list>a{transition:transform .25s,color .25s,background .25s,border-color .25s}
+.ih-primary:hover{transform:translateY(-3px)}
+.ih-primary:focus-visible,.ih-text-link:focus-visible,.ih-service-node:focus-visible,.ih-project-list button:focus-visible{outline:2px solid #8eea3a;outline-offset:5px}
+.ih-project-screen video{display:block;width:100%;height:100%;object-fit:cover}
+@media(max-width:760px){
+ .ih-hero{min-height:auto;padding-bottom:82px}
+ .ih-engine{transform:none!important}
+ .ih-engine-node:hover{transform:none}
+ .ih-project-screen{transform:none!important}
+ .ih-method-cube{transform:rotateX(-18deg) rotateY(-28deg)}
+ .ih-progress{bottom:0}
+}
+@media(prefers-reduced-motion:reduce){
+ .immersive-home *, .immersive-home *::before,.immersive-home *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+  .ih-engine,.ih-glow,.ih-orbit,.ih-project-screen{transform:none!important}
+ .ih-progress{display:none}
+}
