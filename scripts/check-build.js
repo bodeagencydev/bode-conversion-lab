@@ -68,3 +68,4 @@ if (process.exitCode) {
 } else {
   console.log(`Build verification passed: ${routes.length} route HTML files, SEO metadata, sitemap, robots.txt, current install icons and core assets.`);
 }
+
