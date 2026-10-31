@@ -16,7 +16,7 @@ const projects = [
 
 export default function ImmersiveHome() {
   const stage = useRef(null);
-  const [active, setActive] = useState(0);
+  const [activeService, setActiveService] = useState(0);\n  const [activeProject, setActiveProject] = useState(0);
   const [progress, setProgress] = useState(0);
   useEffect(() => {
     const root = stage.current;
@@ -75,14 +75,14 @@ export default function ImmersiveHome() {
       <div className="ih-service-machine" data-reveal>
         <div className="ih-machine-core"><span>BODE</span><b>GROWTH<br/>SYSTEM</b><i>↗</i></div>
         <div className="ih-machine-lines" aria-hidden="true"><i/><i/><i/><i/><i/><i/></div>
-        {disciplines.map((d,i)=><a key={d[0]} href={d[3]} onMouseEnter={()=>setActive(i)} onFocus={()=>setActive(i)} className={"ih-service-node service-"+i+(active===i?" selected":"")}><span>{d[0]}</span><b>{d[1]}</b><i>↗</i></a>)}
-        <div className="ih-service-detail"><span>SELECTED DISCIPLINE / 0{active+1}</span><h3>{disciplines[active][1]}</h3><p>{disciplines[active][2]}</p></div>
+        {disciplines.map((d,i)=><a key={d[0]} href={d[3]} onMouseEnter={()=>setActiveService(i)} onFocus={()=>setActiveService(i)} className={"ih-service-node service-"+i+(activeService===i?" selected":"")}><span>{d[0]}</span><b>{d[1]}</b><i>↗</i></a>)}
+        <div className="ih-service-detail"><span>SELECTED DISCIPLINE / 0{activeService+1}</span><h3>{disciplines[activeService][1]}</h3><p>{disciplines[activeService][2]}</p></div>
       </div>
       <div className="ih-service-mobile">{disciplines.map(d=><a href={d[3]} key={d[0]}><span>{d[0]}</span><b>{d[1]}</b><i>↗</i><small>{d[2]}</small></a>)}</div>
     </section>
     <section className="ih-work" id="ih-work">
       <div className="ih-section-head" data-reveal><div><div className="ih-section-index">04 <span>/ SELECTED RECORDS</span></div><h2>Work with<br/><em>context.</em></h2></div><p>Project records and reported figures. Each result is presented with the context available to us.</p></div>
-      <div className="ih-project-stage" data-reveal><div className="ih-project-stack"><div className="ih-project-back"/><div className="ih-project-mid"/><a className="ih-project-screen" href={"/work/"+projects[active%3].slug}><video key={projects[active%3].slug} muted autoPlay loop playsInline preload="none" poster={projects[active%3].poster}><source src={projects[active%3].video} type="video/mp4"/></video><span>PROJECT FILM / 0{active%3+1}</span></a></div><div className="ih-project-list"><span className="ih-kicker">CHOOSE A PROJECT</span>{projects.map((p,i)=><button key={p.slug} onClick={()=>setActive(i+6)} className={active%3===i?"chosen":""}><small>0{i+1}</small><span><b>{p.name}</b><em>{p.metric}</em></span><i>↗</i></button>)}<a href="/work">View all project records ↗</a></div></div>
+      <div className="ih-project-stage" data-reveal><div className="ih-project-stack"><div className="ih-project-back"/><div className="ih-project-mid"/><a className="ih-project-screen" href={"/work/"+projects[activeProject].slug}><video key={projects[active%3].slug} muted autoPlay loop playsInline preload="none" poster={projects[activeProject].poster}><source src={projects[activeProject].video} type="video/mp4"/></video><span>PROJECT FILM / 0{activeProject+1}</span></a></div><div className="ih-project-list"><span className="ih-kicker">CHOOSE A PROJECT</span>{projects.map((p,i)=><button key={p.slug} onClick={()=>setActive(i+6)} className={active%3===i?"chosen":""}><small>0{i+1}</small><span><b>{p.name}</b><em>{p.metric}</em></span><i>↗</i></button>)}<a href="/work">View all project records ↗</a></div></div>
     </section>
     <section className="ih-method">
       <div className="ih-method-visual" data-reveal><div className="ih-method-cube"><i/><i/><i/><i/><b>01—04</b></div><span>RESEARCH / PRIORITY / EXECUTION / REVIEW</span></div>
