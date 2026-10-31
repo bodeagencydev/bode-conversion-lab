@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 const EMAIL = "bodeagencyofficial@gmail.com";
 const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://bodeconversionlab.vercel.app").replace(/\/$/, "");
 const services = [
   { slug: "store-optimization", title: "Store optimization", kicker: "A better buying experience", summary: "Remove the friction between a customer discovering your product and feeling confident enough to buy it.", detail: "We examine the store as a customer experiences it: the first impression, product information, navigation, mobile usability, trust, cart and checkout. Recommendations are prioritized by customer impact and practical effort, not by how many changes can be listed in an audit.", deliverables: ["Store and customer-journey review", "Product-page and merchandising improvements", "Mobile usability and navigation review", "Trust, cart and checkout friction review", "Prioritized implementation plan"], fit: "For stores with traffic or customer interest that are not converting as consistently as they should.", visual: "store" },
-  { slug: "paid-advertising", title: "Paid advertising", kicker: "A more considered way to acquire customers", summary: "Build campaigns around the offer, the customer and the experience that follows the click.", detail: "We connect campaign objectives with creative concepts, audience hypotheses, landing pages and measurement. Testing is structured so that the business can learn what is working instead of simply increasing spend and hoping for a better result.", deliverables: ["Campaign and account review", "Offer, audience and creative hypotheses", "Meta and Google campaign planning", "Landing-page and ad-message alignment", "Performance review and next-test priorities"], fit: "For businesses ready to measure acquisition against meaningful commercial goals.", visual: "ads" },
+  { slug: "paid-advertising", title: "Paid advertising", kicker: "Campaigns built around the sale", summary: "Align campaign creative and landing pages with the product and the customer you want to reach.", detail: "We review campaign structure, offer, creative and landing page together. Then we set up focused tests and report what the available results can tell us before recommending a budget change.", deliverables: ["Campaign and account review", "Offer, audience and creative hypotheses", "Meta and Google campaign planning", "Landing-page and ad-message alignment", "Performance review and next-test priorities"], fit: "For businesses ready to measure acquisition against meaningful commercial goals.", visual: "ads" },
   { slug: "ai-product-videos", title: "AI product videos", kicker: "Creative that earns attention", summary: "Create product-focused video concepts that help customers understand the offer and feel why it matters.", detail: "Strong product creative begins with the audience, not the effect. We develop concepts around customer motivations, product use, visual proof and a clear message, then shape the output for the intended channel and campaign.", deliverables: ["Creative direction and concept development", "Product-led short-form video", "UGC-style ad concepts", "Multiple hooks and creative variations", "Channel-ready formats and delivery"], fit: "For brands that need a stronger stream of creative to explain products and test new angles.", visual: "creative" },
   { slug: "seo-product-visibility", title: "SEO and product visibility", kicker: "Make discovery easier", summary: "Improve how search engines and potential customers understand your products and pages.", detail: "We review the technical and on-page foundations that help a store get discovered. Work may include indexability, product information, page structure, internal linking, search snippets and product-feed quality, depending on the platform and issue.", deliverables: ["Technical and on-page SEO review", "Product title and description improvements", "Indexing and crawlability checks", "Google Merchant Center and feed review", "Search visibility priorities"], fit: "For businesses that want to strengthen organic discovery and product presentation across search surfaces.", visual: "search" },
   { slug: "email-retention", title: "Email and retention", kicker: "Give customers a reason to return", summary: "Make useful, timely communication part of the customer experience, not an afterthought.", detail: "Retention work starts with the customer lifecycle and the messages that help people make a decision, use a product or return when the timing is right. We prioritize useful communication and clear measurement over sending more messages for its own sake.", deliverables: ["Lifecycle and existing-flow review", "Welcome and abandoned-cart journeys", "Post-purchase communication", "Win-back and repeat-purchase ideas", "Segmentation and reporting recommendations"], fit: "For stores that want to make better use of existing customer relationships.", visual: "retention" },
@@ -12,14 +12,14 @@ const services = [
 ];
 
 const work = [
-  { slug: "novi-good-store", name: "Novi Good Store", metric: "4.3× ROAS · $57k sales", video: "/proof/Videoproof2.mp4", poster: "/proof/thumbs/novigood.jpg", context: "A performance record carried forward from previous site material. Supporting reporting and the measurement period should be confirmed before making a more detailed public claim." },
-  { slug: "robin-and-roobaby", name: "Robin and Roobaby", metric: "$77k sales", video: "/proof/Videoproof5.mp4", poster: "/proof/thumbs/robinroobaby.jpg", context: "A sales figure carried forward from previous site material. The source records and measurement period should be confirmed before making a more detailed public claim." },
-  { slug: "stream-ride-store", name: "Stream Ride Store", metric: "$36k sales", video: "/proof/Videoproof1.mp4", poster: "/proof/thumbs/streamride.jpg", context: "A sales figure carried forward from previous site material. The source records and measurement period should be confirmed before making a more detailed public claim." }
+  { slug: "novi-good-store", name: "Novi Good Store", metric: "4.3× ROAS · $57k sales", video: "/proof/Videoproof2.mp4", poster: "/proof/thumbs/novigood.jpg", context: "Reported figures supplied for the project. The reporting period and attribution details were not included in the published record." },
+  { slug: "robin-and-roobaby", name: "Robin and Roobaby", metric: "$77k sales", video: "/proof/Videoproof5.mp4", poster: "/proof/thumbs/robinroobaby.jpg", context: "Reported sales figure supplied for the project. The reporting period and attribution details were not included in the published record." },
+  { slug: "stream-ride-store", name: "Stream Ride Store", metric: "$36k sales", video: "/proof/Videoproof1.mp4", poster: "/proof/thumbs/streamride.jpg", context: "Reported sales figure supplied for the project. The reporting period and attribution details were not included in the published record." }
 ];
 
 const faqs = [
   ["Which ecommerce platforms do you work with?", "We work across Shopify, WooCommerce, Wix, BigCommerce and custom storefronts. The right approach depends on your platform, goals and the problem being solved."],
-  ["Can I hire Bode for one service?", "Yes. Projects can begin with a defined audit, creative package, implementation project or marketing service. Wider ongoing work is considered when it makes sense."],
+  ["Can I hire Bode for one service?", "Yes. You can start with an audit, creative project, store improvement or campaign review. We agree the scope before work begins."],
   ["Do you guarantee sales or a specific ROAS?", "No. Results depend on the product, offer, margins, market, budget, customer demand and measurement. We agree on scope and reporting before work starts."],
   ["How does pricing work?", "Pricing depends on the scope, complexity and level of support. After understanding the project, we provide a clear scope and quote before work begins."],
   ["Can you work with an international business?", "Yes. Remote projects can be managed with clear communication, agreed working arrangements, documented approvals and reporting."],
@@ -41,76 +41,6 @@ const pages = {
   "/privacy": { title: "Privacy policy", description: "Read how Bode Conversion Lab handles information submitted through its website." }
 };
 
-function ParticleSphere() {
-  const canvasRef = useRef(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d", { alpha: true });
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const points = [];
-    const total = window.innerWidth < 760 ? 1900 : 3600;
-    const golden = Math.PI * (3 - Math.sqrt(5));
-    for (let i = 0; i < total; i++) {
-      const y = 1 - (i / (total - 1)) * 2;
-      const radius = Math.sqrt(1 - y * y);
-      const angle = golden * i;
-      points.push({ x: Math.cos(angle) * radius, y, z: Math.sin(angle) * radius, size: .45 + Math.random() * 1.0, phase: Math.random() * Math.PI * 2 });
-    }
-    let frame = 0, raf = 0, width = 0, height = 0, pointerX = 0, pointerY = 0, targetX = 0, targetY = 0;
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.7);
-      width = rect.width; height = rect.height;
-      canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    const onMove = e => {
-      const rect = canvas.getBoundingClientRect();
-      targetX = ((e.clientX - rect.left) / rect.width - .5) * .45;
-      targetY = ((e.clientY - rect.top) / rect.height - .5) * .35;
-    };
-    const draw = () => {
-      frame += reduceMotion ? 0 : .0038;
-      pointerX += (targetX - pointerX) * .035;
-      pointerY += (targetY - pointerY) * .035;
-      ctx.clearRect(0, 0, width, height);
-      const cx = width / 2, cy = height / 2, scale = Math.min(width, height) * .37;
-      const rot = frame + pointerX, tilt = .22 + pointerY;
-      const cos = Math.cos(rot), sin = Math.sin(rot), ct = Math.cos(tilt), st = Math.sin(tilt);
-      const projected = [];
-      for (const p of points) {
-        const x = p.x * cos - p.z * sin;
-        const z = p.x * sin + p.z * cos;
-        const y = p.y * ct - z * st;
-        const zz = p.y * st + z * ct;
-        const perspective = 2.65 / (2.65 - zz * .32);
-        projected.push({ x: cx + x * scale * perspective, y: cy + y * scale * perspective, z: zz, size: p.size * perspective, phase: p.phase });
-      }
-      projected.sort((a, b) => a.z - b.z);
-      for (const p of projected) {
-        const depth = (p.z + 1) / 2;
-        const alpha = .2 + depth * .72;
-        const pulse = .78 + Math.sin(frame * 2 + p.phase) * .22;
-        ctx.beginPath();
-        ctx.fillStyle = p.phase > 5.4 ? "rgba(191,184,255," + alpha * .8 + ")" : "rgba(" + Math.round(185 + depth * 65) + "," + Math.round(180 + depth * 65) + ",255," + alpha + ")";
-        ctx.shadowBlur = depth > .72 ? 8 : 0;
-        ctx.shadowColor = "#8c7bff";
-        ctx.arc(p.x, p.y, p.size * pulse, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.shadowBlur = 0;
-      if (!reduceMotion) raf = requestAnimationFrame(draw);
-    };
-    resize(); draw();
-    window.addEventListener("resize", resize);
-    canvas.addEventListener("pointermove", onMove);
-    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); canvas.removeEventListener("pointermove", onMove); };
-  }, []);
-  return <div className="orb-stage" aria-label="Animated particle sphere representing connected ecommerce systems"><div className="orb-ring"></div><div className="orb-ring orb-ring-two"></div><canvas ref={canvasRef} className="orb-canvas" role="img" aria-label="Luminous animated particle sphere" /><span className="orb-caption">One system. Compounding results.</span></div>;
-}
-
-
 function Header({ path }) {
   const [open, setOpen] = useState(false);
   const nav = [["Services", "/services"], ["Selected work", "/work"], ["About", "/about"]];
@@ -126,7 +56,7 @@ function Header({ path }) {
 
 function Footer() {
   return <footer className="footer">
-    <div className="footer-top"><a className="brand brand-footer" href="/"><img src="/logo-mark.png" alt="" /><span><b>BODE</b><small>CONVERSION LAB</small></span></a><p>Better store experiences. More considered marketing. Clearer decisions.</p><a className="footer-email" href={"mailto:" + EMAIL}>{EMAIL}</a></div>
+    <div className="footer-top"><a className="brand brand-footer" href="/"><img src="/logo-mark.png" alt="" /><span><b>BODE</b><small>CONVERSION LAB</small></span></a><p>Store optimization, paid campaigns and product creative for ecommerce.</p><a className="footer-email" href={"mailto:" + EMAIL}>{EMAIL}</a></div>
     <div className="footer-bottom"><span>© {new Date().getFullYear()} Bode Conversion Lab</span><div><a href="/services">Services</a><a href="/work">Work</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a></div><span>Built around the customer.</span></div>
   </footer>;
 }
@@ -147,40 +77,45 @@ function ContactCallout({ title = "Let's talk about the work.", text = "Tell us 
 }
 
 function Home() {
+  const moveFeature = event => {
+    if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - box.left) / box.width;
+    const y = (event.clientY - box.top) / box.height;
+    event.currentTarget.style.setProperty("--tilt-x", ((.5 - y) * 5).toFixed(2) + "deg");
+    event.currentTarget.style.setProperty("--tilt-y", ((x - .5) * 7).toFixed(2) + "deg");
+    event.currentTarget.style.setProperty("--pointer-x", (x * 100).toFixed(1) + "%");
+    event.currentTarget.style.setProperty("--pointer-y", (y * 100).toFixed(1) + "%");
+  };
+  const resetFeature = event => {
+    event.currentTarget.style.setProperty("--tilt-x", "0deg");
+    event.currentTarget.style.setProperty("--tilt-y", "0deg");
+    event.currentTarget.style.setProperty("--pointer-x", "50%");
+    event.currentTarget.style.setProperty("--pointer-y", "50%");
+  };
   return <>
-    <section className="home-hero workspace-hero">
-      <div className="workspace-hero-copy">
-        <Eyebrow>ECOMMERCE GROWTH, WORKING AS ONE</Eyebrow>
-        <h1>Make every part of the customer journey <em>work harder.</em></h1>
-        <p>We connect the store experience, marketing and measurement in one clear plan, then focus on the changes that matter most.</p>
-        <div className="workspace-hero-actions"><a className="button button-light" href="/contact">Discuss your project <span aria-hidden="true">↗</span></a><a className="workspace-secondary-link" href="/services">Explore our services</a></div>
-        <div className="workspace-proofline"><span className="workspace-proof-dot"></span> A considered approach to sustainable ecommerce growth</div>
+    <section className="home-hero conversion-hero">
+      <div className="conversion-hero-copy">
+        <Eyebrow>ECOMMERCE CONVERSION &amp; GROWTH</Eyebrow>
+        <h1>Turn more store visits into <em>sales.</em></h1>
+        <p>We improve product pages, campaigns and customer journeys so more of your existing demand becomes revenue.</p>
+        <div className="conversion-hero-actions"><a className="button button-light" href="/contact">Discuss your project <span aria-hidden="true">↗</span></a><a className="conversion-secondary-link" href="/services">Explore our services</a></div>
       </div>
-      <div className="workspace-preview" aria-label="Illustrative preview of Bode's connected ecommerce growth process">
-        <div className="workspace-windowbar"><span className="window-dots"><i></i><i></i><i></i></span><span className="workspace-window-label">BODE / GROWTH WORKSPACE</span><span className="workspace-window-status"><i></i> EXAMPLE VIEW</span></div>
-        <div className="workspace-window-body">
-          <aside className="workspace-sidebar"><a className="workspace-mini-brand" href="/" aria-label="Bode Conversion Lab home"><img src="/logo-mark.png" alt="" /></a><span className="workspace-side-label">WORKSPACE</span><a className="workspace-side-item active" href="/services"><span className="workspace-side-icon">◫</span> Overview</a><a className="workspace-side-item" href="/store-optimization"><span className="workspace-side-icon">⌑</span> Store experience</a><a className="workspace-side-item" href="/paid-advertising"><span className="workspace-side-icon">↗</span> Acquisition</a><a className="workspace-side-item" href="/analytics-tracking"><span className="workspace-side-icon">⌁</span> Measurement</a><div className="workspace-sidebar-bottom"><span className="workspace-avatar">B</span><span>Bode Conversion Lab<small>Growth partner</small></span></div></aside>
-          <div className="workspace-main"><div className="workspace-topline"><span>PROJECT VIEW <b>/</b> ECOMMERCE</span><span className="workspace-menu-dots">•••</span></div><div className="workspace-title-row"><div><p className="workspace-overline">A CONNECTED APPROACH</p><h2>Growth, in context.</h2></div><span className="workspace-status-chip"><i></i> Clear priorities</span></div>
-            <div className="workspace-summary"><div><span className="workspace-card-icon">◈</span><p>THE CUSTOMER JOURNEY</p><h3>One experience.<br/>Every touchpoint.</h3><span className="workspace-card-note">Store · Marketing · Measurement</span></div><div className="workspace-summary-orbit" aria-hidden="true"><i></i><i></i><i></i><b></b></div></div>
-            <div className="workspace-task-head"><span>AREAS OF FOCUS</span><a href="/services">Explore services ↗</a></div>
-            <a className="workspace-task" href="/store-optimization"><span className="task-symbol task-symbol-purple">◫</span><span className="task-copy"><b>Store experience</b><small>Product pages, trust & checkout</small></span><span className="task-tag">FOUNDATION</span><span className="task-arrow">↗</span></a>
-            <a className="workspace-task" href="/paid-advertising"><span className="task-symbol task-symbol-green">⌁</span><span className="task-copy"><b>Paid acquisition</b><small>Creative, campaigns & landing pages</small></span><span className="task-tag">GROWTH</span><span className="task-arrow">↗</span></a>
-            <a className="workspace-task" href="/analytics-tracking"><span className="task-symbol task-symbol-silver">⌗</span><span className="task-copy"><b>Measurement</b><small>Signals, attribution & decisions</small></span><span className="task-tag">CLARITY</span><span className="task-arrow">↗</span></a>
-            <div className="workspace-footnote"><span>01 — 03</span><span>Connected work, grounded in your business</span><span>↘</span></div>
-          </div>
-        </div>
-      </div>
+      <a className="hero-feature" href="/work/novi-good-store" onPointerMove={moveFeature} onPointerLeave={resetFeature} aria-label="View the Novi Good Store project">
+        <div className="hero-feature-media"><img src={work[0].poster} alt="Selected ecommerce project imagery for Novi Good Store" /><span className="hero-feature-index">01 / SELECTED PROJECT</span><span className="hero-feature-view">View project <b aria-hidden="true">↗</b></span></div>
+        <div className="hero-feature-caption"><div><span>ECOMMERCE / PAID GROWTH</span><h2>Novi Good Store</h2></div><div className="hero-feature-metric"><strong>4.3×</strong><span>reported ROAS</span></div></div>
+      </a>
     </section>
     <section className="platform-strip"><span>BUILT AROUND YOUR COMMERCE STACK</span><div><b>Shopify</b><b>WooCommerce</b><b>Wix</b><b>BigCommerce</b><b>Custom platforms</b></div></section>
     <section className="reference-services section">
-      <div className="reference-section-heading"><Eyebrow>WHAT WE DO</Eyebrow><h2>One connected system.<br/><em>Every touchpoint matters.</em></h2><p>We bring the parts of ecommerce growth together, then focus on the constraint that matters most.</p></div>
+      <div className="reference-section-heading"><Eyebrow>WHAT WE DO</Eyebrow><h2>Fix the experience<br/><em>behind the sale.</em></h2><p>From the first campaign click to checkout and repeat purchase, we identify the specific friction costing your store customers.</p></div>
       <div className="reference-service-layout"><div className="service-orbit-visual"><div className="service-orbit-core"><span>B</span></div><i className="service-orbit orbit-a"></i><i className="service-orbit orbit-b"></i><i className="service-orbit orbit-c"></i><span className="orbit-label orbit-label-a">DISCOVER</span><span className="orbit-label orbit-label-b">CONVERT</span><span className="orbit-label orbit-label-c">RETURN</span></div>
       <div className="reference-service-cards">{services.map((s,i)=><a className={"reference-service-card card-"+i} href={"/"+s.slug} key={s.slug}><span className="reference-card-number">0{i+1}</span><span className="reference-card-arrow">↗</span><h3>{s.title}</h3><p>{s.kicker}</p><small>EXPLORE SERVICE</small></a>)}</div></div>
     </section>
-    <section className="reference-work section"><div className="reference-section-heading work-heading"><Eyebrow>SELECTED WORK</Eyebrow><h2>Work that moves<br/><em>business forward.</em></h2><p>Selected creative and performance records from projects across ecommerce.</p></div><div className="reference-work-layout"><div className="reference-work-list">{work.map((item,i)=><a href={"/work/"+item.slug} key={item.slug} className="reference-work-row"><span>0{i+1}</span><b>{item.name}</b><small>{item.metric}</small><i>↗</i></a>)}<a href="/work" className="reference-all-work">VIEW ALL PROJECTS ↗</a></div><div className="reference-work-preview"><video muted autoPlay loop playsInline preload="none" poster="/proof/thumbs/novigood.jpg"><source src="/proof/Videoproof2.mp4" type="video/mp4"/></video><span>PROJECT / SELECTED RECORD</span></div></div></section>
-    <section className="reference-manifesto section"><div><Eyebrow>THE BODE APPROACH</Eyebrow><p className="manifesto-kicker">GOOD COMMERCE IS NOT A COLLECTION OF DISCONNECTED TACTICS.</p></div><h2>Ads bring attention.<br/>Your store earns trust.<br/><em>The experience creates conversion.</em></h2><a href="/about" className="reference-text-link">MEET BODE CONVERSION LAB ↗</a></section>
-    <section className="reference-process section"><div className="reference-section-heading"><Eyebrow>HOW WE WORK</Eyebrow><h2>Clarity at every<br/><em>stage of the work.</em></h2></div><div className="reference-process-grid"><article><span>01</span><h3>Understand</h3><p>We learn your offer, customers, commercial goals and current constraints.</p></article><article><span>02</span><h3>Find the friction</h3><p>We review the customer journey and identify where attention or intent is being lost.</p></article><article><span>03</span><h3>Build and test</h3><p>We implement focused improvements and creative aligned to the agreed objective.</p></article><article><span>04</span><h3>Measure</h3><p>We review the evidence and decide what should happen next.</p></article></div></section>
-    <section className="reference-closing section"><div className="closing-visual" aria-hidden="true"><div className="closing-glow"></div><div className="closing-orbit"></div><div className="closing-core"></div></div><div className="closing-copy"><Eyebrow>LET'S CREATE SOMETHING THAT MATTERS</Eyebrow><h2>Make your next move<br/><em>a more considered one.</em></h2><a className="reference-pill" href="/contact">Start a project <span>↗</span></a><a href="/work" className="reference-text-link">EXPLORE OUR WORK ↗</a></div></section>
+    <section className="reference-work section"><div className="reference-section-heading work-heading"><Eyebrow>SELECTED WORK</Eyebrow><h2>Project records<br/><em>from ecommerce.</em></h2><p>See the stores, creative and reported outcomes behind selected projects.</p></div><div className="reference-work-layout"><div className="reference-work-list">{work.map((item,i)=><a href={"/work/"+item.slug} key={item.slug} className="reference-work-row"><span>0{i+1}</span><b>{item.name}</b><small>{item.metric}</small><i>↗</i></a>)}<a href="/work" className="reference-all-work">VIEW ALL PROJECTS ↗</a></div><div className="reference-work-preview"><video muted autoPlay loop playsInline preload="none" poster="/proof/thumbs/novigood.jpg"><source src="/proof/Videoproof2.mp4" type="video/mp4"/></video><span>PROJECT / SELECTED RECORD</span></div></div></section>
+    <section className="reference-manifesto section"><div><Eyebrow>THE BODE APPROACH</Eyebrow><p className="manifesto-kicker">BETTER STORE EXPERIENCES. MORE EFFECTIVE MARKETING.</p></div><h2>Improve the store.<br/>Reach the right people.<br/><em>Learn from what works.</em></h2><a href="/about" className="reference-text-link">ABOUT BODE ↗</a></section>
+    <section className="reference-process section"><div className="reference-section-heading"><Eyebrow>HOW WE WORK</Eyebrow><h2>From store review<br/><em>to focused improvements.</em></h2></div><div className="reference-process-grid"><article><span>01</span><h3>Review</h3><p>We look at your store, offer and current acquisition channels.</p></article><article><span>02</span><h3>Prioritize</h3><p>We agree on the main friction point and what evidence can test it.</p></article><article><span>03</span><h3>Improve</h3><p>We make the changes in scope across the store, creative or campaigns.</p></article><article><span>04</span><h3>Evaluate</h3><p>We review the agreed measures and set the next action.</p></article></div></section>
+    <section className="reference-closing section"><div className="closing-visual" aria-hidden="true"><div className="closing-glow"></div><div className="closing-orbit"></div><div className="closing-core"></div></div><div className="closing-copy"><Eyebrow>PROJECT ENQUIRIES</Eyebrow><h2>What would you like<br/><em>your store to improve?</em></h2><a className="reference-pill" href="/contact">Discuss a project <span>↗</span></a><a href="/work" className="reference-text-link">VIEW PROJECT RECORDS ↗</a></div></section>
     <ContactCallout title="Let's talk about your next stage of growth."/>
   </>;
 }
@@ -191,19 +126,19 @@ function ServicesPage() {
 }
 
 function ServicePage({ service }) {
-  return <><PageIntro eyebrow={"SERVICE / " + service.title.toUpperCase()} title={service.kicker + "."} text={service.summary}/><section className="service-detail"><div className={"service-visual visual-" + service.visual}><span className="visual-label">BODE CONVERSION LAB</span><div className="visual-large">{service.title}</div><div className="visual-rule"></div><p>Customer first. Evidence led. Built for the real world.</p></div><div className="service-detail-copy"><Eyebrow>OUR APPROACH</Eyebrow><h2>Useful changes, not activity for its own sake.</h2><p>{service.detail}</p><p>{service.fit}</p><a className="button button-dark" href="/contact">Discuss this service</a></div></section><section className="section deliverables"><div className="section-title"><Eyebrow>WHAT THE WORK CAN INCLUDE</Eyebrow><h2>A clear scope, tailored to the situation.</h2><p>The final deliverables depend on the platform, access, priorities and project agreement.</p></div><ul>{service.deliverables.map((d, i) => <li key={d}><span>0{i + 1}</span>{d}</li>)}</ul></section><section className="related-services"><div className="section-title"><Eyebrow>CONNECTED CAPABILITIES</Eyebrow><h2>Sometimes one fix reveals the next.</h2></div><ServiceRows compact /></section><ContactCallout title="Let's define the right scope." text="Share your store or website and the challenge you want to solve. We will start from there." /></>;
+  return <><PageIntro eyebrow={"SERVICE / " + service.title.toUpperCase()} title={service.kicker + "."} text={service.summary}/><section className="service-detail"><div className={"service-visual visual-" + service.visual}><span className="visual-label">BODE / {service.title.toUpperCase()}</span><div className="visual-large">{service.title}</div><div className="visual-rule"></div><p>{service.kicker}</p></div><div className="service-detail-copy"><Eyebrow>OUR APPROACH</Eyebrow><h2>{service.kicker}.</h2><p>{service.detail}</p><p>{service.fit}</p><a className="button button-dark" href="/contact">Discuss this service</a></div></section><section className="section deliverables"><div className="section-title"><Eyebrow>WHAT THE WORK CAN INCLUDE</Eyebrow><h2>Work scoped to your store.</h2><p>We agree deliverables around the platform, access and priorities before work begins.</p></div><ul>{service.deliverables.map((d, i) => <li key={d}><span>0{i + 1}</span>{d}</li>)}</ul></section><section className="related-services"><div className="section-title"><Eyebrow>RELATED SERVICES</Eyebrow><h2>Other areas we can help with.</h2></div><ServiceRows compact /></section><ContactCallout title="Talk through this service." text="Share your store and the problem you want to solve. We will respond with a clear next step." /></>;
 }
 
 function WorkPage() {
-  return <><PageIntro eyebrow="SELECTED WORK" title="Creative and performance records, presented with context." text="Explore selected project records and portfolio videos. We distinguish material available for review from claims that still need supporting documentation."/><section className="section work-page"><WorkCards /><div className="evidence-note"><h2>How to read these records</h2><p>Performance figures previously supplied for this website are shown as historical records, not guarantees. Before publishing detailed case studies, Bode should confirm the source reports, attribution method, measurement period, client permission and the specific work delivered.</p></div></section><ContactCallout title="Have a similar challenge?" /></>;
+  return <><PageIntro eyebrow="SELECTED WORK" title="Project videos and reported outcomes." text="A selection of ecommerce projects, with figures shown as reported outcomes rather than a promise of future results."/><section className="section work-page"><WorkCards /><div className="evidence-note"><h2>About the figures</h2><p>The figures shown were supplied for these projects. Their reporting periods and attribution details were not included with the material published here.</p></div></section><ContactCallout title="Have a similar challenge?" /></>;
 }
 
 function CaseStudy({ item }) {
-  return <><PageIntro eyebrow="SELECTED PROJECT RECORD" title={item.name} text="A portfolio record retained from earlier site material. The supporting evidence needs to be confirmed before a detailed case study can responsibly be published."/><section className="section case-study"><div className="case-video"><video controls playsInline preload="metadata" poster={item.poster} controlsList="nodownload" aria-label={"Portfolio record for " + item.name}><source src={item.video} type="video/mp4" />Your browser does not support embedded video.</video></div><div className="case-summary"><Eyebrow>REPORTED FIGURE</Eyebrow><h2>{item.metric}</h2><p>{item.context}</p><p>We are not adding a claim about the strategy, time period or contribution until that information can be substantiated.</p></div></section><ContactCallout title="Discuss the problem behind your numbers." /></>;
+  return <><PageIntro eyebrow="PROJECT / ECOMMERCE" title={item.name} text="A project video and outcome supplied for this portfolio."/><section className="section case-study"><div className="case-video"><video controls playsInline preload="metadata" poster={item.poster} controlsList="nodownload" aria-label={"Portfolio video for " + item.name}><source src={item.video} type="video/mp4" />Your browser does not support embedded video.</video></div><div className="case-summary"><Eyebrow>REPORTED OUTCOME</Eyebrow><h2>{item.metric}</h2><p>{item.context}</p></div></section><ContactCallout title="Tell us what you want to improve." /></>;
 }
 
 function AboutPage() {
-  return <><PageIntro eyebrow="ABOUT BODE CONVERSION LAB" title="Practical work, built around how customers decide." text="Bode Conversion Lab connects store experience, marketing execution, creative production and performance analysis around the needs of each business."/><section className="section about-detail"><div className="about-symbol"><img src="/logo-mark.png" alt="" /></div><div><Eyebrow>OUR WORKING PRINCIPLES</Eyebrow><h2>Clear priorities. Honest reporting. Work you can inspect.</h2><p>We start by understanding the business and the customer journey. Then we identify the constraints that matter, agree on a scope and define how progress will be evaluated.</p><p>Recommendations should be understandable. Deliverables should be clear. Results should be described with the context needed to interpret them. We do not treat more activity, more tools or more complicated reports as proof of progress.</p></div></section><section className="section principles"><article><span>01</span><h3>Understand before recommending</h3><p>Context matters. We look at the product, customer, platform, offer and current information before suggesting a plan.</p></article><article><span>02</span><h3>Make the work visible</h3><p>Scopes, deliverables and responsibilities are agreed clearly so you know what is being done and why.</p></article><article><span>03</span><h3>Be honest about evidence</h3><p>We distinguish what is measured, what is assumed and what still needs to be tested.</p></article></section><ContactCallout title="Tell us what you are building." /></>;
+  return <><PageIntro eyebrow="ABOUT BODE CONVERSION LAB" title="Ecommerce work across store, acquisition and retention." text="Bode Conversion Lab helps ecommerce teams improve storefronts, campaigns, product creative, search visibility and customer retention."/><section className="section about-detail"><div className="about-symbol"><img src="/logo-mark.png" alt="" /></div><div><Eyebrow>HOW WE WORK</Eyebrow><h2>Find the leak. Fix the experience. Measure the result.</h2><p>We review the offer, storefront and acquisition path, then agree on a focused scope. The work may include product pages, checkout, campaign creative or measurement, depending on where customers drop out.</p><p>Before work begins, we set the deliverables, responsibilities and measures with you. That keeps the project focused on a change the business can assess.</p></div></section><section className="section principles"><article><span>01</span><h3>Review the journey</h3><p>We look at how customers discover, evaluate and buy from your store.</p></article><article><span>02</span><h3>Agree the scope</h3><p>We set priorities, deliverables and responsibilities before implementation.</p></article><article><span>03</span><h3>Report with context</h3><p>We explain what changed, what the available data shows and what to do next.</p></article></section><ContactCallout title="Tell us about your store." /></>;
 }
 
 function ContactPage() {
@@ -236,7 +171,7 @@ function ContactPage() {
 }
 
 function PrivacyPage() {
-  return <><PageIntro eyebrow="PRIVACY" title="A straightforward approach to your information." text="This page explains the current behaviour of the Bode Conversion Lab website. It should be reviewed and updated if additional data collection or third-party services are introduced."/><section className="section privacy-content"><h2>Information you provide</h2><p>When no online form processor is configured, the contact form prepares an email draft in your own email application and the website does not submit or store its fields. If online form processing is enabled, the information entered is sent to the configured form provider so Bode Conversion Lab can receive the enquiry. If you send an email directly, Bode Conversion Lab receives the information you choose to include and may use it to respond.</p><h2>Information collected automatically</h2><p>The current public website does not intentionally run the previous visitor-tracking scripts removed during the rebuild. The hosting provider may process standard technical request information to deliver and secure the site. Check the hosting provider's current terms for details.</p><h2>Third-party services</h2><p>Portfolio videos are served from this website. The site loads fonts from Google Fonts. If online form processing is enabled, the configured form provider will also process the information submitted through the contact form under its own privacy terms. These providers may receive technical information needed to deliver their services.</p><h2>Retention and requests</h2><p>If you email Bode, your message may be retained as needed to handle the enquiry and maintain business records. To ask a question about information you have sent, email <a href={"mailto:" + EMAIL}>{EMAIL}</a>.</p><h2>Changes to this page</h2><p>This page must be updated if the website adds a live form processor, analytics, advertising pixels, chat, newsletter sign-up or other data collection. This is a plain-language summary, not legal advice.</p></section></>;
+  return <><PageIntro eyebrow="PRIVACY" title="How we handle your information." text="This page describes the information handled when you contact Bode Conversion Lab through this website."/><section className="section privacy-content"><h2>Information you provide</h2><p>When no online form processor is configured, the contact form prepares an email draft in your own email application; the website does not submit or store its fields. If online form processing is enabled, the information entered is sent to the configured form provider so Bode Conversion Lab can receive the enquiry. If you send an email directly, Bode Conversion Lab receives the information you choose to include and may use it to respond.</p><h2>Technical information</h2><p>The hosting provider may process standard technical request information to deliver and secure the site. Please refer to the hosting provider's current terms for details.</p><h2>Third-party services</h2><p>Portfolio videos are served from this website. The site loads fonts from Google Fonts. If online form processing is enabled, the configured form provider will also process the information submitted through the contact form under its own privacy terms.</p><h2>Retention and requests</h2><p>If you email Bode, your message may be retained as needed to handle the enquiry and maintain business records. To ask a question about information you have sent, email <a href={"mailto:" + EMAIL}>{EMAIL}</a>.</p></section></>;
 }
 
 function NotFound() { return <PageIntro eyebrow="PAGE NOT FOUND" title="This page could not be found." text="The address may have changed. Use the navigation to find a service, explore our work or contact Bode Conversion Lab."/>; }
@@ -280,4 +215,3 @@ export default function App() {
 
   return <div className={"site-shell" + (path === "/contact" ? " contact-route" : "")}><a className="skip-link" href="#main">Skip to content</a><Header path={path}/><main id="main">{content}</main><Footer/>{path !== "/contact" && <a className="mobile-sticky-cta" href="/contact">Discuss your project </a>}</div>;
 }
-
