@@ -324,6 +324,6 @@ export default function App() {
     return () => observer.disconnect();
   }, [path]);
 
-  return <div className={"site-shell" + (path === "/contact" ? " contact-route" : "")}><a className="skip-link" href="#main">Skip to content</a><Header path={path}/><main id="main">{content}</main><Footer/>{path !== "/contact" && <a className="mobile-sticky-cta" href="/contact">Discuss your project </a>}</div>;
+  return <div className={"site-shell" + (path === "/contact" ? " contact-route" : "")}><a className="skip-link" href="#main">Skip to content</a>{path !== "/" && <div className="route-world-stage" aria-hidden="true"><ConversionStructure /></div>}<Header path={path}/><main id="main">{content}</main><Footer/>{path !== "/contact" && <a className="mobile-sticky-cta" href="/contact">Discuss your project </a>}</div>;
 }
 
