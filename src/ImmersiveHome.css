@@ -99,3 +99,5 @@
  .ih-close{min-height:80svh;padding:90px 23px}.ih-close h2{font-size:clamp(57px,15vw,84px)}.ih-close-orb{width:100vw;height:100vw;right:-48%;top:12%;opacity:.7}.ih-close>p{font-size:6px;line-height:1.8}
 }
 @media(prefers-reduced-motion:reduce){.immersive-home [data-reveal]{opacity:1;transform:none;transition:none}.ih-engine-ring,.ih-engine-signal,.ih-method-cube{animation:none}.ih-engine{transform:none!important}}
+
+.site-shell:has(.immersive-home)>.mobile-sticky-cta{display:none!important}
