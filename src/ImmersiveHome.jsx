@@ -16,7 +16,8 @@ const projects = [
 
 export default function ImmersiveHome() {
   const stage = useRef(null);
-  const [activeService, setActiveService] = useState(0);\n  const [activeProject, setActiveProject] = useState(0);
+  const [activeService, setActiveService] = useState(0);
+  const [activeProject, setActiveProject] = useState(0);
   const [progress, setProgress] = useState(0);
   useEffect(() => {
     const root = stage.current;
