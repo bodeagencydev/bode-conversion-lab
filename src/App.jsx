@@ -80,24 +80,47 @@ function ContactCallout({ title = "Let's talk about the work.", text = "Tell us 
 function Home() {
   const [selected, setSelected] = useState(work[0]);
   useEffect(() => {
-    if (!window.matchMedia("(pointer: fine)").matches) return undefined;
-    const cursor = document.querySelector(".bode-cursor");
-    if (!cursor) return undefined;
+    const root = document.querySelector(".bespoke-home");
+    if (!root) return undefined;
+    const cursor = root.querySelector(".bode-cursor");
     const move = event => {
-      cursor.style.transform = "translate3d(" + event.clientX + "px," + event.clientY + "px,0)";
-      cursor.classList.add("is-visible");
-      cursor.classList.toggle("is-hover", Boolean(event.target.closest("a,button,[role=button]")));
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      root.style.setProperty("--page-flight", String(window.scrollY / maxScroll));
+      if (cursor && window.matchMedia("(pointer: fine)").matches) {
+        cursor.style.transform = "translate3d(" + event.clientX + "px," + event.clientY + "px,0)";
+        cursor.classList.add("is-visible");
+        cursor.classList.toggle("is-hover", Boolean(event.target.closest("a,button,[role=button]")));
+      }
     };
-    const leave = () => cursor.classList.remove("is-visible");
+    const scroll = () => {
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      root.style.setProperty("--page-flight", String(window.scrollY / maxScroll));
+    };
+    const leave = () => cursor?.classList.remove("is-visible");
     window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("scroll", scroll, { passive: true });
     document.documentElement.addEventListener("pointerleave", leave);
+    scroll();
     return () => {
       window.removeEventListener("pointermove", move);
+      window.removeEventListener("scroll", scroll);
       document.documentElement.removeEventListener("pointerleave", leave);
     };
   }, []);
-  return <div className="home-experience bespoke-home">
-    <section className="bespoke-hero">
+  const tiltProject = event => {
+    const box = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - box.left) / box.width - .5;
+    const y = (event.clientY - box.top) / box.height - .5;
+    event.currentTarget.style.setProperty("--deck-yaw", (x * 10).toFixed(2) + "deg");
+    event.currentTarget.style.setProperty("--deck-pitch", (y * -8).toFixed(2) + "deg");
+  };
+  const resetProject = event => {
+    event.currentTarget.style.setProperty("--deck-yaw", "-5deg");
+    event.currentTarget.style.setProperty("--deck-pitch", "2deg");
+  };
+  return <div className="home-experience bespoke-home" style={{ "--page-flight": 0 }}>
+    <div className="world-stage" aria-hidden="true"><ConversionStructure /></div>
+    <section className="bespoke-hero world-chapter" data-world-scene="origin">
       <div className="hero-copy">
         <p className="hero-index">BODE / CONVERSION LAB</p>
         <h1>The sale starts <em>before</em> the click.</h1>
@@ -105,50 +128,81 @@ function Home() {
         <div className="hero-ctas"><a className="button button-light" href="/contact">Discuss your store <span aria-hidden="true">↗</span></a><a className="hero-work-link" href="#selected-work">See selected work</a></div>
         <p className="hero-footnote">STORE EXPERIENCE&nbsp;&nbsp; / &nbsp;&nbsp;ACQUISITION&nbsp;&nbsp; / &nbsp;&nbsp;RETENTION</p>
       </div>
-      <div className="hero-art" aria-label="Interactive particle field responding to pointer and touch movement">
-        <ConversionStructure />
-        <img className="hero-mark" src="/logo-mark.png" alt="Bode Conversion Lab" />
+      <div className="hero-art" aria-hidden="true">
+        <img className="hero-mark" src="/logo-mark.png" alt="" />
         <span className="hero-annotation hero-annotation-one">Customer signal / 01</span>
         <span className="hero-annotation hero-annotation-two">Conversion current / live</span>
       </div>
-      <span className="hero-scroll">Scroll to explore</span><span className="hero-corner-index">01 / 04</span>
+      <span className="hero-scroll">Scroll to enter the field</span><span className="hero-corner-index">01 / 05</span>
+      <span className="world-coordinate">FIELD 01&nbsp;&nbsp; / &nbsp;&nbsp;THE SIGNAL</span>
     </section>
-    <section className="field-note">
-      <div><span className="field-label">The work, beneath the surface</span><div className="field-stats"><div><span>Focus</span><b>Customer journey</b></div><div><span>Practice</span><b>Commerce growth</b></div><div><span>Approach</span><b>Evidence-led</b></div></div></div>
-      <div><h2 className="field-headline">Growth is rarely one big fix. It is a series of <em>better decisions.</em></h2><p className="field-copy">A store, its campaigns and the experience after checkout all shape the decision to buy again. Bode works across those connected moments: identify the friction, agree what to change, and measure what the available evidence can show.</p></div>
+    <section className="field-note world-chapter" data-world-scene="journey">
+      <div className="journey-relief" aria-label="Customer journey from discovery through purchase to return">
+        <div className="journey-orbit-plane">
+          <span className="journey-node node-discovery"><i>01</i><b>Discover</b></span>
+          <span className="journey-node node-decision"><i>02</i><b>Decide</b></span>
+          <span className="journey-node node-purchase"><i>03</i><b>Purchase</b></span>
+          <span className="journey-node node-return"><i>04</i><b>Return</b></span>
+          <span className="journey-current" aria-hidden="true" />
+        </div>
+        <span className="relief-caption">A CUSTOMER JOURNEY / FOUR CONNECTED MOMENTS</span>
+      </div>
+      <div className="journey-copy"><span className="field-label">The work, beneath the surface</span><h2 className="field-headline">Growth moves through connected moments.</h2><p className="field-copy">A store, its campaigns and the experience after checkout all shape the decision to buy again. Bode works across those moments: identify the friction, agree what to change, and measure what the available evidence can show.</p>
+        <div className="field-stats"><div><span>Focus</span><b>Customer journey</b></div><div><span>Practice</span><b>Commerce growth</b></div><div><span>Approach</span><b>Evidence-led</b></div></div>
+      </div>
+      <span className="world-coordinate">02&nbsp;&nbsp; / &nbsp;&nbsp;MOMENTUM</span>
     </section>
-    <section className="section service-sequence" id="services">
-      <div className="sequence-heading"><div><Eyebrow>WHAT WE WORK ON</Eyebrow><h2>Six ways to move<br/>the experience forward.</h2></div><p>Start with the part that needs attention. We scope each engagement around your platform, customers and business priorities.</p></div>
-      <ServiceRows compact />
+    <section className="section service-sequence world-chapter" id="services" data-world-scene="services">
+      <div className="sequence-heading"><div><Eyebrow>WHAT WE WORK ON</Eyebrow><h2>Six disciplines.<br/>One connected system.</h2></div><p>Start with the part that needs attention. We scope each engagement around your platform, customers and business priorities.</p></div>
+      <div className="service-world-layout"><ServiceRows compact />
+        <div className="service-constellation" aria-label="Six Bode service disciplines">
+          <div className="constellation-core"><img src="/logo-mark.png" alt="" /><span>THE LAB</span></div>
+          {services.map((service, i) => <a key={service.slug} className={"service-node service-node-" + i} href={"/" + service.slug} data-structure-focus={i}><i>0{i + 1}</i><b>{service.title}</b><span aria-hidden="true">↗</span></a>)}
+          <svg className="constellation-links" viewBox="0 0 500 500" aria-hidden="true"><path d="M250 250 C190 155 105 150 80 90 M250 250 C330 145 393 159 433 96 M250 250 C130 236 71 264 53 250 M250 250 C372 226 429 269 447 249 M250 250 C176 332 112 349 80 409 M250 250 C330 334 390 356 432 414"/></svg>
+        </div>
+      </div>
+      <span className="world-coordinate">03&nbsp;&nbsp; / &nbsp;&nbsp;THE DISCIPLINES</span>
     </section>
-    <section className="project-chamber" id="selected-work">
-      <div className="project-head"><div><Eyebrow>SELECTED WORK / PROJECT RECORDS</Eyebrow><h2>Work in context.</h2></div><p>Selected project videos and reported figures. Each result is shown with the context available to us.</p></div>
+    <section className="project-chamber world-chapter" id="selected-work" data-world-scene="projects">
+      <div className="project-head"><div><Eyebrow>SELECTED WORK / PROJECT RECORDS</Eyebrow><h2>Step into the work.</h2></div><p>Selected project videos and reported figures. Each result is shown with the context available to us.</p></div>
       <div className="project-display">
-        <a className="project-screen" href={"/work/" + selected.slug} aria-label={"Open project record: " + selected.name}>
-          <video key={selected.slug} muted autoPlay loop playsInline preload="none" poster={selected.poster} aria-label={selected.name}><source src={selected.video} type="video/mp4" /></video>
-          <span className="project-screen-caption">PROJECT RECORD&nbsp;&nbsp; / &nbsp;&nbsp;{selected.name}</span>
-        </a>
+        <div className="project-deck" onPointerMove={tiltProject} onPointerLeave={resetProject}>
+          <div className="deck-plane deck-plane-back" aria-hidden="true" />
+          <div className="deck-plane deck-plane-mid" aria-hidden="true" />
+          <a className="project-screen" href={"/work/" + selected.slug} aria-label={"Open project record: " + selected.name}>
+            <video key={selected.slug} muted autoPlay loop playsInline preload="none" poster={selected.poster} aria-label={selected.name}><source src={selected.video} type="video/mp4" /></video>
+            <span className="project-screen-caption">PROJECT RECORD&nbsp;&nbsp; / &nbsp;&nbsp;{selected.name}</span>
+            <span className="project-depth-label">BODE / FIELD STUDY 0{work.indexOf(selected) + 1}</span>
+          </a>
+          <span className="deck-shadow" aria-hidden="true" />
+        </div>
         <div className="project-nav" aria-label="Select a project preview">
+          <span className="project-nav-label">Choose a record</span>
           {work.map((item, i) => <button type="button" key={item.slug} className={"project-choice" + (selected.slug === item.slug ? " active" : "")} onClick={() => setSelected(item)} onMouseEnter={() => setSelected(item)} onFocus={() => setSelected(item)} aria-pressed={selected.slug === item.slug}>
             <span>0{i + 1}</span><div><b>{item.name}</b><small>{item.metric}</small></div><i aria-hidden="true">↗</i>
           </button>)}
           <a className="project-all-link" href="/work">VIEW ALL PROJECTS&nbsp;&nbsp;↗</a>
         </div>
       </div>
+      <span className="world-coordinate">04&nbsp;&nbsp; / &nbsp;&nbsp;THE PROOF</span>
     </section>
-    <section className="method-section">
-      <div><span className="method-index">BODE / METHOD</span><h2>Look closely.<br/><em>Change with intent.</em></h2><p className="method-description">A clear process makes the work easier to understand, deliver and evaluate.</p></div>
+    <section className="method-section world-chapter" data-world-scene="method">
+      <div className="method-world"><span className="method-index">BODE / METHOD</span><h2>Read the pattern.<br/><em>Shift the outcome.</em></h2><p className="method-description">A clear process makes the work easier to understand, deliver and evaluate.</p>
+        <div className="method-depth" aria-hidden="true"><i/><i/><i/><i/><span>FROM SIGNAL<br/>TO NEXT MOVE</span></div>
+      </div>
       <div className="method-list">
         <article className="method-item"><span>01</span><div><h3>Read the journey</h3><p>We look at the product, the offer and the path customers take through your store.</p></div></article>
         <article className="method-item"><span>02</span><div><h3>Set the priority</h3><p>We agree on the main friction point and the evidence that can help assess it.</p></div></article>
         <article className="method-item"><span>03</span><div><h3>Make the change</h3><p>We work within the agreed scope across the storefront, creative or campaigns.</p></div></article>
         <article className="method-item"><span>04</span><div><h3>Review what happened</h3><p>We put the available results in context and define the next useful action.</p></div></article>
       </div>
+      <span className="world-coordinate">05&nbsp;&nbsp; / &nbsp;&nbsp;THE ITERATION</span>
     </section>
-    <section className="bespoke-close">
-      <div><Eyebrow>PROJECT ENQUIRIES</Eyebrow><h2>What is your store<br/>ready to <em>change?</em></h2><div className="closing-actions"><a className="button button-light" href="/contact">Start a conversation <span aria-hidden="true">↗</span></a><a className="closing-mail" href="mailto:bodeagencyofficial@gmail.com">Email Bode directly</a></div></div>
+    <section className="bespoke-close world-chapter" data-world-scene="departure">
+      <div><Eyebrow>PROJECT ENQUIRIES</Eyebrow><h2>Make the next move<br/>with <em>intention.</em></h2><div className="closing-actions"><a className="button button-light" href="/contact">Start a conversation <span aria-hidden="true">↗</span></a><a className="closing-mail" href="mailto:bodeagencyofficial@gmail.com">Email Bode directly</a></div></div>
       <div className="closing-coordinate">Store experience&nbsp;&nbsp; / &nbsp;&nbsp;Campaigns&nbsp;&nbsp; / &nbsp;&nbsp;Creative&nbsp;&nbsp; / &nbsp;&nbsp;Customer retention</div>
       <img className="bespoke-close-mark" src="/logo-mark.png" alt="" />
+      <span className="world-coordinate">06&nbsp;&nbsp; / &nbsp;&nbsp;NEXT</span>
     </section>
     <div className="bode-cursor" aria-hidden="true" />
   </div>;
@@ -270,6 +324,6 @@ export default function App() {
     return () => observer.disconnect();
   }, [path]);
 
-  return <div className={"site-shell" + (path === "/contact" ? " contact-route" : "")}><a className="skip-link" href="#main">Skip to content</a><Header path={path}/><main id="main">{content}</main><Footer/>{path !== "/contact" && <a className="mobile-sticky-cta" href="/contact">Discuss your project </a>}</div>;
+  return <div className={"site-shell" + (path === "/contact" ? " contact-route" : "")}><a className="skip-link" href="#main">Skip to content</a>{path !== "/" && <div className="route-world-stage" aria-hidden="true"><ConversionStructure /></div>}<Header path={path}/><main id="main">{content}</main><Footer/>{path !== "/contact" && <a className="mobile-sticky-cta" href="/contact">Discuss your project </a>}</div>;
 }
 
