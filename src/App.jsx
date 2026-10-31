@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const EMAIL = "bodeagencyofficial@gmail.com";
 const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://bodeconversionlab.vercel.app").replace(/\/$/, "");
