@@ -141,7 +141,7 @@ function makeParticles(count) {
   for (let i = 0; i < count; i += 1) {
     const y = 1 - (i / (count - 1)) * 2;
     const ring = Math.sqrt(1 - y * y), theta = goldenAngle * i;
-    const depth = 0.42 + Math.pow(random(), 0.42) * 0.76;
+    const depth = 0.25 + Math.pow(random(), 1.15) * 0.98;
     const jitter = (random() - 0.5) * 0.035;
     const index = i * 3;
     positions[index] = (Math.cos(theta) * ring + jitter) * depth * 1.45;
@@ -175,7 +175,7 @@ export default function ConversionStructure() {
     const program = createProgram(gl);
     if (!program) return undefined;
 
-    const count = window.innerWidth < 760 ? 2600 : 5200;
+    const count = window.innerWidth < 760 ? 3400 : 5200;
     const particles = makeParticles(count);
     const buffers = [gl.createBuffer(), gl.createBuffer(), gl.createBuffer()];
     [particles.positions, particles.colors, particles.seeds].forEach((data, index) => {
@@ -268,7 +268,7 @@ export default function ConversionStructure() {
       gl.uniform1f(uniforms.uPointerActive, pointer.active * (motionAllowed ? 1 : 0));
       gl.uniform2f(uniforms.uPointer, pointer.x, pointer.y);
       gl.uniform1f(uniforms.uFocus, focusRef.current);
-      gl.uniform1f(uniforms.uPointScale, Math.min(width, height) * (desktop ? 0.006 : 0.005));
+      gl.uniform1f(uniforms.uPointScale, Math.min(width, height) * (desktop ? 0.006 : 0.0065));
       gl.drawArrays(gl.POINTS, 0, count);
 
       if (active && !document.hidden) frame = window.requestAnimationFrame(animate);
