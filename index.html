@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=DM+Mono&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#1424ff;--fg:#ffffff;--acc:#d9ff00;--p:0;box-sizing:border-box}
+:root{--bg:#0b0b0c;--fg:#f4f4f0;--acc:#8eea3a;--p:0;box-sizing:border-box}
 *{box-sizing:border-box;margin:0}
 html,body{background:var(--bg);color:var(--fg);font-family:"Manrope",system-ui,sans-serif;line-height:1.55}
 html{overflow-x:hidden}
@@ -26,10 +26,10 @@ a{color:inherit;text-decoration:none}
 .grain{position:fixed;inset:0;z-index:8;pointer-events:none;opacity:.14;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
 .mono{font-family:"DM Mono",ui-monospace,monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase}
 .hud{position:fixed;z-index:6;left:6vw;right:6vw;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;justify-content:space-between;align-items:center}
-.brand{display:flex;align-items:center;gap:.7rem;font-weight:800;letter-spacing:-.045em;font-size:clamp(.82rem,1.5vw,1.05rem);font-family:"Bricolage Grotesque",system-ui,sans-serif;text-transform:uppercase}.brand img{display:block;width:42px;height:42px;flex:0 0 42px;object-fit:contain;border-radius:50%;background:#fff;padding:3px}.brand span{line-height:1.05}.brand small{display:block;font: .55rem "DM Mono",monospace;letter-spacing:.13em;color:var(--acc);margin-top:4px}.brand.logo-fallback:before{content:"B";display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border-radius:50%;background:#6ccb2e;color:#0b0b0b;font:800 1.35rem "Bricolage Grotesque",sans-serif}
+.brand{display:flex;align-items:center;gap:.7rem;font-weight:800;letter-spacing:-.035em;font-size:clamp(.82rem,1.5vw,1.05rem);font-family:"Bricolage Grotesque",system-ui,sans-serif;text-transform:none}.brand img{display:block;width:42px;height:42px;flex:0 0 42px;object-fit:contain;border-radius:50%;background:#fff;padding:3px}.brand span{line-height:1.05}.brand small{display:block;font: .55rem "DM Mono",monospace;letter-spacing:.13em;color:var(--acc);margin-top:4px}.brand.logo-fallback:before{content:"B";display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border-radius:50%;background:#6ccb2e;color:#0b0b0b;font:800 1.35rem "Bricolage Grotesque",sans-serif}
 .hud em{font-style:normal;color:var(--acc)}
 .hud a{border-bottom:1px solid var(--fg);margin-left:1rem}
-.dim{position:fixed;inset:0;z-index:2;visibility:hidden;opacity:0;pointer-events:none;overflow:hidden}
+.dim{position:fixed;inset:0;z-index:2;visibility:hidden;opacity:0;pointer-events:none;overflow:hidden}#entry{position:fixed;inset:0;z-index:35;display:none;background:radial-gradient(ellipse at 50% 44%,#17191a 0%,#0b0b0c 48%,#070708 100%);color:#f4f4f0;padding:28px 6vw;overflow:hidden}#entry.visible{display:flex;flex-direction:column;justify-content:space-between}#entry:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.24;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse at center,#000,transparent 78%)}.entry-top,.entry-bottom{position:relative;display:flex;justify-content:space-between;gap:1rem;color:#858589;font-size:.62rem;letter-spacing:.16em}.entry-center{position:relative;align-self:center;text-align:center;width:min(720px,100%);display:flex;flex-direction:column;align-items:center}.entry-center>p{font-size:.62rem;letter-spacing:.18em;color:#a1a1a5;margin:1.6rem 0 1.2rem}.entry-center h1{font-size:clamp(3.5rem,10vw,8rem);line-height:.88;letter-spacing:-.075em}.entry-center h1 em{color:#9ce66a;font-style:normal}.entry-orbit{position:relative;width:116px;height:116px;border:1px solid rgba(142,234,58,.28);border-radius:50%;display:grid;place-items:center}.entry-orbit:before,.entry-orbit:after{content:"";position:absolute;inset:10px;border:1px solid rgba(255,255,255,.14);border-radius:50%;transform:rotateX(65deg) rotate(30deg)}.entry-orbit:after{transform:rotateX(65deg) rotate(-30deg)}.entry-orbit b{font:700 2rem "Bricolage Grotesque";color:#b6ed91}.entry-orbit span{position:absolute;width:5px;height:5px;background:#a3e875;border-radius:50%;top:7px;left:54px;box-shadow:0 0 16px #9ce66a}.entry-orbit span:nth-child(2){top:auto;left:auto;right:12px;bottom:25px}.entry-orbit span:nth-child(3){top:auto;left:16px;bottom:22px}.entry-enter{margin-top:2.4rem;border:1px solid rgba(255,255,255,.5);border-radius:100px;background:#f4f4f0;color:#0b0b0c;padding:1.05rem 1.6rem;font:600 .7rem "DM Mono",monospace;letter-spacing:.12em;cursor:pointer;transition:transform .25s,box-shadow .25s}.entry-enter:hover{transform:translateY(-3px);box-shadow:0 0 35px rgba(142,234,58,.2)}.entry-enter span{margin-left:2rem}.sound-choice{display:flex;align-items:center;gap:.55rem;margin-top:1.8rem;color:#929297;font-size:.62rem}.sound-choice button{background:none;border:1px solid #36363a;color:#9a9a9e;padding:.45rem .7rem;border-radius:40px;font:inherit;cursor:pointer}.sound-choice button.selected{border-color:#a4e779;color:#b7ef93}.entry-bottom{width:100%}.hud .sound-live{font-size:.58rem;color:#a4e779;border:1px solid rgba(164,231,121,.3);padding:.45rem .7rem;border-radius:30px;margin-left:1rem;cursor:pointer;background:rgba(10,10,10,.45)}@media(max-width:600px){#entry{padding:22px 6vw}.entry-top,.entry-bottom{font-size:.5rem}.entry-top span,.entry-bottom span:last-child{display:none}.entry-center h1{font-size:clamp(3.4rem,16vw,5.5rem)}.hud{left:4vw;right:4vw}.hud .sound-live{margin-left:.35rem;padding:.35rem .45rem}.hud>span{font-size:.56rem}}
 .dim.on{visibility:visible;opacity:1}
 .dim.on a,.dim.on input,.dim.on button{pointer-events:auto}
 .in{position:absolute;left:6vw;right:6vw;bottom:calc(env(safe-area-inset-bottom,0px) + 9vh)}
@@ -68,17 +68,15 @@ input::placeholder{color:var(--fg);opacity:.45}
 .stat{margin-top:2.2rem;display:flex;gap:1.6rem;flex-wrap:wrap;opacity:.85}
 #tx,#bl{position:fixed;inset:0;z-index:9;pointer-events:none;display:none}
 #bl{flex-direction:row}#bl i{flex:1;transform:scaleY(0)}
-#pre{position:fixed;inset:0;z-index:20;background:#050505;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:6vw;transition:opacity .8s ease}
-#pre b{font-size:clamp(5rem,28vw,14rem);font-weight:800;letter-spacing:-.07em;line-height:.8}
-#cur{position:fixed;z-index:30;left:0;top:0;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;transition:width .25s,height .25s,margin .25s}
+#pre{position:fixed;inset:0;z-index:40;background:#080809;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2rem;padding:6vw;transition:opacity .8s ease}#pre .loader-mark{width:clamp(76px,12vw,132px);height:clamp(76px,12vw,132px);object-fit:contain;animation:markPulse 1.8s ease-in-out infinite;filter:drop-shadow(0 0 24px rgba(142,234,58,.22))}#pre b{font:500 .78rem "DM Mono",monospace;letter-spacing:.22em;color:#a7a7a7}#pre .load-track{width:min(220px,48vw);height:1px;background:#29292c;overflow:hidden}#pre .load-track i{display:block;width:100%;height:100%;background:linear-gradient(90deg,#6ccb2e,#c8f59c);transform:scaleX(0);transform-origin:left;transition:transform .12s linear}@keyframes markPulse{0%,100%{transform:scale(.96);opacity:.78}50%{transform:scale(1.04);opacity:1}}#cur{position:fixed;z-index:30;left:0;top:0;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;transition:width .25s,height .25s,margin .25s}
 #cur.h{width:56px;height:56px;margin:-28px 0 0 -28px}
 @media(pointer:coarse){#cur{display:none}}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas><div class="grain"></div><div id="cur"></div><div id="tx"></div><div id="bl"></div>
-<div id="pre"><span class="mono">Entering the lab</span><b id="pn">0</b></div>
-<div class="hud mono"><a class="brand" href="/" aria-label="Bode Conversion Lab home" style="border:0;margin:0"><img src="https://i.postimg.cc/4dQJXYSc/logo.png" alt="Bode Conversion Lab logo" onerror="this.remove();this.parentElement.classList.add('logo-fallback')"><span>Bode<small>Conversion Lab</small></span></a><span><em id="cn">01</em> / 06 &nbsp;<span id="nm">Origin</span><a href="#" id="jump">Free audit</a></span></div>
+<div id="pre"><img class="loader-mark" src="https://i.postimg.cc/4dQJXYSc/logo.png" alt="Bode Conversion Lab"><b>PREPARING THE EXPERIENCE</b><div class="load-track"><i id="loadbar"></i></div><span class="mono" id="pn" style="font-size:.62rem;color:#777">00%</span></div><section id="entry" aria-label="Enter Bode Conversion Lab"><div class="entry-top mono">BODE CONVERSION LAB <span>INDEPENDENT COMMERCE SYSTEMS</span></div><div class="entry-center"><div class="entry-orbit"><span></span><span></span><span></span><b>B</b></div><p class="mono">A DIFFERENT WAY TO BUILD COMMERCE</p><h1>Enter the<br><em>experience.</em></h1><button id="enterBtn" class="entry-enter">ENTER EXPERIENCE <span>↗</span></button><div class="sound-choice mono"><span>SOUND</span><button type="button" id="soundOn" aria-pressed="false">ON</button><button type="button" id="soundOff" class="selected" aria-pressed="true">OFF</button></div></div><div class="entry-bottom mono"><span>STRATEGY / CREATIVE / CONVERSION</span><span>SCROLL TO EXPLORE</span></div></section>
+<div class="hud mono"><a class="brand" href="/" aria-label="Bode Conversion Lab home" style="border:0;margin:0"><img src="https://i.postimg.cc/4dQJXYSc/logo.png" alt="Bode Conversion Lab logo" onerror="this.remove();this.parentElement.classList.add('logo-fallback')"><span>Bode<small>Conversion Lab</small></span></a><span><em id="cn">01</em> / 06 &nbsp;<span id="nm">Origin</span><button class="sound-live mono" id="soundLive" type="button">SOUND OFF</button><a href="#" id="jump">Let’s talk</a></span></div>
 <div class="dim" id="d0"><div class="in"><div class="mono k">Bode Conversion Lab / Ads engineering</div><h1><span class="l1">We</span><span class="l2">engineer</span><em>ROAS.</em></h1><p>Scroll to travel through the system that turns clicks into sales.</p></div></div>
 <div class="dim" id="d1"><div class="mq">SIGNAL * SIGNAL * SIGNAL * SIGNAL *</div><div class="in"><div class="mono k">Signal</div><h2 id="wd">Every sale is built before the click.</h2><p>It starts with one signal: a buyer who is ready to act.</p></div></div>
 <div class="dim" id="d2"><div class="trk">
@@ -95,21 +93,19 @@ input::placeholder{color:var(--fg);opacity:.45}
   <div class="sc"><span class="mono">Move 01</span><div><h3>Diagnose</h3><p>We scan the store and the full ad path to find where buyers drop.</p></div></div>
   <div class="sc"><span class="mono">Move 02</span><div><h3>Engineer</h3><p>We rebuild pages, offers and checkout around the buyer.</p></div></div>
   <div class="sc"><span class="mono">Move 03</span><div><h3>Scale</h3><p>We grow ad spend once the path converts.</p></div></div></div></div></div>
-<div class="dim" id="d5"><div class="in"><div class="mono k">Admission / Free audit</div><h2>Show us your store.</h2><p>We will show you exactly what it is losing.</p>
-  <form id="f"><div><label class="mono" for="u">Store link</label><input id="u" type="text" placeholder="yourstore.com" required autocomplete="url"></div><button class="btn mono" type="submit" style="justify-self:start;margin-top:0">Request your audit</button></form>
-  <div class="stat mono"><span>Lab status: Operational</span><span>Local time <span id="clk"></span></span></div></div></div>
+<div class="dim" id="d5"><div class="in"><div class="mono k">Admission / Start a conversation</div><h2>Let’s build what’s next.</h2><p>Tell us where your store is now and where you want it to go.</p><a class="btn mono" href="mailto:bodeagencyofficial@gmail.com?subject=Let%27s%20talk%20about%20my%20store">START THE CONVERSATION ↗</a><div class="stat mono"><span>Direct email</span><span>bodeagencyofficial@gmail.com</span></div></div></div>
 <div id="sp"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
-var P=[{n:'Origin',bg:'#1424ff',fg:'#ffffff',acc:'#8eea3a'},{n:'Signal',bg:'#ff1f7a',fg:'#ffffff',acc:'#8eea3a'},{n:'System',bg:'#060606',fg:'#f4f4f0',acc:'#8eea3a'},{n:'Proof',bg:'#b6ff00',fg:'#0a0a0a',acc:'#2e7d1f'},{n:'Method',bg:'#5b00ff',fg:'#ffffff',acc:'#8eea3a'},{n:'Admission',bg:'#ff4a00',fg:'#120000',acc:'#8eea3a'}];
+var P=[{n:'Origin',bg:'#0b0b0c',fg:'#f4f4f0',acc:'#8eea3a'},{n:'Signal',bg:'#11151a',fg:'#f4f4f0',acc:'#a6c7f5'},{n:'System',bg:'#080809',fg:'#f4f4f0',acc:'#8eea3a'},{n:'Proof',bg:'#101311',fg:'#f4f4f0',acc:'#a7e77b'},{n:'Method',bg:'#111016',fg:'#f4f4f0',acc:'#b9a4ed'},{n:'Admission',bg:'#0b0b0c',fg:'#f4f4f0',acc:'#8eea3a'}];
 var LEN=[1.6,2.2,4.2,3,2.6,1.4],GL=.9,TX=['portal','wipe','blinds','curtain','portal'],S=[],at=0;
 for(var i=0;i<6;i++){S.push({k:'d',i:i,s:at,l:LEN[i]});at+=LEN[i];if(i<5){S.push({k:'g',f:i,t:i+1,s:at,l:GL,x:TX[i]});at+=GL}}
 var TOT=at,reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,cur=-1,mx=0,my=0,cx=0,cy=0,px=0,py=0;
 var $=function(s){return document.querySelector(s)},all=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))},cl=function(v){return Math.min(1,Math.max(0,v))};
 var D=all('.dim'),sp=$('#sp');
 function rs(){sp.style.height=(TOT+1)*innerHeight+'px'}rs();addEventListener('resize',rs);
-$('#f').addEventListener('submit',function(e){e.preventDefault();var v=$('#u').value.trim();if(!v)return;if(!/^https?:\/\//i.test(v))v='https://'+v;location.href='https://bodeconversionlab.vercel.app/contact?url='+encodeURIComponent(v)});
+/* Contact is handled by the single direct email action in the final scene. */
 $('#jump').addEventListener('click',function(e){e.preventDefault();scrollTo({top:(S[S.length-1].s+.3)*innerHeight,behavior:'smooth'})});
 addEventListener('pointermove',function(e){mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;px=e.clientX;py=e.clientY;$('#cur').classList.toggle('h',!!e.target.closest('a,button,input'))});
 setInterval(function(){$('#clk').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})},1000);
@@ -127,7 +123,7 @@ function txr(type,g,n){
   if(type==='wipe'){var X=(first?a:b)*160-20;t.clipPath=first?'polygon(0 0,'+X+'% 0,'+(X-25)+'% 100%,0 100%)':'polygon('+X+'% 0,100% 0,100% 100%,'+(X-25)+'% 100%)'}
   if(type==='curtain'){t.borderRadius='50% 50% 0 0 / 12% 12% 0 0';t.borderTop='8px solid '+n.acc;t.transform='translateY('+(first?(1-a)*100:-b*100)+'%)'}
 }
-var ren,sc,cam,G=[],Lt;
+var ren,sc,cam,G=[],Lt;var soundEnabled=false,audioCtx=null,ambientOsc=null,ambientGain=null;function setSound(on){soundEnabled=!!on;$('#soundOn').classList.toggle('selected',on);$('#soundOff').classList.toggle('selected',!on);$('#soundOn').setAttribute('aria-pressed',String(on));$('#soundOff').setAttribute('aria-pressed',String(!on));$('#soundLive').textContent=on?'SOUND ON':'SOUND OFF';try{localStorage.setItem('bcl_sound',on?'on':'off')}catch(e){}if(on){try{var AC=window.AudioContext||window.webkitAudioContext;if(!audioCtx){audioCtx=new AC();ambientOsc=audioCtx.createOscillator();ambientGain=audioCtx.createGain();ambientOsc.type='sine';ambientOsc.frequency.value=55;ambientGain.gain.value=0;ambientOsc.connect(ambientGain);ambientGain.connect(audioCtx.destination);ambientOsc.start()}audioCtx.resume();ambientGain.gain.setTargetAtTime(.008,audioCtx.currentTime,.4)}catch(e){}}else if(audioCtx&&ambientGain){ambientGain.gain.setTargetAtTime(0,audioCtx.currentTime,.15)}}try{soundEnabled=localStorage.getItem('bcl_sound')==='on'}catch(e){}$('#soundOn').addEventListener('click',function(){setSound(true)});$('#soundOff').addEventListener('click',function(){setSound(false)});$('#soundLive').addEventListener('click',function(){setSound(!soundEnabled)});$('#soundOn').classList.toggle('selected',soundEnabled);$('#soundOff').classList.toggle('selected',!soundEnabled);$('#soundLive').textContent=soundEnabled?'SOUND ON':'SOUND OFF';$('#enterBtn').addEventListener('click',function(){if(soundEnabled&&audioCtx)audioCtx.resume();$('#entry').classList.remove('visible');$('#entry').style.display='none';scrollTo({top:0,behavior:'instant'})});
 try{
 ren=new THREE.WebGLRenderer({canvas:$('#c'),antialias:true,alpha:true});
 ren.setClearColor(0x000000,0);ren.setPixelRatio(Math.min(devicePixelRatio||1,1.75));
@@ -143,8 +139,7 @@ var g=new THREE.ExtrudeGeometry(s,{depth:d,bevelEnabled:true,bevelThickness:.07,
 function sph(r,mat,x,y,z){var m=new THREE.Mesh(new THREE.SphereGeometry(r,64,48),mat);m.position.set(x,y,z);return m}
 function tor(r,t,mat,k){var m=new THREE.Mesh(new THREE.TorusGeometry(r,t,48,200),mat);m.userData.sp=k;return m}
 P.forEach(function(p,i){var e=env(p.bg,p.acc),g=new THREE.Group(),a=parseInt(p.acc.slice(1),16),CH=M(0xffffff,1,.07,0,e),OB=M(0x050505,.5,.04,1,e);
- if(i===0){g.add(new THREE.Mesh(new THREE.TorusKnotGeometry(1.3,.44,260,40,2,3),CH));
-  [[.5,0,.35,M(a,.1,.08,1,e)],[-.6,.8,.3,OB],[1.1,-.4,.28,M(0xffffff,.9,.1,0,e)]].forEach(function(o,k){var pv=new THREE.Group();pv.rotation.set(o[0],o[1],k);pv.add(sph(o[2],o[3],2.7+k*.3,0,0));pv.userData.s=.6+k*.35;g.add(pv)})}
+ if(i===0){var commerce=new THREE.Group();var boxA=new THREE.Mesh(new THREE.BoxGeometry(1.55,1.85,1.25),M(0x24282b,.55,.22,1,e));boxA.position.set(-1.65,-.05,0);boxA.rotation.set(.12,.28,-.12);commerce.add(boxA);var boxB=new THREE.Mesh(new THREE.BoxGeometry(1.05,1.05,1.05),M(a,.25,.18,1,e));boxB.position.set(1.55,.65,-.25);boxB.rotation.set(.3,-.3,.2);commerce.add(boxB);var bottle=new THREE.Group();var body=new THREE.Mesh(new THREE.CylinderGeometry(.38,.43,1.45,48),M(0xd9ded8,.18,.16,1,e));body.position.y=-.05;bottle.add(body);var cap=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.34,32),OB);cap.position.y=.85;bottle.add(cap);bottle.position.set(.1,-.35,.65);bottle.rotation.z=-.12;commerce.add(bottle);var sphere=new THREE.Mesh(new THREE.SphereGeometry(.58,48,40),M(0x9bb7c8,.35,.12,1,e));sphere.position.set(-.05,1.65,-.55);commerce.add(sphere);var orbitA=new THREE.Mesh(new THREE.TorusGeometry(2.65,.025,12,180),M(a,.6,.2,1,e));orbitA.rotation.set(.8,.2,.25);commerce.add(orbitA);var orbitB=new THREE.Mesh(new THREE.TorusGeometry(3.05,.018,12,180),CH);orbitB.rotation.set(.2,.8,-.3);commerce.add(orbitB);g.add(commerce);g.userData.commerce=commerce;[[.5,0,.18,M(a,.1,.08,1,e)],[-.6,.8,.15,OB],[1.1,-.4,.14,M(0xffffff,.9,.1,0,e)]].forEach(function(o,k){var pv=new THREE.Group();pv.rotation.set(o[0],o[1],k);pv.add(sph(o[2],o[3],2.7+k*.3,0,0));pv.userData.s=.6+k*.35;g.add(pv)})}
  if(i===1){var cs=[CH,M(a,.2,.1,1,e),OB,M(0xffffff,.1,.15,1,e)];g.userData.sl=[];for(var k=0;k<4;k++){var s=slab(2.6,3.4,.35,.22,cs[k]);g.add(s);g.userData.sl.push(s)}}
  if(i===2){g.add(sph(1.4,CH,0,0,0));g.add(slab(2.6,3.4,.35,.22,M(a,.2,.1,1,e)));g.add(new THREE.Mesh(new THREE.TorusKnotGeometry(1,.34,200,32),CH));g.add(new THREE.Mesh(new THREE.TorusGeometry(1.5,.5,48,160),M(0xffffff,.1,.15,1,e)))}
  if(i===3){g.add(sph(1.25,CH,-2.4,.5,0));g.add(sph(1.25,OB,0,-.7,.4));g.add(sph(1.25,M(a,.15,.08,1,e),2.4,.6,0))}
@@ -158,9 +153,7 @@ size();addEventListener('resize',size);
 }catch(err){ren=null}
 function setA(A){cur=A;var p=P[A],r=document.documentElement.style;r.setProperty('--bg',p.bg);r.setProperty('--fg',p.fg);r.setProperty('--acc',p.acc);
  D.forEach(function(el,j){el.classList.toggle('on',j===A)});$('#cn').textContent='0'+(A+1);$('#nm').textContent=p.n;if(ren)Lt.color.set(p.acc)}
-var t0=performance.now(),n0=t0,pn=$('#pn');
-function loader(now){var v=Math.min(100,Math.round((now-n0)/13));pn.textContent=v;if(v<100)requestAnimationFrame(loader);else{$('#pre').style.opacity=0;setTimeout(function(){$('#pre').remove()},900)}}
-requestAnimationFrame(loader);
+var t0=performance.now(),n0=t0,pn=$('#pn'),loadbar=$('#loadbar');function loader(now){var v=Math.min(100,Math.round((now-n0)/19));pn.textContent=String(v).padStart(2,'0')+'%';loadbar.style.transform='scaleX('+(v/100)+')';if(v<100)requestAnimationFrame(loader);else{$('#pre').style.opacity=0;setTimeout(function(){$('#pre').remove();$('#entry').classList.add('visible')},850)}}requestAnimationFrame(loader);
 function frame(now){
   var T=reduce?0:(now-t0)/1000,u=Math.max(0,scrollY/innerHeight),sg=S[S.length-1],A,p,g=0,x='';
   for(var k=0;k<S.length;k++){if(u>=S[k].s&&u<S[k].s+S[k].l){sg=S[k];break}}
@@ -174,10 +167,10 @@ function frame(now){
   if(A===4)sc4.forEach(function(c,k){var v=cl(p*3.2-k*.9);c.style.transform='translateY('+((1-v)*115)+'%) translateY('+k*16+'px) rotate('+((1-v)*(k%2?-6:6))+'deg)'});
   if(ren){var d=innerWidth>760,m=d?1:.68,wp=Math.sin(g*Math.PI),cz=8;
     cam.fov=60+wp*30;cam.updateProjectionMatrix();
-    if(A===0)cz=8-p*3.2;if(A===3)cz=8-p*1.2;if(A===4)cz=8-p*2.6;
+    if(A===0)cz=8-p*2.3;if(A===3)cz=8-p*1.2;if(A===4)cz=8-p*2.6;
     cam.position.set(mx*.8,-my*.5,cz);cam.lookAt(0,0,0);
     G.forEach(function(gr,j){var on=j===A;gr.sc+=((on?1:0)-gr.sc)*.08;gr.visible=gr.sc>.01;
-      gr.position.set(d?(j===3?1.3:2.9):0,d?0:2.0,0);gr.scale.setScalar(Math.max(.001,gr.sc*m));
+      gr.position.set(d?(j===0?1.4:j===3?1.3:2.9):0,d?0:1.2,0);gr.scale.setScalar(Math.max(.001,gr.sc*m));
       gr.rotation.y=T*.28+(j===0?p*4:j===4?p*5:p*2)+wp*3;gr.rotation.x=Math.sin(T*.4)*.15+my*.3;
       if(j===1)gr.userData.sl.forEach(function(s,k){var o=k-1.5;s.position.set(o*(.35+.7*p),0,-Math.abs(o)*.35*p);s.rotation.set(0,-o*.38*p,o*.08*p)});
       if(j===2)gr.children.forEach(function(c,k){var s=Math.max(0,1-Math.abs(p*4-(k+.5))*1.4);c.scale.setScalar(.001+s*s*(3-2*s))});
