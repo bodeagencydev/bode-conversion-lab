@@ -260,7 +260,8 @@ input:focus,textarea:focus{border-color:var(--acc)}input::placeholder,textarea::
 (function(){
 var booted=false;function boot(){if(booted)return;booted=true;(function(){
 var LOGO_PRIMARY='https://i.postimg.cc/4dQJXYSc/logo.png',LOGO_FALLBACK='https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/2970.jpg_20261008071151.jpg';
-var CFG=window.__CFG||{logo:LOGO_PRIMARY,thumbs:['https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/novigood.jpg','https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/robinroobaby.jpg','https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/streamride.jpg']};
+var CFG=window.__CFG||{thumbs:['https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/novigood.jpg','https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/robinroobaby.jpg','https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/streamride.jpg']};
+CFG.logo=LOGO_PRIMARY;
 var SOC={ig:'https://www.instagram.com/bodeconversionlab/',li:'https://www.linkedin.com/in/ajibode-fiyinfoluwa-54146743b',up:'https://www.upwork.com/freelancers/~0196f7c832332b77c8',tg:'https://t.me/bodeconversionlab',mail:'mailto:bodeagencyofficial@gmail.com'};
 var $=function(s){return document.querySelector(s)},all=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))},cl=function(v){return Math.min(1,Math.max(0,v))},sm=function(t){return t*t*(3-2*t)},sm5=function(t){return t*t*t*(t*(t*6-15)+10)},mix=function(a,b,t){return a+(b-a)*t};
 var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,coarse=matchMedia('(pointer:coarse)').matches,lite=coarse||(navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4);
