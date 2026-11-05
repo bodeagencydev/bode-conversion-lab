@@ -17,6 +17,8 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Bode Conversion Lab","url":"https://bodeconversionlab.vercel.app/","email":"bodeagencyofficial@gmail.com","sameAs":["https://www.instagram.com/bodeconversionlab/","https://www.linkedin.com/in/ajibode-fiyinfoluwa-54146743b","https://www.upwork.com/freelancers/~0196f7c832332b77c8","https://t.me/bodeconversionlab"]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://i.postimg.cc" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&display=swap" rel="stylesheet">
 <style>
@@ -173,6 +175,11 @@ input:focus,textarea:focus{border-color:var(--acc)}input::placeholder,textarea::
 #pre.ready #pl,#pre.ready u{display:block}
 #pre .ent{margin-top:.3rem}
 #pre .ent .btn{min-width:132px;min-height:48px}
+.lm img{object-fit:contain}#pre .pre-mark img{object-fit:contain;background:transparent;box-shadow:none}
+#snd,#pre-snd{white-space:nowrap;min-width:max-content;max-width:calc(100vw - 40px);overflow:visible}
+#snd{padding:7px 9px;background:rgba(8,10,9,.72);border-radius:3px}
+#pre .music-toggle .music-label{display:inline-block;min-width:5.2em;text-align:left}
+#pre .pre-mark img{width:78px;height:78px}
 .music-toggle{display:inline-flex;align-items:center;gap:.6rem;cursor:pointer}
 #pre .music-toggle{margin-top:1.3rem;background:transparent;border:0;color:rgba(236,232,223,.66);font:500 .65rem "Hanken Grotesk",sans-serif;letter-spacing:.15em;text-transform:uppercase;padding:.6rem}
 .music-bars{height:16px;display:inline-flex;align-items:center;gap:2px}
@@ -196,7 +203,7 @@ input:focus,textarea:focus{border-color:var(--acc)}input::placeholder,textarea::
 <body>
 <canvas id="c"></canvas>
 
-<div id="pre"><div class="pre-mark"><svg class="pre-ring" viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="51"></circle><circle class="track" cx="56" cy="56" r="51"></circle></svg><img data-lg alt=""></div><div class="pre-name"><span>B</span><span>O</span><span>D</span><span>E</span></div><div class="pre-words" aria-live="off"><span>Ads</span><span>Pages</span><span>Checkout</span><span>Recovery</span></div><u></u><div id="pl">Preparing the experience</div><div class="ent"><button class="btn p" id="enter">Enter</button></div><button id="pre-snd" class="music-toggle" type="button" aria-label="Turn sound on" aria-pressed="false"><span class="music-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="music-label">Sound off</span></button></div>
+<div id="pre"><div class="pre-mark"><svg class="pre-ring" viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="51"></circle><circle class="track" cx="56" cy="56" r="51"></circle></svg><img data-lg alt="Bode Conversion Lab logo" width="78" height="78"></div><div class="pre-name"><span>B</span><span>O</span><span>D</span><span>E</span></div><div class="pre-words" aria-live="off"><span>Ads</span><span>Pages</span><span>Checkout</span><span>Recovery</span></div><u></u><div id="pl">Preparing the experience</div><div class="ent"><button class="btn p" id="enter">Enter</button></div><button id="pre-snd" class="music-toggle" type="button" aria-label="Turn sound on" aria-pressed="false"><span class="music-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="music-label">Sound off</span></button></div>
 <nav class="nav"><a class="logo" href="#top" aria-label="Bode Conversion Lab"><span class="lm"><img data-lg alt="Bode Conversion Lab logo" width="40" height="40"></span><span class="wordmark">Bode Conversion Lab</span></a>
 <div class="links"><a class="l" href="#services" data-g="7,7">Services</a><a class="l" href="#proof" data-g="6,6">Proof</a><a class="l" href="#diagnose" data-g="8,10">Method</a><a class="l" href="#about" data-g="11,11">About</a><a class="l" href="#contact" data-g="14,14">Contact</a><a class="btn p s" href="#contact" data-audit>Free audit</a></div>
 <button class="btn s menub" id="mb" aria-label="Menu">Menu</button></nav>
@@ -249,15 +256,16 @@ input:focus,textarea:focus{border-color:var(--acc)}input::placeholder,textarea::
 <h3>Governing law</h3><p>These terms follow the laws of the jurisdiction where Bode Conversion Lab is established.</p>
 <h3>Contact</h3><p>Questions about these terms: bodeagencyofficial@gmail.com.</p></div></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
-var CFG=window.__CFG||{logo:'https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/2970.jpg_20261008071151.jpg',thumbs:['https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/novigood.jpg','https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/robinroobaby.jpg','https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/streamride.jpg']};
+var booted=false;function boot(){if(booted)return;booted=true;(function(){
+var LOGO_PRIMARY='https://i.postimg.cc/4dQJXYSc/logo.png',LOGO_FALLBACK='https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/2970.jpg_20261008071151.jpg';
+var CFG=window.__CFG||{logo:LOGO_PRIMARY,thumbs:['https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/novigood.jpg','https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/robinroobaby.jpg','https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/streamride.jpg']};
 var SOC={ig:'https://www.instagram.com/bodeconversionlab/',li:'https://www.linkedin.com/in/ajibode-fiyinfoluwa-54146743b',up:'https://www.upwork.com/freelancers/~0196f7c832332b77c8',tg:'https://t.me/bodeconversionlab',mail:'mailto:bodeagencyofficial@gmail.com'};
 var $=function(s){return document.querySelector(s)},all=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))},cl=function(v){return Math.min(1,Math.max(0,v))},sm=function(t){return t*t*(3-2*t)},sm5=function(t){return t*t*t*(t*(t*6-15)+10)},mix=function(a,b,t){return a+(b-a)*t};
-var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,coarse=matchMedia('(pointer:coarse)').matches,lite=(navigator.deviceMemory&&navigator.deviceMemory<=3)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=3);
+var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,coarse=matchMedia('(pointer:coarse)').matches,lite=coarse||(navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4);
 $('#yr').innerHTML='&copy; '+new Date().getFullYear()+' Bode Conversion Lab';
-all('img[data-lg]').forEach(function(i){i.src=CFG.logo});
+all('img[data-lg]').forEach(function(i){i.onerror=function(){if(!this.dataset.fallback){this.dataset.fallback='1';this.src=LOGO_FALLBACK}};i.src=CFG.logo});
 all('[data-soc]').forEach(function(a){var v=SOC[a.dataset.soc];if(!v){a.remove();return}a.href=v;if(a.dataset.soc!=='mail'){a.target='_blank';a.rel='noopener'}});
 var secs=all('.sec'),N=secs.length,NP=secs.filter(function(s){return!s.classList.contains('flow')}).length,NAMES=secs.map(function(s){return s.dataset.n}),L=[];
 var rail=$('#rail');secs.forEach(function(s,i){var a=document.createElement('a');a.href='#'+s.id;a.title=NAMES[i];a.setAttribute('aria-label',NAMES[i]);a.innerHTML='<i></i>';rail.appendChild(a)});
@@ -289,7 +297,7 @@ function audioInit(){if(AC)return;var A=window.AudioContext||window.webkitAudioC
  var lf=AC.createOscillator();lf.frequency.value=.07;var lg=AC.createGain();lg.gain.value=120;lf.connect(lg);lg.connect(lp.frequency);lf.start();
  SND.tick=function(){if(!sound)return;var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=1500;g.gain.setValueAtTime(.0001,AC.currentTime);g.gain.exponentialRampToValueAtTime(.05,AC.currentTime+.01);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+.12);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.14)};
  SND.whoosh=function(){if(!sound)return;var n=AC.sampleRate*.7,b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);for(var i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);var s=AC.createBufferSource();s.buffer=b;var f=AC.createBiquadFilter();f.type='bandpass';f.Q.value=.8;f.frequency.setValueAtTime(300,AC.currentTime);f.frequency.exponentialRampToValueAtTime(2400,AC.currentTime+.6);var g=AC.createGain();g.gain.value=.12;s.connect(f);f.connect(g);g.connect(AC.destination);s.start()}}
-function setSound(on){sound=on;all('.music-toggle').forEach(function(b){var label=b.querySelector('.music-label');if(label)label.textContent=on?'Sound on':'Sound off';b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',on?'Turn sound off':'Turn sound on');b.classList.toggle('playing',on)});if(AC&&SND.master){if(AC.state==='suspended')AC.resume();SND.master.gain.linearRampToValueAtTime(on?.16:0,AC.currentTime+.6)}}
+function setSound(on){sound=on;all('.music-toggle').forEach(function(b){var label=b.querySelector('.music-label');if(label)label.textContent=on?'Sound: On':'Sound: Off';b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',on?'Turn sound off':'Turn sound on');b.classList.toggle('playing',on)});if(AC&&SND.master){if(AC.state==='suspended')AC.resume();SND.master.gain.linearRampToValueAtTime(on?.16:0,AC.currentTime+.6)}}
 all('.music-toggle').forEach(function(b){b.addEventListener('click',function(){audioInit();setSound(!sound)})});
 
 /* 3D */
@@ -314,9 +322,9 @@ try{
 ren=new THREE.WebGLRenderer({canvas:$('#c'),antialias:!coarse&&!lite,alpha:true,powerPreference:'high-performance'});
 ren.setPixelRatio(PR);ren.outputEncoding=THREE.sRGBEncoding;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.05;ren.shadowMap.enabled=!lite;ren.shadowMap.type=THREE.PCFSoftShadowMap;
 scene=new THREE.Scene();scene.background=new THREE.Color(0x0b0c0c);scene.fog=new THREE.Fog(0x0b0c0c,14,34);cam=new THREE.PerspectiveCamera(40,1,.1,80);tmpO=new THREE.Object3D();
-var pm=new THREE.PMREMGenerator(ren);
-(function(){var c=document.createElement('canvas');c.width=1024;c.height=512;var x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);g.addColorStop(0,'#16191a');g.addColorStop(.5,'#2a2f30');g.addColorStop(.52,'#0b0c0c');g.addColorStop(1,'#050606');x.fillStyle=g;x.fillRect(0,0,1024,512);x.shadowColor='#fff';x.shadowBlur=46;x.fillStyle='#f4f1ea';[[70,90,260,34],[430,60,170,24],[690,130,230,38],[250,260,300,28]].forEach(function(r){x.fillRect(r[0],r[1],r[2],r[3])});
- var t=new THREE.CanvasTexture(c);t.mapping=THREE.EquirectangularReflectionMapping;t.encoding=THREE.sRGBEncoding;ENV0=pm.fromEquirectangular(t).texture;scene.environment=ENV0})();
+if(!lite){var pm=new THREE.PMREMGenerator(ren);
+(function(){var c=document.createElement('canvas');c.width=512;c.height=256;var x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);g.addColorStop(0,'#16191a');g.addColorStop(.5,'#2a2f30');g.addColorStop(.52,'#0b0c0c');g.addColorStop(1,'#050606');x.fillStyle=g;x.fillRect(0,0,1024,512);x.shadowColor='#fff';x.shadowBlur=46;x.fillStyle='#f4f1ea';[[70,90,260,34],[430,60,170,24],[690,130,230,38],[250,260,300,28]].forEach(function(r){x.fillRect(r[0],r[1],r[2],r[3])});
+ var t=new THREE.CanvasTexture(c);t.mapping=THREE.EquirectangularReflectionMapping;t.encoding=THREE.sRGBEncoding;ENV0=pm.fromEquirectangular(t).texture;scene.environment=ENV0})();pm.dispose()}
 /* set */
 stage=new THREE.Group();scene.add(stage);
 var floorMat=new THREE.MeshStandardMaterial({color:0x0a0b0b,roughness:.95,metalness:0});floorMat.envMapIntensity=0;floorM=new THREE.Mesh(new THREE.CircleGeometry(40,96),floorMat);floorM.rotation.x=-Math.PI/2;floorM.receiveShadow=true;scene.add(floorM);
@@ -328,7 +336,7 @@ var rim=new THREE.DirectionalLight(0xbfd8ff,.9);rim.position.set(-5,3,-4);scene.
 var SN=lite?30:64;swarm=new THREE.InstancedMesh(new THREE.BoxGeometry(.085,.085,.01),new THREE.MeshBasicMaterial({color:0xece8df,toneMapped:false}),SN);var SW=[];for(var i=0;i<SN;i++)SW.push({r:2.2+Math.random()*1.6,a:Math.random()*6.283,v:.15+Math.random()*.35,y:.3+Math.random()*2.6});scene.add(swarm);
 /* Product geometry is generated locally. No model download is required. */
 /* UI cards */
-var IMG={logo:new Image(),thumbs:[new Image(),new Image(),new Image()]};IMG.logo.src=CFG.logo;IMG.thumbs.forEach(function(im,k){im.crossOrigin='anonymous';im.src=CFG.thumbs[k];im.onload=redraw});IMG.logo.onload=redraw;
+var IMG={logo:new Image(),thumbs:[new Image(),new Image(),new Image()]};IMG.logo.onerror=function(){if(!this.dataset.fallback){this.dataset.fallback='1';this.src=LOGO_FALLBACK}};IMG.logo.src=CFG.logo;IMG.thumbs.forEach(function(im,k){im.crossOrigin='anonymous';im.src=CFG.thumbs[k];im.onload=redraw});IMG.logo.onload=redraw;
 var U={bg:'#f0ede4',ink:'#0b0c0c',mute:'#6d6a62',line:'#d8d4c8',acc:'#0c8a56',pan:'#e4dfd2'};
 function Tx(x,s,X,Y,z,fam,col,wt,al){x.font=(wt||400)+' '+z+'px '+(fam==='s'?'Newsreader,Georgia,serif':'"Hanken Grotesk",system-ui,sans-serif');x.fillStyle=col;x.textAlign=al||'left';x.fillText(s,X,Y)}
 function Rc(x,X,Y,W,H,r,f,s){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+W,Y,X+W,Y+H,r);x.arcTo(X+W,Y+H,X,Y+H,r);x.arcTo(X,Y+H,X,Y,r);x.arcTo(X,Y,X+W,Y,r);x.closePath();if(f){x.fillStyle=f;x.fill()}if(s){x.strokeStyle=s;x.lineWidth=2;x.stroke()}}
@@ -356,19 +364,33 @@ function redraw(){Object.keys(CARDS).forEach(function(n){var C=CARDS[n],x=C.c.ge
 /* after assets */
 function afterLoad(){
  /* Universal parcel product with a hinged lid. */
- var carton=new THREE.MeshPhysicalMaterial({color:0xd8d0bd,roughness:.72,metalness:.02});
- var edge=new THREE.MeshStandardMaterial({color:0xaaa18f,roughness:.82});
- var inner=new THREE.MeshStandardMaterial({color:0x27372f,roughness:.55});
+ var carton=new THREE.MeshPhysicalMaterial({color:0x176345,roughness:.62,metalness:.04});
+ var edge=new THREE.MeshStandardMaterial({color:0x2fdc92,roughness:.48,metalness:.12});
+ var inner=new THREE.MeshStandardMaterial({color:0xe6e1d4,roughness:.82});
  var base=new THREE.Group();
- var body=new THREE.Mesh(new THREE.BoxGeometry(2.35,1.34,1.72),carton);body.position.y=.94;body.castShadow=true;body.receiveShadow=true;base.add(body);
- var inside=new THREE.Mesh(new THREE.BoxGeometry(2.12,.12,1.48),inner);inside.position.set(0,1.64,0);inside.castShadow=true;base.add(inside);
- var productCore=new THREE.Mesh(new THREE.BoxGeometry(.88,.62,.78),new THREE.MeshPhysicalMaterial({color:0xeee9dc,roughness:.38,metalness:.08}));productCore.position.set(0,1.30,.02);productCore.castShadow=true;base.add(productCore);
- var label=document.createElement('canvas');label.width=512;label.height=256;var lx=label.getContext('2d');lx.fillStyle='#ece8df';lx.fillRect(0,0,512,256);lx.fillStyle='#0a0c0b';lx.font='600 34px Arial';lx.fillText('BODE CONVERSION LAB',28,62);lx.font='500 62px Georgia';lx.fillText('YOUR PRODUCT',28,142);lx.font='24px Arial';lx.fillStyle='#267b57';lx.fillText('ECOMMERCE SYSTEM / 001',28,202);
- var labelTex=new THREE.CanvasTexture(label);labelTex.encoding=THREE.sRGBEncoding;
- var labelMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.12,.56),new THREE.MeshBasicMaterial({map:labelTex,side:THREE.DoubleSide}));labelMesh.position.set(0,.95,.866);base.add(labelMesh);
- var hinge=new THREE.Group();hinge.position.set(0,1.62,-.84);base.add(hinge);
+ /* Open shipping carton: a floor and four separate walls, not a solid block. */
+ var floor=new THREE.Mesh(new THREE.BoxGeometry(2.35,.16,1.72),inner);floor.position.y=.36;floor.receiveShadow=true;base.add(floor);
+ var back=new THREE.Mesh(new THREE.BoxGeometry(2.35,1.28,.16),carton);back.position.set(0,1.08,-.78);back.castShadow=true;base.add(back);
+ var front=new THREE.Mesh(new THREE.BoxGeometry(2.35,1.28,.16),carton);front.position.set(0,1.08,.78);front.castShadow=true;base.add(front);
+ var left=new THREE.Mesh(new THREE.BoxGeometry(.16,1.28,1.48),carton);left.position.set(-1.095,1.08,0);left.castShadow=true;base.add(left);
+ var right=new THREE.Mesh(new THREE.BoxGeometry(.16,1.28,1.48),carton);right.position.set(1.095,1.08,0);right.castShadow=true;base.add(right);
+ var lining=new THREE.Mesh(new THREE.BoxGeometry(2.05,.025,1.38),new THREE.MeshStandardMaterial({color:0x143c2d,roughness:.9}));lining.position.set(0,.455,0);base.add(lining);
+ /* The retail product is a separate ivory carton with a green band and a readable front label. */
+ var productMat=new THREE.MeshPhysicalMaterial({color:0xf1eadb,roughness:.42,metalness:.02});
+ var productCore=new THREE.Mesh(new THREE.BoxGeometry(.88,.9,.72),productMat);productCore.position.set(0,1.08,0);productCore.castShadow=true;base.add(productCore);
+ var band=new THREE.Mesh(new THREE.BoxGeometry(.9,.14,.735),new THREE.MeshStandardMaterial({color:0x2fdc92,roughness:.4}));band.position.set(0,.88,0);base.add(band);
+ var productFace=document.createElement('canvas');productFace.width=512;productFace.height=320;var pctx=productFace.getContext('2d');
+ pctx.fillStyle='#f1eadb';pctx.fillRect(0,0,512,320);pctx.fillStyle='#176345';pctx.fillRect(0,0,512,22);pctx.font='600 27px Arial';pctx.fillText('BODE / SAMPLE 001',34,72);pctx.font='500 72px Georgia';pctx.fillText('PRODUCT',34,168);pctx.font='24px Arial';pctx.fillStyle='#52675a';pctx.fillText('A product built to stand out',34,226);pctx.fillStyle='#2fdc92';pctx.fillRect(34,260,444,8);
+ var productTex=new THREE.CanvasTexture(productFace);productTex.encoding=THREE.sRGBEncoding;
+ var productLabel=new THREE.Mesh(new THREE.PlaneGeometry(.78,.49),new THREE.MeshBasicMaterial({map:productTex,side:THREE.DoubleSide}));productLabel.position.set(0,1.08,.366);base.add(productLabel);
+ /* A clear branded panel on the front of the green parcel. */
+ var boxLabel=document.createElement('canvas');boxLabel.width=512;boxLabel.height=192;var bx=boxLabel.getContext('2d');
+ bx.fillStyle='#ece8df';bx.fillRect(0,0,512,192);bx.fillStyle='#176345';bx.font='600 30px Arial';bx.fillText('BODE CONVERSION LAB',28,58);bx.font='500 48px Georgia';bx.fillText('YOUR NEXT BESTSELLER',28,120);bx.fillStyle='#2b7855';bx.font='20px Arial';bx.fillText('PACKED WITH PURPOSE / 001',28,160);
+ var boxTex=new THREE.CanvasTexture(boxLabel);boxTex.encoding=THREE.sRGBEncoding;
+ var boxFront=new THREE.Mesh(new THREE.PlaneGeometry(1.48,.56),new THREE.MeshBasicMaterial({map:boxTex,side:THREE.DoubleSide}));boxFront.position.set(0,1.08,.865);base.add(boxFront);
+ var hinge=new THREE.Group();hinge.position.set(0,1.72,-.84);base.add(hinge);
  var lidMesh=new THREE.Mesh(new THREE.BoxGeometry(2.43,.16,1.78),carton);lidMesh.position.set(0,.05,.89);lidMesh.castShadow=true;lidMesh.receiveShadow=true;hinge.add(lidMesh);
- var lidTop=new THREE.Mesh(new THREE.PlaneGeometry(1.18,.62),new THREE.MeshBasicMaterial({map:labelTex,side:THREE.DoubleSide}));lidTop.rotation.x=-Math.PI/2;lidTop.position.set(0,.135,.9);hinge.add(lidTop);
+ var lidTop=new THREE.Mesh(new THREE.PlaneGeometry(1.32,.72),new THREE.MeshBasicMaterial({map:boxTex,side:THREE.DoubleSide}));lidTop.rotation.x=-Math.PI/2;lidTop.position.set(0,.135,.9);hinge.add(lidTop);
  var lip=new THREE.Mesh(new THREE.BoxGeometry(2.3,.12,.08),edge);lip.position.set(0,-.08,1.76);hinge.add(lip);
  base.position.y=.26;stage.add(base);product=base;lid=hinge;
  /* snapshot of the product for the UI cards */
@@ -444,8 +466,12 @@ function frame(now){
   if(++fc%90===0&&fa>30&&PR>1){PR=Math.max(1,PR-.25);ren.setPixelRatio(PR);size()}
 }
 requestAnimationFrame(frame);
+})();}
+var threeTimer=setTimeout(boot,4200);
+var threeScript=document.createElement("script");threeScript.src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";threeScript.async=true;
+threeScript.onload=function(){clearTimeout(threeTimer);boot()};threeScript.onerror=function(){clearTimeout(threeTimer);boot()};
+document.head.appendChild(threeScript);
 })();
-
 </script>
 </body>
 </html>
