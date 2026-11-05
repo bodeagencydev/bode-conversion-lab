@@ -1,5 +1,22 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "framework": null,
+  "buildCommand": "",
+  "installCommand": "",
+  "outputDirectory": ".",
+  "cleanUrls": true,
+  "redirects": [
+    {"source":"/contact","destination":"/#contact","permanent":false},
+    {"source":"/audit","destination":"/#contact","permanent":false},
+    {"source":"/past-projects","destination":"/#proof","permanent":false},
+    {"source":"/work","destination":"/#proof","permanent":false},
+    {"source":"/case-studies","destination":"/#proof","permanent":false},
+    {"source":"/pricing","destination":"/#contact","permanent":false},
+    {"source":"/services","destination":"/#services","permanent":false},
+    {"source":"/srs","destination":"/#recovery","permanent":false},
+    {"source":"/about","destination":"/#about","permanent":false},
+    {"source":"/privacy","destination":"/#privacy","permanent":false},
+    {"source":"/terms","destination":"/#terms","permanent":false},
+    {"source":"/blog","destination":"/","permanent":false}
+  ],
+  "headers": [{"source":"/(.*)","headers":[{"key":"X-Content-Type-Options","value":"nosniff"},{"key":"Referrer-Policy","value":"strict-origin-when-cross-origin"},{"key":"X-Frame-Options","value":"SAMEORIGIN"}]}]
 }
