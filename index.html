@@ -146,6 +146,14 @@ input:focus,textarea:focus{border-color:var(--acc)}input::placeholder,textarea::
 .sec.on .col h1,.sec.on .col h2,.sec.flow.on .col h2{clip-path:inset(0 0 0 0)}
 @media(prefers-reduced-motion:reduce){.pre-ring .track,.pre-name span,#sh .mouse b,.pre-words{animation:none}.sec .col h1,.sec .col h2{clip-path:none;transition:none}}
 
+
+/* Pin the services presentation as a chapter while the cards fan into view. */
+#services.sec.flow{height:150svh;position:relative}
+#services.sec.flow .stick{position:sticky;top:0;height:100svh;min-height:100svh;padding-top:8vh;padding-bottom:8vh;align-items:center}
+#services .service-visual:after{content:"BODE / YOUR PRODUCT";position:absolute;z-index:0;width:142px;height:84px;display:grid;place-items:center;border:1px solid rgba(47,220,146,.55);background:linear-gradient(145deg,#26352d,#101512);color:#b9d7c8;font-size:.58rem;letter-spacing:.16em;transform:translateY(12px) rotateX(58deg) rotateZ(-24deg);box-shadow:0 22px 34px rgba(0,0,0,.28)}
+#services .service-card{z-index:1}
+@media(max-width:760px){#services.sec.flow{height:160svh}#services.sec.flow .stick{padding-top:5vh;padding-bottom:5vh}}
+
 </style>
 </head>
 <body>
