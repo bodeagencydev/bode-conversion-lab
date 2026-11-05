@@ -157,31 +157,31 @@ input:focus,textarea:focus{border-color:var(--acc)}input::placeholder,textarea::
 @media(max-width:760px){#services.sec.flow{height:160svh}#services.sec.flow .stick{padding-top:5vh;padding-bottom:5vh}}
 
 
-#pre{gap:1.15rem;background:#080a09;isolation:isolate}
-#pre:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(47,220,146,.035),transparent 38%,rgba(47,220,146,.025))}
-.pre-mark{width:116px;height:116px;animation:markfloat 4s ease-in-out infinite}
+#pre{gap:1rem;background:radial-gradient(ellipse at 50% 38%,rgba(24,105,69,.2),transparent 44%),linear-gradient(145deg,#080b09 0%,#0b100d 52%,#080a09 100%);isolation:isolate;overflow:hidden}
+#pre:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 15%,rgba(47,220,146,.035) 50%,transparent 85%);mask-image:linear-gradient(180deg,transparent,#000 18%,#000 82%,transparent)}#pre:after{content:"";position:absolute;width:min(76vw,520px);aspect-ratio:1;border:1px solid rgba(47,220,146,.08);border-radius:50%;box-shadow:0 0 0 34px rgba(47,220,146,.018),0 0 0 68px rgba(47,220,146,.012);pointer-events:none}
+.pre-mark{width:126px;height:126px;display:grid;place-items:center;animation:markfloat 4s ease-in-out infinite;z-index:1}
 .pre-mark img{width:76px;height:76px;box-shadow:0 0 0 1px rgba(47,220,146,.08)}
-.pre-ring .track{stroke-dasharray:320;stroke-dashoffset:320;animation:ringload 3.2s cubic-bezier(.2,.7,.2,1) infinite}
+.pre-ring{inset:0;width:100%;height:100%;filter:drop-shadow(0 0 12px rgba(47,220,146,.2))}.pre-ring circle:first-child{stroke:rgba(236,232,223,.13)}.pre-ring .track{stroke:#2fdc92;stroke-dasharray:320;stroke-dashoffset:320;animation:ringload 3.2s cubic-bezier(.2,.7,.2,1) infinite}
 @keyframes ringload{0%{stroke-dashoffset:320;opacity:.35}75%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:-320;opacity:.25}}
 @keyframes markfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.pre-name{font-size:1.5rem;letter-spacing:.24em}
+.pre-name{font-size:1.55rem;letter-spacing:.3em;color:#f0eee8;text-shadow:0 4px 24px rgba(0,0,0,.4)}.pre-kicker{font:500 .58rem 'Hanken Grotesk',sans-serif;letter-spacing:.22em;color:rgba(236,232,223,.46);text-align:center}.pre-kicker span{color:#2fdc92;padding:0 .35rem}.pre-status{display:flex;align-items:center;gap:.55rem;color:rgba(236,232,223,.38);font:500 .53rem 'Hanken Grotesk',sans-serif;letter-spacing:.2em}.pre-status i{width:5px;height:5px;border-radius:50%;background:#2fdc92;box-shadow:0 0 10px rgba(47,220,146,.8);animation:statuspulse 1.2s ease-in-out infinite}@keyframes statuspulse{50%{opacity:.35;transform:scale(.7)}}
 .pre-words{height:1.35rem;line-height:1.35rem;animation:wordroll 9s cubic-bezier(.65,0,.35,1) infinite}
 .pre-words span{height:1.35rem;line-height:1.35rem;animation:wordglint 9s ease-in-out infinite}
 @keyframes wordglint{0%,18%,100%{opacity:.25;filter:blur(1px)}22%,38%{opacity:1;filter:blur(0)}}
 #pre u{width:150px;height:2px;background:rgba(236,232,223,.1);overflow:hidden}
 #pre u:after{content:"";display:block;width:38%;height:100%;background:var(--acc);animation:loadline 1.6s ease-in-out infinite}
 @keyframes loadline{0%{transform:translateX(-110%)}100%{transform:translateX(370%)}}
-#pre #pl{font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(236,232,223,.52)}
+#pre #pl{font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(236,232,223,.72)}
 #pre.ready #pl,#pre.ready u{display:block}
 #pre .ent{margin-top:.3rem}
-#pre .ent .btn{min-width:132px;min-height:48px}
+#pre .ent .btn{min-width:148px;min-height:50px;letter-spacing:.14em}#pre .ent{position:relative;z-index:2}#pre .pre-kicker,#pre .pre-status{position:relative;z-index:1}
 .lm img{object-fit:contain}#pre .pre-mark img{object-fit:contain;background:transparent;box-shadow:none}
 #snd,#pre-snd{white-space:nowrap;min-width:max-content;max-width:calc(100vw - 40px);overflow:visible}
 #snd{padding:7px 9px;background:rgba(8,10,9,.72);border-radius:3px}
 #pre .music-toggle .music-label{display:inline-block;min-width:5.2em;text-align:left}
-#pre .pre-mark img{width:78px;height:78px}
+#pre .pre-mark img{width:78px;height:78px;position:relative;z-index:1;object-fit:contain}
 .music-toggle{display:inline-flex;align-items:center;gap:.6rem;cursor:pointer}
-#pre .music-toggle{margin-top:1.3rem;background:transparent;border:0;color:rgba(236,232,223,.66);font:500 .65rem "Hanken Grotesk",sans-serif;letter-spacing:.15em;text-transform:uppercase;padding:.6rem}
+#pre .music-toggle{position:relative;z-index:2;margin-top:1rem;background:rgba(255,255,255,.035);border:1px solid rgba(236,232,223,.13);border-radius:999px;color:rgba(236,232,223,.76);font:600 .62rem "Hanken Grotesk",sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:.7rem 1rem;min-width:132px;justify-content:center;white-space:nowrap;flex-shrink:0}#pre .music-toggle:hover{border-color:rgba(47,220,146,.5);color:#f0eee8}
 .music-bars{height:16px;display:inline-flex;align-items:center;gap:2px}
 .music-bars i{display:block;width:2px;height:5px;background:currentColor;opacity:.75;transform-origin:center;transition:height .2s}
 .music-bars i:nth-child(2){height:11px}.music-bars i:nth-child(3){height:7px}.music-bars i:nth-child(4){height:13px}
@@ -203,14 +203,14 @@ input:focus,textarea:focus{border-color:var(--acc)}input::placeholder,textarea::
 <body>
 <canvas id="c"></canvas>
 
-<div id="pre"><div class="pre-mark"><svg class="pre-ring" viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="51"></circle><circle class="track" cx="56" cy="56" r="51"></circle></svg><img data-lg alt="Bode Conversion Lab logo" width="78" height="78"></div><div class="pre-name"><span>B</span><span>O</span><span>D</span><span>E</span></div><div class="pre-words" aria-live="off"><span>Ads</span><span>Pages</span><span>Checkout</span><span>Recovery</span></div><u></u><div id="pl">Preparing the experience</div><div class="ent"><button class="btn p" id="enter">Enter</button></div><button id="pre-snd" class="music-toggle" type="button" aria-label="Turn sound on" aria-pressed="false"><span class="music-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="music-label">Sound off</span></button></div>
+<div id="pre"><div class="pre-mark"><svg class="pre-ring" viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="51"></circle><circle class="track" cx="56" cy="56" r="51"></circle></svg><img data-lg alt="Bode Conversion Lab logo" width="78" height="78"></div><div class="pre-name"><span>B</span><span>O</span><span>D</span><span>E</span></div><div class="pre-words" aria-live="off"><span>Ads</span><span>Pages</span><span>Checkout</span><span>Recovery</span></div><u></u><div class="pre-kicker">BODE CONVERSION LAB <span> / </span> DIGITAL COMMERCE SYSTEMS</div><div id="pl">Preparing your experience</div><div class="pre-status"><i></i><span>INITIALISING THE STUDIO</span></div><div class="ent"><button class="btn p" id="enter">Enter</button></div><button id="pre-snd" class="music-toggle" type="button" aria-label="Turn sound on" aria-pressed="false"><span class="music-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="music-label">SOUND: OFF</span></button></div>
 <nav class="nav"><a class="logo" href="#top" aria-label="Bode Conversion Lab"><span class="lm"><img data-lg alt="Bode Conversion Lab logo" width="40" height="40"></span><span class="wordmark">Bode Conversion Lab</span></a>
 <div class="links"><a class="l" href="#services" data-g="7,7">Services</a><a class="l" href="#proof" data-g="6,6">Proof</a><a class="l" href="#diagnose" data-g="8,10">Method</a><a class="l" href="#about" data-g="11,11">About</a><a class="l" href="#contact" data-g="14,14">Contact</a><a class="btn p s" href="#contact" data-audit>Free audit</a></div>
 <button class="btn s menub" id="mb" aria-label="Menu">Menu</button></nav>
 <div class="menu" id="menu"><a href="#top">Home</a><a href="#services">Services</a><a href="#proof">Proof</a><a href="#diagnose">Method</a><a href="#about">About</a><a href="#contact" data-audit>Free audit</a><a href="#contact">Contact</a></div>
 <div class="rail" id="rail"></div>
 <div class="hudb"><b id="hn">01</b><span id="hl">Origin</span></div>
-<div id="pg"><i></i></div><button id="snd" class="ui music-toggle" type="button" aria-label="Turn sound on" aria-pressed="false"><span class="music-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="music-label">Sound off</span></button><div id="sh" class="ui"><span>SCROLL TO EXPLORE</span><i class="mouse"><b></b></i></div>
+<div id="pg"><i></i></div><button id="snd" class="ui music-toggle" type="button" aria-label="Turn sound on" aria-pressed="false"><span class="music-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="music-label">SOUND: OFF</span></button><div id="sh" class="ui"><span>SCROLL TO EXPLORE</span><i class="mouse"><b></b></i></div>
 
 <main id="m"><section class="sec" id="top" data-n="Origin"><div class="stick"><div class="col"><div class="lab">Bode Conversion Lab</div><h1>We engineer <em>ROAS.</em></h1><p class="t">For e-commerce stores that run ads. Ads, pages and checkout built as one connected system.</p><div class="stack"><a class="btn p" href="#contact" data-audit data-t>Free audit</a><a class="btn" href="#signal">Follow the journey</a></div></div></div></section>
 <section class="sec" id="signal" data-n="Signal"><div class="stick"><div class="col"><div class="lab">01 Signal</div><h2>Every sale is built before the <em>click.</em></h2><p class="t">It starts with a buyer who is ready to act.</p></div></div></section>
@@ -259,7 +259,7 @@ input:focus,textarea:focus{border-color:var(--acc)}input::placeholder,textarea::
 <script>
 (function(){
 var booted=false;function boot(){if(booted)return;booted=true;(function(){
-var LOGO_PRIMARY='https://i.postimg.cc/4dQJXYSc/logo.png',LOGO_FALLBACK='https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/2970.jpg_20261008071151.jpg';
+var LOGO_PRIMARY='/logo.png',LOGO_FALLBACK='/logo-mark.png';
 var CFG=window.__CFG||{thumbs:['https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/novigood.jpg','https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/robinroobaby.jpg','https://raw.githubusercontent.com/bodeagencydev/bode-conversion-lab/main/public/proof/thumbs/streamride.jpg']};
 CFG.logo=LOGO_PRIMARY;
 var SOC={ig:'https://www.instagram.com/bodeconversionlab/',li:'https://www.linkedin.com/in/ajibode-fiyinfoluwa-54146743b',up:'https://www.upwork.com/freelancers/~0196f7c832332b77c8',tg:'https://t.me/bodeconversionlab',mail:'mailto:bodeagencyofficial@gmail.com'};
@@ -298,7 +298,7 @@ function audioInit(){if(AC)return;var A=window.AudioContext||window.webkitAudioC
  var lf=AC.createOscillator();lf.frequency.value=.07;var lg=AC.createGain();lg.gain.value=120;lf.connect(lg);lg.connect(lp.frequency);lf.start();
  SND.tick=function(){if(!sound)return;var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=1500;g.gain.setValueAtTime(.0001,AC.currentTime);g.gain.exponentialRampToValueAtTime(.05,AC.currentTime+.01);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+.12);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.14)};
  SND.whoosh=function(){if(!sound)return;var n=AC.sampleRate*.7,b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);for(var i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);var s=AC.createBufferSource();s.buffer=b;var f=AC.createBiquadFilter();f.type='bandpass';f.Q.value=.8;f.frequency.setValueAtTime(300,AC.currentTime);f.frequency.exponentialRampToValueAtTime(2400,AC.currentTime+.6);var g=AC.createGain();g.gain.value=.12;s.connect(f);f.connect(g);g.connect(AC.destination);s.start()}}
-function setSound(on){sound=on;all('.music-toggle').forEach(function(b){var label=b.querySelector('.music-label');if(label)label.textContent=on?'Sound: On':'Sound: Off';b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',on?'Turn sound off':'Turn sound on');b.classList.toggle('playing',on)});if(AC&&SND.master){if(AC.state==='suspended')AC.resume();SND.master.gain.linearRampToValueAtTime(on?.16:0,AC.currentTime+.6)}}
+function setSound(on){sound=on;all('.music-toggle').forEach(function(b){var label=b.querySelector('.music-label');if(label)label.textContent=on?'SOUND: ON':'SOUND: OFF';b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',on?'Turn sound off':'Turn sound on');b.classList.toggle('playing',on)});if(AC&&SND.master){if(AC.state==='suspended')AC.resume();SND.master.gain.linearRampToValueAtTime(on?.16:0,AC.currentTime+.6)}}
 all('.music-toggle').forEach(function(b){b.addEventListener('click',function(){audioInit();setSound(!sound)})});
 
 /* 3D */
@@ -468,7 +468,7 @@ function frame(now){
 }
 requestAnimationFrame(frame);
 })();}
-var threeTimer=setTimeout(boot,4200);
+var threeTimer=setTimeout(function(){if(!window.THREE)boot()},10000);
 var threeScript=document.createElement("script");threeScript.src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";threeScript.async=true;
 threeScript.onload=function(){clearTimeout(threeTimer);boot()};threeScript.onerror=function(){clearTimeout(threeTimer);boot()};
 document.head.appendChild(threeScript);
