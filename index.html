@@ -372,7 +372,7 @@ function afterLoad(){
  var lip=new THREE.Mesh(new THREE.BoxGeometry(2.3,.12,.08),edge);lip.position.set(0,-.08,1.76);hinge.add(lip);
  base.position.y=.26;stage.add(base);product=base;lid=hinge;
  /* snapshot of the product for the UI cards */
- try{var W0=innerWidth,H0=innerHeight,cs=new THREE.PerspectiveCamera(26,1,.1,50);cs.position.set(3.4,2.35,4.4);cs.lookAt(0,1.05,0);ren.setPixelRatio(1);ren.setSize(900,900,false);scene.background=null;ren.setClearColor(0,0);var vis=[floorM,plinthG,swarm].map(function(o){var v=o.visible;o.visible=false;return v});ren.render(scene,cs);var url=ren.domElement.toDataURL('image/png');[floorM,plinthG,swarm].forEach(function(o,i){o.visible=vis[i]});scene.background=new THREE.Color(0x0b0c0c);ren.setPixelRatio(PR);size();snapImg=new Image();snapImg.onload=redraw;snapImg.src=url}catch(e){}
+ try{var W0=innerWidth,H0=innerHeight,cs=new THREE.PerspectiveCamera(26,1,.1,50);cs.position.set(3.4,2.35,4.4);cs.lookAt(0,1.05,0);ren.setPixelRatio(1);ren.setSize(900,900,false);scene.background=null;ren.setClearColor(0,0);var lidRot=lid.rotation.x;lid.rotation.x=-1.38;var vis=[floorM,plinthG,swarm].map(function(o){var v=o.visible;o.visible=false;return v});ren.render(scene,cs);var url=ren.domElement.toDataURL('image/png');lid.rotation.x=lidRot;[floorM,plinthG,swarm].forEach(function(o,i){o.visible=vis[i]});scene.background=new THREE.Color(0x0b0c0c);ren.setPixelRatio(PR);size();snapImg=new Image();snapImg.onload=redraw;snapImg.src=url}catch(e){}
  redraw();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(redraw);assetsReady=true;$('#pl').textContent='READY';$('#pre').classList.add('ready')}
 size=function(){var w=innerWidth,h=innerHeight;asp=w/h;ren.setSize(w,h,false);cam.aspect=asp;if(w>900)cam.setViewOffset(w,h,-w*.2,0,w,h);else cam.setViewOffset(w,h,0,h*.3,w,h)};size();addEventListener('resize',size);
 afterLoad();
@@ -424,7 +424,7 @@ function frame(now){
   if(!first){se=s;first=1}se+=(s-se)*(reduce?1:1-Math.exp(-dt/150));if(reduce)se=Math.round(s);
   var dh=document.documentElement.scrollHeight-innerHeight;$('#pg').firstChild.style.transform='scaleX('+(dh>0?cl(y/dh):0).toFixed(4)+')';
   if(y>30){var sh=$('#sh');if(sh&&sh.style.opacity!=='0')sh.style.opacity=0}
-  var on=(started&&i<NP&&q<.68)?i:-1;if(on!==onI){onI=on;secs.forEach(function(el,j){if(j<NP)el.classList.toggle('on',j===on)})}
+  var on=(started&&i<NP&&q<.96)?i:-1;if(on!==onI){onI=on;secs.forEach(function(el,j){if(j<NP)el.classList.toggle('on',j===on)})}
   if(i!==ci){ci=i;$('#hn').textContent=('0'+(i+1)).slice(-2);$('#hl').textContent=NAMES[i];rails.forEach(function(a,j){a.classList.toggle('on',j===i)});navl.forEach(function(a){var g=a.dataset.g.split(',');a.classList.toggle('on',i>=+g[0]&&i<=+g[1])});if(started&&SND.whoosh)SND.whoosh()}
   if(!ren||!assetsReady)return;
   if(y>L[NP].t+innerHeight*.25)return; /* flow sections cover the canvas */
